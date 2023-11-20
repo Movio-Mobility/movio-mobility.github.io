@@ -2,52 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.5">
-    <title>GridX Energy - Leasing Battery Packs for Two Wheelers</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&family=Space+Mono&display=swap">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Company Name - Landing Page</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap">
     <style>
         body {
-            font-family: 'Space Mono', monospace;
+            font-family: 'DM Sans', sans-serif;
             background-color: #1E1E2F;
             color: #98C082;
-            text-align: center;
-            margin: 50px;
+            margin: 0;
+            padding: 0;
         }
-        h1 {
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 500;
-            font-size: 2em;
-            color: #FFFFFF;
-            margin-bottom: 20px;
+        header {
+            text-align: center;
+            padding: 20px;
         }
         img {
-            max-width: 10%;
+            max-width: 50%;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+        }
+        .image-container {
+            text-align: center;
+        }
+        .image-container img {
+            width: 100%;
+            max-width: 100%;
             height: auto;
         }
-        video {
-            max-width: 40%;
-            height: 10;
-            margin-top: 30px;
-        }
-        .contact-info {
-            margin-top: 30px;
-        }
-        .contact-info p {
+        .contact-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #98C082;
+            color: #000000;
+            text-decoration: none;
             font-size: 1.2em;
-            margin: 10px 0;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <img src="logo.svg" alt="GridX Energy Logo">
-    <h1>Welcome to GridX Energy</h1>
-    <video autoplay loop muted>
-        <source src="background.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div class="contact-info">
-        <p>Contact Number: +91 9521738266</p>
-        <p>Email: info@gridxenergy.in</p>
+    <header>
+        <img src="logo.svg" alt="Company Logo">
+    </header>
+    <div class="image-container">
+        <img src="image1.png" alt="Image 1">
+        <img src="image2.png" alt="Image 2">
+        <img src="image3.png" alt="Image 3">
+        <img src="image4.png" alt="Image 4">
+        <img src="image5.png" alt="Image 5">
     </div>
+    <a href="https://forms.gle/iLifDAK5MpfiC4ox8" class="contact-button">Contact Us</a>
 </body>
 </html>
