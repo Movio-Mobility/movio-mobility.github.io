@@ -52,37 +52,11 @@
             width: 100%;
             max-width: 100%;
             display: block;
-            cursor: pointer;
-        }
-        
-       
-    }
-        
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background-color: #000000;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-        
-        .bottom-bar a {
-            display: block;
-            margin: 0;
-            padding: 0;
-        }
-
-        .bottom-bar img {
-            max-height: 50px;
         }
     </style>
 </head>
 <body>
-	<!-- Top Bar -->
+    <!-- Top Bar -->
     <div class="top-bar">
         <a href="https://gridxenergy.in" target="_blank">
             <img src="logo.svg" alt="Logo" class="logo">
@@ -90,53 +64,35 @@
         <nav>
             <ul>
                 <li><a href="https://gridxenergy.in">Home</a></li>
-                <li><a href="aboutus.html">About Us</a></li>
-                <li><a href="https://gridxenergy.in/contact-us">Contact Us</a></li>
+                <li><a href="https://gridxenergy.in/aboutus.html">About Us</a></li>
+                <li><a href="https://gridxenergy.in/contactus.html">Contact Us</a></li>
             </ul>
         </nav>
     </div>
 
-    <video onmouseover="playVideo(this)" onmouseout="pauseVideo(this)">
-        <source src="test.mp4" type="video/mp4">
+    <video autoplay loop>
+        <source src="resource1.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
-    <video onmouseover="playVideo(this)" onmouseout="pauseVideo(this)">
-        <source src="test1.mp4" type="video/mp4">
+    <video autoplay loop>
+        <source src="resource2.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
-    <video onmouseover="playVideo(this)" onmouseout="pauseVideo(this)">
-        <source src="test3.mp4" type="video/mp4">
+    <video autoplay loop>
+        <source src="resource3.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
-    <video onmouseover="playVideo(this)" onmouseout="pauseVideo(this)">
-        <source src="video4.mp4" type="video/mp4">
+    <video autoplay loop>
+        <source src="resource4.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
-    <video onmouseover="playVideo(this)" onmouseout="pauseVideo(this)">
-        <source src="video5.mp4" type="video/mp4">
+    <video autoplay loop>
+        <source src="resource5.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-
-    <script>
-        function playVideo(video) {
-            video.play();
-        }
-
-        function pauseVideo(video) {
-            video.pause();
-        }
-    </script>
-    
-    <!-- Bottom Bar -->
-    <div class="bottom-bar">
-        <a href="https://www.linkedin.com/company/gridxenergy/" target="_blank"><img src="linkedinlogo.png" alt="Logo 1"></a>
-        <a href="https://x.com/wearegridX?t=ZKuloV5ygHY3tdMcglUl9Q&s=08" target="_blank"><img src="twitterlogo.png" alt="Logo 2"></a>
-        <a href="https://www.instagram.com/gridxenergy/" target="_blank"><img src="instalogo.png" alt="Logo 3"></a>
-    </div>
-
 </body>
 </html>
