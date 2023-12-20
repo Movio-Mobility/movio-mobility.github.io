@@ -7,6 +7,7 @@
   <title>Contact Us | GridXenergy</title>
   <link rel="icon" type="image/x-icon" href="logo.svg">
   <link rel="stylesheet" href="styles.css"> <!-- Link to an external stylesheet -->
+  <link rel="stylesheet" href="bootstrap.min.css">
 
   <!-- Font Awesome for the home, about us, and contact us icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -62,7 +63,7 @@
 
     .overlay-text {
       position: fixed;
-      top: 50%;
+      top: 35%;
       left: 50%;
       transform: translateX(-50%) translateY(-50%);
       font-family: 'DM Sans', sans-serif;
@@ -74,7 +75,7 @@
 
     .additional-text {
       position: fixed;
-      top: 60%;
+      top: 50%;
       left: 50%;
       transform: translateX(-50%);
       font-family: 'DM Sans', sans-serif;
@@ -153,13 +154,18 @@
 
   <!-- Additional Text -->
   <div class="additional-text" onclick="openMailClient()">
-    <br> mail us at info@gridxenergy.in </br>
-    <br> call us at +91 9521738266 </br>
-    <br> 497, Phase V, Udyog Vihar, Sector 19, Gurugram, Haryana (122008) </br>
+    <p> mail us at info@gridxenergy.in </p>
+    <p> call us at +91 9521738266 </p>
+    <p> 497, Phase V, Udyog Vihar, Sector 19, Gurugram, Haryana (122008) </p>
   </div>
+  <button class="privacy-button my-4" onclick="openPrivacyPolicy()">Privacy Policy</button>
 
+	<br> </br>
+	<br>
+	<br> </br>
+	<br>
+	<br> </br>
   <!-- Privacy Policy Button -->
-  <button class="privacy-button" onclick="openPrivacyPolicy()">Privacy Policy</button>
 
   <!-- Bottom Bar -->
   <div class="bottom-bar">
