@@ -1,91 +1,540 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GridXenergy</title>
-<link rel="icon" type="image/x-icon" href="logo.svg">
-<link rel="stylesheet" href="styles.css">
-<link href='https://fonts.googleapis.com/css?family=Space Mono' rel='stylesheet'>
-<link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+	<title>GridXenergy</title>
+	<link rel="icon" type="image/x-icon" href="logo.svg">
+	<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+		rel="stylesheet">
 
-
-<!-- Font Awesome for the home, about us, and contact us icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<style>
-/* Your existing styles... */
-
-.top-bar a {
-text-decoration: none;
-color: white;
-font-weight: 400;
-background-color: rgba(0, 0, 0, 0.5)
-}
-
-h1 {
-font-size: 36px;
-margin-bottom: 20px;
-font-weight: 100;
-font-family: 'Space Mono', sans-serif;
-
-}
-
-h2 {
-font-size: 30px;
-font-weight: 100;
-font-family: 'DM Sans', sans-serif;
-}
-
-h3 {
-font-size: 20px;
-font-weight: 100;
-font-family: 'Space Mono', sans-serif;
-}
-</style>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+		rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
 </head>
 
-<body>
-<!-- Top Bar -->
-<div class="top-bar">
-<a href="https://gridxenergy.in" target="_blank">
-<img src="gridxlogowhite.png" alt="Logo" class="logo">
-</a>
-<nav>
-<ul>
-<li><a href="https://gridxenergy.in"><h3>Home</h3></a></li>
-<li><a href="aboutus.html"><h3>About</h3></a></li>
-<li><a href="products.html"><h3>Products</h3></a></li>
-<li><a href="contactus.html"><h3>Contact</h3></a></li>
-</ul>
-</nav>
-</div>
+<body style="background-color: #1d1d1d; font-family: 'Space Mono', monospace;" class="text-center text-white">
+	<section class="hero-section rounded-2xl overflow-hidden relative">
 
-<!-- Video Background -->
-<video autoplay loop muted>
-<source src="test.mp4" type="video/mp4">
-Your browser does not support the video tag.
-</video>
+		<!-- 	Navbar -->
+		<nav class="flex flex-wrap justify-between w-full px-16 mt-10">
+			<div>
+				<a href="/">
 
-<div class="overlay-text">
-<h1>reliable. affordable. flexible. </h1>
-</div>
+					<img src="./Website Resources/All logos and Design Guidelines/GridX - Logo Repository V1 (2)/Logo Files/RGB (Digital Use)/Logo/GridX_logo_white@512px.png"
+						alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto" style="height: 40px; width: auto;" />
+				</a>
+			</div>
+			<svg xmlns="http://www.w3.org/2000/svg" id="menu-button" class="h-12 w-12 cursor-pointer lg:hidden block"
+				fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+			</svg>
+			<div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+				<ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
+					<li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
+							href="./product.html">Products</a>
+					</li>
+					<li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
+							href="./aboutus.html">About Us</a>
+					</li>
+					<li class="mx-2 pt-3 block px-10 text-black"
+						style="background-color: rgb(152, 192, 130); border-radius: 600px">
+						<a style="display: block;width: 100%;height: 100%;" href="./contactus.html">Contact Us</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
 
-<!-- Additional Text -->
 
-<!-- Bottom Bar -->
-<div class="bottom-bar">
-<a href="https://www.linkedin.com/company/gridxenergy/" target="_blank"><img src="linkedinlogo.png" alt="Logo 1"></a>
-<a href="https://x.com/wearegridX?t=ZKuloV5ygHY3tdMcglUl9Q&s=08" target="_blank"><img src="twitterlogo.png"
-alt="Logo 2"></a>
-<a href="https://www.instagram.com/gridxenergy/" target="_blank"><img src="instalogo.png" alt="Logo 3"></a>
-</div>
+		<div class="relative flex flex-col justify-center text-center" style="height: 80%;">
+			<div class="text-md lg:text-lg font-bold"
+				style="color: rgb(152, 192, 130); font-family: 'DM Sans', monospace;">Reliable. Affordable. Flexible.
+			</div>
+			<h2 class="header text-white font-bold">The Last Battery You Will Ever Need</h2>
+			<div class="mx-auto text-gray-400 text-md lg:text-lg font-bolder max-w-screen-lg"
+				style="font-family: 'DM Sans', monospace;">
+				India’s first Energy-as-a-Service Platform that focuses on personal mobility and storage
+			</div>
+			<div class="mt-16">
+				<a href="./product.html" class="bg-white px-10 py-3 rounded-3xl text-xl font-bold text-black">Learn
+					More</a>
+			</div>
+			<div class="absolute text-center" style="left: 50%; bottom: 0px;">
+				<img src="./assets/mouse.svg" style="width: 36px; height: 36px; margin: 0px auto;" />
+				<p class="mt-2">Scroll</p>
+			</div>
+		</div>
+		<img class=" absolute w-full h-full top-0 left-0 opacity-50 " style="z-index: -1;"
+			src="./Website Resources/SwapNest.png" />
+		<!-- <video autoplay muted class="absolute w-full h-full top-0 left-0 opacity-50">
+			<source src="./Website Resources/Homepage Video/test.mp4" />
+		</video> -->
+	</section>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<section class="flex flex-col xl:flex-row justify-start mx-auto lg:px-24 px-5 my-10"
+		style="min-height: 50vh; margin: 5vh auto;">
+		<div class="text-left flex flex-col justify-center my-10" style="flex-grow: 1;">
+			<div>
+				<h2 class="text-white font-bold text-5xl">Forging the path towards the future of two-wheelers by
+					eradicating
+					EV restrictions.
+				</h2>
+				<p class="text-md lg:text-lg text-gray-400 mb-10" style="font-family: 'DM Sans', monospace;">
+					No High Upfront cost <br>
+					No Range Anxiety <br>
+					No Lack of Charging Infrastructure <br>
+					Zero Charging Downtime <br>
+					Zero Battery Replacement Cost <br>
 
-<script>
-function openMailClient() {
-window.location.href = "mailto:info@gridxenergy.in";
-}
-</script>
+				</p>
+				<a href="products.html" class="text-md lg:text-lg font-bold flex flex-row justify-start gap-2"
+					style="color: rgb(152, 192, 130);">
+					<span>Our Products</span>
+					<img src="./assets/arrow-right.svg" alt="Right Arrow" />
+				</a>
+			</div>
+		</div>
+		<div class="flex flex-col justify-center my-10" style="flex-grow: 2">
+			<img src="./Website Resources/SwapNest.png" alt="Vehicle Charging" class="object-cover rounded-xl" />
+		</div>
+	</section>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<section style="margin: 5vh auto;">
+		<h2 class="text-white font-bold">Unlock the 2-wheeler riding freedom with</h2>
+		<p class="text-gray-400 mx-auto text-md lg:text-lg max-w-screen-md px-10"
+			style="font-family: 'DM Sans', monospace;">
+		</p>
+		<div class="flex lg:flex-row flex-col justify-between mt-20 lg:gap-20 gap-10 mx-auto"
+			style="max-width: 1920px; padding: 0px 30px;">
+			<div class="card flex-1">
+				<img src="./assets/bluetooth.svg" alt="Bluetooth" class="mx-auto w-12" />
+				<h3 class="mt-6 text-white text-md lg:text-lg font-bold ">Vehicle Smartification</h3>
+				<p class="px-2 text-xl text-gray-400" style="font-family: 'DM Sans', monospace;">
+					Smart Application, Integrated Maps, Payments through Wallet
+				</p>
+			</div>
+			<div class="card flex-1">
+				<img src="evcoins.png" alt="Bluetooth" class="mx-auto w-12" />
+				<h3 class="mt-6 text-white text-md lg:text-lg font-bold ">Lowest Running Cost</h3>
+				<p class="px-2 text-xl text-gray-400" style="font-family: 'DM Sans', monospace;">
+					₹0.5/Km to ₹1.5/Km, depending on the usage
+				</p>
+			</div>
+			<div class="card flex-1">
+				<img src="evcharge.png" alt="Bluetooth" class="mx-auto w-12" />
+				<h3 class="mt-6 text-white text-md lg:text-lg font-bold ">Multiple Refueling Options</h3>
+				<p class="px-2 text-xl text-gray-400" style="font-family: 'DM Sans', monospace;">
+					Charge at home, Swap on the fly: Gridx PowerPod sets the new standard in battery innovation
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+
+	<section style="margin: 5vh auto;">
+		<h2 class="text-white font-bold ">Calculate Your Savings</h2>
+		<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md" style="font-family: 'DM Sans', monospace;">
+			Still spending more on ICE for high performance?
+			<br>
+			Check how low running cost meets the high performance with GridX PowerPod.
+		</p>
+		<div class="flex flex-col lg:flex-row gap-12 justify-center mx-12 md:px-24 mt-24">
+			<div style="flex-grow: 1;">
+				<div class="flex flex-col text-left gap-10 justify-center h-full">
+					<div>
+						<h3 class="text-gray-400 text-xl mb-5">Select Your Type of Vehicle</h3>
+						<div id='speed'
+							class=" flex flex-row border border-gray-500 rounded-xl p-3 gap-3 text-center justify-evenly"
+							style="max-width: 750px">
+							<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+								<h4 class="text-lg font-bold text-white" style="font-family: 'DM Sans', monospace;">Low
+									Speed</h4>
+								<p class="text-lg" style="font-family: 'DM Sans', monospace">(Up to 25 Km/h)</p>
+							</button>
+							<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+								<h4 class="text-lg font-bold text-white" style="font-family: 'DM Sans', monospace;">
+									Medium Speed</h4>
+								<p class="text-lg" style="font-family: 'DM Sans', monospace">(Up to 45 Km/h)</p>
+							</button>
+							<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+								<h4 class="text-lg font-bold text-white" style="font-family: 'DM Sans', monospace;">High
+									Speed</h4>
+								<p class="text-lg" style="font-family: 'DM Sans', monospace">(Up to 80 Km/h)</p>
+							</button>
+						</div>
+					</div>
+					<div style="max-width: 750px;">
+						<h3 class="text-gray-400 text-xl mb-5">Distance Travelled Everyday</h4>
+							<form>
+								<input id="seek" type="range" min="10" max="120" class="w-full" />
+							</form>
+							<div class="flex flex-row justify-between text-white text-lg"
+								style="font-family: 'DM Sans', monospace;">
+								<div>10 Km</div>
+								<div>120 Km</div>
+							</div>
+					</div>
+					<div class="text-xl font-bold" style="font-family: 'DM Sans', monospace;">
+						<span style="color: rgb(152, 192, 130);">30%</span> increase in savings with GridX
+					</div>
+				</div>
+			</div>
+			<div style="flex-grow: 1; min-width: 500px;">
+				<div class="savings-graph">
+					<h3 class="text-md lg:text-lg mb-10" style="font-family: 'DM Sans', monospace;">Average Monthly
+						Running Cost</h3>
+					<div class="flex flex-row justify-evenly h-full">
+						<div class="flex flex-col justify-end gap-12">
+							<div class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
+								style="height: 30vh; background: linear-gradient(#92B97D, #59714C); font-family: 'DM Sans', monospace;">
+								₹ <span id="gridx-cost">300</span></div>
+							<img src="./Website Resources/All logos and Design Guidelines/GridX - Logo Repository V1 (2)/Logo Files/RGB (Digital Use)/Logo/GridX_logo_white@512px.png"
+								style="height: 20px">
+						</div>
+						<div class="flex flex-col justify-end gap-8">
+							<div class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
+								style="height: 40vh; background: linear-gradient(#E14444, #6F2222); font-family: 'DM Sans', monospace;">
+								₹ <span id="local-cost">400</span></div>
+							<div style="height: 30px; font-family: 'DM Sans', monospace; font-size: 1.7rem"
+								class="font-bold">I.C.E. Vehicle</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section>
+
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+
+
+		<h2 class="font-bold mb-10">Our Technologies</h2>
+		<div class="flex flex-col gap-10 px-10">
+			<div class="flex flex-col lg:flex-row gap-10">
+				<div class="product-card" style="flex-grow: 2;">
+					<img src="./Website Resources/Product PNGs/battery without background.png" alt="battery" />
+					<h3 class="text-left font-bold text-3xl px-10" style="color: #1d1d1d">GRIDX Power Pod Gen-1</h3>
+				</div>
+				<div class="product-card" style="flex-grow: 1;">
+					<img src="./Website Resources/Product PNGs/post_cropped.png" alt="nest" />
+					<h3 class="text-left font-bold text-3xl px-10" style="color: #1d1d1d">GRIDX Swap Nest</h3>
+				</div>
+			</div>
+			<div class="flex flex-col lg:flex-row gap-10">
+				<div class="product-card" style="flex-grow: 1;">
+					<img src="./Website Resources/Product PNGs/duck conn.png" alt="Duck Connection">
+					<h3 class="text-left font-bold text-3xl px-10" style="color: #1d1d1d">GRIDX Dock</h3>
+				</div>
+				<div class="product-card" style="flex-grow: 2;">
+					<img src="./Website Resources/Product PNGs/charg_cropped.png" alt="Charger">
+					<h3 class="text-left font-bold text-3xl px-10" style="color: #1d1d1d">GRIDX Home Charger</h3>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+
+	<section style="margin: 5vh auto;">
+		<h2 class="font-bold">Our Team</h2>
+		<p class="text-md lg:text-lg text-gray-400 mx-auto mb-12 max-w-screen-md"
+			style="font-family: 'DM Sans', monospace;"></p>
+		<a href="aboutus.html" class="px-4 py-2 text-md lg:text-lg bg-white rounded-3xl text-black font-bold">About
+			Us</a>
+		<div
+			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 justify-evenly gap-10 text-left mt-20 px-10 flex-wrap">
+			<div class="team-card">
+				<img src="./Website Resources/Founders/shivanshu.jpeg" class="w-full object-cover"
+					style="height: 700px" />
+				<div class="px-10 py-4">
+					<h3 class="text-md lg:text-lg font-bold ">Shivanshu Mahim</h3>
+					<p class="text-md lg:text-lg" style="font-family: 'DM Sans', monospace;">CEO & Co-Founder</p>
+				</div>
+			</div>
+			<div class="team-card">
+				<img src="./Website Resources/Founders/hriteek.jpeg" class="w-full object-cover"
+					style="height: 700px" />
+				<div class="px-10 py-4">
+					<h3 class="text-md lg:text-lg font-bold ">Hriteek Agarwal</h3>
+					<p class="text-md lg:text-lg" style="font-family: 'DM Sans', monospace;">COO & Co-Founder</p>
+				</div>
+			</div>
+			<div class="team-card">
+				<img src="./Website Resources/Founders/vishy.jpeg" class="w-full object-cover" style="height: 700px" />
+				<div class="px-10 py-4">
+					<h3 class="text-md lg:text-lg font-bold ">Vishrut Vatsa</h3>
+					<p class="text-md lg:text-lg" style="font-family: 'DM Sans', monospace;">CTO & Co-Founder</p>
+				</div>
+			</div>
+			<div class="team-card">
+				<img src="./Website Resources/Founders/paridhi.jpeg" class="w-full object-cover"
+					style="height: 700px" />
+				<div class="px-10 py-4">
+					<h3 class="text-md lg:text-lg font-bold ">Paridhi Sinha</h3>
+					<p class="text-md lg:text-lg" style="font-family: 'DM Sans', monospace;">CFO & Founding Member</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+
+
+	<footer class="p-8 text-slate-500 bg-black">
+		<section class="">
+
+
+
+			<div class="mx-auto w-full p-4 py-6 ">
+				<div class="md:flex md:justify-between">
+
+
+					<div class="mb-6 md:mb-0">
+						<div><a href="https://flowbite.com/" class="flex items-center">
+								<img src="./Website Resources/All logos and Design Guidelines/GridX - Logo Repository V1 (2)/Logo Files/RGB (Digital Use)/Logo/GridX_logo_white@512px.png"
+									alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto" style="height: 25px; width: auto;" />
+							</a></div>
+
+						<span class="inline-flex">
+							<i class="fa fa-map-marker mt-6 py-1 mx-2"></i>
+							<p
+								class="max-w-md mx-auto mt-6 leading-relaxed text-center text-gray-400 sm:max-w-xs sm:mx-0 sm:text-left">
+								497, Phase V, Udyog Vihar, Sector 19.
+								<br>
+								Gurugram, Haryana.
+							</p>
+						</span>
+
+					</div>
+
+
+
+
+
+					<div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
+						<div>
+							<h2 class="mb-6 text-sm font-semibold uppercase dark:text-white">Navigate</h2>
+							<ul class="text-gray-500 dark:text-gray-400 font-medium text-left">
+								<li class="mb-4">
+									<a href="https://gridxenergy.in/" class="hover:underline">Home</a>
+								</li>
+								<li class="mb-4">
+									<a href="product.html" class="hover:underline">Products</a>
+								</li>
+								<li class="mb-4">
+									<a href="aboutus.html" class="hover:underline">About Us</a>
+								</li>
+								<li class="mb-4">
+									<a href="contactus.html" class="hover:underline">Contact Us</a>
+								</li>
+							</ul>
+						</div>
+						<div>
+							<h2 class="mb-6 text-sm font-semibold uppercase dark:text-white">Follow us</h2>
+							<ul class="text-gray-500 dark:text-gray-400 font-medium text-left">
+								<li class="mb-4">
+									<a href="https://twitter.com/wearegridX?t=ZKuloV5ygHY3tdMcglUl9Q&s=08"
+										class="hover:underline inline-flex">
+										<svg class="w-5 h-5 mx-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+											fill="currentColor" viewBox="0 0 20 17">
+											<path fill-rule="evenodd"
+												d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235 8.344 8.344 0 0 1-2.605.98A4.13 4.13 0 0 0 13.85 0a4.068 4.068 0 0 0-4.1 4.038 4 4 0 0 0 .105.919A11.705 11.705 0 0 1 1.4.734a4.006 4.006 0 0 0 1.268 5.392 4.165 4.165 0 0 1-1.859-.5v.05A4.057 4.057 0 0 0 4.1 9.635a4.19 4.19 0 0 1-1.856.07 4.108 4.108 0 0 0 3.831 2.807A8.36 8.36 0 0 1 0 14.184 11.732 11.732 0 0 0 6.291 16 11.502 11.502 0 0 0 17.964 4.5c0-.177 0-.35-.012-.523A8.143 8.143 0 0 0 20 1.892Z"
+												clip-rule="evenodd" . />
+										</svg>
+										<span>
+											X.Com(Twitter)
+										</span>
+									</a>
+								</li>
+								<li class="mb-4">
+									<a href="https://www.linkedin.com/company/gridxenergy/"
+										class="hover:underline inline-flex"><svg xmlns="http://www.w3.org/2000/svg"
+											class="h-5 w-5 mx-3" fill="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+										</svg>LinkedIn</a>
+								</li>
+								<li class="mb-4">
+									<a href="https://www.instagram.com/gridxenergy/"
+										class="hover:underline inline-flex ">
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3" fill="currentColor"
+											viewBox="0 0 24 24">
+											<path
+												d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+										</svg>
+										Instagram</a>
+								</li>
+								<li>
+									<a href="youtube.com" class="hover:underline inline-flex">
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3 "
+											fill="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+										</svg>
+										Youtube</a>
+								</li>
+							</ul>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+
+
+
+		</section>
+		<hr>
+		<h6 class="py-6 text-left"> © Copyright 2024 GridX Energy Private Limited, <a
+				href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a> ,<a
+				href="https://gridxenergy.in/privacy_policy.html">Terms & Conditions</a></h6>
+	</footer>
+	<script src="myscripts.js"></script>
+	<script src="seek.js"></script>
+
 </body>
+
+
+<style>
+	.hero-section {
+		margin: 50px auto;
+		width: calc(100vw - 100px);
+		height: calc(100vh - 100px);
+	}
+
+	.hero-section>video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: -1;
+	}
+
+	.card {
+		/* width: 500px; */
+		min-width: 300px;
+		padding: 4rem 10px;
+		background: linear-gradient(90deg, #1f1f1f, #1a1a1a);
+		border-radius: 10px;
+		position: relative;
+	}
+
+	.card::before {
+		content: ' ';
+		position: absolute;
+		width: calc(100% + 2px);
+		height: calc(100% + 2px);
+		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
+		left: -1px;
+		top: -1px;
+		z-index: -1;
+		border-radius: 10px;
+	}
+
+	.team-card {
+		border-radius: 20px;
+		position: relative;
+		background-color: #1d1d1d;
+		padding-bottom: 20px;
+	}
+
+	.team-card>img {
+		border-radius: 20px;
+		max-width: 500px;
+	}
+
+	.team-card::after {
+		content: ' ';
+		position: absolute;
+		height: calc(100% + 4px);
+		width: calc(100% + 4px);
+		top: -2px;
+		left: -2px;
+		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
+		z-index: -1;
+		border-radius: 20px;
+	}
+
+	.product-card {
+		height: 600px;
+		background: linear-gradient(90deg, #ccc, #999);
+		position: relative;
+		border-radius: 10px;
+		overflow: hidden;
+	}
+
+	.product-card>img {
+		margin: 0px auto;
+		height: 85%;
+		object-fit: cover;
+	}
+
+	.savings-graph {
+		position: relative;
+		background: #1d1d1d;
+		padding: 30px 0px;
+		border-radius: 10px;
+	}
+
+	.savings-graph::before {
+		border-radius: 10px;
+		content: ' ';
+		z-index: -1;
+		position: absolute;
+		width: calc(100% + 4px);
+		height: calc(100% + 4px);
+		top: -2px;
+		left: -2px;
+		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
+	}
+
+	h2 {
+		font-size: 3rem;
+	}
+
+	@media screen and (max-width: 68) {
+		h2 {
+			font-size: 2rem;
+		}
+	}
+</style>
 
 </html>
