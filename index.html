@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>GridXenergy</title>
+	<title>GridX</title>
 	<link rel="icon" type="image/x-icon" href="logo.svg">
 	<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -27,7 +27,7 @@
 		<!-- 	Navbar -->
 		<nav class="flex flex-wrap justify-between w-full px-16 mt-10">
 			<div>
-				<a href="/">
+				<a href="./">
 
 					<img src="./Website Resources/All logos and Design Guidelines/GridX - Logo Repository V1 (2)/Logo Files/RGB (Digital Use)/Logo/GridX_logo_white@512px.png"
 						alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto" style="height: 40px; width: auto;" />
@@ -72,11 +72,13 @@
 				<p class="mt-2">Scroll</p>
 			</div>
 		</div>
-		<img class=" absolute w-full h-full top-0 left-0 opacity-50 " style="z-index: -1;"
+		<!-- 
+<img class=" absolute w-full h-full top-0 left-0 opacity-50 " style="z-index: -1;"
 			src="./Website Resources/SwapNest.png" />
-		<!-- <video autoplay muted class="absolute w-full h-full top-0 left-0 opacity-50">
-			<source src="./Website Resources/Homepage Video/test.mp4" />
-		</video> -->
+ -->
+		<video autoplay muted class="absolute w-full h-full top-0 left-0 opacity-50">
+			<source src="SwapSystem.mp4" />
+		</video>
 	</section>
 	<br>
 	<br>
@@ -208,16 +210,16 @@
 					<h3 class="text-md lg:text-lg mb-10" style="font-family: 'DM Sans', monospace;">Average Monthly
 						Running Cost</h3>
 					<div class="flex flex-row justify-evenly h-full">
-						<div class="flex flex-col justify-end gap-12">
-							<div class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
-								style="height: 30vh; background: linear-gradient(#92B97D, #59714C); font-family: 'DM Sans', monospace;">
+						<div class="flex flex-col justify-end gap-12" style="min-height: 50vh;">
+							<div id = "gridbar"class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
+								style="background: linear-gradient(#92B97D, #59714C); font-family: 'DM Sans', monospace;min-width: 50%;">
 								₹ <span id="gridx-cost">300</span></div>
 							<img src="./Website Resources/All logos and Design Guidelines/GridX - Logo Repository V1 (2)/Logo Files/RGB (Digital Use)/Logo/GridX_logo_white@512px.png"
 								style="height: 20px">
 						</div>
 						<div class="flex flex-col justify-end gap-8">
-							<div class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
-								style="height: 40vh; background: linear-gradient(#E14444, #6F2222); font-family: 'DM Sans', monospace;">
+							<div id = "IECbar"class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
+								style="height: 40vh; background: linear-gradient(#E14444, #6F2222); font-family: 'DM Sans', monospace;min-width: 50%;">
 								₹ <span id="local-cost">400</span></div>
 							<div style="height: 30px; font-family: 'DM Sans', monospace; font-size: 1.7rem"
 								class="font-bold">I.C.E. Vehicle</div>
