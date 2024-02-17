@@ -15,15 +15,19 @@ var local_cost = $('#local-cost')[0];
 
 var speedchange = function (x) {
     speed = parseInt(x.target.value);
-    var max = 6624;
+    var max = 7920;
     var gridbar = Math.floor((30 * speed * distance * 35) / 1000);
     var IECbar = Math.floor((2.2 * distance * 30));
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
+    console.log("x");
 
-    $("#gridbar").height($("#gridbar").parent().height()*(gridbar/max));
-    $("#IECbar").height($("#gridbar").parent().height()*(IECbar/max));
+
+    $('#saving')[0].innerHTML = 100 - Math.floor((gridbar * 100) / IECbar);
+    $('#distance')[0].innerHTML = distance;
+    $("#gridbar").height($("#gridbar").parent().height() * (gridbar / max));
+    $("#IECbar").height($("#gridbar").parent().height() * (IECbar / max));
 }
 
 var seekchange = function (x) {
@@ -35,26 +39,32 @@ var seekchange = function (x) {
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
+    console.log("x");
 
-    $("#gridbar").height($("#gridbar").parent().height()*(gridbar/max));
-    $("#IECbar").height($("#gridbar").parent().height()*(IECbar/max));
+    $("#gridbar").height($("#gridbar").parent().height() * (gridbar / max));
+    $("#IECbar").height($("#gridbar").parent().height() * (IECbar / max));
+    $('#saving')[0].innerHTML = 100 - Math.floor((gridbar * 100) / IECbar);
+    $('#distance')[0].innerHTML = distance;
 
 }
 
-var gridxbarfrac = 
-$(document).ready(function() {
-    var max = 6624;
-    var gridbar = Math.floor((30 * speed * distance * 35) / 1000);
-    var IECbar = Math.floor((2.2 * distance * 30));
+var gridxbarfrac =
+    $(document).ready(function () {
+        var max = 7920;
+        var gridbar = Math.floor((30 * speed * distance * 35) / 1000);
+        var IECbar = Math.floor((2.2 * distance * 30));
 
-    gridx_cost.innerHTML = gridbar;
-    local_cost.innerHTML = IECbar;
+        gridx_cost.innerHTML = gridbar;
+        local_cost.innerHTML = IECbar;
 
-    $("#gridbar").height($("#gridbar").parent().height()*(gridbar/max));
-    $("#IECbar").height($("#gridbar").parent().height()*(IECbar/max));
-  });
+        $("#gridbar").height($("#gridbar").parent().height() * (gridbar / max));
+        $("#IECbar").height($("#gridbar").parent().height() * (IECbar / max));
+        $('#saving')[0].innerHTML = 100 - Math.floor((gridbar * 100) / IECbar);
+        $('#distance')[0].innerHTML = distance;
+
+    });
 
 
 $('#seek')[0].onchange = seekchange;
-$('button.speed-card').click(speedchange)
+$('button.speed-card').click(speedchange);
 
