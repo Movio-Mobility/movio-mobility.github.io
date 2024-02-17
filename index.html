@@ -190,7 +190,7 @@
 						</div>
 					</div>
 					<div style="max-width: 750px;">
-						<h3 class="text-gray-400 text-xl mb-5">Distance Travelled Everyday</h4>
+						<h3 class="text-gray-400 text-xl mb-5">Distance Travelled Everyday : <span id="distance"></span></h4>
 							<form>
 								<input id="seek" type="range" min="10" max="120" class="w-full" />
 							</form>
@@ -201,7 +201,7 @@
 							</div>
 					</div>
 					<div class="text-xl font-bold" style="font-family: 'DM Sans', monospace;">
-						<span style="color: rgb(152, 192, 130);">30% to 50%</span> increase in savings with GridX
+						<span style="color: rgb(152, 192, 130);" id="saving">30% to 50%</span><span style="color: rgb(152, 192, 130);" > %</span> increase in savings with GridX
 					</div>
 				</div>
 			</div>
@@ -209,7 +209,7 @@
 				<div class="savings-graph">
 					<h3 class="text-md lg:text-lg mb-10" style="font-family: 'DM Sans', monospace;">Average Monthly
 						Running Cost</h3>
-					<div class="flex flex-row justify-evenly h-full">
+					<div class="flex flex-row justify-evenly h-full" style="height: 70vh;">
 						<div class="flex flex-col justify-end gap-12" style="min-height: 50vh;">
 							<div id = "gridbar"class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
 								style="background: linear-gradient(#92B97D, #59714C); font-family: 'DM Sans', monospace;min-width: 50%;">
