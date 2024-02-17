@@ -17,7 +17,7 @@ var speedchange = function (x) {
     speed = parseInt(x.target.value);
     var max = 6624;
     var gridbar = Math.floor((30 * speed * distance * 35) / 1000);
-    var IECbar = Math.floor(gridbar*1.3);
+    var IECbar = Math.floor((2.2 * distance * 30));
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
@@ -29,9 +29,9 @@ var speedchange = function (x) {
 var seekchange = function (x) {
     distance = parseInt(x.target.value);
 
-    var max = 6624;
+    var max = 7920;
     var gridbar = Math.floor((30 * speed * distance * 35) / 1000);
-    var IECbar = Math.floor(gridbar*1.3);
+    var IECbar = Math.floor((2.2 * distance * 30));
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
@@ -45,7 +45,7 @@ var gridxbarfrac =
 $(document).ready(function() {
     var max = 6624;
     var gridbar = Math.floor((30 * speed * distance * 35) / 1000);
-    var IECbar = Math.floor(gridbar*1.3);
+    var IECbar = Math.floor((2.2 * distance * 30));
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
