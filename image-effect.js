@@ -44,7 +44,7 @@ function initializeGallery(galleryId) {
 
 // Initialize all galleries
 document.addEventListener("DOMContentLoaded", () => {
-  for (let i = 1; i <= 14; i++) {
+  for (let i = 1; i < 14; i++) {
     initializeGallery(`gallery${i}`);
   }
 });
