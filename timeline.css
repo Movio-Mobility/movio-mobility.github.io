@@ -27,8 +27,8 @@ h2 {
 }
 
 .hero-section {
-  margin: 50px auto;
-  width: calc(100vw - 100px);
+  margin: 50px 0;
+  width: 100vw;
 }
 
 .active-box {
