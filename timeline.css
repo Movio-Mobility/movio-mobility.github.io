@@ -1,3 +1,9 @@
+*{
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+}
+
 .design-section {
   display: flex;
   flex-direction: column;
@@ -5,6 +11,26 @@
   margin-top: 3rem;
   min-height: 100vh;
   overflow-x: hidden;
+
+  /* position: relative; */
+  /* background: linear-gradient(to left, #1d1d1d 50%, black 50%) right; */
+
+  /* background: linear-gradient(90deg, #1f1f1f, #1a1a1a);
+  border-radius: 10px;
+  position: relative; */
+}
+
+.design-section::before {
+
+  /* position: absolute;
+  background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
+  z-index: -1;
+  border-radius: 10px; */
+  /* content: " "; */
+/* width: calc(100% + 2px); */
+/* height: calc(100% + 2px); */
+/* top: -1px; */
+/* left: -1px; */
 }
 
 .timeline {

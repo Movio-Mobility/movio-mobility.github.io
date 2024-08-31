@@ -1,0 +1,154 @@
+body {
+  font-family: "Space Mono", monospace;
+  background-color: #1d1d1d;
+  color: #ffffff;
+  text-align: center;
+  margin: auto;
+  /* font-family: Arial, sans-serif; */
+}
+
+.hero-section {
+  margin: 50px auto;
+  width: calc(100vw - 100px);
+}
+
+.hidden ul li {
+  font-family: "Space Mono", monospace;
+}
+.faq-wrapper {
+  padding: 0 20px 0 20px;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 100px;
+}
+
+.faq {
+  text-align: center;
+
+  /* margin-bottom: 20px; */
+  background: linear-gradient(90deg, #1f1f1f, #1a1a1a);
+  border-radius: 10px;
+  position: relative;
+  width: 650px;
+  /* dont give width more than 710px */
+  /*  */
+  background: linear-gradient(to left, #1d1d1d 50%, black 50%) right;
+  background-size: 200%;
+  transition: 1s ease-out;
+}
+.faq::before {
+  content: " ";
+  position: absolute;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  background: linear-gradient(
+    -45deg,
+    rgba(152, 192, 130, 0.5),
+    #1d1d1d,
+    rgba(152, 192, 130, 0.5)
+  );
+  top: -1px;
+  left: -1px;
+  z-index: -1;
+  border-radius: 10px;  
+}
+.faq-wrapper h2 {
+  padding: 40px 0;
+  font-size: 48px;
+  font-family: "Space Mono", monospace;
+}
+
+.faq:hover{
+  background-position: left;
+}
+
+.button {
+  margin-top: 6.4px;
+  width: 100%;
+  padding: 20px 30px;
+  border-radius: 10px;
+  font-family: "Space Mono", monospace;
+  position: relative;
+  display: inline-block;
+
+  font-size: 18px;
+  text-decoration: none;
+  overflow: hidden;
+  text-align: left;
+ 
+}
+
+
+.button .question,
+.button .answer {
+  position: relative;
+  color: #ffffff;
+  z-index: 1;
+  display: block;
+  transition: font-size 0.8s;
+}
+
+.button .answer {
+  /* display: none; */
+  /* color: #cbd5e0; */
+  font-size: 16px;
+  margin-top: 5px;
+
+  max-height: 0; /* makes the element invisible due to no height */
+  overflow: hidden; /* hides the visual overflow when the elements height is smaller then the contents height */
+  transition: max-height 1s ease-in;
+}
+
+.button:hover {
+  /* background-color: black; */
+  background-position: left;
+}
+
+.button:hover .question {
+  /* color: #fff; */
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.button:hover .answer {
+  /* display: block; */
+  max-height: 1000vh; /* insanely high value */
+  transition: max-height 50s ease-out;
+}
+@media (max-width: 1024px) {
+  nav{
+    padding: 0 !important;
+  }
+  }
+  
+
+@media (max-width: 720px) {
+  .faq {
+    width: 600px;
+  }
+}
+@media (max-width: 620px) {
+  .faq {
+    width: 500px;
+  }
+}
+@media (max-width: 520px) {
+  .faq {
+    width: 400px;
+  }
+}
+@media (max-width: 420px) {
+  .faq {
+    width: 320px;
+  }
+}
+
+@media (max-width: 340px) {
+  .faq {
+    width: 270px;
+  }
+}
