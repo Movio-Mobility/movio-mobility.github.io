@@ -1,5 +1,5 @@
 body {
-  font-family: "Space Mono", monospace;
+  font-family: "DM Sans", sans-serif;
   background-color: #1d1d1d;
   color: #ffffff;
   text-align: center;
@@ -13,7 +13,7 @@ body {
 }
 
 .hidden ul li {
-  font-family: "Space Mono", monospace;
+  font-family: "DM Sans", sans-serif;
 }
 .faq-wrapper {
   padding: 0 20px 0 20px;
@@ -59,7 +59,7 @@ body {
 .faq-wrapper h2 {
   padding: 40px 0;
   font-size: 48px;
-  font-family: "Space Mono", monospace;
+  font-family: "DM Sans", sans-serif;
 }
 
 .faq:hover{
@@ -71,7 +71,7 @@ body {
   width: 100%;
   padding: 20px 30px;
   border-radius: 10px;
-  font-family: "Space Mono", monospace;
+  font-family: "DM Sans", sans-serif;
   position: relative;
   display: inline-block;
 
