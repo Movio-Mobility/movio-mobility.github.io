@@ -5,6 +5,7 @@
     <link href="partnerships.css" rel="stylesheet" />
 
     <link href="./rdstailwind.min.css" rel="stylesheet" />
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
@@ -14,20 +15,6 @@
       rel="stylesheet"
     />
 
-    <style>
-      .hero-section {
-        margin: 50px auto;
-        width: calc(100vw - 100px);
-        height: calc(100vh - 100px);
-      }
-
-      .hero-section > video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: -1;
-      }
-    </style>
 
     <title>GridXenergy | Partnerships</title>
     <link rel="icon" type="image/x-icon" href="logoSmall.jpeg" />
@@ -39,14 +26,14 @@
   >
     <section class="hero-section rounded-2xl overflow-hidden relative">
       <!-- 	Navbar -->
-      <nav class="flex flex-wrap justify-between w-full px-16 mt-10">
+      <nav class="flex flex-wrap justify-between w-full lg:px-16 px-8 mt-10">
         <div>
           <a href="./">
             <img
               src="./assets/newLOGO.png"
               alt="Logo"
-              class="mt-2 lg:mt-0 w-64 lg:w-auto"
-              style="height: 40px; width: auto"
+              class="mt-2 lg:mt-0 w-64 lg:w-auto logo"
+              style="width: auto"
             />
           </a>
         </div>
@@ -78,7 +65,12 @@
             </li>
             <li class="mx-2 py-3 block text-white">
               <a
-                style="display: block; width: 100%; height: 100%; color: rgb(152, 192, 130);"
+                style="
+                  display: block;
+                  width: 100%;
+                  height: 100%;
+                  color: rgb(152, 192, 130);
+                "
                 href="partnerships.html"
                 >Partnerships</a
               >
@@ -129,17 +121,14 @@
         </h1>
         <div
           class="text-md lg:text-lg"
-          style="
-            font-family: 'DM Sans', monospace;
-            font-weight: bold;
-          "
+          style="font-family: 'DM Sans', monospace; font-weight: bold"
         >
           Why Host Your Own Swapping Network?
           <p style="color: rgb(152, 192, 130)">
-            <strong>Partner with Us</strong></p
-          >
+            <strong>Partner with Us</strong>
+          </p>
         </div>
-        <div class="absolute text-center" style="left: 48.5%; bottom: 0px">
+        <div class="absolute text-center scroll-button">
           <img
             src="./assets/mouse.svg"
             style="width: 36px; height: 36px; margin: 0px auto"
@@ -152,7 +141,7 @@
         autoplay
         muted
         loop
-         playsinline 
+        playsinline
         class="absolute w-full h-full top-0 left-0 opacity-50"
       >
         <source src="Partnerships_video.mp4" />
@@ -169,7 +158,7 @@
     >
       What’s in it for you?
     </h3>
-    <section class="second-section">
+    <section class="second-section lg:px-0 px-5 text-lg">
       <p>
         By partnering with us, you can significantly reduce the costs and
         complexities of battery production and management while offering your
@@ -240,10 +229,10 @@
               </a>
             </div>
 
-            <span class="inline-flex">
+            <div class="flex">
               <i class="fa fa-map-marker mt-6 py-1 mx-2"></i>
               <p
-                class="max-w-md mx-auto mt-6 leading-relaxed text-center text-gray-400 sm:max-w-xs sm:mx-0 sm:text-left"
+                class="max-w-md mt-6 leading-relaxed text-center text-gray-400 sm:max-w-xs sm:mx-0 sm:text-left"
               >
                 497, Phase V,
                 <br />
@@ -251,12 +240,14 @@
                 <br />
                 Gurugram, Haryana.
               </p>
-            </span>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
             <div>
-              <h2 class="mb-6 text-sm font-semibold uppercase dark:text-white">
+              <h2
+                class="mb-6 text-sm font-semibold uppercase dark:text-white text-left"
+              >
                 Navigate
               </h2>
               <ul
@@ -289,7 +280,9 @@
               </ul>
             </div>
             <div>
-              <h2 class="mb-6 text-sm font-semibold uppercase dark:text-white">
+              <h2
+                class="mb-6 text-sm font-semibold uppercase dark:text-white text-left"
+              >
                 Follow us
               </h2>
               <ul

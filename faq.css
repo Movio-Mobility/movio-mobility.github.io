@@ -12,6 +12,9 @@ body {
   width: calc(100vw - 100px);
 }
 
+.logo {
+  height: 40px;
+}
 .hidden ul li {
   font-family: "DM Sans", sans-serif;
 }
@@ -54,15 +57,14 @@ body {
   top: -1px;
   left: -1px;
   z-index: -1;
-  border-radius: 10px;  
+  border-radius: 10px;
 }
 .faq-wrapper h2 {
   padding: 40px 0;
-  font-size: 48px;
   font-family: "DM Sans", sans-serif;
 }
 
-.faq:hover{
+.faq:hover {
   background-position: left;
 }
 
@@ -79,9 +81,7 @@ body {
   text-decoration: none;
   overflow: hidden;
   text-align: left;
- 
 }
-
 
 .button .question,
 .button .answer {
@@ -119,16 +119,18 @@ body {
   max-height: 1000vh; /* insanely high value */
   transition: max-height 50s ease-out;
 }
-@media (max-width: 1024px) {
-  nav{
-    padding: 0 !important;
-  }
-  }
-  
+
 
 @media (max-width: 720px) {
   .faq {
     width: 600px;
+  }
+  .logo {
+    height: 30px;
+  }
+  .hero-section {
+    margin: 30px auto;
+    width: calc(100vw - 60px);
   }
 }
 @media (max-width: 620px) {
