@@ -1,0 +1,263 @@
+
+body {
+    font-family: "DM Sans", sans-serif;
+    background-color: #1d1d1d;
+    color: #ffffff;
+    text-align: center;
+    margin: auto;
+    /* font-family: Arial, sans-serif; */
+  }
+  
+  .hero-section {
+    margin: 50px auto;
+    width: calc(100vw - 100px);
+  }
+  
+  .logo {
+    height: 40px;
+  }
+  .hidden ul li {
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .wrapper{
+    /* width: calc(80vw); */
+    height: 130%;
+    margin: auto;
+    max-width: 1200px;
+  }
+
+  .image-container {
+
+    display: flex;
+    flex-wrap: wrap; /* Allows responsiveness for mobile */
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 20px; */
+    max-width: 1200px;
+    margin: 0 auto;
+    
+    background: linear-gradient(93.47deg, #D2D2D2 -22.96%, #868686 127.29%);
+    border-radius: 10px;
+  }
+
+  .text-content {
+    
+    color: black;
+   padding-left:40px ;
+  justify-items: left;
+  }
+  
+  .image-container .text-content {
+    flex: 1;
+    color: white;
+    padding-right: 20px;
+  }
+  
+  .image-container h1 {
+    text-align: -webkit-left;
+    color: black;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  
+  .image-container ul {
+    list-style-type: none;
+  }
+  
+  .image-container ul li {
+    text-align: -webkit-left;
+    color: black;
+    margin-bottom: 10px;
+  }
+  
+  .image-content {
+    flex: 1;
+    text-align: right;
+    margin: 20px;
+  }
+  
+  .image-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 30px;
+  }
+  section{
+    margin: auto;
+    max-width: 1200px;
+    /* margin: auto; */
+    /* padding: 20px; */
+  }
+   .section2{
+    margin: auto;
+  }
+
+  .grid-wrapper {
+    
+    display: grid;
+    /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 100px;
+    width: 100%;
+  }
+
+  .additional_accessories{
+    text-align: left;
+    color: #ffffff;
+    font-size: 40px;
+    margin: 40px 0px;
+  }
+
+  .card {
+    /* padding: 2px; */
+    max-width: 400px;
+    height:300px; 
+    /* border: 1px solid #ccc; */
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    cursor: pointer;
+    text-align: center;
+    z-index: 3;
+    
+    /* background: linear-gradient(90deg, #1f1f1f, #1a1a1a); */
+    position: relative;
+    /* overflow: hidden; */
+  }
+
+
+
+
+  
+  
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+
+    z-index: 1;
+  }
+  
+  .hover-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    opacity: 0;
+    background: linear-gradient(to left, #1d1d1d 50%, black 50%) right;
+    background-size: 200%;
+    transition: 1s ease-out;
+  }
+  
+  .card:hover .hover-text {
+    opacity: 1;
+    background-position: left;
+    background-color: black;
+    border-radius: 0;
+  }
+  
+  .hover-text ul {
+    list-style-type: disc;
+    padding: 0 20px;
+  }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .image-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .image-content {
+    text-align: center;
+    margin: 20px;
+  }
+  .image-container .text-content{
+    align-self: center;
+    padding: 10px;
+    margin-top: 20px;
+  }
+
+  .image-container  h1 {
+    font-size: 24px;
+  }
+
+  .image-container ul li {
+    font-size: 14px;
+  }
+}
+
+  @media (max-width: 720px) {
+
+    .logo {
+      height: 30px;
+    }
+    .hero-section {
+      margin: 30px auto;
+      width: calc(100vw - 60px);
+    }
+  }
+
+
+  @media (max-width: 560) {
+    .additional_accessories{
+        font-size: 30px;
+      }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+  /* Manpreet Singh */
+  
+  /* BLACK LEFT TO RIGHT */
+  /* .custom-animation{
+    background: linear-gradient(to left, #1d1d1d 50%, black 50%) right;
+    background-size: 200%;
+    transition: 1s ease-out;
+  }*/
+  /* .custom-animation:hover {
+    background-position: left;
+  }  */
+
+
+  /* BORDER LIGHT GREEN GLOW */
+  .custom-animation{
+    position: relative; /* Necessary for the pseudo-element positioning */
+    background: linear-gradient(90deg, #1f1f1f, #1a1a1a); /* Base background */
+    border-radius: 10px; /* Rounded corners */
+    width: 300px; /* Example width, adjust as needed */
+    height: 150px; /* Example height, adjust as needed */
+  }
+  .custom-animation::before {
+    content: " "; /* Necessary for the pseudo-element */
+    position: absolute;
+    width: calc(100% + 2px); /* Slightly larger to create the glow effect */
+    height: calc(100% + 2px);
+    background: linear-gradient(
+      -45deg,
+      rgba(152, 192, 130, 0.5), /* Glow color */
+      #1d1d1d, /* Neutral dark color */
+      rgba(152, 192, 130, 0.5)
+    );
+    top: -1px;
+    left: -1px;
+    z-index: -1; /* Behind the container */
+    border-radius: 10px; /* Matches the container's border-radius */
+    /* animation: glow-animate 3s linear infinite; Optional animation */
+  }
