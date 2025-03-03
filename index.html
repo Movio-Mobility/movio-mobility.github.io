@@ -16,6 +16,807 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
 		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+	<style>
+		/* Add smooth scrolling behavior */
+		html {
+			scroll-behavior: smooth;
+		}
+
+		/* Add loading animation for videos */
+		.video-loading {
+			position: relative;
+		}
+
+		.video-loading::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 40px;
+			height: 40px;
+			margin: -20px 0 0 -20px;
+			border: 4px solid #98C082;
+			border-top: 4px solid transparent;
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+		/* Desktop menu styles */
+		@media screen and (min-width: 769px) {
+			#menu {
+				display: flex;
+			}
+		}
+
+		/* Enhance How it works section */
+		.box {
+			position: relative;
+			padding: 2rem;
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+			border-radius: 15px;
+			transform-style: preserve-3d;
+			transform: translateZ(0);
+			transition: all 0.3s ease-out;
+			overflow: hidden;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+			cursor: pointer;
+		}
+
+		.box::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+				rgba(255, 255, 255, 0.06),
+				transparent 40%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.box:hover::before {
+			opacity: 1;
+		}
+
+		.box::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(
+				45deg,
+				transparent,
+				rgba(255, 255, 255, 0.1),
+				transparent
+			);
+			transform: translateX(-100%);
+			transition: transform 0.6s ease;
+		}
+
+		.box:hover::after {
+			transform: translateX(100%);
+		}
+
+		.box:hover {
+			transform: translateY(-5px);
+			background: rgba(255, 255, 255, 0.05);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+		}
+
+		.box.active {
+			background: rgba(255, 255, 255, 0.08);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+		}
+
+		/* Add hover effect to box content */
+		.box h3, .box p {
+			position: relative;
+			z-index: 1;
+			transition: transform 0.3s ease;
+		}
+
+		.box:hover h3 {
+			transform: scale(1.05);
+		}
+
+		.box:hover p {
+			transform: scale(1.02);
+		}
+
+		/* Update container perspective */
+		.container-video-frame {
+			perspective: 1000px;
+		}
+
+		/* Desktop menu styles */
+		@media screen and (min-width: 769px) {
+			#menu {
+				display: flex;
+			}
+		}
+
+		/* Enhance How it works section */
+		.box {
+			transition: all 0.3s ease;
+			border: 2px solid transparent;
+			background: rgba(255,255,255,0.05);
+		}
+
+		.box:hover {
+			transform: translateX(10px);
+			background: rgba(255,255,255,0.1);
+		}
+
+		.video-frame video {
+			opacity: 0;
+			transition: opacity 0.5s ease-in-out;
+		}
+
+		.video-frame video.active {
+			opacity: 1;
+		}
+
+		/* Enhanced button hover effect */
+		.learn-more-btn {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.75rem 1.5rem;
+			font-weight: bold;
+			color: #1d1d1d !important;
+			background-color: rgb(152, 192, 130);
+			border-radius: 30px;
+			transition: all 0.3s ease;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.learn-more-btn:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 10px 20px rgba(152, 192, 130, 0.2);
+		}
+
+		.learn-more-btn::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(
+				90deg,
+				transparent,
+				rgba(255, 255, 255, 0.3),
+				transparent
+			);
+			transition: 0.5s;
+			z-index: 1;
+		}
+
+		.learn-more-btn:hover::before {
+			left: 100%;
+		}
+
+		.learn-more-btn span {
+			position: relative;
+			z-index: 2;
+			color: #1d1d1d;
+		}
+
+		/* Animated scroll icon */
+		.scroll-indicator {
+			width: 30px;
+			height: 50px;
+			border: 2px solid #fff;
+			border-radius: 25px;
+			position: relative;
+			margin: 0 auto;
+		}
+
+		.scroll-indicator::before {
+			content: '';
+			position: absolute;
+			width: 6px;
+			height: 6px;
+			background: #fff;
+			left: 50%;
+			transform: translateX(-50%);
+			top: 8px;
+			border-radius: 50%;
+			animation: scrollAnim 2s infinite;
+		}
+
+		@keyframes scrollAnim {
+			0% { top: 8px; opacity: 1; }
+			100% { top: 32px; opacity: 0; }
+		}
+
+		/* Enhanced card hover effects */
+		.card {
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+			transform-style: preserve-3d;
+			perspective: 1000px;
+		}
+
+		.card:hover {
+			transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
+			box-shadow: 0 15px 30px rgba(255, 255, 255, 0.1);
+		}
+
+		.card::before {
+			content: ' ';
+			position: absolute;
+			width: calc(100% + 2px);
+			height: calc(100% + 2px);
+			background: linear-gradient(-45deg, rgba(255, 255, 255, 0.2), #1d1d1d, rgba(255, 255, 255, 0.2));
+			left: -1px;
+			top: -1px;
+			z-index: -1;
+			border-radius: 10px;
+		}
+
+		.card::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+						rgba(255, 255, 255, 0.1) 0%, 
+						rgba(255, 255, 255, 0) 50%);
+			opacity: 0;
+			transition: opacity 0.3s;
+			pointer-events: none;
+		}
+
+		.card:hover::after {
+			opacity: 1;
+		}
+
+		/* Enhanced navbar links */
+		.nav-link {
+			position: relative;
+			padding: 0.5rem 1rem;
+			transition: color 0.3s ease;
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+
+		.nav-link::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 50%;
+			width: 0;
+			height: 2px;
+			background: rgb(152, 192, 130);
+			transition: all 0.3s ease;
+			transform: translateX(-50%);
+		}
+
+		.nav-link:hover::after {
+			width: 80%;
+		}
+
+		/* Enhanced image hover effects */
+		.hover-image {
+			transition: transform 0.3s ease, filter 0.3s ease;
+		}
+
+		.hover-image:hover {
+			transform: scale(1.05);
+			filter: brightness(1.1);
+		}
+
+		/* Service cards enhancement */
+		.service-col .card {
+			transition: all 0.3s ease;
+		}
+
+		.service-col .card:hover {
+			transform: translateY(-10px);
+			background: linear-gradient(145deg, #232323, #1a1a1a);
+			box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+		}
+
+		.service-col .card:hover img {
+			transform: scale(1.1) rotate(5deg);
+		}
+
+		.service-col .card img {
+			transition: transform 0.3s ease;
+		}
+
+		/* Speed card hover effects */
+		.speed-card {
+			position: relative;
+			transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			background: rgba(255, 255, 255, 0.03);
+			overflow: hidden;
+		}
+
+		.speed-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(
+				45deg,
+				transparent 0%,
+				rgba(255, 255, 255, 0.1) 50%,
+				transparent 100%
+			);
+			transform: translateX(-100%);
+			transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		.speed-card::after {
+			content: '';
+			position: absolute;
+			inset: -2px;
+			background: linear-gradient(
+				45deg,
+				#98C082,
+				transparent,
+				#98C082
+			);
+			opacity: 0;
+			transition: opacity 0.4s ease;
+		}
+
+		.speed-card:hover {
+			transform: translateY(-5px) scale(1.02);
+			background: rgba(255, 255, 255, 0.05);
+			box-shadow: 
+				0 15px 30px rgba(0, 0, 0, 0.4),
+				0 5px 15px rgba(255, 255, 255, 0.05);
+		}
+
+		.speed-card:hover::before {
+			transform: translateX(100%);
+		}
+
+		.speed-card:hover::after {
+			opacity: 0.2;
+		}
+
+		.speed-card.selected {
+			background: rgba(152, 192, 130, 0.15);
+			border-color: #98C082 !important;
+		}
+
+		/* Card content wrapper to appear above the gradient */
+		.speed-card > * {
+			position: relative;
+			z-index: 1;
+		}
+
+		/* Add subtle text glow on hover */
+		.speed-card:hover h4 {
+			text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+		}
+
+		/* Add subtle scale animation to the text */
+		.speed-card h4,
+		.speed-card p {
+			transition: transform 0.3s ease;
+		}
+
+		.speed-card:hover h4 {
+			transform: scale(1.05);
+		}
+
+		.speed-card:hover p {
+			transform: scale(1.02);
+		}
+
+		.premium-card {
+			position: relative;
+			padding: 3rem 2rem;
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+			border-radius: 20px;
+			transform-style: preserve-3d;
+			transform: translateZ(0);
+			transition: all 0.3s ease-out;
+			overflow: hidden;
+			box-shadow: 
+				0 15px 35px rgba(0, 0, 0, 0.3),
+				0 5px 15px rgba(0, 0, 0, 0.2);
+			width: calc(100vw - 100px);
+			max-width: calc(100vw - 100px);
+			margin: 0 auto;
+		}
+
+		.premium-card::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+				rgba(255, 255, 255, 0.06),
+				transparent 40%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.premium-card:hover::before {
+			opacity: 1;
+		}
+
+		.premium-card .content {
+			position: relative;
+			z-index: 1;
+			transform: translateZ(30px);
+			transition: transform 0.3s ease-out;
+		}
+
+		.premium-card:hover .content {
+			transform: translateZ(50px);
+		}
+
+		.premium-card .glow {
+			position: absolute;
+			inset: -1px;
+			background: linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.2) 0%,
+				transparent 40%,
+				transparent 60%,
+				rgba(255, 255, 255, 0.2) 100%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+			border-radius: 20px;
+		}
+
+		.premium-card:hover .glow {
+			opacity: 0.1;
+		}
+
+		.premium-card .particles {
+			position: absolute;
+			inset: 0;
+			overflow: hidden;
+			border-radius: 20px;
+		}
+
+		.premium-card .particles::before {
+			content: '';
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background: radial-gradient(circle at 50% 50%, #98C082 0%, transparent 10%);
+			mask: repeating-linear-gradient(
+				transparent 0%,
+				transparent 5%,
+				black 5%,
+				black 10%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+			transform: translateZ(20px);
+		}
+
+		.premium-card:hover .particles::before {
+			opacity: 0.1;
+			animation: particleFlow 4s linear infinite;
+		}
+
+		@keyframes particleFlow {
+			0% {
+				transform: translateY(0) translateZ(20px);
+			}
+			100% {
+				transform: translateY(-100%) translateZ(20px);
+			}
+		}
+
+		.premium-card-wide {
+			position: relative;
+			padding: 3rem 2.5rem;
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+			border-radius: 20px;
+			transform-style: preserve-3d;
+			transform: translateZ(0);
+			transition: all 0.3s ease-out;
+			overflow: hidden;
+			flex-grow: 0;
+			flex-basis: 45%;
+			max-width: 600px;
+			box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+			margin-right: 2rem;
+		}
+
+		.premium-card-wide::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+				rgba(255, 255, 255, 0.06),
+				transparent 40%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.premium-card-wide:hover::before {
+			opacity: 1;
+		}
+
+		.premium-card-wide::after {
+			background: linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.2),
+				transparent,
+				rgba(255, 255, 255, 0.2)
+			);
+		}
+
+		.feature-list {
+			list-style: none;
+			padding: 0;
+			text-align: left;
+		}
+
+		.feature-list li {
+			position: relative;
+			padding-left: 1.5em;
+			margin: 1em 0;
+			transition: transform 0.3s ease;
+		}
+
+		.feature-list li::before {
+			content: '•';
+			position: absolute;
+			left: 0;
+			color: rgb(152, 192, 130);
+			font-size: 1.2em;
+		}
+
+		.premium-card-wide:hover .feature-list li {
+			transform: translateX(10px);
+		}
+
+		.premium-link {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.75rem 1.5rem;
+			font-weight: bold;
+			color: #1d1d1d;
+			background-color: rgb(152, 192, 130);
+			border-radius: 30px;
+			transition: all 0.3s ease;
+			gap: 0.75rem;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.premium-link:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 10px 20px rgba(152, 192, 130, 0.2);
+			gap: 1rem;
+		}
+
+		.premium-link .arrow-icon {
+			transition: transform 0.3s ease;
+			filter: brightness(0) saturate(100%);
+			width: 20px;
+			height: 20px;
+			position: relative;
+			z-index: 2;
+		}
+
+		.premium-link span {
+			position: relative;
+			z-index: 2;
+		}
+
+		.premium-link::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(
+				90deg,
+				transparent,
+				rgba(255, 255, 255, 0.3),
+				transparent
+			);
+			transition: 0.5s;
+			z-index: 1;
+		}
+
+		.premium-link:hover::before {
+			left: 100%;
+		}
+
+		.video-container {
+			position: relative;
+			transform-style: preserve-3d;
+			transition: transform 0.3s ease;
+			flex-grow: 1;
+			margin-left: 1rem;
+		}
+
+		.video-container:hover {
+			transform: translateZ(20px);
+		}
+
+		.video-container video {
+			transition: all 0.3s ease;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+		}
+
+		.video-container:hover video {
+			transform: scale(1.02);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+		}
+
+		@media (min-width: 1280px) {
+			.premium-card-wide {
+				margin-bottom: 0;
+			}
+		}
+
+		@media (max-width: 1279px) {
+			.premium-card-wide {
+				max-width: 100%;
+				margin-right: 0;
+				margin-bottom: 2rem;
+			}
+			
+			.video-container {
+				margin-left: 0;
+			}
+		}
+
+		/* Update the section styles to match hero section */
+		section.premium-card-section {
+			margin: 5vh auto;
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			perspective: 1000px;
+		}
+
+		@media screen and (max-width: 768px) {
+			.premium-card {
+				width: calc(100vw - 60px);
+				max-width: calc(100vw - 60px);
+			}
+		}
+
+		/* Update the video-frame styles */
+		.video-frame {
+			flex: 2;
+			position: relative;
+			transform-style: preserve-3d;
+			transition: transform 0.3s ease;
+		}
+
+		.video-frame video {
+			height: 100%;
+			display: none;
+			transition: all 0.3s ease;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+		}
+
+		.video-frame video.active {
+			display: block;
+		}
+
+		/* Add hover effects */
+		.video-frame:hover {
+			transform: translateZ(20px);
+		}
+
+		.video-frame:hover video.active {
+			transform: scale(1.02);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+		}
+
+		/* Update container perspective */
+		.container-video-frame {
+			height: 80vh;
+			max-width: 1600px;
+			display: flex;
+			justify-content: space-around;
+			gap: 0 50px;
+			align-items: center;
+			perspective: 1000px; /* Add perspective for 3D effect */
+		}
+
+		.premium-card-features {
+			position: relative;
+			padding: 3rem 2.5rem;
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+			border-radius: 20px;
+			transform-style: preserve-3d;
+			transform: translateZ(0);
+			transition: all 0.3s ease-out;
+			overflow: hidden;
+			box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+			width: calc(100vw - 100px);
+			max-width: calc(100vw - 100px);
+			margin: 0 auto;
+		}
+
+		.premium-card-features::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+				rgba(255, 255, 255, 0.06),
+				transparent 40%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.premium-card-features:hover::before {
+			opacity: 1;
+		}
+
+		.feature-card {
+			background: rgba(255, 255, 255, 0.03);
+			padding: 2rem;
+			border-radius: 15px;
+			transition: all 0.3s ease;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.feature-card::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(
+				45deg,
+				transparent,
+				rgba(255, 255, 255, 0.1),
+				transparent
+			);
+			transform: translateX(-100%);
+			transition: transform 0.6s ease;
+		}
+
+		.feature-card:hover {
+			transform: translateY(-10px);
+			background: rgba(255, 255, 255, 0.05);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+		}
+
+		.feature-card:hover::before {
+			transform: translateX(100%);
+		}
+
+		.feature-card img {
+			transition: transform 0.3s ease;
+		}
+
+		.feature-card:hover img {
+			transform: scale(1.1) rotate(5deg);
+		}
+
+		@media screen and (max-width: 768px) {
+			.premium-card-features {
+				width: calc(100vw - 40px);
+				max-width: calc(100vw - 40px);
+				padding: 2rem 1.5rem;
+			}
+		}
+	</style>
 </head>
 
 <body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
@@ -38,26 +839,21 @@
 				</svg>
 				<div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
 					<ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
-						<li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
-								href="product.html">Products</a>
+						<li class="mx-2 py-3 block text-white"> <a class="nav-link" href="product.html">Products</a>
 						</li>
-						<li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
-								href="partnerships.html">Partnerships</a>
+						<li class="mx-2 py-3 block text-white"> <a class="nav-link" href="partnerships.html">Partnerships</a>
 						</li>
-						<li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
-								href="aboutus.html">About Us</a>
+						<li class="mx-2 py-3 block text-white "> <a class="nav-link" href="aboutus.html">About Us</a>
 						</li>
-						<li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
-								href="journey.html">Journey</a>
+						<li class="mx-2 py-3 block text-white "> <a class="nav-link" href="journey.html">Journey</a>
 						</li>
 
-						<li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
-								href="faqs.html">FAQs</a>
+						<li class="mx-2 py-3 block text-white "> <a class="nav-link" href="faqs.html">FAQs</a>
 						</li>
 
 						<li class="mx-2 pt-3 pb-3 block px-10 text-black"
 							style="background-color: rgb(152, 192, 130); border-radius: 600px">
-							<a style="display: block;width: 100%;height: 100%;" href="./contactus.html">Contact Us</a>
+							<a class="nav-link" href="./contactus.html">Contact Us</a>
 						</li>
 					</ul>
 				</div>
@@ -70,11 +866,12 @@
 				</div>
 				<h2 class="header text-white font-bold lg:text-5xl text-3xl">The Only Battery You Will Ever Need</h2>
 				<div class="mx-auto text-gray-400 text-md lg:text-lg font-bolder max-w-screen-lg">
-					India’s first Energy-as-a-Service Platform that focuses on personal mobility and storage
+					India's first Energy-as-a-Service Platform that focuses on personal mobility and storage
 				</div>
 				<div class="mt-16">
-					<a href="./product.html" class="bg-white px-10 py-3 rounded-3xl text-xl font-bold text-black">Learn
-						More</a>
+					<a href="./product.html" class="learn-more-btn">
+						<span>Learn More</span>
+					</a>
 				</div>
 				<div class="absolute text-center scroll-button">
 					<img src="./assets/mouse.svg" style="width: 36px; height: 36px; margin: 0px auto;" />
@@ -94,16 +891,21 @@
 		<br>
 		<br>
 
-		<section style="margin: 5vh auto;" class="lg:px-0 px-5">
-			<h2 class="text-white font-bold lg:text-5xl text-3xl">Pay For The Miles, Not The Metal</h2>
-			<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md">
-
-
-				Empower your energy journey with our platform—
-				<br>no need to buy a battery, just pay for the energy you consume.
-				<br>Simplified, cost-effective, and built around your lifestyle.
-			</p>
+		<section class="premium-card-section lg:px-0 px-5">
+			<div class="premium-card">
+				<div class="content">
+					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">Pay For The Miles, Not The Metal</h2>
+					<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md leading-relaxed">
+						Empower your energy journey with our platform—
+						<br>no need to buy a battery, just pay for the energy you consume.
+						<br>Simplified, cost-effective, and built around your lifestyle.
+					</p>
+				</div>
+				<div class="glow"></div>
+				<div class="particles"></div>
+			</div>
 		</section>
+
 		<br>
 		<br>
 		<br>
@@ -140,7 +942,7 @@
 						</div>
 						<div class="text-div ">
 							<div  class="text-green-on-active" style="font-weight: bolder; font-size: large;">Take a Battery on Lease</div>
-							<div>Lease a lightweight, high-performance PowerPod tailored to your EV’s needs.</div>
+							<div>Lease a lightweight, high-performance PowerPod tailored to your EV's needs.</div>
 						</div>
 					</div>
 					<div class="box" data-index="1">
@@ -216,44 +1018,31 @@
 		<br>
 
 
-		<section class="flex flex-col xl:flex-row justify-start mx-auto lg:px-24 px-5 my-10"
-			style="min-height: 50vh; margin: 5vh auto;">
-			<div class="text-left flex flex-col justify-center my-10" style="flex-grow: 1;">
-				<div>
-					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-2">Forging the path towards the future of
-						two-wheelers by
-						eradicating
-						EV restrictions.
+		<section class="flex flex-col xl:flex-row justify-start mx-auto lg:px-24 px-5 my-10" style="min-height: 50vh; margin: 5vh auto; perspective: 1000px;">
+			<div class="premium-card-wide">
+				<div class="content">
+					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">
+						Forging the path towards the future of two-wheelers by eradicating EV restrictions.
 					</h2>
-					<p class="text-md lg:text-lg text-gray-400 mb-10 ">
-						No High Upfront cost <br>
-						No Range Anxiety <br>
-						No Lack of Charging Infrastructure <br>
-						Zero Charging Downtime <br>
-						Zero Battery Replacement Cost <br>
-
-					</p>
-					<a href="product.html" class="text-md lg:text-lg font-bold flex flex-row justify-start gap-2"
-						style="color: rgb(152, 192, 130);">
+					<ul class="text-md lg:text-lg text-gray-400 mb-10 feature-list">
+						<li>No High Upfront cost</li>
+						<li>No Range Anxiety</li>
+						<li>No Lack of Charging Infrastructure</li>
+						<li>Zero Charging Downtime</li>
+						<li>Zero Battery Replacement Cost</li>
+					</ul>
+					<a href="product.html" class="premium-link">
 						<span>Our Products</span>
-						<img src="./assets/arrow-right.svg" alt="Right Arrow" />
+						<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
 					</a>
 				</div>
+				<div class="glow"></div>
+				<div class="particles"></div>
 			</div>
-			<div class="flex flex-col justify-center my-10" style="flex-grow: 2">
-				<video autoplay muted loop playsinline src="HomeSecond_video.mp4"
-					class="object-cover rounded-xl"></video>
+			<div class="flex flex-col justify-center my-10 video-container" style="flex-grow: 2">
+				<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover rounded-xl"></video>
 			</div>
-
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			
 		</section>
-		
 
 		<br>
 		<br>
@@ -261,32 +1050,38 @@
 		<br>
 		<br>
 		<br>
-		<section style="margin: 5vh auto;" class="lg:px-0 px-5">
-			<h2 class="text-white font-bold lg:text-5xl text-3xl">Unlock the 2-wheeler riding freedom with</h2>
-			<p class="text-gray-400 mx-auto text-md lg:text-lg max-w-screen-md px-10">
-			</p>
-			<div class="flex lg:flex-row flex-col justify-between mt-20 lg:gap-20 gap-10 mx-auto service-col">
-				<div class="card flex-1">
-					<img src="./assets/bluetooth.svg" alt="Bluetooth" class="mx-auto w-12" />
-					<h3 class="mt-6 text-white text-md lg:text-lg font-bold ">Vehicle Smartification</h3>
-					<p class="px-2 text-xl text-gray-400">
-						Smart Application, Integrated Maps, Payments through Wallet
-					</p>
+
+
+		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
+			<div class="premium-card-features">
+				<div class="content">
+					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-10">Unlock the 2-wheeler riding freedom with</h2>
+					<div class="flex lg:flex-row flex-col justify-between mt-10 lg:gap-20 gap-10 mx-auto service-col">
+						<div class="feature-card flex-1">
+							<img src="./assets/bluetooth.svg" alt="Bluetooth" class="mx-auto w-12" />
+							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Vehicle Smartification</h3>
+							<p class="px-2 text-xl text-gray-400">
+								Smart Application, Integrated Maps, Payments through Wallet
+							</p>
+						</div>
+						<div class="feature-card flex-1">
+							<img src="evcoins.png" alt="Bluetooth" class="mx-auto w-12" />
+							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Lowest Running Cost</h3>
+							<p class="px-2 text-xl text-gray-400">
+								₹0.5/Km to ₹1.5/Km, depending on the usage
+							</p>
+						</div>
+						<div class="feature-card flex-1">
+							<img src="evcharge.png" alt="Bluetooth" class="mx-auto w-12" />
+							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Multiple Refueling Options</h3>
+							<p class="px-2 text-xl text-gray-400">
+								Charge at home, Swap on the fly: Gridx PowerPod sets the new standard in battery innovation
+							</p>
+						</div>
+					</div>
 				</div>
-				<div class="card flex-1">
-					<img src="evcoins.png" alt="Bluetooth" class="mx-auto w-12" />
-					<h3 class="mt-6 text-white text-md lg:text-lg font-bold ">Lowest Running Cost</h3>
-					<p class="px-2 text-xl text-gray-400">
-						₹0.5/Km to ₹1.5/Km, depending on the usage
-					</p>
-				</div>
-				<div class="card flex-1">
-					<img src="evcharge.png" alt="Bluetooth" class="mx-auto w-12" />
-					<h3 class="mt-6 text-white text-md lg:text-lg font-bold ">Multiple Refueling Options</h3>
-					<p class="px-2 text-xl text-gray-400">
-						Charge at home, Swap on the fly: Gridx PowerPod sets the new standard in battery innovation
-					</p>
-				</div>
+				<div class="glow"></div>
+				<div class="particles"></div>
 			</div>
 		</section>
 
@@ -477,7 +1272,7 @@
 											<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3"
 												fill="currentColor" viewBox="0 0 24 24">
 												<path
-													d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+													d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
 											</svg>
 											Instagram</a>
 									</li>
@@ -555,6 +1350,137 @@
 
 		</script>
 
+		<script>
+			// Add mouse tracking effect for boxes
+			document.querySelectorAll('.box').forEach(box => {
+				box.addEventListener('mousemove', (e) => {
+					const rect = box.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / box.clientWidth) * 100;
+					const y = ((e.clientY - rect.top) / box.clientHeight) * 100;
+					
+					box.style.setProperty('--mouse-x', `${x}%`);
+					box.style.setProperty('--mouse-y', `${y}%`);
+				});
+			});
+
+			// Replace scroll icon with animated version
+			document.querySelector('.scroll-button').innerHTML = `
+				<div class="scroll-indicator"></div>
+				<p class="mt-2">Scroll</p>
+			`;
+
+			// Add classes to elements
+			document.querySelector('.bg-white').classList.add('learn-more-btn');
+			document.querySelectorAll('nav a').forEach(link => link.classList.add('nav-link'));
+			document.querySelectorAll('img:not(.logo)').forEach(img => img.classList.add('hover-image'));
+		</script>
+
+		<script>
+			// Add click handler for speed cards
+			const speedCards = document.querySelectorAll('.speed-card');
+
+			speedCards.forEach(card => {
+				card.addEventListener('click', () => {
+					// Remove selected class from all cards
+					speedCards.forEach(c => c.classList.remove('selected'));
+					// Add selected class to clicked card
+					card.classList.add('selected');
+				});
+			});
+		</script>
+
+		<script>
+			// Simple menu toggle
+			const menuButton = document.getElementById('menu-button');
+			const menu = document.getElementById('menu');
+
+			menuButton.addEventListener('click', () => {
+				menu.classList.toggle('hidden');
+			});
+		</script>
+
+		<script>
+			// Add 3D tilt effect to premium card
+			const card = document.querySelector('.premium-card');
+			const content = card.querySelector('.content');
+
+			card.addEventListener('mousemove', (e) => {
+				const rect = card.getBoundingClientRect();
+				const x = ((e.clientX - rect.left) / card.clientWidth) * 100;
+				const y = ((e.clientY - rect.top) / card.clientHeight) * 100;
+				
+				const rotateY = (x - 50) * 0.1;
+				const rotateX = (y - 50) * -0.1;
+				
+				card.style.setProperty('--mouse-x', `${x}%`);
+				card.style.setProperty('--mouse-y', `${y}%`);
+				
+				card.style.transform = `
+					rotateX(${rotateX}deg)
+					rotateY(${rotateY}deg)
+					translateZ(0)
+				`;
+			});
+
+			card.addEventListener('mouseleave', () => {
+				card.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+			});
+		</script>
+
+		<script>
+			// Add 3D tilt effect to premium card wide
+			const cardWide = document.querySelector('.premium-card-wide');
+
+			cardWide.addEventListener('mousemove', (e) => {
+				const rect = cardWide.getBoundingClientRect();
+				const x = ((e.clientX - rect.left) / cardWide.clientWidth) * 100;
+				const y = ((e.clientY - rect.top) / cardWide.clientHeight) * 100;
+				
+				const rotateY = (x - 50) * 0.05;
+				const rotateX = (y - 50) * -0.05;
+				
+				cardWide.style.setProperty('--mouse-x', `${x}%`);
+				cardWide.style.setProperty('--mouse-y', `${y}%`);
+				
+				cardWide.style.transform = `
+					rotateX(${rotateX}deg)
+					rotateY(${rotateY}deg)
+					translateZ(0)
+				`;
+			});
+
+			cardWide.addEventListener('mouseleave', () => {
+				cardWide.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+			});
+		</script>
+
+		<script>
+			// Add 3D tilt effect to features card
+			const featuresCard = document.querySelector('.premium-card-features');
+
+			featuresCard.addEventListener('mousemove', (e) => {
+				const rect = featuresCard.getBoundingClientRect();
+				const x = ((e.clientX - rect.left) / featuresCard.clientWidth) * 100;
+				const y = ((e.clientY - rect.top) / featuresCard.clientHeight) * 100;
+				
+				const rotateY = (x - 50) * 0.03;
+				const rotateX = (y - 50) * -0.03;
+				
+				featuresCard.style.setProperty('--mouse-x', `${x}%`);
+				featuresCard.style.setProperty('--mouse-y', `${y}%`);
+				
+				featuresCard.style.transform = `
+					rotateX(${rotateX}deg)
+					rotateY(${rotateY}deg)
+					translateZ(0)
+				`;
+			});
+
+			featuresCard.addEventListener('mouseleave', () => {
+				featuresCard.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+			});
+		</script>
+
 </body>
 
 
@@ -589,7 +1515,7 @@
 		position: absolute;
 		width: calc(100% + 2px);
 		height: calc(100% + 2px);
-		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
+		background: linear-gradient(-45deg, rgba(255, 255, 255, 0.2), #1d1d1d, rgba(255, 255, 255, 0.2));
 		left: -1px;
 		top: -1px;
 		z-index: -1;
