@@ -1,1059 +1,1239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-	<title>GridXenergy | About Us</title>
+  <title>GridXenergy | Journey</title>
+  <link rel="icon" type="image/x-icon" href="logoSmall.jpeg" />
+  <link href="./rdstailwind.min.css" rel="stylesheet" />
+  <link href="./timeline.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
 
-	<link rel="icon" type="image/x-icon" href="logoSmall.jpeg" />
-	<link href="./rdstailwind.min.css" rel="stylesheet" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
-		rel="stylesheet" />
-	<meta content="width=device-width, initial-scale=1" name="viewport" />
-	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
-		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet" />
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+    integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+ 
+  <style>
+    .premium-section {
+        position: relative;
+        padding: 4rem;
+        background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+        border-radius: 20px;
+        transform-style: preserve-3d;
+        transform: translateZ(0);
+        transition: all 0.3s ease-out;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        width: calc(100vw - 100px);
+        margin: 2rem auto;
+    }
+
+    .premium-section .content {
+        position: relative;
+        z-index: 1;
+        transform: translateZ(30px);
+        transition: transform 0.3s ease-out;
+    }
+
+    .premium-section:hover .content {
+        transform: translateZ(50px);
+    }
+
+    .premium-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            1200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(255, 255, 255, 0.06),
+            transparent 40%
+        );
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .premium-section:hover::before {
+        opacity: 1;
+    }
+
+    .premium-section .glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 0%, rgba(152, 192, 130, 0.1), transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .premium-section:hover .glow {
+        opacity: 1;
+    }
+
+    /* Update the header section */
+    .hero-section {
+        margin: 50px auto;
+        width: calc(100vw - 100px);
+        padding: 0 1rem;
+    }
+
+    /* Update the Journey Through Time section */
+    section h2 {
+        margin: 2rem 0;
+        font-size: 3rem;
+    }
+
+    /* Update the timeline section */
+    .design-section {
+        padding: 2rem 0;
+    }
+
+    @media screen and (max-width: 768px) {
+        .premium-section {
+            width: calc(100vw - 60px);
+            padding: 2rem;
+            margin: 2rem auto;
+        }
+        
+        .hero-section {
+            margin: 30px auto;
+            width: calc(100vw - 60px);
+        }
+    }
+
+    /* Common premium card styles */
+    .time-box-1, .time-box-2, .time-box-3, .time-box-4, .time-box-5, .time-box-6,
+    .time-box-7, .time-box-8, .time-box-9, .time-box-10, .time-box-11, .time-box-12,
+    .time-box-13, .time-box-14, .time-box-15, .time-box-16, .time-box-17, .time-box-18,
+    .time-box-19, .time-box-20, .time-box-21, .time-box-22, .time-box-23, .time-box-24,
+    .time-box-25, .time-box-26 {
+        position: relative;
+        background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+        border-radius: 20px;
+        transform-style: preserve-3d;
+        transform: translateZ(0);
+        transition: all 0.3s ease-out;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Content transform */
+    .timeline-component {
+        position: relative;
+        padding: 2rem;
+        background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+        border-radius: 20px;
+        transform-style: preserve-3d;
+        transition: all 0.3s ease-out;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        will-change: transform;
+    }
+
+    /* Enhance hover effects */
+    .timeline-component:hover {
+        transform: translateY(-5px) translateZ(20px);
+        box-shadow: 0 15px 35px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Add glow effect */
+    .timeline-component::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(152, 192, 130, 0.08),
+            transparent 40%
+        );
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        border-radius: 20px;
+    }
+
+    .timeline-component:hover::before {
+        opacity: 1;
+    }
+
+    /* Enhance text and content */
+    .timeline-date, .timeline-subheading {
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+
+    .timeline-component:hover .timeline-date,
+    .timeline-component:hover .timeline-subheading {
+        transform: translateZ(20px);
+    }
+
+    .timeline-component p {
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+
+    .timeline-component:hover p {
+        transform: translateZ(15px);
+    }
+
+    /* Image gallery enhancements */
+    .image-gallery {
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+
+    .image-gallery img {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+
+    .timeline-component:hover .image-gallery img {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Timeline circle enhancement */
+    .timeline-circle {
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .timeline-middle:hover .timeline-circle {
+        transform: scale(1.1);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 768px) {
+        .timeline-component {
+            padding: 1.5rem;
+        }
+        
+        .timeline-component:hover {
+            transform: translateY(-3px) translateZ(10px);
+        }
+    }
+
+    /* Add hardware acceleration */
+    .timeline-component {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+    }
+  </style>
 </head>
 
 <body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
+  
+  <header class="hero-section rounded-2xl overflow-hidden">
+    <div class="content">
+        <nav class="flex flex-wrap justify-between w-full lg:px-16 px-8 mt-10">
+          <div>
+            <a href="./">
+              <img src="./assets/newLOGO.png" alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto logo"
+              style="width: auto;" />
+            </a>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" id="menu-button" class="h-12 w-12 cursor-pointer lg:hidden block"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+            <ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
+              <li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
+                  href="product.html">Products</a>
+              </li>
+              <li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
+                href="partnerships.html">Partnerships</a>
+            </li>
+              <li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
+                  href="aboutus.html">About Us</a>
+              </li>
+              <li class="mx-2 py-3 block  "> <a style="color: rgb(152, 192, 130); display: block;width: 100%;height: 100%;"
+                  href="journey.html">Journey</a>
+              </li>
+              <li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
+                  href="faqs.html">FAQs</a>
+              </li>
 
-	<section class="hero-section rounded-2xl overflow-hidden">
+              <li class="mx-2 pt-3 pb-3 block px-10 text-black"
+                style="background-color: rgb(152, 192, 130); border-radius: 600px">
+                <a style="display: block;width: 100%;height: 100%;" href="./contactus.html">Contact Us</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+    </div>
+    <div class="glow"></div>
+    <div class="particles"></div>
+  </header>
 
-		<!-- 	Navbar -->
-		<nav class="flex flex-wrap justify-between w-full lg:px-16 px-8 mt-10">
-			<div>
-				<a href="./">
-					<img src="./assets/newLOGO.png" alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto logo"
-						style="width: auto;" />
-				</a>
-			</div>
-			<svg xmlns="http://www.w3.org/2000/svg" id="menu-button" class="h-12 w-12 cursor-pointer lg:hidden block"
-				fill="none" viewBox="0 0 24 24" stroke="currentColor">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-			</svg>
-			<div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
-				<ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
-					<li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
-							href="./product.html">Products</a>
-					</li>
-					<li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
-							href="partnerships.html">Partnerships</a>
-					</li>
-					<li class="mx-2 py-3 block "> <a
-							style="display: block;width: 100%;height: 100%; color: rgb(152, 192, 130);"
-							href="./aboutus.html">About Us</a>
-					</li>
-					<li class="mx-2 py-3 block text-white">
-						<a style="display: block; width: 100%; height: 100%" href="./journey.html">Journey</a>
-					</li>
-					<li class="mx-2 py-3 block text-white "> <a style="display: block;width: 100%;height: 100%;"
-							href="faqs.html">FAQs</a>
-					</li>
-					<li class="mx-2 pt-3 pb-3 block px-10 text-black"
-						style="background-color: rgb(152, 192, 130); border-radius: 600px">
-						<a style="display: block;width: 100%;height: 100%;" href="./contactus.html">Contact Us</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
+  <section>
+    <h2 class="text-white font-bold">Journey Through Time</h2>
+  </section>
 
-		<div class="premium-origin-card">
-			<div class="content">
-				<h2 class="card-title">The Origin</h2>
-				<div class="card-text">
-					<p>
-						Founded in 2021, Movio Technologies Private Limited (Movio Mobility) was a micro-mobility startup
-						that later on was rebranded as GridXenergy.
-					</p>
-					<p>
-						At GridXenergy, we are building India's most flexible and innovative battery-as-a-service platform.
-						We offer lightweight battery packs and multiple charging options, including home charging, battery
-						swapping, and access to public fast charging, to address the range anxiety caused by infrastructure
-						limitations that slow EV adoption.
-					</p>
-					<p>
-						Our integrated approach combines battery swapping with traditional charging methods, enhancing
-						reliability, affordability, and flexibility for high-intent users whose livelihoods depend on
-						two-wheelers, as well as two-wheeler enthusiasts.
-					</p>
-					<p>
-						Our mission is to simplify EV ownership, reduce costs, and alleviate range anxiety, significantly
-						contributing to sustainable mobility and transforming India's EV landscape.
-					</p>
-				</div>
-				<a href="./journey.html" class="learn-more-btn">
-					<span>Learn More</span>
-				</a>
-			</div>
-			<div class="glow"></div>
-			<div class="particles"></div>
-		</div>
-		
-	</section>
+  <section class="design-section premium-section">
+    <div class="content">
+        <div class="timeline">
+          <div class="time-box-1 timeline-component left" data-aos="fade-right">
+            <h1 class="timeline-date">2018</h1>
+            <h3 class="timeline-subheading">Combat Robotics Geeks</h3>
+            <p>
+              Met in the official robotics club of VIT Vellore, Hriteek and
+              Shivanshu clicked instantly. <br> The mechanical-engineer and
+              electronics-engineer duo worked on lots of projects throughout and
+              spent 4 years building combat robots together. <br> Their shared
+              problem-solving mindset and passion for technology and engineering
+              allowed them to work on a lot of challenges together.
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-2 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery1">
+              <!-- Large box -->
+              <div class=" large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/p1.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/p2.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/p3.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/p4.jpeg" alt="Small Box Image 4"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="time-box-3 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery2">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_2021.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_2021.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_2021.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
 
-	<!-- <a href="./journey.html">
-<section class="mx-2 pt-3 pb-3 inline-block px-10 text-black" style="background-color: rgb(152, 192, 130); border-radius: 600px">
-	<h2 class="mx-auto header   lg:text-3xl text-xl">Learn More →</h2>
-</section>
-</a> -->
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-4 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h1 class="timeline-date">2021</h1>
+            <h3 class="timeline-subheading">E-SkateBoard</h3>
+            <p>
+              VIT being a huge campus, Hriteek and Shivanshu solved their own
+              campus commute problem by building personal light electric vehicles
+              like electric skateboards and scooters. This is precisely when they
+              fell in love with Electric Vehicles (EVs).
+            </p>
+            <br />
+            <br />
+            <br />
+          </div>
 
-	<section class="premium-team-card">
-		<div class="content">
-			<h2 class="card-title">Our Team</h2>
-			<div class="team-grid" style="margin: 0 auto;"	>
-				<div class="team-member">
-					<img src="./Website Resources/Founders/shivanshu.jpeg" class="member-image" />
-					<div class="member-info">
-						<h3 class="text-md lg:text-lg font-bold">Shivanshu Mahim</h3>
-						<p class="text-md lg:text-lg">CEO & Co-Founder</p>
-					</div>
-				</div>
-				<div class="team-member">
-					<img src="./Website Resources/Founders/hriteek.jpeg" class="member-image" />
-					<div class="member-info">
-						<h3 class="text-md lg:text-lg font-bold">Hriteek Agarwal</h3>
-						<p class="text-md lg:text-lg">COO & Co-Founder</p>
-					</div>
-				</div>
-				<div class="team-member">
-					<img src="./Website Resources/Founders/vishy.jpeg" class="member-image" />
-					<div class="member-info">
-						<h3 class="text-md lg:text-lg font-bold">Vishrut Vatsa</h3>
-						<p class="text-md lg:text-lg">CTO & Co-Founder</p>
-					</div>
-				</div>
-				<div class="team-member">
-					<img src="./Website Resources/Founders/paridhi.jpeg" class="member-image" />
-					<div class="member-info">
-						<h3 class="text-md lg:text-lg font-bold">Paridhi Sinha</h3>
-						<p class="text-md lg:text-lg">CFO & Co-Founder</p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="glow"></div>
-		<div class="particles"></div>
-	</section>
+          <div class="time-box-5 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery3">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_2021.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/5_2021.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/6_2021.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/7_2021.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-6 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h3 class="timeline-subheading">Movio & Micro-Mobility</h3>
+            <p>
+              While zooming through the campus on their sleek electric
+              skateboards, Hriteek and Shivanshu caught the attention of VIT-TBI.
+              The incubator nurtured their project and helped them develop it into
+              a business model.
+              <br />
+              Soon, they registered the company 'Movio Technologies Private
+              Limited' and secured a funding of 2.2 lakh INR to pursue their
+              venture. They began exploring the realm of micromobility in
+              Bangalore using personal light electric vehicles (PLEVs) and created
+              impressive products. However, through conversations with EV riders,
+              they quickly realized that the major issue with electric vehicles
+              wasn't the vehicles themselves, but the batteries.
+            </p>
+          </div>
 
-	<section class="premium-card schemes-card">
-		<div class="content">
-			<h2 class="card-title">The Schemes</h2>
-			<div class="schemes-grid">
-				<img class="scheme-logo" src="./Website Resources/Schemes/meity-startup.png" alt="Meity Startup">
-				<img class="scheme-logo" src="./Website Resources/Schemes/nidhi-eir.png" alt="Nidhi EIR">
-				<img class="scheme-logo" src="./Website Resources/Schemes/nidhi-prayas.png" alt="Nidhi Prayas">
-			</div>
-		</div>
-		<div class="glow"></div>
-		<div class="particles"></div>
-	</section>
+          <div class="time-box-7 timeline-component left" data-aos="fade-right">
+            <h1 class="timeline-date">2022</h1>
+            <h3 class="timeline-subheading">Enter, Vishrut</h3>
+            <p>
+              Hriteek and Shivanshu saw the need for someone with strong software
+              development skills on their team. <br> Shivanshu reconnected with his old
+              friend from Kota, Vishrut Vatsa, who was then at Boeing R&D and had
+              notable experience in the software industry, including providing
+              software to IISc Bangalore and interning at Apple. Recognizing his
+              exceptional skills and precision, Shivanshu invited him to join as a
+              co-founder. <br> Vishrut exited Boeing to embark on the 0 to 1 journey
+              with Movio.
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-8 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery4">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_2022.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_2022.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_2022.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_2022.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
 
-	<section class="premium-card partners-card">
-		<div class="content">
-			<h2 class="card-title">The Partners</h2>
-			<div class="partners-grid">
-				<img class="partner-logo" src="./Website Resources/Incubators/vit-vellore.png" alt="VIT Vellore">
-				<img class="partner-logo" src="./Website Resources/Incubators/iiit-delhi.png" alt="IIIT Delhi">
-				<img class="partner-logo" src="./Website Resources/Incubators/iim-udaipur.png" alt="IIM Udaipur">
-				<img class="partner-logo" src="./Website Resources/Incubators/iit-roorkee.png" alt="IIT Roorkee">
-			</div>
-		</div>
-		<div class="glow"></div>
-		<div class="particles"></div>
-	</section>
+          <div class="time-box-9 timeline-component left" data-aos="fade-right">
+            <h3 class="timeline-subheading">Government Grant</h3>
+            <p>
+              Their full-stack prototypes & made-in-India approach with impressive
+              UI/UX soon caught the attention of incubators like IIT Roorkee and
+              VIT-TBI. Through the Nidhi Prayas Scheme and MeitY TIDE 2.0 scale-up
+              scheme, they secured a total funding of 40 lakh INR. This was the
+              turning point when the team decided to pursue entrepreneurship
+              full-time and got committed to solving the EV-battery problem.
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-10 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery5">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/5_2022.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/6_2022.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/7_2022.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/8_2022.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
 
-	<footer class="premium-footer">
-		<div class="footer-content">
-		  <section class="footer-grid">
-			<div class="footer-container">
-			  <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
-				<img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
-				<address class="company-address">
-				  497, Phase V,<br>
-				  Udyog Vihar, Sector 19.<br>
-				  Gurugram, Haryana.
-				</address>
-			  </div>
-			</div>
-			<div class="footer-container">
-			  <div class="footer-card">
-				<div class="social-links">
-				  <h4 class="text-xl font-bold mb-6">Connect With Us</h4>
-				  <ul class="flex flex-col gap-4">
-					<li>
-					  <a href="https://www.instagram.com/gridxenergy/" class="social-link">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-						  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-						</svg>
-						<span>Instagram</span>
-					  </a>
-					</li>
-					<li>
-					  <a href="https://www.linkedin.com/company/gridxenergy/" class="social-link">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-						  <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
-						</svg>
-						<span>LinkedIn</span>
-					  </a>
-					</li>
-					<li>
-					  <a href="https://www.youtube.com/@gridxenergy" class="social-link">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-						  <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-						</svg>
-						<span>Youtube</span>
-					  </a>
-					</li>
-				  </ul>
-				</div>
-			  </div>
-			</div>
-		  </section>
-		  <div class="footer-bottom">
-			<hr class="footer-divider" />
-			<div class="footer-copyright">
-			  <p>Designed and Developed in-house @ GridXenergy</p>
-			  <p>© Copyright 2025 Movio Technologies Private Limited</p>
-			  <div class="footer-links">
-				<a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
-				<span class="separator">•</span>
-				<a href="https://gridxenergy.in/privacy_policy.html">Terms & Conditions</a>
-			  </div>
-			</div>
-		  </div>
-		</div>
-	  </footer>
-	
-	  <!-- Add the footer styles -->
-	  <style>
-	  /* Premium Footer Styles */
-	  .premium-footer {
-		background: linear-gradient(145deg, rgba(29, 29, 29, 0.95), rgba(25, 25, 25, 0.9));
-		padding: 4rem 2rem 2rem;
-		margin-top: 4rem;
-		position: relative;
-		overflow: hidden;
-	  }
-	
-	  .premium-footer::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(
-		  circle at 50% 0%,
-		  rgba(152, 192, 130, 0.1),
-		  transparent 70%
-		);
-	  }
-	
-	  .footer-content {
-		position: relative;
-		max-width: 1200px;
-		margin: 0 auto;
-		z-index: 1;
-	  }
-	
-	  .footer-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-		margin-bottom: 3rem;
-		max-width: 1200px;
-		margin-left: auto;
-		margin-right: auto;
-	  }
-	
-	  .footer-container {
-		width: 100%;
-	  }
-	
-	  .footer-card {
-		padding: 2rem;
-		background: rgba(255, 255, 255, 0.03);
-		border-radius: 15px;
-		transition: all 0.3s ease;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-	  }
-	
-	  .footer-card:hover {
-		transform: translateY(-5px);
-		background: rgba(255, 255, 255, 0.05);
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-	  }
-	
-	  .company-info {
-		display: flex;
-		flex-direction: column;
-		gap: 2.5rem;
-		min-height: 180px;
-		justify-content: flex-start;
-	  }
-	
-	  .footer-logo {
-		height: 40px;
-		width: auto;
-		object-fit: contain;
-		transition: transform 0.3s ease;
-		display: block;
-		margin-top: 0.5rem;
-	  }
-	
-	  .footer-card:hover .footer-logo {
-		transform: scale(1.05);
-	  }
-	
-	  .company-address {
-		color: rgba(255, 255, 255, 0.7);
-		font-style: normal;
-		line-height: 1.6;
-		font-size: 0.95rem;
-	  }
-	
-	  .social-links {
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-	  }
-	
-	  .social-links ul {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-	  }
-	
-	  .social-link {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		color: #fff;
-		transition: all 0.3s ease;
-		padding: 0.5rem;
-		border-radius: 8px;
-	  }
-	
-	  .social-link:hover {
-		background: rgba(152, 192, 130, 0.1);
-		transform: translateX(5px);
-	  }
-	
-	  .social-link svg {
-		transition: transform 0.3s ease;
-	  }
-	
-	  .social-link:hover svg {
-		transform: scale(1.1);
-	  }
-	
-	  .footer-divider {
-		border: none;
-		height: 1px;
-		background: linear-gradient(
-		  90deg,
-		  transparent,
-		  rgba(255, 255, 255, 0.1),
-		  transparent
-		);
-		margin: 2rem 0;
-	  }
-	
-	  .footer-copyright {
-		text-align: center;
-		color: rgba(255, 255, 255, 0.7);
-		font-size: 0.9rem;
-	  }
-	
-	  .footer-links {
-		margin-top: 1rem;
-		display: flex;
-		justify-content: center;
-		gap: 1rem;
-		align-items: center;
-	  }
-	
-	  .footer-links a {
-		color: rgb(152, 192, 130);
-		text-decoration: none;
-		transition: color 0.3s ease;
-	  }
-	
-	  .footer-links a:hover {
-		color: #fff;
-	  }
-	
-	  .separator {
-		color: rgba(255, 255, 255, 0.3);
-	  }
-	
-	  @media screen and (max-width: 768px) {
-		.premium-footer {
-		  padding: 3rem 1rem 1.5rem;
-		}
-	
-		.footer-grid {
-		  grid-template-columns: 1fr;
-		}
-	
-		.footer-links {
-		  flex-direction: column;
-		  gap: 0.5rem;
-		}
-	
-		.separator {
-		  display: none;
-		}
-		
-		.footer-card {
-		  min-height: 200px;
-		}
-		
-		.company-info, .social-links {
-		  align-items: center;
-		  text-align: center;
-		  justify-content: center;
-		}
-		
-		.company-info {
-		  min-height: auto;
-		  gap: 2rem;
-		}
-		
-		.footer-logo {
-		  height: 35px;
-		}
-	  }
-	  </style>
-	
-	  <script>
-	  function scrollToTop() {
-		window.scrollTo({
-		  top: 0,
-		  behavior: 'smooth'
-		});
-	  }
-	  </script>
-	
-	  <style>
-	  .company-info {
-		/* ... existing styles ... */
-		transition: all 0.3s ease;
-	  }
-	
-	  .company-info:hover {
-		transform: translateY(-5px);
-		background: rgba(255, 255, 255, 0.08);
-	  }
-	
-	  .company-info:active {
-		transform: translateY(0);
-	  }
-	  </style>
-	</body>
-	
+          <div class="time-box-11 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery6">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_2023.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_2023.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_2023.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_2023.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-12 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h1 class="timeline-date">2023</h1>
+            <h3 class="timeline-subheading">Enter, Paridhi</h3>
+            <p>
+              The team strategically relocated to Delhi, attracted by its
+              supportive EV policies and conducive environment for hardware
+              businesses. Then the team made the final addition to its founding
+              team, Paridhi. <br> Paridhi and Shivanshu, being cousins, grew up
+              together. Shivanshu knew Paridhi always was interested in business
+              and entrepreneurship, her background in economics and human resource
+              management made her an ideal fit for complementing the tech-focused
+              founders. Upon relocating to Delhi, their immediate priority was to
+              build a team, a task that would have been significantly challenging
+              without Paridhi's expertise and contributions.
+            </p>
+          </div>
 
-	<script src="myscripts.js"></script>
-	<script src="seek.js"></script>
-	<script>
-	document.addEventListener('DOMContentLoaded', function() {
-		// Function to handle mouse tracking for any card
-		function handleMouseTracking(card) {
-			let bounds;
+          <div class="time-box-13 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery7">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/5_2023.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/6_2023.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/7_2023.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/8_2023.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-14 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h3 class="timeline-subheading">Team Building</h3>
+            <p>
+              Movio founders built a lean team of passionate engineers and BDs.
+              Operating initially out of a small office in Gurgaon, they focused
+              on hardware prototyping and developing a scalable business model.<br>
+              The tech team worked tirelessly, while the business development team
+              engaged with customers to identify their pain points. <br> Following the
+              lean startup methodology, they built, learned, iterated, and
+              repeated the process to refine their products and approach.
+            </p>
+          </div>
 
-			function rotateToMouse(e) {
-				const rect = card.getBoundingClientRect();
-				const x = e.clientX - rect.left;
-				const y = e.clientY - rect.top;
-				
-				// Update CSS variables for gradient effect
-				card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
-				card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
-				
-				// Calculate rotation based on mouse position
-				const centerX = rect.width / 2;
-				const centerY = rect.height / 2;
-				const rotateX = ((y - centerY) / centerY) * -2; // Reduced rotation angle
-				const rotateY = ((x - centerX) / centerX) * 2; // Reduced rotation angle
-				
-				// Apply transform with smooth transition
-				card.style.transform = `
-					perspective(1000px)
-					rotateX(${rotateX}deg)
-					rotateY(${rotateY}deg)
-					translateZ(0)
-				`;
-			}
+          <div class="time-box-15 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery8">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_proto.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_proto.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_proto.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_proto.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-16 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h3 class="timeline-subheading">Prototyping Stage</h3>
+            <p>
+              It took them 4 prototypes of the battery pack and 2 iterations of
+              the swap hub to achieve their initial goal: creating a minimum
+              viable product (MVP). They tested the entire technology stack with a
+              small group of users to understand what worked and what didn't.
+              Before long, they had a fully functional prototype and a simple MVP
+              ready to be launched.
+            </p>
+          </div>
 
-			function resetCard() {
-				card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-			}
+          <div class="time-box-17 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery9">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_mvp.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_mvp.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_mvp.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_mvp.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-18 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h3 class="timeline-subheading">MVP</h3>
+            <p>
+              They ran the MVP with high-intent EV riders who used their electric
+              vehicles throughout the day to gather extensive data and
+              validations. The MVP was tested across various use cases, from
+              Swiggy delivery executives to heavy-cargo logistics. They also
+              tested the flexibility of home charging combined with battery
+              swapping, confirming that customers appreciate the convenience of
+              charging at home while having the option to swap batteries when
+              needed. The MVP provided the team with valuable insights.
+            </p>
+          </div>
 
-			// Add event listeners
-			card.addEventListener('mousemove', rotateToMouse);
-			card.addEventListener('mouseleave', resetCard);
-			
-			// Handle scroll and resize
-			window.addEventListener('scroll', () => {
-				bounds = card.getBoundingClientRect();
-			});
-			
-			window.addEventListener('resize', () => {
-				bounds = card.getBoundingClientRect();
-			});
-		}
+          <div class="time-box-19 timeline-component left" data-aos="fade-right" data-aos-delay="800">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery10">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_brand.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_brand.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_brand.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_brand.jpeg" alt="Small Box Image 4"
+                    class="object-cover w-full h-full">
+                </div>
 
-		// Apply tracking to all cards
-		const cards = document.querySelectorAll('.premium-origin-card, .premium-team-card, .premium-card');
-		cards.forEach(card => {
-			handleMouseTracking(card);
-		});
-	});
-	</script>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="200">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-20 timeline-component right" data-aos="fade-left" data-aos-delay="500">
+            <h3 class="timeline-subheading">GridXenergy Re-branding</h3>
+            <p>
+              Based on insights from the MVP and interactions with industry
+              experts, the team realized significant changes were necessary. <br>
+              Firstly, they decided to move away from limiting their solutions to
+              low-speed EVs, recognizing the market shift towards high-speed EVs
+              and the rising demand for personal mobility solutions. With these
+              learnings, Movio was rebranded as GridXenergy. The battery packs
+              were enhanced to be more powerful, with a focus on meticulous
+              attention to detail. UI/UX improvements were implemented
+              specifically to appeal to personal mobility users, enhancing
+              aesthetics, design, and portability as well.
+            </p>
+          </div>
 
+          <div class="time-box-21 timeline-component left" data-aos="fade-right">
+            <h1 class="timeline-date">2024</h1>
+            <h3 class="timeline-subheading">Product Showcasing</h3>
+            <p>
+              Soon, the industrial design prototypes of GridX were completed, and
+              the team began showcasing their products at various events and
+              platforms. They presented their innovations at venues ranging from
+              the Uttarakhand Investor Summit to colleges in Pune, demonstrating
+              their products to diverse audiences.
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-22 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery11">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_2024.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_2024.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_2024.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_2024.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+
+
+          <div class="time-box-23 timeline-component left" data-aos="fade-right">
+            <h3 class="timeline-subheading">SUN Mobility</h3>
+            <p>
+              A pivotal moment occurred when Shivanshu cold-texted Chetan Maini from SUN Mobility, leading the GridX team to
+              meet the "Godfather" of India's EV industry.
+              This opportunity enabled them to visit SUN Mobility's manufacturing plant, pitch their B2C brand concept, and
+              showcase their technology to seasoned engineers.
+              During this visit, they found a mentor in Mr. Anand Ganapathy Chennira, SUN's Chief Strategy Officer, who has
+              provided invaluable guidance since December 2023.
+              This experience was transformative for team GridX, and they cherished every aspect of it as a significant
+              learning opportunity.
+
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-24 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery12">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_sun.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_sun.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <div class="time-box-25 timeline-component left" data-aos="fade-right">
+            <h3 class="timeline-subheading">Validations & Early Traction</h3>
+            <p>
+              Finally, GridXenergy successfully demonstrated its full-stack technology with an EV OEM, GT Force, securing
+              the first Letter of Intent (LOI) for future collaboration.
+              Following this milestone, GridXenergy also received a pre-order of 100 vehicles from a respected fleet owner
+              in Delhi NCR, solely based on the demonstration of their functional prototypes.
+              This validation underscored the market interest in their product. Currently, the GridXenergy team is focused
+              on executing their go-to-market strategy with renewed approach.
+
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-26 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery13">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/1_final.png" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/2_final.png" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/3_final.jpeg" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/4_final.png" alt="Small Box Image 3"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+
+  <footer class="premium-footer">
+    <div class="footer-content">
+      <section class="footer-grid">
+        <div class="footer-container">
+          <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
+            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
+            <address class="company-address">
+              497, Phase V,<br>
+              Udyog Vihar, Sector 19.<br>
+              Gurugram, Haryana.
+            </address>
+          </div>
+        </div>
+        <div class="footer-container">
+          <div class="footer-card">
+            <div class="social-links">
+              <h4 class="text-xl font-bold mb-6">Connect With Us</h4>
+              <ul class="flex flex-col gap-4">
+                <li>
+                  <a href="https://www.instagram.com/gridxenergy/" class="social-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                    </svg>
+                    <span>Instagram</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.linkedin.com/company/gridxenergy/" class="social-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+                    </svg>
+                    <span>LinkedIn</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.youtube.com/@gridxenergy" class="social-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                    </svg>
+                    <span>Youtube</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="footer-bottom">
+        <hr class="footer-divider" />
+        <div class="footer-copyright">
+          <p>Designed and Developed in-house @ GridXenergy</p>
+          <p>© Copyright 2025 Movio Technologies Private Limited</p>
+          <div class="footer-links">
+            <a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
+            <span class="separator">•</span>
+            <a href="https://gridxenergy.in/privacy_policy.html">Terms & Conditions</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Add the footer styles -->
+  <style>
+  /* Premium Footer Styles */
+  .premium-footer {
+    background: linear-gradient(145deg, rgba(29, 29, 29, 0.95), rgba(25, 25, 25, 0.9));
+    padding: 4rem 2rem 2rem;
+    margin-top: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .premium-footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(152, 192, 130, 0.1),
+      transparent 70%
+    );
+  }
+
+  .footer-content {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    z-index: 1;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-container {
+    width: 100%;
+  }
+
+  .footer-card {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .company-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-height: 180px;
+    justify-content: flex-start;
+  }
+
+  .footer-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  .footer-card:hover .footer-logo {
+    transform: scale(1.05);
+  }
+
+  .company-address {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: normal;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .social-links {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .social-links ul {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #fff;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .social-link:hover {
+    background: rgba(152, 192, 130, 0.1);
+    transform: translateX(5px);
+  }
+
+  .social-link svg {
+    transition: transform 0.3s ease;
+  }
+
+  .social-link:hover svg {
+    transform: scale(1.1);
+  }
+
+  .footer-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    margin: 2rem 0;
+  }
+
+  .footer-copyright {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+  }
+
+  .footer-links {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .footer-links a {
+    color: rgb(152, 192, 130);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover {
+    color: #fff;
+  }
+
+  .separator {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  @media screen and (max-width: 768px) {
+    .premium-footer {
+      padding: 3rem 1rem 1.5rem;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-links {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .separator {
+      display: none;
+    }
+    
+    .footer-card {
+      min-height: 200px;
+    }
+    
+    .company-info, .social-links {
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    .company-info {
+      min-height: auto;
+      gap: 2rem;
+    }
+    
+    .footer-logo {
+      height: 35px;
+    }
+  }
+  </style>
+
+  <script>
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+  </script>
+
+  <style>
+  .company-info {
+    /* ... existing styles ... */
+    transition: all 0.3s ease;
+  }
+
+  .company-info:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .company-info:active {
+    transform: translateY(0);
+  }
+  </style>
 </body>
 
 
-<style>
-	.hero-section {
-		margin: 50px auto;
-		width: calc(100vw - 100px);
-		padding: 0 1rem;
-	}
-
-	.hero-section>video {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		z-index: -1;
-	}
-
-	.card {
-		/* width: 500px; */
-		min-width: 300px;
-		padding: 4rem 10px;
-		background: linear-gradient(90deg, #1f1f1f, #1a1a1a);
-		border-radius: 10px;
-		position: relative;
-	}
-
-	.card::before {
-		content: ' ';
-		position: absolute;
-		width: calc(100% + 5px);
-		height: calc(100% + 2px);
-		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
-		left: -1px;
-		top: -1px;
-		z-index: -1;
-		border-radius: 10px;
-	}
-
-	.team-card {
-		border-radius: 20px;
-		position: relative;
-		background-color: #1d1d1d;
-		padding-bottom: 20px;
-	}
-
-	.team-card>img {
-		border-radius: 20px;
-		max-width: 500px;
-		height: 700px;
-	}
-
-	.team-card::after {
-		content: ' ';
-		position: absolute;
-		height: calc(100% + 4px);
-		width: calc(100% + 4px);
-		top: -2px;
-		left: -2px;
-		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
-		z-index: -1;
-		border-radius: 20px;
-	}
-
-	.product-card {
-		height: 600px;
-		background: linear-gradient(90deg, #ccc, #999);
-		position: relative;
-		border-radius: 10px;
-		overflow: hidden;
-	}
-
-	.product-card>img {
-		margin: 0px auto;
-		height: 85%;
-		object-fit: cover;
-	}
-
-	.savings-graph {
-		position: relative;
-		background: #1d1d1d;
-		padding: 30px 0px;
-		border-radius: 10px;
-	}
-
-	.savings-graph::before {
-		border-radius: 10px;
-		content: ' ';
-		z-index: -1;
-		position: absolute;
-		width: calc(100% + 4px);
-		height: calc(100% + 4px);
-		top: -2px;
-		left: -2px;
-		background: linear-gradient(-45deg, rgba(152, 192, 130, 0.5), #1d1d1d, rgba(152, 192, 130, 0.5));
-	}
-
-	.logo {
-		height: 40px;
-	}
-
-	@media screen and (max-width: 768px) {
-		.hero-section {
-			margin: 30px auto;
-			width: calc(100vw - 60px);
-			padding: 0 1rem;
-		}
-
-		.logo {
-			height: 30px;
-		}
-
-		.team-card>img {
-			height: 350px;
-		}
-
-		.card {
-			min-width: 200px;
-		}
-
-		.premium-origin-card {
-			margin: 2rem 0;
-			padding: 2rem;
-		}
-		
-		.card-text {
-			font-size: 0.95rem;
-			padding: 0 1rem;
-		}
-	}
-
-	h2 {
-		font-size: 3rem;
-	}
-
-	@media screen and (max-width: 680) {
-		h2 {
-			font-size: 2rem;
-		}
-	}
-
-	.premium-origin-card {
-		position: relative;
-		padding: 4rem;
-		background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
-		border-radius: 20px;
-		transform-style: preserve-3d;
-		transform: translateZ(0);
-		transition: all 0.3s ease-out;
-		overflow: hidden;
-		box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-		width: 100%;
-		margin: 2rem 0;
-	}
-
-	.premium-origin-card .content {
-		position: relative;
-		z-index: 1;
-		transform: translateZ(30px);
-		transition: transform 0.3s ease-out;
-	}
-
-	.premium-origin-card:hover .content {
-		transform: translateZ(50px);
-	}
-
-	.card-title {
-		color: #fff;
-		margin-bottom: 2rem;
-		font-weight: bold;
-		transform: translateZ(10px);
-	}
-
-	.card-text {
-		color: rgba(255, 255, 255, 0.8);
-		line-height: 1.8;
-		text-align: left;
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 0 2rem;
-	}
-
-	.card-text p {
-		margin-bottom: 1.5rem;
-		color: #ccffcc;
-	}
-
-	.premium-origin-card::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(
-			1200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-			rgba(255, 255, 255, 0.06),
-			transparent 40%
-		);
-		opacity: 0;
-		transition: opacity 0.3s;
-	}
-
-	.premium-origin-card:hover::before {
-		opacity: 1;
-	}
-
-	.glow {
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(circle at 50% 0%, rgba(152, 192, 130, 0.1), transparent 70%);
-		opacity: 0;
-		transition: opacity 0.3s ease;
-	}
-
-	.premium-origin-card:hover .glow {
-		opacity: 1;
-	}
-
-	.learn-more-btn {
-		display: inline-block;
-		padding: 1rem 2rem;
-		background-color: rgb(152, 192, 130);
-		color: black;
-		border-radius: 600px;
-		font-weight: 500;
-		transition: all 0.3s ease;
-		margin-top: 2rem;
-	}
-
-	.learn-more-btn:hover {
-		transform: translateY(-5px);
-		box-shadow: 0 8px 30px rgba(152, 192, 130, 0.4);
-	}
-
-	.premium-team-card {
-		position: relative;
-		padding: 4rem;
-		background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
-		border-radius: 20px;
-		transform-style: preserve-3d;
-		transform: translateZ(0);
-		transition: all 0.3s ease-out;
-		overflow: hidden;
-		box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-		width: calc(100vw - 100px);
-		margin: 2rem auto;
-	}
-
-	.premium-team-card .content {
-		position: relative;
-		z-index: 1;
-		transform: translateZ(30px);
-		transition: transform 0.3s ease-out;
-	}
-
-	.premium-team-card:hover .content {
-		transform: translateZ(50px);
-	}
-
-	.team-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 2rem;
-		margin-top: 3rem;
-		padding: 0 2rem;
-		max-width: 1200px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-	.team-member {
-		border-radius: 20px;
-		overflow: hidden;
-		background: rgba(29, 29, 29, 0.5);
-		transition: all 0.3s ease;
-		transform: translateZ(20px);
-	}
-
-	.team-member:hover {
-		transform: translateZ(30px) translateY(-5px);
-		background: rgba(255, 255, 255, 0.05);
-	}
-
-	.member-image {
-		width: 100%;
-		height: 350px;
-		object-fit: cover;
-		border-radius: 20px 20px 0 0;
-	}
-
-	.member-info {
-		padding: 1.5rem;
-		text-align: left;
-	}
-
-	.member-info p {
-		color: rgb(152, 192, 130);
-		font-family: 'DM Sans', monospace;
-	}
-
-	.premium-team-card::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(
-			1200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-			rgba(255, 255, 255, 0.06),
-			transparent 40%
-		);
-		opacity: 0;
-		transition: opacity 0.3s;
-	}
-
-	.premium-team-card:hover::before {
-		opacity: 1;
-	}
-
-	.premium-team-card .glow {
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(circle at 50% 0%, rgba(152, 192, 130, 0.1), transparent 70%);
-		opacity: 0;
-		transition: opacity 0.3s ease;
-	}
-
-	.premium-team-card:hover .glow {
-		opacity: 1;
-	}
-
-	@media screen and (max-width: 1024px) {
-		.team-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-
-	@media screen and (max-width: 768px) {
-		.premium-team-card {
-			width: calc(100vw - 60px);
-			padding: 2rem;
-			margin: 2rem auto;
-		}
-		
-		.team-grid {
-			grid-template-columns: 1fr;
-			padding: 0 1rem;
-		}
-		
-		.member-image {
-			height: 300px;
-		}
-	}
-
-	.premium-card {
-		position: relative;
-		padding: 4rem;
-		background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
-		border-radius: 20px;
-		transform-style: preserve-3d;
-		transform: translateZ(0);
-		transition: all 0.3s ease-out;
-		overflow: hidden;
-		box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-		width: calc(100vw - 100px);
-		margin: 2rem auto;
-	}
-
-	.premium-card .content {
-		position: relative;
-		z-index: 1;
-		transform: translateZ(30px);
-		transition: transform 0.3s ease-out;
-	}
-
-	.premium-card:hover .content {
-		transform: translateZ(50px);
-	}
-
-	.schemes-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 4rem;
-		margin-top: 3rem;
-		padding: 2rem 4rem;
-		max-width: 1200px;
-		margin-left: auto;
-		margin-right: auto;
-		place-items: center;
-	}
-
-	.scheme-logo {
-		height: 100px;
-		width: auto;
-		object-fit: contain;
-		transition: all 0.3s ease;
-		transform: translateZ(20px);
-		filter: brightness(0.9);
-		max-width: 280px;
-	}
-
-	.scheme-logo:hover {
-		transform: translateZ(30px) translateY(-5px);
-		filter: brightness(1.2);
-	}
-
-	.partners-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 2rem;
-		margin-top: 3rem;
-		padding: 0 2rem;
-		max-width: 1200px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-	.partner-logo {
-		height: 100px;
-		object-fit: contain;
-		transition: all 0.3s ease;
-		transform: translateZ(20px);
-	}
-
-	.partner-logo:hover {
-		transform: translateZ(30px) translateY(-5px);
-		filter: brightness(1.2);
-	}
-
-	.premium-card::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(
-			1200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-			rgba(255, 255, 255, 0.06),
-			transparent 40%
-		);
-		opacity: 0;
-		transition: opacity 0.3s;
-	}
-
-	.premium-card:hover::before {
-		opacity: 1;
-	}
-
-	.premium-card .glow {
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(circle at 50% 0%, rgba(152, 192, 130, 0.1), transparent 70%);
-		opacity: 0;
-		transition: opacity 0.3s ease;
-	}
-
-	.premium-card:hover .glow {
-		opacity: 1;
-	}
-
-	@media screen and (max-width: 1024px) {
-		.schemes-grid {
-			gap: 3rem;
-			padding: 2rem;
-		}
-	}
-
-	@media screen and (max-width: 768px) {
-		.premium-card {
-			width: calc(100vw - 60px);
-			padding: 2rem;
-			margin: 2rem auto;
-		}
-		
-		.schemes-grid {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-			padding: 1rem;
-		}
-		
-		.scheme-logo {
-			height: 80px;
-		}
-	}
-
-	/* Update card styles to support 3D effects */
-	.premium-origin-card,
-	.premium-team-card,
-	.premium-card {
-		position: relative;
-		transform-style: preserve-3d;
-		perspective: 1000px;
-		will-change: transform;
-	}
-
-	.premium-origin-card::before,
-	.premium-team-card::before,
-	.premium-card::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(
-			1200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-			rgba(152, 192, 130, 0.08),
-			transparent 40%
-		);
-		opacity: 0;
-		transition: opacity 0.3s;
-		pointer-events: none;
-	}
-
-	.premium-origin-card:hover::before,
-	.premium-team-card:hover::before,
-	.premium-card:hover::before {
-		opacity: 1;
-	}
-
-	.premium-origin-card .content,
-	.premium-team-card .content,
-	.premium-card .content {
-		position: relative;
-		z-index: 1;
-		transform: translateZ(20px);
-		transition: transform 0.3s ease-out;
-		transform-style: preserve-3d;
-	}
-
-	.premium-origin-card:hover .content,
-	.premium-team-card:hover .content,
-	.premium-card:hover .content {
-		transform: translateZ(30px);
-	}
-
-	/* Ensure smooth transitions */
-	.premium-origin-card,
-	.premium-team-card,
-	.premium-card {
-		transition: transform 0.3s ease-out;
-	}
-
-	/* Add hardware acceleration */
-	.premium-origin-card,
-	.premium-team-card,
-	.premium-card {
-		backface-visibility: hidden;
-		-webkit-backface-visibility: hidden;
-		transform: translate3d(0, 0, 0);
-		-webkit-transform: translate3d(0, 0, 0);
-	}
-</style>
+  <script>
+    AOS.init({
+      delay: 600, // values from 0 to 3000, with step 50ms
+      duration: 1200, // values from 0 to 3000, with step 50ms
+    });
+  </script>
+  <script src="myscripts.js"></script>
+  <script src="image-effect.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle mouse tracking for timeline components
+        function handleMouseTracking(component) {
+            let bounds;
+
+            function rotateToMouse(e) {
+                const rect = component.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Update CSS variables for gradient effect
+                component.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                component.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+                
+                // Calculate rotation based on mouse position
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -1; // Reduced rotation angle
+                const rotateY = ((x - centerX) / centerX) * 1; // Reduced rotation angle
+                
+                // Apply transform with smooth transition
+                component.style.transform = `
+                    perspective(1000px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    translateZ(10px)
+                `;
+            }
+
+            function resetComponent() {
+                component.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+            }
+
+            // Add event listeners
+            component.addEventListener('mousemove', rotateToMouse);
+            component.addEventListener('mouseleave', resetComponent);
+        }
+
+        // Apply tracking to all timeline components
+        const timelineComponents = document.querySelectorAll('.timeline-component');
+        timelineComponents.forEach(component => {
+            handleMouseTracking(component);
+        });
+    });
+  </script>
+</body>
 
 </html>
