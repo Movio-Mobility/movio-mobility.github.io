@@ -924,6 +924,83 @@
 				padding: 2rem 1.5rem;
 			}
 		}
+
+		/* Language Toggle Button Style */
+		.language-toggle {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			padding: 8px 16px;
+			background: rgba(152, 192, 130, 0.1);
+			border: 1px solid rgb(152, 192, 130);
+		border-radius: 20px;
+			color: rgb(152, 192, 130);
+			font-weight: 500;
+		cursor: pointer;
+		transition: all 0.3s ease;
+			z-index: 10;
+		}
+
+		.language-toggle:hover {
+			background: rgba(152, 192, 130, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.language-toggle:active {
+			transform: translateY(0);
+		}
+
+		.lang-text {
+			font-size: 16px;
+		}
+
+		/* Updated Language Toggle Button Style */
+		.language-toggle {
+			padding: 6px 16px;
+			background: rgba(152, 192, 130, 0.1);
+			border: 1px solid rgb(152, 192, 130);
+			border-radius: 20px;
+			color: rgb(152, 192, 130);
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		display: inline-flex;
+		align-items: center;
+			gap: 6px;
+		}
+
+		.language-toggle::before {
+			content: '🌐';
+			font-size: 14px;
+		}
+
+		.language-toggle:hover {
+			background: rgba(152, 192, 130, 0.2);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(152, 192, 130, 0.2);
+		}
+
+		.language-toggle:active {
+			transform: translateY(0);
+		}
+
+		.lang-text {
+			font-size: 16px;
+			font-family: 'DM Sans', sans-serif;
+		}
+
+		/* Responsive adjustments */
+		@media screen and (max-width: 768px) {
+			.flex.justify-between.items-center.mb-6 {
+				flex-direction: column;
+				gap: 1rem;
+				text-align: center;
+			}
+
+			.language-toggle {
+				margin-top: 0.5rem;
+			}
+		}
 	</style>
 </head>
 
@@ -1130,20 +1207,20 @@
 			<div class="premium-card forging-card">
 				<div class="content flex xl:flex-row flex-col gap-10">
 					<div class="xl:w-1/2">
-						<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">
-							Forging the path towards the future of two-wheelers by eradicating EV restrictions.
-						</h2>
-						<ul class="text-md lg:text-lg text-gray-400 mb-10 feature-list">
-							<li>No High Upfront cost</li>
-							<li>No Range Anxiety</li>
-							<li>No Lack of Charging Infrastructure</li>
-							<li>Zero Charging Downtime</li>
-							<li>Zero Battery Replacement Cost</li>
-						</ul>
-						<a href="product.html" class="premium-link">
-							<span>Our Products</span>
-							<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
-						</a>
+					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">
+						Forging the path towards the future of two-wheelers by eradicating EV restrictions.
+					</h2>
+					<ul class="text-md lg:text-lg text-gray-400 mb-10 feature-list">
+						<li>No High Upfront cost</li>
+						<li>No Range Anxiety</li>
+						<li>No Lack of Charging Infrastructure</li>
+						<li>Zero Charging Downtime</li>
+						<li>Zero Battery Replacement Cost</li>
+					</ul>
+					<a href="product.html" class="premium-link">
+						<span>Our Products</span>
+						<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
+					</a>
 					</div>
 					<div class="xl:w-1/2 flex flex-col justify-center">
 						<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover rounded-xl"></video>
@@ -1299,48 +1376,53 @@
 		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
 			<div class="premium-card calculator-card">
 				<div class="content">
-					<h2 class="text-white font-bold lg:text-5xl text-3xl">Calculate Your Savings</h2>
+					<!-- Add this right after the calculator card's title -->
+					<div class="flex justify-between items-center mb-6">
+						<h2 class="text-white font-bold lg:text-5xl text-3xl">Calculate Your Savings</h2>
+						<button id="langToggle" class="language-toggle">
+							<span class="lang-text">हिंदी</span>
+						</button>
+					</div>
 					<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md mb-16">
-						Still spending more on ICE for high performance?
-						<br>
-						Check how low running cost meets the high performance with GridX PowerPod.
-					</p>
+				Still spending more on ICE for high performance?
+				<br>
+				Check how low running cost meets the high performance with GridX PowerPod.
+			</p>
 					
 					<div class="flex flex-col lg:flex-row gap-12 justify-center lg:mx-12 mx-2">
 						<!-- Left Column - Controls -->
-						<div style="flex-grow: 1;">
-							<div class="flex flex-col text-left gap-10 justify-center h-full">
-								<div>
-									<h3 class="text-gray-400 text-xl mb-5">Select Your Type of Vehicle</h3>
+				<div style="flex-grow: 1;">
+					<div class="flex flex-col text-left gap-10 justify-center h-full">
+						<div>
+							<h3 class="text-gray-400 text-xl mb-5">Select Your Type of Vehicle</h3>
 									<div id="speed" class="flex lg:flex-row flex-col border border-gray-500 rounded-xl p-3 gap-3 text-center justify-evenly" style="max-width: 750px">
 										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl selected">
 											<h4 class="text-lg font-bold text-white">Low Speed</h4>
-											<p class="text-lg">(Up to 25 Km/h)</p>
-										</button>
-										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+									<p class="text-lg">(Up to 25 Km/h)</p>
+								</button>
+								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
 											<h4 class="text-lg font-bold text-white">Medium Speed</h4>
-											<p class="text-lg">(Up to 45 Km/h)</p>
-										</button>
-										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+									<p class="text-lg">(Up to 45 Km/h)</p>
+								</button>
+								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
 											<h4 class="text-lg font-bold text-white">High Speed</h4>
-											<p class="text-lg">(Up to 80 Km/h)</p>
-										</button>
-									</div>
-								</div>
-								<div style="max-width: 750px;">
+									<p class="text-lg">(Up to 80 Km/h)</p>
+								</button>
+							</div>
+						</div>
+						<div style="max-width: 750px;">
 									<h3 class="text-gray-400 text-xl mb-5">Distance Travelled Everyday: <span id="distance">10 Km</span></h3>
 									<input id="seek" type="range" min="10" max="120" value="10" class="w-full" />
 									<div class="flex flex-row justify-between text-white text-lg mt-2">
-										<div>10 Km</div>
-										<div>120 Km</div>
-									</div>
+									<div>10 Km</div>
+									<div>120 Km</div>
 								</div>
-								<div class="text-xl font-bold">
-									<span style="color: rgb(152, 192, 130);" id="saving">30</span>
-									<span style="color: rgb(152, 192, 130);">%</span> increase in savings with GridX
-									<br><br>
-									<span class="text-sm text-gray-400">*ICE vehicle refers to a conventional mass-market 100cc scooter</span>
-								</div>
+						</div>
+						<div class="text-xl font-bold">
+							<span style="color: rgb(152, 192, 130);" id="saving">30</span>% increase in savings with GridX
+							<br><br>
+							<span class="text-sm text-gray-400">*ICE vehicle refers to a conventional mass-market 100cc scooter</span>
+						</div>
 							</div>
 						</div>
 
@@ -2178,6 +2260,171 @@
 
 			calculatorCard.addEventListener('mouseleave', () => {
 				calculatorCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+			});
+		});
+		</script>
+
+		<!-- Add this button inside the premium-card calculator-card div, right after the content div -->
+		<button id="langToggle" class="language-toggle">
+			<span class="lang-text">हिंदी</span>
+		</button>
+
+		<style>
+		/* Language Toggle Button Style */
+		.language-toggle {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			padding: 8px 16px;
+			background: rgba(152, 192, 130, 0.1);
+			border: 1px solid rgb(152, 192, 130);
+			border-radius: 20px;
+			color: rgb(152, 192, 130);
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			z-index: 10;
+		}
+
+		.language-toggle:hover {
+			background: rgba(152, 192, 130, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.language-toggle:active {
+			transform: translateY(0);
+		}
+
+		.lang-text {
+			font-size: 16px;
+		}
+		</style>
+
+		<script>
+		// Add this to your existing JavaScript
+		document.addEventListener('DOMContentLoaded', function() {
+			const langToggle = document.getElementById('langToggle');
+			let isHindi = false;
+
+			// Translations object
+			const translations = {
+				title: {
+					en: "Calculate Your Savings",
+					hi: "अपनी बचत की गणना करें"
+				},
+				subtitle: {
+					en: "Still spending more on ICE for high performance?<br>Check how low running cost meets the high performance with GridX PowerPod.",
+					hi: "क्या अभी भी हाई परफॉरमेंस के लिए ICE पर ज्यादा खर्च कर रहे हैं?<br>देखें कैसे GridX PowerPod के साथ कम रनिंग कॉस्ट हाई परफॉरमेंस से मिलती है।"
+				},
+				vehicleType: {
+					en: "Select Your Type of Vehicle",
+					hi: "अपने वाहन का प्रकार चुनें"
+				},
+				speedTypes: {
+					lowSpeed: {
+						en: "Low Speed",
+						hi: "कम गति"
+					},
+					lowSpeedSub: {
+						en: "(Up to 25 Km/h)",
+						hi: "(25 किमी/घंटा तक)"
+					},
+					mediumSpeed: {
+						en: "Medium Speed",
+						hi: "मध्यम गति"
+					},
+					mediumSpeedSub: {
+						en: "(Up to 45 Km/h)",
+						hi: "(45 किमी/घंटा तक)"
+					},
+					highSpeed: {
+						en: "High Speed",
+						hi: "उच्च गति"
+					},
+					highSpeedSub: {
+						en: "(Up to 80 Km/h)",
+						hi: "(80 किमी/घंटा तक)"
+					}
+				},
+				distance: {
+					en: "Distance Travelled Everyday:",
+					hi: "प्रतिदिन तय की गई दूरी:"
+				},
+				km: {
+					en: "Km",
+					hi: "किमी"
+				},
+				savings: {
+					en: "increase in savings with GridX",
+					hi: "GridX के साथ बचत में वृद्धि"
+				},
+				reference: {
+					en: "*ICE vehicle refers to a conventional mass-market 100cc scooter",
+					hi: "*ICE वाहन एक पारंपरिक मास-मार्केट 100cc स्कूटर को संदर्भित करता है"
+				},
+				monthlyCost: {
+					en: "Average Monthly Running Cost",
+					hi: "औसत मासिक चलने की लागत"
+				},
+				iceVehicle: {
+					en: "I.C.E. Vehicle",
+					hi: "I.C.E. वाहन"
+				}
+			};
+
+			// Function to update text content
+			function updateLanguage(isHindi) {
+				// Update button text
+				langToggle.querySelector('.lang-text').textContent = isHindi ? 'English' : 'हिंदी';
+
+				// Update all text content
+				document.querySelector('.calculator-card h2').textContent = isHindi ? translations.title.hi : translations.title.en;
+				document.querySelector('.calculator-card p').innerHTML = isHindi ? translations.subtitle.hi : translations.subtitle.en;
+				document.querySelector('.calculator-card h3:first-of-type').textContent = isHindi ? translations.vehicleType.hi : translations.vehicleType.en;
+
+				// Update speed cards
+				const speedCards = document.querySelectorAll('.speed-card');
+				speedCards[0].querySelector('h4').textContent = isHindi ? translations.speedTypes.lowSpeed.hi : translations.speedTypes.lowSpeed.en;
+				speedCards[0].querySelector('p').textContent = isHindi ? translations.speedTypes.lowSpeedSub.hi : translations.speedTypes.lowSpeedSub.en;
+				
+				speedCards[1].querySelector('h4').textContent = isHindi ? translations.speedTypes.mediumSpeed.hi : translations.speedTypes.mediumSpeed.en;
+				speedCards[1].querySelector('p').textContent = isHindi ? translations.speedTypes.mediumSpeedSub.hi : translations.speedTypes.mediumSpeedSub.en;
+				
+				speedCards[2].querySelector('h4').textContent = isHindi ? translations.speedTypes.highSpeed.hi : translations.speedTypes.highSpeed.en;
+				speedCards[2].querySelector('p').textContent = isHindi ? translations.speedTypes.highSpeedSub.hi : translations.speedTypes.highSpeedSub.en;
+
+				// Update distance text
+				const distanceText = document.querySelector('#distance').parentElement;
+				distanceText.childNodes[0].textContent = isHindi ? translations.distance.hi : translations.distance.en;
+				
+				// Update savings text
+				const savingValue = document.getElementById('saving').textContent;
+				const savingsContainer = document.getElementById('saving').parentElement;
+				savingsContainer.innerHTML = `
+					<span style="color: rgb(152, 192, 130);" id="saving">${savingValue}</span>
+					<span style="color: rgb(152, 192, 130);">%</span> ${isHindi ? translations.savings.hi : translations.savings.en}
+					<br><br>
+					<span class="text-sm text-gray-400">${isHindi ? translations.reference.hi : translations.reference.en}</span>
+				`;
+				
+				// Update monthly cost text
+				const monthlyTitle = document.querySelector('.savings-graph h3');
+				monthlyTitle.textContent = isHindi ? translations.monthlyCost.hi : translations.monthlyCost.en;
+				
+				// Update ICE Vehicle text
+				const iceVehicleText = document.querySelector('.savings-graph .text-white.font-bold.text-xl');
+				iceVehicleText.textContent = isHindi ? translations.iceVehicle.hi : translations.iceVehicle.en;
+
+				// Update distance range labels
+				const rangeLabels = document.querySelectorAll('.flex.flex-row.justify-between.text-white.text-lg div');
+				rangeLabels[0].textContent = `10 ${isHindi ? translations.km.hi : translations.km.en}`;
+				rangeLabels[1].textContent = `120 ${isHindi ? translations.km.hi : translations.km.en}`;
+			}
+
+			// Add click event listener to toggle language
+			langToggle.addEventListener('click', () => {
+				isHindi = !isHindi;
+				updateLanguage(isHindi);
 			});
 		});
 		</script>
