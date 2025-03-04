@@ -816,6 +816,114 @@
 				padding: 2rem 1.5rem;
 			}
 		}
+
+		#gridbar, #IECbar {
+			transition: height 0.5s ease-in-out;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 40px;
+			height: 20vh; /* Set initial height */
+			width: 100px; /* Set fixed width */
+		}
+
+		input[type="range"] {
+			-webkit-appearance: none;
+			width: 100%;
+			height: 8px;
+			background: rgba(152, 192, 130, 0.2);
+			border-radius: 4px;
+			outline: none;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 20px;
+			height: 20px;
+			background: rgb(152, 192, 130);
+			border-radius: 50%;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		input[type="range"]::-webkit-slider-thumb:hover {
+			transform: scale(1.1);
+			box-shadow: 0 0 10px rgba(152, 192, 130, 0.3);
+		}
+
+		input[type="range"]::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			background: rgb(152, 192, 130);
+			border-radius: 50%;
+			cursor: pointer;
+			border: none;
+			transition: all 0.3s ease;
+		}
+
+		input[type="range"]::-moz-range-thumb:hover {
+			transform: scale(1.1);
+			box-shadow: 0 0 10px rgba(152, 192, 130, 0.3);
+		}
+
+		.savings-graph .flex-row {
+			height: 50vh; /* Set fixed height for container */
+			align-items: flex-end;
+		}
+
+		/* Add these styles for mouse tracking */
+		.calculator-card {
+			position: relative;
+			padding: 3rem 2rem;
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+		border-radius: 20px;
+			transform-style: preserve-3d;
+			transform: translateZ(0);
+			transition: all 0.3s ease-out;
+		overflow: hidden;
+			box-shadow: 
+				0 15px 35px rgba(0, 0, 0, 0.3),
+				0 5px 15px rgba(0, 0, 0, 0.2);
+			width: calc(100vw - 100px);
+			max-width: calc(100vw - 100px);
+			margin: 0 auto;
+		}
+
+		.calculator-card::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+				rgba(255, 255, 255, 0.06),
+				transparent 40%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.calculator-card:hover::before {
+			opacity: 1;
+		}
+
+		.calculator-card .content {
+			position: relative;
+			z-index: 1;
+			transform: translateZ(30px);
+			transition: transform 0.3s ease-out;
+		}
+
+		.calculator-card:hover .content {
+			transform: translateZ(50px);
+		}
+
+		@media screen and (max-width: 768px) {
+			.calculator-card {
+				width: calc(100vw - 40px);
+				max-width: calc(100vw - 40px);
+				padding: 2rem 1.5rem;
+			}
+		}
 	</style>
 </head>
 
@@ -1019,30 +1127,126 @@
 
 
 		<section class="flex flex-col xl:flex-row justify-start mx-auto lg:px-24 px-5 my-10" style="min-height: 50vh; margin: 5vh auto; perspective: 1000px;">
-			<div class="premium-card-wide">
-				<div class="content">
-					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">
-						Forging the path towards the future of two-wheelers by eradicating EV restrictions.
-					</h2>
-					<ul class="text-md lg:text-lg text-gray-400 mb-10 feature-list">
-						<li>No High Upfront cost</li>
-						<li>No Range Anxiety</li>
-						<li>No Lack of Charging Infrastructure</li>
-						<li>Zero Charging Downtime</li>
-						<li>Zero Battery Replacement Cost</li>
-					</ul>
-					<a href="product.html" class="premium-link">
-						<span>Our Products</span>
-						<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
-					</a>
+			<div class="premium-card forging-card">
+				<div class="content flex xl:flex-row flex-col gap-10">
+					<div class="xl:w-1/2">
+						<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">
+							Forging the path towards the future of two-wheelers by eradicating EV restrictions.
+						</h2>
+						<ul class="text-md lg:text-lg text-gray-400 mb-10 feature-list">
+							<li>No High Upfront cost</li>
+							<li>No Range Anxiety</li>
+							<li>No Lack of Charging Infrastructure</li>
+							<li>Zero Charging Downtime</li>
+							<li>Zero Battery Replacement Cost</li>
+						</ul>
+						<a href="product.html" class="premium-link">
+							<span>Our Products</span>
+							<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
+						</a>
+					</div>
+					<div class="xl:w-1/2 flex flex-col justify-center">
+						<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover rounded-xl"></video>
+					</div>
 				</div>
 				<div class="glow"></div>
 				<div class="particles"></div>
 			</div>
-			<div class="flex flex-col justify-center my-10 video-container" style="flex-grow: 2">
-				<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover rounded-xl"></video>
-			</div>
 		</section>
+
+		<style>
+		.forging-card {
+			position: relative;
+			padding: 3rem 2rem;
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
+			border-radius: 20px;
+			transform-style: preserve-3d;
+			transform: translateZ(0);
+			transition: all 0.3s ease-out;
+			overflow: hidden;
+			box-shadow: 
+				0 15px 35px rgba(0, 0, 0, 0.3),
+				0 5px 15px rgba(0, 0, 0, 0.2);
+			width: calc(100vw - 100px);
+			max-width: calc(100vw - 100px);
+			margin: 0 auto;
+		}
+
+		.forging-card::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+				rgba(255, 255, 255, 0.06),
+				transparent 40%
+			);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+
+		.forging-card:hover::before {
+			opacity: 1;
+		}
+
+		.forging-card .content {
+			position: relative;
+			z-index: 1;
+			transform: translateZ(30px);
+			transition: transform 0.3s ease-out;
+		}
+
+		.forging-card:hover .content {
+			transform: translateZ(50px);
+		}
+
+		.forging-card video {
+			transition: all 0.3s ease;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+		}
+
+		.forging-card:hover video {
+			transform: scale(1.02);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+		}
+
+		@media screen and (max-width: 768px) {
+			.forging-card {
+				width: calc(100vw - 40px);
+				max-width: calc(100vw - 40px);
+				padding: 2rem 1.5rem;
+			}
+		}
+		</style>
+
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const forgingCard = document.querySelector('.forging-card');
+			
+			forgingCard.addEventListener('mousemove', (e) => {
+				const rect = forgingCard.getBoundingClientRect();
+				const x = ((e.clientX - rect.left) / forgingCard.clientWidth) * 100;
+				const y = ((e.clientY - rect.top) / forgingCard.clientHeight) * 100;
+				
+				const rotateY = (x - 50) * 0.03;
+				const rotateX = (y - 50) * -0.03;
+				
+				forgingCard.style.setProperty('--mouse-x', `${x}%`);
+				forgingCard.style.setProperty('--mouse-y', `${y}%`);
+				
+				forgingCard.style.transform = `
+					perspective(1000px)
+					rotateX(${rotateX}deg)
+					rotateY(${rotateY}deg)
+					translateZ(0)
+				`;
+			});
+
+			forgingCard.addEventListener('mouseleave', () => {
+				forgingCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+			});
+		});
+		</script>
 
 		<br>
 		<br>
@@ -1092,216 +1296,283 @@
 		<br>
 		<br>
 
-		<section style="margin: 5vh auto;" class="lg:px-0 px-5">
-			<h2 class="text-white font-bold lg:text-5xl text-3xl ">Calculate Your Savings</h2>
-			<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md">
-				Still spending more on ICE for high performance?
-				<br>
-				Check how low running cost meets the high performance with GridX PowerPod.
-			</p>
-			<div class="flex flex-col lg:flex-row gap-12 justify-center lg:mx-12 mx-2 md:px-24 mt-24">
-				<div style="flex-grow: 1;">
-					<div class="flex flex-col text-left gap-10 justify-center h-full">
-						<div>
-							<h3 class="text-gray-400 text-xl mb-5">Select Your Type of Vehicle</h3>
-							<div id='speed'
-								class=" flex lg:flex-row flex-col border border-gray-500 rounded-xl p-3 gap-3 text-center justify-evenly"
-								style="max-width: 750px">
-								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
-									<h4 class="text-lg font-bold text-white">Low
-										Speed</h4>
-									<p class="text-lg">(Up to 25 Km/h)</p>
-								</button>
-								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
-									<h4 class="text-lg font-bold text-white">
-										Medium Speed</h4>
-									<p class="text-lg">(Up to 45 Km/h)</p>
-								</button>
-								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
-									<h4 class="text-lg font-bold text-white">High
-										Speed</h4>
-									<p class="text-lg">(Up to 80 Km/h)</p>
-								</button>
-							</div>
-						</div>
-						<div style="max-width: 750px;">
-							<h3 class="text-gray-400 text-xl mb-5">Distance Travelled Everyday : <span
-									id="distance"></span>
-								</h4>
-								<form>
-									<input id="seek" type="range" min="10" max="120" class="w-full" />
-								</form>
-								<div class="flex flex-row justify-between text-white text-lg">
-									<div>10 Km</div>
-									<div>120 Km</div>
+		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
+			<div class="premium-card calculator-card">
+				<div class="content">
+					<h2 class="text-white font-bold lg:text-5xl text-3xl">Calculate Your Savings</h2>
+					<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md mb-16">
+						Still spending more on ICE for high performance?
+						<br>
+						Check how low running cost meets the high performance with GridX PowerPod.
+					</p>
+					
+					<div class="flex flex-col lg:flex-row gap-12 justify-center lg:mx-12 mx-2">
+						<!-- Left Column - Controls -->
+						<div style="flex-grow: 1;">
+							<div class="flex flex-col text-left gap-10 justify-center h-full">
+								<div>
+									<h3 class="text-gray-400 text-xl mb-5">Select Your Type of Vehicle</h3>
+									<div id="speed" class="flex lg:flex-row flex-col border border-gray-500 rounded-xl p-3 gap-3 text-center justify-evenly" style="max-width: 750px">
+										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl selected">
+											<h4 class="text-lg font-bold text-white">Low Speed</h4>
+											<p class="text-lg">(Up to 25 Km/h)</p>
+										</button>
+										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+											<h4 class="text-lg font-bold text-white">Medium Speed</h4>
+											<p class="text-lg">(Up to 45 Km/h)</p>
+										</button>
+										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
+											<h4 class="text-lg font-bold text-white">High Speed</h4>
+											<p class="text-lg">(Up to 80 Km/h)</p>
+										</button>
+									</div>
 								</div>
+								<div style="max-width: 750px;">
+									<h3 class="text-gray-400 text-xl mb-5">Distance Travelled Everyday: <span id="distance">10 Km</span></h3>
+									<input id="seek" type="range" min="10" max="120" value="10" class="w-full" />
+									<div class="flex flex-row justify-between text-white text-lg mt-2">
+										<div>10 Km</div>
+										<div>120 Km</div>
+									</div>
+								</div>
+								<div class="text-xl font-bold">
+									<span style="color: rgb(152, 192, 130);" id="saving">30</span>
+									<span style="color: rgb(152, 192, 130);">%</span> increase in savings with GridX
+									<br><br>
+									<span class="text-sm text-gray-400">*ICE vehicle refers to a conventional mass-market 100cc scooter</span>
+								</div>
+							</div>
 						</div>
-						<div class="text-xl font-bold">
-							<span style="color: rgb(152, 192, 130);" id="saving">30% to 50%</span><span
-								style="color: rgb(152, 192, 130);"> %</span> increase in savings with GridX
-							<br>
-							<br>
-							*ICE vehicle refers to a conventional mass-market 100cc scooter
 
+						<!-- Right Column - Chart -->
+						<div style="flex-grow: 1;" class="cal-chart">
+							<div class="savings-graph">
+								<h3 class="text-xl mb-10">Average Monthly Running Cost</h3>
+								<div class="chart-container" style="height: 400px; position: relative;">
+									<div class="flex justify-around items-end h-full pb-16">
+										<!-- GridX Bar -->
+										<div class="flex flex-col items-center gap-4">
+											<div class="bar-wrapper" style="width: 100px; height: 300px; display: flex; align-items: flex-end;">
+												<div id="gridbar" class="w-full rounded-t-xl transition-all duration-500 ease-in-out" 
+													 style="background: linear-gradient(#92B97D, #59714C); height: 150px;">
+													<div class="text-center text-white font-bold py-2">₹<span id="gridx-cost">300</span></div>
+												</div>
+											</div>
+											<img src="./assets/newLOGO.png" style="height: 20px" alt="GridX Logo">
+										</div>
 
-
+										<!-- ICE Bar -->
+										<div class="flex flex-col items-center gap-4">
+											<div class="bar-wrapper" style="width: 100px; height: 300px; display: flex; align-items: flex-end;">
+												<div id="IECbar" class="w-full rounded-t-xl transition-all duration-500 ease-in-out" 
+													 style="background: linear-gradient(#E14444, #6F2222); height: 300px;">
+													<div class="text-center text-white font-bold py-2">₹<span id="local-cost">900</span></div>
+												</div>
+											</div>
+											<div class="text-white font-bold text-xl">I.C.E. Vehicle</div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div style="flex-grow: 1;" class="cal-chart">
-					<div class="savings-graph">
-						<h3 class="text-xl mb-10">Average Monthly
-							Running Cost</h3>
-						<div class="flex flex-row justify-evenly h-full" style="height: 70vh;">
-							<div class="flex flex-col justify-end gap-12" style="min-height: 50vh;">
-								<div id="gridbar"
-									class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
-									style="background: linear-gradient(#92B97D, #59714C); min-width: 50%;">
-									₹ <span id="gridx-cost">300</span></div>
-								<img src="./assets/newLOGO.png" style="height: 20px">
-							</div>
-							<div class="flex flex-col justify-end gap-8">
-								<div id="IECbar"
-									class="mx-auto flex flex-col justify-center rounded-xl font-bold text-xl px-3"
-									style="height: 40vh; background: linear-gradient(#E14444, #6F2222); min-width: 50%;">
-									₹ <span id="local-cost">400</span></div>
-								<div style="height: 30px; font-size: 1.7rem" class="font-bold">I.C.E. Vehicle</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<div class="glow"></div>
+				<div class="particles"></div>
 			</div>
 		</section>
 
+		<style>
+		/* Calculator Styles */
+		.savings-graph {
+			background: rgba(255, 255, 255, 0.03);
+			padding: 2rem;
+			border-radius: 10px;
+			position: relative;
+			transition: all 0.3s ease;
+		}
 
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
+		.savings-graph:hover {
+			background: rgba(255, 255, 255, 0.05);
+			transform: translateY(-5px);
+		}
 
+		#seek {
+			-webkit-appearance: none;
+			height: 8px;
+			background: rgba(152, 192, 130, 0.2);
+			border-radius: 4px;
+			outline: none;
+		}
 
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
+		#seek::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 20px;
+			height: 20px;
+			background: rgb(152, 192, 130);
+			border-radius: 50%;
+			cursor: pointer;
+			transition: transform 0.3s ease;
+		}
 
+		#seek::-webkit-slider-thumb:hover {
+			transform: scale(1.1);
+		}
 
-		<footer class="p-8 text-slate-500 bg-black">
-			<section class="">
-				<div class="mx-auto w-full p-4 py-6">
-					<div class="md:flex md:justify-between">
-						<div class="mb-6 md:mb-0">
-							<div>
-								<a href="https://gridxenergy.in/" class="flex items-center">
-									<img src="./assets/newLOGO.png" alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto"
-										style="height: 25px; width: auto" />
-								</a>
-							</div>
+		#seek::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			background: rgb(152, 192, 130);
+			border-radius: 50%;
+			cursor: pointer;
+			border: none;
+			transition: transform 0.3s ease;
+		}
 
-							<div class="flex">
-								<i class="fa fa-map-marker mt-6 py-1 mx-2"></i>
-								<p
-									class="max-w-md mt-6 leading-relaxed text-center text-gray-400 sm:max-w-xs sm:mx-0 sm:text-left">
-									497, Phase V,
-									<br> Udyog Vihar, Sector 19.
-									<br>
-									Gurugram, Haryana.
-								</p>
-							</div>
-						</div>
+		#seek::-moz-range-thumb:hover {
+			transform: scale(1.1);
+		}
 
-						<div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
-							<div>
-								<h2 class="mb-6 text-sm font-semibold uppercase dark:text-white text-left">
-									Navigate
-								</h2>
-								<ul class="text-gray-500 dark:text-gray-400 font-medium text-left">
-									<li class="mb-4">
-										<a href="https://gridxenergy.in/" class="hover:underline">Home</a>
-									</li>
-									<li class="mb-4">
-										<a href="product.html" class="hover:underline">Products</a>
-									</li>
-									<li class="mb-4">
-										<a href="partnerships.html" class="hover:underline">Partnerships</a>
-									</li>
-									<li class="mb-4">
-										<a href="aboutus.html" class="hover:underline">About Us</a>
-									</li>
-									<li class="mb-4">
-										<a href="journey.html" class="hover:underline">Journey</a>
-									</li>
-									<li class="mb-4">
-										<a href="contactus.html" class="hover:underline">Contact Us</a>
-									</li>
-								</ul>
-							</div>
-							<div>
-								<h2 class="mb-6 text-sm font-semibold uppercase dark:text-white text-left">
-									Follow us
-								</h2>
-								<ul class="text-gray-500 dark:text-gray-400 font-medium text-left">
-									<li class="mb-4">
-										<a href="https://twitter.com/wearegridX?t=ZKuloV5ygHY3tdMcglUl9Q&s=08"
-											class="hover:underline inline-flex">
-											<svg class="w-5 h-5 mx-3" aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-												viewBox="0 0 20 17">
-												<path fill-rule="evenodd"
-													d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235 8.344 8.344 0 0 1-2.605.98A4.13 4.13 0 0 0 13.85 0a4.068 4.068 0 0 0-4.1 4.038 4 4 0 0 0 .105.919A11.705 11.705 0 0 1 1.4.734a4.006 4.006 0 0 0 1.268 5.392 4.165 4.165 0 0 1-1.859-.5v.05A4.057 4.057 0 0 0 4.1 9.635a4.19 4.19 0 0 1-1.856.07 4.108 4.108 0 0 0 3.831 2.807A8.36 8.36 0 0 1 0 14.184 11.732 11.732 0 0 0 6.291 16 11.502 11.502 0 0 0 17.964 4.5c0-.177 0-.35-.012-.523A8.143 8.143 0 0 0 20 1.892Z"
-													clip-rule="evenodd" . />
-											</svg>
-											<span> X.Com(Twitter) </span>
-										</a>
-									</li>
-									<li class="mb-4">
-										<a href="https://www.linkedin.com/company/gridxenergy/"
-											class="hover:underline inline-flex"><svg xmlns="http://www.w3.org/2000/svg"
-												class="h-5 w-5 mx-3" fill="currentColor" viewBox="0 0 24 24">
-												<path
-													d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
-											</svg>LinkedIn</a>
-									</li>
-									<li class="mb-4">
-										<a href="https://www.instagram.com/gridxenergy/"
-											class="hover:underline inline-flex">
-											<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3"
-												fill="currentColor" viewBox="0 0 24 24">
-												<path
-													d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-											</svg>
-											Instagram</a>
-									</li>
-									<li>
-										<a href="https://www.youtube.com/@GridXenergy"
-											class="hover:underline inline-flex">
-											<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3"
-												fill="currentColor" viewBox="0 0 24 24">
-												<path
-													d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-											</svg>
-											Youtube</a>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-			<hr />
-			<h6 class="py-6 text-left">
-				Developed in-house @ GridXenergy <br>
-				© Copyright 2025 Movio Technologies Private Limited,
-				<a href="https://gridxenergy.in/privacy_policy.html"><u>Privacy Policy</u></a>
-				,<a href="https://gridxenergy.in/privacy_policy.html"><u>Terms & Conditions</u></a>
-			</h6>
-		</footer>
-		<script src="myscripts.js"></script>
-		<script src="seek.js"></script>
+		.bar-wrapper {
+			position: relative;
+			transition: all 0.5s ease-in-out;
+		}
+
+		#gridbar, #IECbar {
+			position: relative;
+			overflow: hidden;
+		}
+
+		#gridbar::before, #IECbar::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(
+				90deg,
+				transparent,
+				rgba(255, 255, 255, 0.2),
+				transparent
+			);
+			transition: 0.5s;
+		}
+
+		#gridbar:hover::before, #IECbar:hover::before {
+			left: 100%;
+		}
+
+		.speed-card {
+			backdrop-filter: blur(10px);
+			transition: all 0.3s ease;
+		}
+
+		.speed-card:hover {
+			transform: translateY(-2px);
+			background: rgba(255, 255, 255, 0.05);
+		}
+
+		.speed-card.selected {
+			background: rgba(152, 192, 130, 0.15);
+			border-color: rgb(152, 192, 130) !important;
+		}
+		</style>
+
+		<script>
+		// Calculator functionality
+		document.addEventListener('DOMContentLoaded', function() {
+			const speedCards = document.querySelectorAll('.speed-card');
+			const seekBar = document.getElementById('seek');
+			const distanceDisplay = document.getElementById('distance');
+			const savingDisplay = document.getElementById('saving');
+			const gridxCost = document.getElementById('gridx-cost');
+			const localCost = document.getElementById('local-cost');
+			const gridBar = document.getElementById('gridbar');
+			const iecBar = document.getElementById('IECbar');
+
+			let selectedSpeed = 'low';
+			let distance = 10;
+
+			function updateCalculations() {
+				let gridxRate, iceRate, fixedSavingsPercentage;
+
+				// Set fixed savings percentages based on speed
+				switch(selectedSpeed) {
+					case 'low':
+						fixedSavingsPercentage = 77;
+						break;
+					case 'medium':
+						fixedSavingsPercentage = 69;
+						break;
+					case 'high':
+						fixedSavingsPercentage = 53;
+						break;
+				}
+
+				// Calculate ICE cost first
+				iceRate = distance * 2; // Base ICE rate
+				const iceMonthly = Math.round(distance * 30 * iceRate / 100);
+
+				// Calculate GridX cost based on the fixed savings percentage
+				const gridxMonthly = Math.round(iceMonthly * (1 - fixedSavingsPercentage / 100));
+
+				// Update costs with animation
+				animateNumber(gridxCost, parseInt(gridxCost.textContent), gridxMonthly);
+				animateNumber(localCost, parseInt(localCost.textContent), iceMonthly);
+				
+				// Update savings percentage
+				savingDisplay.textContent = fixedSavingsPercentage;
+
+				// Update bar heights
+				const maxHeight = 300; // Maximum height in pixels
+				const ratio = gridxMonthly / iceMonthly;
+				const newHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
+
+				gridBar.style.height = `${newHeight}px`;
+				iecBar.style.height = `${maxHeight}px`;
+			}
+
+			function animateNumber(element, start, end) {
+				const duration = 500;
+				const startTime = performance.now();
+				
+				function update(currentTime) {
+					const elapsed = currentTime - startTime;
+					const progress = Math.min(elapsed / duration, 1);
+
+					const current = Math.round(start + (end - start) * progress);
+					element.textContent = current;
+
+					if (progress < 1) {
+						requestAnimationFrame(update);
+					}
+				}
+
+				requestAnimationFrame(update);
+			}
+
+			// Event Listeners
+			speedCards.forEach((card, index) => {
+				card.addEventListener('click', () => {
+					speedCards.forEach(c => c.classList.remove('selected'));
+					card.classList.add('selected');
+					selectedSpeed = ['low', 'medium', 'high'][index];
+					updateCalculations();
+				});
+			});
+
+			seekBar.addEventListener('input', (e) => {
+				distance = parseInt(e.target.value);
+				distanceDisplay.textContent = `${distance} Km`;
+				updateCalculations();
+			});
+
+			// Initialize with first card selected
+			speedCards[0].classList.add('selected');
+			updateCalculations();
+		});
+		</script>
 
 		<script>
 			const videos = document.querySelectorAll(".video-frame video");
@@ -1481,6 +1752,435 @@
 			});
 		</script>
 
+		<!-- Add this footer section before the closing </body> tag -->
+		<footer class="premium-footer">
+			<div class="footer-content">
+				<section class="footer-grid">
+					<div class="footer-container">
+						<div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
+							<img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
+							<address class="company-address">
+								497, Phase V,<br>
+								Udyog Vihar, Sector 19.<br>
+								Gurugram, Haryana.
+							</address>
+						</div>
+					</div>
+					<div class="footer-container">
+						<div class="footer-card">
+							<div class="social-links">
+								<h4 class="text-xl font-bold mb-6">Connect With Us</h4>
+								<ul class="flex flex-col gap-4">
+									<li>
+										<a href="https://www.instagram.com/gridxenergy/" class="social-link">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+												<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+											</svg>
+											<span>Instagram</span>
+										</a>
+									</li>
+									<li>
+										<a href="https://www.linkedin.com/company/gridxenergy/" class="social-link">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+												<path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+											</svg>
+											<span>LinkedIn</span>
+										</a>
+									</li>
+									<li>
+										<a href="https://www.youtube.com/@gridxenergy" class="social-link">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+												<path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+											</svg>
+											<span>Youtube</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</section>
+				<div class="footer-bottom">
+					<hr class="footer-divider" />
+					<div class="footer-copyright">
+						<p>Designed and Developed in-house @ GridXenergy</p>
+						<p>© Copyright 2025 Movio Technologies Private Limited</p>
+						<div class="footer-links">
+							<a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
+							<span class="separator">•</span>
+							<a href="https://gridxenergy.in/privacy_policy.html">Terms & Conditions</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+		<!-- Add the footer styles -->
+		<style>
+		/* Premium Footer Styles */
+		.premium-footer {
+			background: linear-gradient(145deg, rgba(29, 29, 29, 0.95), rgba(25, 25, 25, 0.9));
+			padding: 4rem 2rem 2rem;
+			margin-top: 4rem;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.premium-footer::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(
+				circle at 50% 0%,
+				rgba(152, 192, 130, 0.1),
+				transparent 70%
+			);
+		}
+
+		.footer-content {
+			position: relative;
+			max-width: 1200px;
+			margin: 0 auto;
+			z-index: 1;
+		}
+
+		.footer-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 2rem;
+			margin-bottom: 3rem;
+			max-width: 1200px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.footer-container {
+			width: 100%;
+		}
+
+		.footer-card {
+			padding: 2rem;
+			background: rgba(255, 255, 255, 0.03);
+			border-radius: 15px;
+			transition: all 0.3s ease;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.footer-card:hover {
+			transform: translateY(-5px);
+			background: rgba(255, 255, 255, 0.05);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+		}
+
+		.company-info {
+			display: flex;
+			flex-direction: column;
+			gap: 2.5rem;
+			min-height: 180px;
+			justify-content: flex-start;
+		}
+
+		.footer-logo {
+			height: 40px;
+			width: auto;
+			object-fit: contain;
+			transition: transform 0.3s ease;
+			display: block;
+			margin-top: 0.5rem;
+		}
+
+		.footer-card:hover .footer-logo {
+			transform: scale(1.05);
+		}
+
+		.company-address {
+			color: rgba(255, 255, 255, 0.7);
+			font-style: normal;
+			line-height: 1.6;
+			font-size: 0.95rem;
+		}
+
+		.social-links {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.social-links ul {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.social-link {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			color: #fff;
+			transition: all 0.3s ease;
+			padding: 0.5rem;
+			border-radius: 8px;
+		}
+
+		.social-link:hover {
+			background: rgba(152, 192, 130, 0.1);
+			transform: translateX(5px);
+		}
+
+		.social-link svg {
+			transition: transform 0.3s ease;
+		}
+
+		.social-link:hover svg {
+			transform: scale(1.1);
+		}
+
+		.footer-divider {
+			border: none;
+			height: 1px;
+			background: linear-gradient(
+				90deg,
+				transparent,
+				rgba(255, 255, 255, 0.1),
+				transparent
+			);
+			margin: 2rem 0;
+		}
+
+		.footer-copyright {
+			text-align: center;
+			color: rgba(255, 255, 255, 0.7);
+			font-size: 0.9rem;
+		}
+
+		.footer-links {
+			margin-top: 1rem;
+			display: flex;
+			justify-content: center;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.footer-links a {
+			color: rgb(152, 192, 130);
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
+
+		.footer-links a:hover {
+			color: #fff;
+		}
+
+		.separator {
+			color: rgba(255, 255, 255, 0.3);
+		}
+
+		@media screen and (max-width: 768px) {
+			.premium-footer {
+				padding: 3rem 1rem 1.5rem;
+			}
+
+			.footer-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.footer-links {
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+
+			.separator {
+				display: none;
+			}
+			
+			.footer-card {
+				min-height: 200px;
+			}
+			
+			.company-info, .social-links {
+				align-items: center;
+				text-align: center;
+				justify-content: center;
+			}
+			
+			.company-info {
+				min-height: auto;
+				gap: 2rem;
+			}
+			
+			.footer-logo {
+				height: 35px;
+			}
+		}
+		</style>
+
+		<script>
+		function scrollToTop() {
+			window.scrollTo({
+				top: 0,
+				behavior: 'smooth'
+			});
+		}
+		</script>
+
+		<style>
+		.company-info {
+			/* ... existing styles ... */
+			transition: all 0.3s ease;
+		}
+
+		.company-info:hover {
+			transform: translateY(-5px);
+			background: rgba(255, 255, 255, 0.08);
+		}
+
+		.company-info:active {
+			transform: translateY(0);
+		}
+		</style>
+
+		<script>
+			// Get all the necessary elements
+			const speedCards = document.querySelectorAll('.speed-card');
+			const seekBar = document.getElementById('seek');
+			const distanceDisplay = document.getElementById('distance');
+			const savingDisplay = document.getElementById('saving');
+			const gridxCost = document.getElementById('gridx-cost');
+			const localCost = document.getElementById('local-cost');
+			const gridBar = document.getElementById('gridbar');
+			const iecBar = document.getElementById('IECbar');
+
+			// Initialize variables
+			let selectedSpeed = 'low'; // default speed
+			let distance = 10; // default distance
+
+			// Add click handlers for speed cards
+			speedCards.forEach((card, index) => {
+				card.addEventListener('click', () => {
+					// Remove selected class from all cards
+					speedCards.forEach(c => c.classList.remove('selected'));
+					// Add selected class to clicked card
+					card.classList.add('selected');
+					
+					// Update selected speed
+					switch(index) {
+						case 0:
+							selectedSpeed = 'low';
+							break;
+						case 1:
+							selectedSpeed = 'medium';
+							break;
+						case 2:
+							selectedSpeed = 'high';
+							break;
+					}
+					updateCosts();
+				});
+			});
+
+			// Add input handler for distance slider
+			seekBar.addEventListener('input', (e) => {
+				distance = parseInt(e.target.value);
+				distanceDisplay.textContent = `${distance} Km`; // Add Km unit
+				updateCosts();
+			});
+
+			// Function to calculate costs
+			function updateCosts() {
+				let gridxMonthly;
+				let iceMonthly;
+				
+				// Calculate costs based on speed and distance
+				switch(selectedSpeed) {
+					case 'low':
+						gridxMonthly = distance * 30 * 0.5; // ₹0.5 per km
+						iceMonthly = distance * 30 * 1.5; // ₹1.5 per km
+						break;
+					case 'medium':
+						gridxMonthly = distance * 30 * 0.8; // ₹0.8 per km
+						iceMonthly = distance * 30 * 2.0; // ₹2.0 per km
+						break;
+					case 'high':
+						gridxMonthly = distance * 30 * 1.2; // ₹1.2 per km
+						iceMonthly = distance * 30 * 2.5; // ₹2.5 per km
+						break;
+				}
+
+				// Calculate savings percentage
+				const savingsPercent = Math.round(((iceMonthly - gridxMonthly) / iceMonthly) * 100);
+
+				// Update displays with smooth animation
+				animateValue(gridxCost, parseInt(gridxCost.textContent), Math.round(gridxMonthly), 500);
+				animateValue(localCost, parseInt(localCost.textContent), Math.round(iceMonthly), 500);
+				savingDisplay.textContent = savingsPercent;
+
+				// Update bar heights with proper scaling
+				const maxHeight = 40; // Maximum height in vh
+				const ratio = gridxMonthly / iceMonthly;
+				const gridBarHeight = Math.max(maxHeight * ratio, 5); // Minimum height of 5vh
+				
+				gridBar.style.height = `${gridBarHeight}vh`;
+				iecBar.style.height = `${maxHeight}vh`; // ICE bar is always maximum height
+			}
+
+			// Helper function to animate number changes
+			function animateValue(element, start, end, duration) {
+				const range = end - start;
+				const increment = range / (duration / 16);
+				let current = start;
+
+				const animate = () => {
+					current += increment;
+					if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+						element.textContent = Math.round(end);
+						return;
+					}
+					element.textContent = Math.round(current);
+					requestAnimationFrame(animate);
+				};
+
+				animate();
+			}
+
+			// Initialize the calculator
+			speedCards[0].classList.add('selected');
+			seekBar.value = 10;
+			distanceDisplay.textContent = "10 Km";
+			updateCosts();
+		</script>
+
+		<script>
+		// Add this to your existing JavaScript
+		document.addEventListener('DOMContentLoaded', function() {
+			const calculatorCard = document.querySelector('.calculator-card');
+			
+			calculatorCard.addEventListener('mousemove', (e) => {
+				const rect = calculatorCard.getBoundingClientRect();
+				const x = ((e.clientX - rect.left) / calculatorCard.clientWidth) * 100;
+				const y = ((e.clientY - rect.top) / calculatorCard.clientHeight) * 100;
+				
+				const rotateY = (x - 50) * 0.03;
+				const rotateX = (y - 50) * -0.03;
+				
+				calculatorCard.style.setProperty('--mouse-x', `${x}%`);
+				calculatorCard.style.setProperty('--mouse-y', `${y}%`);
+				
+				calculatorCard.style.transform = `
+					perspective(1000px)
+					rotateX(${rotateX}deg)
+					rotateY(${rotateY}deg)
+					translateZ(0)
+				`;
+			});
+
+			calculatorCard.addEventListener('mouseleave', () => {
+				calculatorCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+			});
+		});
+		</script>
 </body>
 
 
