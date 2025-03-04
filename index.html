@@ -914,7 +914,7 @@
 		}
 
 		.calculator-card:hover .content {
-			transform: translateZ(50px);
+			transform: translateZ(15px);
 		}
 
 		@media screen and (max-width: 768px) {
@@ -1030,6 +1030,43 @@
 			align-items: center;
 			gap: 6px;
 		}
+
+		.forging-card .video-container {
+			position: relative;
+			width: 80%;
+			height: auto;
+			aspect-ratio: 16/9;
+			overflow: hidden;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+			transition: all 0.3s ease;
+			margin: 0 auto;
+		}
+
+		.forging-card:hover .video-container {
+			transform: scale(1.02);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+		}
+
+		.forging-card .video-container video {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			border-radius: 12px;
+			display: block;
+		}
+
+		.forging-card video {
+			transition: all 0.3s ease;
+			box-shadow: none;
+			border-radius: 12px;
+			overflow: hidden;
+		}
+
+		.forging-card:hover video {
+			transform: none;
+			box-shadow: none;
+		}
 	</style>
 </head>
 
@@ -1116,7 +1153,7 @@
 					</p>
 				</div>
 				<div class="glow"></div>
-				<div class="particles"></div>
+				
 			</div>
 		</section>
 
@@ -1236,27 +1273,31 @@
 			<div class="premium-card forging-card">
 				<div class="content flex xl:flex-row flex-col gap-10">
 					<div class="xl:w-1/2">
-					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">
-						Forging the path towards the future of two-wheelers by eradicating EV restrictions.
-					</h2>
-					<ul class="text-md lg:text-lg text-gray-400 mb-10 feature-list">
-						<li>No High Upfront cost</li>
-						<li>No Range Anxiety</li>
-						<li>No Lack of Charging Infrastructure</li>
-						<li>Zero Charging Downtime</li>
-						<li>Zero Battery Replacement Cost</li>
-					</ul>
-					<a href="product.html" class="premium-link">
-						<span>Our Products</span>
-						<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
-					</a>
+						<h2 class="text-white font-bold lg:text-4xl text-2xl mb-6 text-left">
+							Forging the path towards the future of two-wheelers by eradicating EV restrictions.
+						</h2>
+						<ul class="text-base lg:text-lg text-gray-400 mb-10 feature-list text-left">
+							<li>No High Upfront cost</li>
+							<li>No Range Anxiety</li>
+							<li>No Lack of Charging Infrastructure</li>
+							<li>Zero Charging Downtime</li>
+							<li>Zero Battery Replacement Cost</li>
+						</ul>
+						<div class="text-left mt-8">
+							<a href="product.html" class="premium-link">
+								<span>Our Products</span>
+								<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
+							</a>
+						</div>
 					</div>
 					<div class="xl:w-1/2 flex flex-col justify-center">
-						<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover rounded-xl"></video>
+						<div class="video-container" style="overflow: hidden; border-radius: 12px; width: 80%; margin: 0 auto;">
+							<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover w-full h-full rounded-xl" style="border-radius: 12px; overflow: hidden;"></video>
+						</div>
 					</div>
 				</div>
 				<div class="glow"></div>
-				<div class="particles"></div>
+				
 			</div>
 		</section>
 
@@ -1298,22 +1339,24 @@
 		.forging-card .content {
 			position: relative;
 			z-index: 1;
-			transform: translateZ(30px);
+			transform: translateZ(10px);
 			transition: transform 0.3s ease-out;
 		}
 
 		.forging-card:hover .content {
-			transform: translateZ(50px);
+			transform: translateZ(15px);
 		}
 
 		.forging-card video {
 			transition: all 0.3s ease;
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+			box-shadow: none;
+			border-radius: 12px;
+			overflow: hidden;
 		}
 
 		.forging-card:hover video {
-			transform: scale(1.02);
-			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+			transform: none;
+			box-shadow: none;
 		}
 
 		@media screen and (max-width: 768px) {
@@ -1406,11 +1449,8 @@
 			<div class="premium-card calculator-card">
 				<div class="content">
 					<!-- Add this right after the calculator card's title -->
-					<div class="flex justify-between items-center mb-6">
+					<div class="flex justify-center items-center mb-6">
 						<h2 class="text-white font-bold lg:text-5xl text-3xl">Calculate Your Savings</h2>
-						<button id="langToggle" class="language-toggle">
-							<span class="lang-text">हिंदी</span>
-						</button>
 					</div>
 					<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md mb-16">
 				Still spending more on ICE for high performance?
@@ -1489,7 +1529,7 @@
 					</div>
 				</div>
 				<div class="glow"></div>
-				<div class="particles"></div>
+				
 			</div>
 		</section>
 
@@ -2694,5 +2734,170 @@
 		}
 	}
 </style>
+
+<!-- Add scroll animation styles -->
+<style>
+    .card-animate {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .card-animate.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .card-animate.exit {
+        opacity: 0;
+        transform: translateY(-50px);
+        transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    
+    /* Card heading animation styles */
+    .card-animate h2, 
+    .card-animate h3, 
+    .card-animate h4, 
+    .card-animate .text-green-on-active {
+        opacity: 0;
+        transform: translateZ(-30px) scale(0.9);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+        transition-delay: 0.2s;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+    
+    .card-animate.visible h2, 
+    .card-animate.visible h3, 
+    .card-animate.visible h4, 
+    .card-animate.visible .text-green-on-active {
+        opacity: 1;
+        transform: translateZ(20px) scale(1);
+    }
+    
+    .card-animate.exit h2, 
+    .card-animate.exit h3, 
+    .card-animate.exit h4, 
+    .card-animate.exit .text-green-on-active {
+        opacity: 0;
+        transform: translateZ(-30px) scale(0.9);
+        transition-delay: 0s;
+    }
+    
+    /* Special handling for forging card to prevent text overflow */
+    .forging-card h2 {
+        font-size: clamp(1.25rem, 2vw, 1.75rem);
+        line-height: 1.3;
+        max-width: 100%;
+    }
+    
+    .forging-card ul {
+        font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+        line-height: 1.5;
+    }
+    
+    /* Ensure content stays within bounds during animation */
+    .forging-card .content {
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    /* Reduce the 3D effect for the forging card */
+    .forging-card.card-animate.visible h2 {
+        transform: translateZ(10px) scale(1);
+    }
+    
+    .forging-card.card-animate.visible h2:hover,
+    .forging-card.card-animate.visible ul:hover {
+        transform: translateZ(10px) scale(1);
+    }
+    
+    /* Disable the scale effect on hover for forging card content */
+    .forging-card:hover h2,
+    .forging-card:hover ul,
+    .forging-card:hover p {
+        transform: none !important;
+    }
+
+	.forging-card .video-container {
+		position: relative;
+		width: 80%;
+		height: auto;
+		aspect-ratio: 16/9;
+		overflow: hidden;
+		border-radius: 12px;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+		transition: all 0.3s ease;
+		margin: 0 auto;
+	}
+
+	.forging-card:hover .video-container {
+		transform: scale(1.02);
+		box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+	}
+
+	.forging-card .video-container video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 12px;
+		display: block;
+	}
+
+	.forging-card video {
+		transition: all 0.3s ease;
+		box-shadow: none;
+		border-radius: 12px;
+		overflow: hidden;
+	}
+
+	.forging-card:hover video {
+		transform: none;
+		box-shadow: none;
+	}
+</style>
+
+<!-- Add scroll animation script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all card elements to animate
+        const cards = document.querySelectorAll('.premium-card, .feature-card, .forging-card, .calculator-card, .footer-card, .box');
+        
+        // Add the animation class to all cards
+        cards.forEach(card => {
+            card.classList.add('card-animate');
+            
+            // Add transform-style to ensure 3D effects work properly
+            card.style.transformStyle = 'preserve-3d';
+            card.style.perspective = '1000px';
+        });
+        
+        // Create an Intersection Observer
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // If the card is entering the viewport
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    entry.target.classList.remove('exit');
+                } else {
+                    // If the card was visible and is now leaving the viewport
+                    if (entry.target.classList.contains('visible')) {
+                        entry.target.classList.remove('visible');
+                        entry.target.classList.add('exit');
+                    }
+                }
+            });
+        }, {
+            root: null, // Use the viewport as the root
+            rootMargin: '0px', // No margin
+            threshold: 0.1 // Trigger when at least 10% of the element is visible
+        });
+        
+        // Observe all cards
+        cards.forEach(card => {
+            observer.observe(card);
+        });
+    });
+</script>
 
 </html>
