@@ -1001,6 +1001,35 @@
 				margin-top: 0.5rem;
 			}
 		}
+
+		/* Language Toggle Button Style */
+		.calculator-card .language-toggle {
+			/* Remove the absolute positioning */
+			position: relative;
+			padding: 8px 16px;
+			background: rgba(152, 192, 130, 0.1);
+			border: 1px solid rgb(152, 192, 130);
+			border-radius: 20px;
+			color: rgb(152, 192, 130);
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		/* Updated Language Toggle Button Style */
+		.calculator-card .language-toggle {
+			padding: 6px 16px;
+			background: rgba(152, 192, 130, 0.1);
+			border: 1px solid rgb(152, 192, 130);
+			border-radius: 20px;
+			color: rgb(152, 192, 130);
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+		}
 	</style>
 </head>
 
@@ -2265,9 +2294,7 @@
 		</script>
 
 		<!-- Add this button inside the premium-card calculator-card div, right after the content div -->
-		<button id="langToggle" class="language-toggle">
-			<span class="lang-text">हिंदी</span>
-		</button>
+		
 
 		<style>
 		/* Language Toggle Button Style */
