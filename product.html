@@ -548,6 +548,21 @@
       sections.forEach(section => observer.observe(section));
     </script>
 
+    <script>
+      // Add scroll functionality to the scroll button
+      document.addEventListener('DOMContentLoaded', function() {
+        const scrollButton = document.querySelector('.scroll-button');
+        
+        scrollButton.addEventListener('click', function() {
+          // Scroll to the next section
+          const nextSection = document.querySelector('.second-nav');
+          if (nextSection) {
+            nextSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    </script>
+
     <style>
       html {
         scroll-behavior: smooth;
@@ -741,8 +756,13 @@
       }
 
       .scroll-button {
-        left: 48.8%;
-        bottom: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 2rem;
+        color: #fff;
+        font-size: 0.9rem;
+        cursor: pointer;
+        z-index: 10;
       }
 
       @media screen and (max-width: 768px) {
