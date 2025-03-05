@@ -16,6 +16,7 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
 		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+	<script src="gyroscope.js"></script>
 	<style>
 		/* Add smooth scrolling behavior */
 		html {
@@ -1067,6 +1068,22 @@
 			transform: none;
 			box-shadow: none;
 		}
+
+		.bar-wrapper {
+			position: relative;
+			transition: all 0.5s ease-in-out;
+			display: flex;
+			align-items: flex-end;
+			height: 300px;
+			width: 100px;
+		}
+
+		#gridbar, #IECbar {
+			position: relative;
+			overflow: hidden;
+			width: 100%;
+			border-radius: 0.75rem 0.75rem 0 0;
+		}
 	</style>
 </head>
 
@@ -1503,8 +1520,8 @@
 									<div class="flex justify-around items-end h-full pb-16">
 										<!-- GridX Bar -->
 										<div class="flex flex-col items-center gap-4">
-											<div class="bar-wrapper" style="width: 100px; height: 300px; display: flex; align-items: flex-end;">
-												<div id="gridbar" class="w-full rounded-t-xl transition-all duration-500 ease-in-out" 
+											<div class="bar-wrapper">
+												<div id="gridbar" class="w-full transition-all duration-500 ease-in-out" 
 													 style="background: linear-gradient(#92B97D, #59714C); height: 150px;">
 													<div class="text-center text-white font-bold py-2">₹<span id="gridx-cost">300</span></div>
 												</div>
@@ -1514,8 +1531,8 @@
 
 										<!-- ICE Bar -->
 										<div class="flex flex-col items-center gap-4">
-											<div class="bar-wrapper" style="width: 100px; height: 300px; display: flex; align-items: flex-end;">
-												<div id="IECbar" class="w-full rounded-t-xl transition-all duration-500 ease-in-out" 
+											<div class="bar-wrapper">
+												<div id="IECbar" class="w-full transition-all duration-500 ease-in-out" 
 													 style="background: linear-gradient(#E14444, #6F2222); height: 300px;">
 													<div class="text-center text-white font-bold py-2">₹<span id="local-cost">900</span></div>
 												</div>
@@ -1587,11 +1604,17 @@
 		.bar-wrapper {
 			position: relative;
 			transition: all 0.5s ease-in-out;
+			display: flex;
+			align-items: flex-end;
+			height: 300px;
+			width: 100px;
 		}
 
 		#gridbar, #IECbar {
 			position: relative;
 			overflow: hidden;
+			width: 100%;
+			border-radius: 0.75rem 0.75rem 0 0;
 		}
 
 		#gridbar::before, #IECbar::before {
@@ -1676,12 +1699,12 @@
 				savingDisplay.textContent = fixedSavingsPercentage;
 
 				// Update bar heights
-				const maxHeight = 300; // Maximum height in pixels
+				const maxHeight = 300; // Maximum height in pixels (matching the bar-wrapper height)
 				const ratio = gridxMonthly / iceMonthly;
 				const newHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
 
 				gridBar.style.height = `${newHeight}px`;
-				iecBar.style.height = `${maxHeight}px`;
+				iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
 			}
 
 			function animateNumber(element, start, end) {
@@ -1803,9 +1826,7 @@
 
 			speedCards.forEach(card => {
 				card.addEventListener('click', () => {
-					// Remove selected class from all cards
 					speedCards.forEach(c => c.classList.remove('selected'));
-					// Add selected class to clicked card
 					card.classList.add('selected');
 				});
 			});
@@ -2195,7 +2216,7 @@
 
 		<script>
 			// Get all the necessary elements
-			const speedCards = document.querySelectorAll('.speed-card');
+			const calculatorSpeedCards = document.querySelectorAll('.speed-card');
 			const seekBar = document.getElementById('seek');
 			const distanceDisplay = document.getElementById('distance');
 			const savingDisplay = document.getElementById('saving');
@@ -2209,10 +2230,10 @@
 			let distance = 10; // default distance
 
 			// Add click handlers for speed cards
-			speedCards.forEach((card, index) => {
+			calculatorSpeedCards.forEach((card, index) => {
 				card.addEventListener('click', () => {
 					// Remove selected class from all cards
-					speedCards.forEach(c => c.classList.remove('selected'));
+					calculatorSpeedCards.forEach(c => c.classList.remove('selected'));
 					// Add selected class to clicked card
 					card.classList.add('selected');
 					
@@ -2268,13 +2289,14 @@
 				animateValue(localCost, parseInt(localCost.textContent), Math.round(iceMonthly), 500);
 				savingDisplay.textContent = savingsPercent;
 
-				// Update bar heights with proper scaling
-				const maxHeight = 40; // Maximum height in vh
+				// Update bar heights with proper scaling - using pixels for consistent alignment
+				const maxHeight = 300; // Maximum height in pixels (matching the bar-wrapper height)
 				const ratio = gridxMonthly / iceMonthly;
-				const gridBarHeight = Math.max(maxHeight * ratio, 5); // Minimum height of 5vh
+				const gridBarHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
 				
-				gridBar.style.height = `${gridBarHeight}vh`;
-				iecBar.style.height = `${maxHeight}vh`; // ICE bar is always maximum height
+				// Set both bars to use pixel heights for consistent alignment
+				gridBar.style.height = `${gridBarHeight}px`;
+				iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
 			}
 
 			// Helper function to animate number changes
@@ -2297,7 +2319,7 @@
 			}
 
 			// Initialize the calculator
-			speedCards[0].classList.add('selected');
+			calculatorSpeedCards[0].classList.add('selected');
 			seekBar.value = 10;
 			distanceDisplay.textContent = "10 Km";
 			updateCosts();
@@ -2854,6 +2876,22 @@
 	.forging-card:hover video {
 		transform: none;
 		box-shadow: none;
+	}
+
+	.bar-wrapper {
+		position: relative;
+		transition: all 0.5s ease-in-out;
+		display: flex;
+		align-items: flex-end;
+		height: 300px;
+		width: 100px;
+	}
+
+	#gridbar, #IECbar {
+		position: relative;
+		overflow: hidden;
+		width: 100%;
+		border-radius: 0.75rem 0.75rem 0 0;
 	}
 </style>
 
