@@ -204,6 +204,21 @@
 
     <script src="myscripts.js"></script>
     <!-- <script src="seek.js"></script> -->
+    
+    <script>
+      // Add scroll functionality to the scroll button
+      document.addEventListener('DOMContentLoaded', function() {
+        const scrollButton = document.querySelector('.scroll-button');
+        
+        scrollButton.addEventListener('click', function() {
+          // Scroll to the "What's in it for you?" section
+          const nextSection = document.querySelector('.second-section');
+          if (nextSection) {
+            nextSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    </script>
   </body>
 
   
@@ -249,6 +264,8 @@
       transform: translateX(-50%);
       color: #fff;
       font-size: 0.9rem;
+      cursor: pointer;
+      z-index: 10;
   }
 
   .unified-card {
@@ -892,8 +909,8 @@ h2 {
 }
 
 .scroll-button {
-  left: 48.5%;
-  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 @media screen and (max-width: 1050px) {
@@ -933,7 +950,8 @@ h2 {
   }
 
   .scroll-button {
-    left: 45.5%;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
