@@ -16,7 +16,6 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
 		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
-	<script src="gyroscope.js"></script>
 	<style>
 		/* Add smooth scrolling behavior */
 		html {
@@ -832,39 +831,62 @@
 			-webkit-appearance: none;
 			width: 100%;
 			height: 8px;
-			background: rgba(152, 192, 130, 0.2);
-			border-radius: 4px;
+			background: linear-gradient(to right, rgb(152, 192, 130), rgb(152, 192, 130));
+			border-radius: 10px;
 			outline: none;
+			transition: all 0.3s ease;
 		}
 
 		input[type="range"]::-webkit-slider-thumb {
 			-webkit-appearance: none;
-			width: 20px;
-			height: 20px;
+			appearance: none;
+			width: 24px;
+			height: 24px;
 			background: rgb(152, 192, 130);
 			border-radius: 50%;
 			cursor: pointer;
-			transition: all 0.3s ease;
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+			transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 		}
 
 		input[type="range"]::-webkit-slider-thumb:hover {
-			transform: scale(1.1);
-			box-shadow: 0 0 10px rgba(152, 192, 130, 0.3);
+			transform: scale(1.2);
+			box-shadow: 0 0 10px rgba(152, 192, 130, 0.6);
 		}
 
 		input[type="range"]::-moz-range-thumb {
-			width: 20px;
-			height: 20px;
+			width: 24px;
+			height: 24px;
 			background: rgb(152, 192, 130);
 			border-radius: 50%;
 			cursor: pointer;
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+			transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 			border: none;
-			transition: all 0.3s ease;
 		}
 
 		input[type="range"]::-moz-range-thumb:hover {
+			transform: scale(1.2);
+			box-shadow: 0 0 10px rgba(152, 192, 130, 0.6);
+		}
+
+		input[type="range"]:active::-webkit-slider-thumb {
 			transform: scale(1.1);
-			box-shadow: 0 0 10px rgba(152, 192, 130, 0.3);
+			background: rgb(132, 172, 110);
+		}
+
+		input[type="range"]:active::-moz-range-thumb {
+			transform: scale(1.1);
+			background: rgb(132, 172, 110);
+		}
+
+		/* Add a track fill effect */
+		input[type="range"] {
+			background: linear-gradient(to right, 
+				rgb(152, 192, 130) 0%, 
+				rgb(152, 192, 130) calc(var(--range-progress, 0%) * 1%), 
+				#444 calc(var(--range-progress, 0%) * 1%), 
+				#444 100%);
 		}
 
 		.savings-graph .flex-row {
@@ -1084,6 +1106,88 @@
 			width: 100%;
 			border-radius: 0.75rem 0.75rem 0 0;
 		}
+
+		/* Contact Us button enhanced hover effects */
+		.contact-us-button {
+			background-color: rgb(152, 192, 130);
+			border-radius: 600px;
+			transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			position: relative;
+			overflow: hidden;
+			z-index: 1;
+		}
+
+		.contact-us-button::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(
+				90deg,
+				transparent,
+				rgba(255, 255, 255, 0.3),
+				transparent
+			);
+			transition: 0.5s;
+			z-index: -1;
+		}
+
+		.contact-us-button:hover {
+			transform: translateY(-3px) scale(1.05);
+			box-shadow: 0 10px 20px rgba(152, 192, 130, 0.3);
+			background-color: rgb(162, 202, 140);
+		}
+
+		.contact-us-button:hover::before {
+			left: 100%;
+		}
+
+		.contact-us-button:active {
+			transform: translateY(0) scale(0.98);
+			box-shadow: 0 5px 10px rgba(152, 192, 130, 0.2);
+			transition: all 0.1s ease;
+		}
+
+		.contact-us-button .nav-link {
+			color: #1d1d1d !important;
+			font-weight: 600;
+			transition: all 0.3s ease;
+		}
+
+		.contact-us-button:hover .nav-link {
+			color: #000 !important;
+		}
+
+		.contact-us-button .nav-link::after {
+			background: rgba(0, 0, 0, 0.2);
+			height: 3px;
+			bottom: -2px;
+		}
+
+		/* Custom scrollbar styles */
+		::-webkit-scrollbar {
+			width: 12px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: #f1f1f1;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb-color, #98C082);
+			transition: background-color 0.3s ease;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: #6b8e23; /* Darker green on hover */
+		}
+
+		/* Inertial scrolling */
+		html {
+			scroll-behavior: smooth;
+		}
 	</style>
 </head>
 
@@ -1119,8 +1223,7 @@
 						<li class="mx-2 py-3 block text-white "> <a class="nav-link" href="faqs.html">FAQs</a>
 						</li>
 
-						<li class="mx-2 pt-3 pb-3 block px-10 text-black"
-							style="background-color: rgb(152, 192, 130); border-radius: 600px">
+						<li class="mx-2 pt-3 pb-3 block px-10 text-black contact-us-button">
 							<a class="nav-link" href="./contactus.html">Contact Us</a>
 						</li>
 					</ul>
@@ -1142,7 +1245,7 @@
 					</a>
 				</div>
 				<div class="absolute text-center scroll-button">
-					<img src="./assets/mouse.svg" style="width: 36px; height: 36px; margin: 0px auto;" />
+					<div class="scroll-indicator"></div>
 					<p class="mt-2">Scroll</p>
 				</div>
 			</div>
@@ -1568,37 +1671,62 @@
 		#seek {
 			-webkit-appearance: none;
 			height: 8px;
-			background: rgba(152, 192, 130, 0.2);
-			border-radius: 4px;
+			background: linear-gradient(to right, rgb(152, 192, 130), rgb(152, 192, 130));
+			border-radius: 10px;
 			outline: none;
+			transition: all 0.3s ease;
 		}
 
 		#seek::-webkit-slider-thumb {
 			-webkit-appearance: none;
-			width: 20px;
-			height: 20px;
+			appearance: none;
+			width: 24px;
+			height: 24px;
 			background: rgb(152, 192, 130);
 			border-radius: 50%;
 			cursor: pointer;
-			transition: transform 0.3s ease;
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+			transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 		}
 
 		#seek::-webkit-slider-thumb:hover {
-			transform: scale(1.1);
+			transform: scale(1.2);
+			box-shadow: 0 0 10px rgba(152, 192, 130, 0.6);
 		}
 
 		#seek::-moz-range-thumb {
-			width: 20px;
-			height: 20px;
+			width: 24px;
+			height: 24px;
 			background: rgb(152, 192, 130);
 			border-radius: 50%;
 			cursor: pointer;
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+			transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 			border: none;
-			transition: transform 0.3s ease;
 		}
 
 		#seek::-moz-range-thumb:hover {
+			transform: scale(1.2);
+			box-shadow: 0 0 10px rgba(152, 192, 130, 0.6);
+		}
+
+		input[type="range"]:active::-webkit-slider-thumb {
 			transform: scale(1.1);
+			background: rgb(132, 172, 110);
+		}
+
+		input[type="range"]:active::-moz-range-thumb {
+			transform: scale(1.1);
+			background: rgb(132, 172, 110);
+		}
+
+		/* Add a track fill effect */
+		input[type="range"] {
+			background: linear-gradient(to right, 
+				rgb(152, 192, 130) 0%, 
+				rgb(152, 192, 130) calc(var(--range-progress, 0%) * 1%), 
+				#444 calc(var(--range-progress, 0%) * 1%), 
+				#444 100%);
 		}
 
 		.bar-wrapper {
@@ -1698,11 +1826,15 @@
 				// Update savings percentage
 				savingDisplay.textContent = fixedSavingsPercentage;
 
-				// Update bar heights
+				// Update bar heights with smooth transition
 				const maxHeight = 300; // Maximum height in pixels (matching the bar-wrapper height)
 				const ratio = gridxMonthly / iceMonthly;
 				const newHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
 
+				// Add smooth transition to the bars
+				gridBar.style.transition = 'height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+				iecBar.style.transition = 'height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+				
 				gridBar.style.height = `${newHeight}px`;
 				iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
 			}
@@ -1739,11 +1871,18 @@
 			seekBar.addEventListener('input', (e) => {
 				distance = parseInt(e.target.value);
 				distanceDisplay.textContent = `${distance} Km`;
+				
+				// Calculate and set the progress variable for the gradient
+				const progress = ((distance - seekBar.min) / (seekBar.max - seekBar.min)) * 100;
+				seekBar.style.setProperty('--range-progress', progress);
+				
 				updateCalculations();
 			});
 
-			// Initialize with first card selected
+			// Initialize with first card selected and set initial slider progress
 			speedCards[0].classList.add('selected');
+			const initialProgress = ((seekBar.value - seekBar.min) / (seekBar.max - seekBar.min)) * 100;
+			seekBar.style.setProperty('--range-progress', initialProgress);
 			updateCalculations();
 		});
 		</script>
@@ -1822,11 +1961,11 @@
 
 		<script>
 			// Add click handler for speed cards
-			const speedCards = document.querySelectorAll('.speed-card');
+			const calculatorSpeedCards = document.querySelectorAll('.speed-card');
 
-			speedCards.forEach(card => {
+			calculatorSpeedCards.forEach(card => {
 				card.addEventListener('click', () => {
-					speedCards.forEach(c => c.classList.remove('selected'));
+					calculatorSpeedCards.forEach(c => c.classList.remove('selected'));
 					card.classList.add('selected');
 				});
 			});
@@ -2216,24 +2355,26 @@
 
 		<script>
 			// Get all the necessary elements
-			const calculatorSpeedCards = document.querySelectorAll('.speed-card');
-			const seekBar = document.getElementById('seek');
-			const distanceDisplay = document.getElementById('distance');
-			const savingDisplay = document.getElementById('saving');
-			const gridxCost = document.getElementById('gridx-cost');
-			const localCost = document.getElementById('local-cost');
-			const gridBar = document.getElementById('gridbar');
-			const iecBar = document.getElementById('IECbar');
+			const calculatorElements = {
+				speedCards: document.querySelectorAll('.speed-card'),
+				seekBar: document.getElementById('seek'),
+				distanceDisplay: document.getElementById('distance'),
+				savingDisplay: document.getElementById('saving'),
+				gridxCost: document.getElementById('gridx-cost'),
+				localCost: document.getElementById('local-cost'),
+				gridBar: document.getElementById('gridbar'),
+				iecBar: document.getElementById('IECbar')
+			};
 
 			// Initialize variables
 			let selectedSpeed = 'low'; // default speed
 			let distance = 10; // default distance
 
 			// Add click handlers for speed cards
-			calculatorSpeedCards.forEach((card, index) => {
+			calculatorElements.speedCards.forEach((card, index) => {
 				card.addEventListener('click', () => {
 					// Remove selected class from all cards
-					calculatorSpeedCards.forEach(c => c.classList.remove('selected'));
+					calculatorElements.speedCards.forEach(c => c.classList.remove('selected'));
 					// Add selected class to clicked card
 					card.classList.add('selected');
 					
@@ -2254,9 +2395,9 @@
 			});
 
 			// Add input handler for distance slider
-			seekBar.addEventListener('input', (e) => {
+			calculatorElements.seekBar.addEventListener('input', (e) => {
 				distance = parseInt(e.target.value);
-				distanceDisplay.textContent = `${distance} Km`; // Add Km unit
+				calculatorElements.distanceDisplay.textContent = `${distance} Km`; // Add Km unit
 				updateCosts();
 			});
 
@@ -2285,9 +2426,9 @@
 				const savingsPercent = Math.round(((iceMonthly - gridxMonthly) / iceMonthly) * 100);
 
 				// Update displays with smooth animation
-				animateValue(gridxCost, parseInt(gridxCost.textContent), Math.round(gridxMonthly), 500);
-				animateValue(localCost, parseInt(localCost.textContent), Math.round(iceMonthly), 500);
-				savingDisplay.textContent = savingsPercent;
+				animateValue(calculatorElements.gridxCost, parseInt(calculatorElements.gridxCost.textContent), Math.round(gridxMonthly), 500);
+				animateValue(calculatorElements.localCost, parseInt(calculatorElements.localCost.textContent), Math.round(iceMonthly), 500);
+				calculatorElements.savingDisplay.textContent = savingsPercent;
 
 				// Update bar heights with proper scaling - using pixels for consistent alignment
 				const maxHeight = 300; // Maximum height in pixels (matching the bar-wrapper height)
@@ -2295,8 +2436,8 @@
 				const gridBarHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
 				
 				// Set both bars to use pixel heights for consistent alignment
-				gridBar.style.height = `${gridBarHeight}px`;
-				iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
+				calculatorElements.gridBar.style.height = `${gridBarHeight}px`;
+				calculatorElements.iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
 			}
 
 			// Helper function to animate number changes
@@ -2319,9 +2460,9 @@
 			}
 
 			// Initialize the calculator
-			calculatorSpeedCards[0].classList.add('selected');
-			seekBar.value = 10;
-			distanceDisplay.textContent = "10 Km";
+			calculatorElements.speedCards[0].classList.add('selected');
+			calculatorElements.seekBar.value = 10;
+			calculatorElements.distanceDisplay.textContent = "10 Km";
 			updateCosts();
 		</script>
 
@@ -2517,6 +2658,46 @@
 			});
 		});
 		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				// Existing code...
+
+				// Change scrollbar color based on scroll position
+				window.addEventListener('scroll', function() {
+					const scrollPosition = window.scrollY;
+					const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+					const scrollPercentage = (scrollPosition / documentHeight) * 100;
+
+					// Calculate the color based on scroll percentage
+					const greenValue = Math.min(255, Math.floor((scrollPercentage / 100) * 255));
+					const greyValue = 255 - greenValue;
+
+					// Set the scrollbar thumb color
+					document.documentElement.style.setProperty('--scrollbar-thumb-color', `rgb(${greyValue}, ${greenValue}, ${greyValue})`);
+				});
+			});
+		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const buttons = document.querySelectorAll('.contact-us-button');
+
+				buttons.forEach(button => {
+					button.addEventListener('mousemove', function(e) {
+						const rect = button.getBoundingClientRect();
+						const x = e.clientX - rect.left - rect.width / 2;
+						const y = e.clientY - rect.top - rect.height / 2;
+
+						button.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+					});
+
+					button.addEventListener('mouseleave', function() {
+						button.style.transform = 'translate(0, 0)';
+					});
+				});
+			});
+		</script>
 </body>
 
 
@@ -2705,16 +2886,15 @@
 	}
 
 	.scroll-button {
-		left: 48.5%;
-		bottom: 0px;
+		left: 50%;
+		transform: translateX(-50%);
+		bottom: 2rem;
+		color: #fff;
+		font-size: 0.9rem;
+		cursor: pointer;
+		z-index: 10;
 	}
 
-	@media screen and (max-width: 1050px) {
-		.static-image{
-			display: none;
-		}
-
-	}
 	@media screen and (max-width: 768px) {
 		.cal-chart {
 			min-width: 350px;
@@ -2746,7 +2926,8 @@
 		}
 
 		.scroll-button {
-			left: 45.5%;
+			left: 50%;
+			transform: translateX(-50%);
 		}
 	}
 
@@ -2935,7 +3116,34 @@
         cards.forEach(card => {
             observer.observe(card);
         });
+        
+        // Add scroll functionality to the scroll button
+        const scrollButton = document.querySelector('.scroll-button');
+        
+        scrollButton.addEventListener('click', function() {
+            // Scroll to the next section
+            const nextSection = document.querySelector('.premium-card-section');
+            if (nextSection) {
+                nextSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
     });
+</script>
+
+<script>
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        window.scrollTo({
+          top: target.offsetTop,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
 </script>
 
 </html>
