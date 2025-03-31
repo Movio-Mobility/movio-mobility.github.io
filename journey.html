@@ -466,6 +466,7 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
     }
 
     .scroll-to-top.visible {
@@ -482,6 +483,27 @@
       width: 24px;
       height: 24px;
       fill: #1d1d1d;
+    }
+    
+    /* Mobile-specific styles for scroll-to-top */
+    @media (max-width: 768px) {
+      .scroll-to-top {
+        width: 45px;
+        height: 45px;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+      
+      .scroll-to-top.visible {
+        opacity: 0.95;
+      }
+      
+      .scroll-to-top svg {
+        width: 22px;
+        height: 22px;
+      }
     }
 
     /* Add hover effect for timeline text */
@@ -508,6 +530,38 @@
       .small-boxes-container .w-full {
         height: 100px;
       }
+      
+      /* Add order properties for the mobile view to ensure correct stacking */
+      .time-box-1 { order: 1; }
+      .time-box-2 { order: 2; }
+      .time-box-3 { order: 3; }
+      .time-box-4 { order: 4; }
+      .time-box-5 { order: 5; }
+      .time-box-6 { order: 6; }
+      .time-box-7 { order: 7; }
+      .time-box-8 { order: 8; }
+      .time-box-9 { order: 9; }
+      .time-box-10 { order: 10; }
+      .time-box-11 { order: 11; }
+      .time-box-12 { order: 12; }
+      .time-box-13 { order: 13; }
+      .time-box-14 { order: 14; }
+      .time-box-15 { order: 15; }
+      .time-box-16 { order: 16; }
+      .time-box-17 { order: 17; }
+      .time-box-18 { order: 18; }
+      .time-box-19 { order: 19; }
+      .time-box-20 { order: 20; }
+      .time-box-21 { order: 21; }
+      .time-box-22 { order: 22; }
+      .time-box-23 { order: 23; }
+      .time-box-24 { order: 24; }
+      .time-box-25 { order: 25; }
+      .time-box-26 { order: 26; }
+      .time-box-27 { order: 27; }
+      .time-box-28 { order: 28; }
+      .time-box-29 { order: 29; }
+      .time-box-30 { order: 30; }
     }
   </style>
 </head>
@@ -1549,20 +1603,38 @@
       
       // Add scroll-to-top functionality
       var scrollToTopButton = document.querySelector('.scroll-to-top');
+      
+      // Initialize visibility on page load
+      if (window.scrollY > 300) {
+        scrollToTopButton.classList.add('visible');
+      }
+      
       window.addEventListener('scroll', function() {
-        if (window.scrollY > 300) {
+        // More aggressive threshold for mobile
+        var threshold = window.innerWidth <= 768 ? 200 : 300;
+        
+        if (window.scrollY > threshold) {
           scrollToTopButton.classList.add('visible');
+          // Ensure z-index is high on mobile
+          if (window.innerWidth <= 768) {
+            scrollToTopButton.style.zIndex = '9999';
+          }
         } else {
           scrollToTopButton.classList.remove('visible');
         }
       });
       
-      scrollToTopButton.addEventListener('click', function() {
+      // Make sure click works on mobile too with touchend
+      scrollToTopButton.addEventListener('click', scrollToTopFunction);
+      scrollToTopButton.addEventListener('touchend', scrollToTopFunction);
+      
+      function scrollToTopFunction(e) {
+        e.preventDefault();
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
-      });
+      }
       
       // Add animation for timeline components
       var components = document.querySelectorAll('.timeline-component');
