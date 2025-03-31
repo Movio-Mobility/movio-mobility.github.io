@@ -283,6 +283,232 @@
     .contact-us-button:hover a {
         color: #000 !important;
     }
+
+    /* Add styles for small box selection */
+    .small-boxes-container .w-full {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+    }
+
+    .small-boxes-container .w-full.selected {
+        border: 2px solid rgb(152, 192, 130);
+        transform: scale(1.02);
+    }
+
+    .small-boxes-container .w-full:hover {
+        transform: scale(1.02);
+        border: 2px solid rgba(152, 192, 130, 0.5);
+    }
+
+    /* Add smooth image transitions */
+    .large-box-image {
+        transition: opacity 0.3s ease-in-out;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .large-box-image.fade-out {
+        opacity: 0;
+    }
+
+    .large-box-image.fade-in {
+        opacity: 1;
+    }
+
+    /* Remove the green background from small boxes */
+    .small-boxes-container .w-full {
+        background: transparent !important;
+    }
+
+    /* Ensure large box has proper dimensions */
+    .large-box {
+        width: 100%;
+        height: 300px;
+        background: #1d1d1d;
+        overflow: hidden;
+        border-radius: 8px;
+    }
+
+    /* Add smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Enhanced timeline animations */
+    .timeline-component {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timeline-component.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Enhanced image gallery transitions */
+    .image-gallery {
+      perspective: 1000px;
+    }
+
+    .large-box {
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .large-box:hover {
+      transform: translateZ(20px);
+    }
+
+    .small-boxes-container .w-full {
+      transform: translateZ(0);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .small-boxes-container .w-full:hover {
+      transform: translateZ(10px) scale(1.05);
+    }
+
+    /* Add loading animation for images */
+    .large-box-image {
+      position: relative;
+    }
+
+    .large-box-image::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, #1d1d1d, #2d2d2d);
+      animation: shimmer 1.5s infinite;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .large-box-image.loading::before {
+      opacity: 1;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Enhanced timeline circle */
+    .timeline-circle {
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timeline-circle::before {
+      content: '';
+      position: absolute;
+      inset: -5px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(152, 192, 130, 0.2), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .timeline-middle:hover .timeline-circle::before {
+      opacity: 1;
+    }
+
+    /* Add progress indicator */
+    .timeline-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to right, rgb(152, 192, 130), transparent);
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    /* Enhanced section headings */
+    section h2 {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 3rem;
+    }
+
+    section h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: rgb(152, 192, 130);
+      border-radius: 2px;
+    }
+
+    /* Add scroll-to-top button */
+    .scroll-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      background: rgb(152, 192, 130);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .scroll-to-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .scroll-to-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .scroll-to-top svg {
+      width: 24px;
+      height: 24px;
+      fill: #1d1d1d;
+    }
+
+    /* Add hover effect for timeline text */
+    .timeline-component p {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-component p:hover {
+      transform: translateX(5px);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Enhanced mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .timeline-component {
+        padding: 1.5rem;
+      }
+
+      .large-box {
+        height: 250px;
+      }
+
+      .small-boxes-container .w-full {
+        height: 100px;
+      }
+    }
   </style>
 </head>
 
@@ -820,12 +1046,6 @@
             </div>
           </div>
 
-
-
-
-
-
-
           <div class="time-box-23 timeline-component left" data-aos="fade-right">
             <h3 class="timeline-subheading">SUN Mobility</h3>
             <p>
@@ -864,18 +1084,6 @@
             </div>
           </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
           <div class="time-box-25 timeline-component left" data-aos="fade-right">
             <h3 class="timeline-subheading">Validations & Early Traction</h3>
             <p>
@@ -885,7 +1093,6 @@
               in Delhi NCR, solely based on the demonstration of their functional prototypes.
               This validation underscored the market interest in their product. Currently, the GridXenergy team is focused
               on executing their go-to-market strategy with renewed approach.
-
             </p>
           </div>
           <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
@@ -918,21 +1125,79 @@
               </div>
             </div>
           </div>
+
+          <div class="time-box-27 timeline-component left" data-aos="fade-right">
+            <h3 class="timeline-subheading">Rigorous Testing</h3>
+            <p>
+              GridXenergy conducted rigorous field testing with a dedicated EV rider to ensure its full-stack system was battle-tested in real-world conditions. The rider extensively used the PowerPod and the app, pushing the system to its limits through daily operations, long routes, and heavy usage. Performance data and rider feedback enabled the team to refine system stability, optimize the app, and validate the technology's reliability under real conditions, proving it is ready for the road.
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-28 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery14">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/cust_1.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/cust_2.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="time-box-29 timeline-component left" data-aos="fade-right">
+            <h1 class="timeline-date">2025</h1>
+            <h3 class="timeline-subheading">First customer</h3>
+            <p>
+              GridXenergy partnered with a local dealership, where the team met a woman frustrated by battery failures and high replacement costs. Initially skeptical of GridX's Battery-as-a-Service model, she insisted, "Nahi nahi, humein wahi wali battery chahiye." Undeterred, the team patiently explained the benefits of zero upfront cost, no maintenance, and pay-per-use. Skepticism turned to curiosity, then trust. In the end, she agreed to retrofit her vehicle.
+              This wasn't just a sale, it was proof that GridXenergy is solving real problems and making a difference.
+            </p>
+          </div>
+          <div class="timeline-middle" data-aos="fade-down" data-aos-delay="300">
+            <div class="timeline-circle"></div>
+          </div>
+          <div class="time-box-30 timeline-component right" data-aos="fade-left" data-aos-delay="1600">
+            <div class="image-gallery flex flex-col gap-2 p-2" id="gallery15">
+              <!-- Large box -->
+              <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+              </div>
+              <!-- Small boxes container -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/cust_3.jpeg" alt="Small Box Image 1"
+                    class="object-cover w-full h-full">
+                </div>
+                <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
+                  <img src="./Website Resources/Timeline/cust_4.jpeg" alt="Small Box Image 2"
+                    class="object-cover w-full h-full">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
     </div>
   </section>
 
+  <!-- Add progress indicator -->
+  <div class="timeline-progress"></div>
 
-
-
-
-
-
-
-
-
-
-
+  <!-- Add scroll-to-top button -->
+  <div class="scroll-to-top">
+    <svg viewBox="0 0 24 24">
+      <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+    </svg>
+  </div>
 
   <br />
   <br />
@@ -945,7 +1210,7 @@
     <div class="footer-content">
       <section class="footer-grid">
         <div class="footer-container">
-          <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
+          <div class="footer-card company-info">
             <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
             <address class="company-address">
               497, Phase V,<br>
@@ -1003,7 +1268,15 @@
     </div>
   </footer>
 
-  <!-- Add the footer styles -->
+  <script>
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+  </script>
+
   <style>
   /* Premium Footer Styles */
   .premium-footer {
@@ -1206,33 +1479,6 @@
   </style>
 
   <script>
-  function scrollToTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }
-  </script>
-
-  <style>
-  .company-info {
-    /* ... existing styles ... */
-    transition: all 0.3s ease;
-  }
-
-  .company-info:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .company-info:active {
-    transform: translateY(0);
-  }
-  </style>
-</body>
-
-
-  <script>
     AOS.init({
       delay: 600, // values from 0 to 3000, with step 50ms
       duration: 1200, // values from 0 to 3000, with step 50ms
@@ -1242,48 +1488,97 @@
   <script src="image-effect.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Function to handle mouse tracking for timeline components
-        function handleMouseTracking(component) {
-            let bounds;
+      // Use pure JavaScript for maximum compatibility
+      // Initialize all galleries on page load with no animations or transitions
+      initGalleries();
 
-            function rotateToMouse(e) {
-                const rect = component.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                // Update CSS variables for gradient effect
-                component.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
-                component.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
-                
-                // Calculate rotation based on mouse position
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = ((y - centerY) / centerY) * -1; // Reduced rotation angle
-                const rotateY = ((x - centerX) / centerX) * 1; // Reduced rotation angle
-                
-                // Apply transform with smooth transition
-                component.style.transform = `
-                    perspective(1000px)
-                    rotateX(${rotateX}deg)
-                    rotateY(${rotateY}deg)
-                    translateZ(10px)
-                `;
-            }
+      function initGalleries() {
+        // Find all galleries
+        var allGalleries = document.querySelectorAll('.image-gallery');
+        console.log('Found ' + allGalleries.length + ' galleries to initialize');
 
-            function resetComponent() {
-                component.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-            }
-
-            // Add event listeners
-            component.addEventListener('mousemove', rotateToMouse);
-            component.addEventListener('mouseleave', resetComponent);
+        // Loop through each gallery
+        for (var i = 0; i < allGalleries.length; i++) {
+          initSingleGallery(allGalleries[i]);
         }
+      }
 
-        // Apply tracking to all timeline components
-        const timelineComponents = document.querySelectorAll('.timeline-component');
-        timelineComponents.forEach(component => {
-            handleMouseTracking(component);
+      function initSingleGallery(gallery) {
+        // Get elements
+        var largeBox = gallery.querySelector('.large-box-image');
+        var smallBoxes = gallery.querySelectorAll('.small-boxes-container .w-full');
+        
+        // Set first image as default if it exists
+        if (smallBoxes.length > 0) {
+          var firstImage = smallBoxes[0].querySelector('img');
+          if (firstImage && largeBox) {
+            largeBox.src = firstImage.src;
+            smallBoxes[0].classList.add('selected');
+          }
+        }
+        
+        // Add click handlers to all small boxes
+        for (var j = 0; j < smallBoxes.length; j++) {
+          (function(index) {
+            smallBoxes[index].addEventListener('click', function(e) {
+              e.preventDefault();
+              var img = this.querySelector('img');
+              if (img && largeBox) {
+                // Update large image
+                largeBox.src = img.src;
+                
+                // Update selection
+                for (var k = 0; k < smallBoxes.length; k++) {
+                  smallBoxes[k].classList.remove('selected');
+                }
+                this.classList.add('selected');
+              }
+            });
+          })(j);
+        }
+      }
+      
+      // Add scroll progress functionality
+      var progressBar = document.querySelector('.timeline-progress');
+      window.addEventListener('scroll', function() {
+        var scrollPosition = window.scrollY;
+        var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        var scrollPercent = (scrollPosition / maxScroll) * 100;
+        progressBar.style.transform = 'scaleX(' + (scrollPercent / 100) + ')';
+      });
+      
+      // Add scroll-to-top functionality
+      var scrollToTopButton = document.querySelector('.scroll-to-top');
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+          scrollToTopButton.classList.add('visible');
+        } else {
+          scrollToTopButton.classList.remove('visible');
+        }
+      });
+      
+      scrollToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
         });
+      });
+      
+      // Add animation for timeline components
+      var components = document.querySelectorAll('.timeline-component');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, {
+        threshold: 0.1
+      });
+      
+      components.forEach(function(component) {
+        observer.observe(component);
+      });
     });
   </script>
 </body>
