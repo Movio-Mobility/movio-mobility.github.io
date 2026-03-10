@@ -55,7 +55,7 @@ body {
   }
   
   .image-container h1 {
-    text-align: -webkit-left;
+    text-align: left;
     color: black;
     font-size: 28px;
     margin-bottom: 10px;
@@ -66,7 +66,7 @@ body {
   }
   
   .image-container ul li {
-    text-align: -webkit-left;
+    text-align: left;
     color: black;
     margin-bottom: 10px;
   }
@@ -206,7 +206,7 @@ body {
   }
 
 
-  @media (max-width: 560) {
+  @media (max-width: 560px) {
     .additional_accessories{
         font-size: 30px;
       }

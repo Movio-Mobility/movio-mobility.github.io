@@ -13,9 +13,21 @@
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
 	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
 		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+	<link href="./polish.css" rel="stylesheet" />
+	<style>
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+				scroll-behavior: auto !important;
+			}
+		}
+	</style>
 </head>
 
 <body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
+	<div class="scroll-progress"></div>
 
 	<section class="hero-section rounded-2xl overflow-hidden">
 
@@ -27,11 +39,10 @@
 						style="width: auto;" />
 				</a>
 			</div>
-			<svg xmlns="http://www.w3.org/2000/svg" id="menu-button" class="h-12 w-12 cursor-pointer lg:hidden block"
-				fill="none" viewBox="0 0 24 24" stroke="currentColor">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-			</svg>
-			<div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+			<button id="menu-button" class="hamburger lg:hidden" aria-label="Menu">
+				<span></span><span></span><span></span>
+			</button>
+			<div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
 				<ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
 					<li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
 							href="./product.html">Products</a>
@@ -56,7 +67,7 @@
 			</div>
 		</nav>
 
-		<div class="premium-origin-card">
+		<div class="premium-origin-card reveal-on-scroll">
 			<div class="content">
 				<h2 class="card-title">The Origin</h2>
 				<div class="card-text">
@@ -96,13 +107,13 @@
 </section>
 </a> -->
 
-	<section class="premium-team-card">
+	<section class="premium-team-card reveal-on-scroll">
 		<div class="content">
 			<h2 class="card-title">Our Team</h2>
 			<div class="team-grid" style="margin: 0 auto;">
 				<a href="https://www.linkedin.com/in/shivanshu-mahim-1ba3a51a6/" target="_blank" rel="noopener" class="team-member-link" onclick="window.open(this.href, '_blank', 'noopener'); return false;">
 					<div class="team-member">
-						<img src="./Website Resources/Founders/shivanshu.jpeg" class="member-image" />
+						<img src="./Website Resources/Founders/shivanshu.jpeg" class="member-image" loading="lazy" />
 						<div class="member-info">
 							<div class="founder-header">
 								<h3 class="text-md lg:text-lg font-bold">Shivanshu Mahim</h3>
@@ -118,7 +129,7 @@
 				</a>
 				<a href="https://www.linkedin.com/in/hriteek-agrawal/" target="_blank" rel="noopener" class="team-member-link" onclick="window.open(this.href, '_blank', 'noopener'); return false;">
 					<div class="team-member">
-						<img src="./Website Resources/Founders/hriteek.jpeg" class="member-image" />
+						<img src="./Website Resources/Founders/hriteek.jpeg" class="member-image" loading="lazy" />
 						<div class="member-info">
 							<div class="founder-header">
 								<h3 class="text-md lg:text-lg font-bold">Hriteek Agarwal</h3>
@@ -134,7 +145,7 @@
 				</a>
 				<a href="https://www.linkedin.com/in/vishrutvatsa/" target="_blank" rel="noopener" class="team-member-link" onclick="window.open(this.href, '_blank', 'noopener'); return false;">
 					<div class="team-member">
-						<img src="./Website Resources/Founders/vishy.jpeg" class="member-image" />
+						<img src="./Website Resources/Founders/vishy.jpeg" class="member-image" loading="lazy" />
 						<div class="member-info">
 							<div class="founder-header">
 								<h3 class="text-md lg:text-lg font-bold">Vishrut Vatsa</h3>
@@ -150,7 +161,7 @@
 				</a>
 				<a href="https://www.linkedin.com/in/paridhisinha7/" target="_blank" rel="noopener" class="team-member-link" onclick="window.open(this.href, '_blank', 'noopener'); return false;">
 					<div class="team-member">
-						<img src="./Website Resources/Founders/paridhi.jpeg" class="member-image" />
+						<img src="./Website Resources/Founders/paridhi.jpeg" class="member-image" loading="lazy" />
 						<div class="member-info">
 							<div class="founder-header">
 								<h3 class="text-md lg:text-lg font-bold">Paridhi Sinha</h3>
@@ -170,27 +181,27 @@
 		<div class="particles"></div>
 	</section>
 
-	<section class="premium-card schemes-card">
+	<section class="premium-card schemes-card reveal-on-scroll">
 		<div class="content">
 			<h2 class="card-title">The Schemes</h2>
 			<div class="schemes-grid">
-				<img class="scheme-logo" src="./Website Resources/Schemes/meity-startup.png" alt="Meity Startup">
-				<img class="scheme-logo" src="./Website Resources/Schemes/nidhi-eir.png" alt="Nidhi EIR">
-				<img class="scheme-logo" src="./Website Resources/Schemes/nidhi-prayas.png" alt="Nidhi Prayas">
+			<img class="scheme-logo" src="./Website Resources/Schemes/meity-startup.png" alt="Meity Startup" loading="lazy">
+			<img class="scheme-logo" src="./Website Resources/Schemes/nidhi-eir.png" alt="Nidhi EIR" loading="lazy">
+			<img class="scheme-logo" src="./Website Resources/Schemes/nidhi-prayas.png" alt="Nidhi Prayas" loading="lazy">
 			</div>
 		</div>
 		<div class="glow"></div>
 		<div class="particles"></div>
 	</section>
 
-	<section class="premium-card partners-card">
+	<section class="premium-card partners-card reveal-on-scroll">
 		<div class="content">
 			<h2 class="card-title">The Partners</h2>
 			<div class="partners-grid">
-				<img class="partner-logo" src="./Website Resources/Incubators/vit-vellore.png" alt="VIT Vellore">
-				<img class="partner-logo" src="./Website Resources/Incubators/iiit-delhi.png" alt="IIIT Delhi">
-				<img class="partner-logo" src="./Website Resources/Incubators/iim-udaipur.png" alt="IIM Udaipur">
-				<img class="partner-logo" src="./Website Resources/Incubators/iit-roorkee.png" alt="IIT Roorkee">
+			<img class="partner-logo" src="./Website Resources/Incubators/vit-vellore.png" alt="VIT Vellore" loading="lazy">
+			<img class="partner-logo" src="./Website Resources/Incubators/iiit-delhi.png" alt="IIIT Delhi" loading="lazy">
+			<img class="partner-logo" src="./Website Resources/Incubators/iim-udaipur.png" alt="IIM Udaipur" loading="lazy">
+			<img class="partner-logo" src="./Website Resources/Incubators/iit-roorkee.png" alt="IIT Roorkee" loading="lazy">
 			</div>
 		</div>
 		<div class="glow"></div>
@@ -202,11 +213,13 @@
 		  <section class="footer-grid">
 			<div class="footer-container">
 			  <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
-				<img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
+				<img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" loading="lazy" />
 				<address class="company-address">
-				  D66, Pocket D<br>
-				Phase 1, Okhla.<br>
-				New Delhi, 110020.
+				  <a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+				    D66, Pocket D<br>
+				    Phase 1, Okhla.<br>
+				    New Delhi, 110020.
+				  </a>
 				</address>
 			  </div>
 			</div>
@@ -248,7 +261,7 @@
 			<hr class="footer-divider" />
 			<div class="footer-copyright">
 			  <p>Designed and Developed in-house @ GridXenergy</p>
-			  <p>© Copyright 2026 Movio Technologies Private Limited</p>
+			  <p>© Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
 			  <div class="footer-links">
 				<a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
 				<span class="separator">•</span>
@@ -559,24 +572,25 @@
 			card.addEventListener('mousemove', rotateToMouse);
 			card.addEventListener('mouseleave', resetCard);
 			
-			// Handle scroll and resize
 			window.addEventListener('scroll', () => {
 				bounds = card.getBoundingClientRect();
-			});
+			}, { passive: true });
 			
 			window.addEventListener('resize', () => {
 				bounds = card.getBoundingClientRect();
-			});
+			}, { passive: true });
 		}
 
-		// Apply tracking to all cards except team member links
-		const cards = document.querySelectorAll('.premium-origin-card, .premium-team-card, .premium-card');
-		cards.forEach(card => {
-			if (!card.classList.contains('team-member-link') && 
-				!card.closest('.team-member-link')) {
-				handleMouseTracking(card);
-			}
-		});
+		// Apply tracking to all cards except team member links (desktop only)
+		if (window.matchMedia('(hover: hover)').matches) {
+			const cards = document.querySelectorAll('.premium-origin-card, .premium-team-card, .premium-card');
+			cards.forEach(card => {
+				if (!card.classList.contains('team-member-link') && 
+					!card.closest('.team-member-link')) {
+					handleMouseTracking(card);
+				}
+			});
+		}
 	});
 	</script>
 
@@ -714,7 +728,7 @@
 		font-size: 3rem;
 	}
 
-	@media screen and (max-width: 680) {
+	@media screen and (max-width: 680px) {
 		h2 {
 			font-size: 2rem;
 		}
@@ -1295,5 +1309,6 @@
 	}
 </style>
 
+<script src="polish.js"></script>
 </html>
 

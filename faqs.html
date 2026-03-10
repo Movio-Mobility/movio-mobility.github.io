@@ -20,8 +20,20 @@
       integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc="
       crossorigin="anonymous"
     ></script>
+    <link href="./polish.css" rel="stylesheet" />
+    <style>
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div class="scroll-progress"></div>
     <header class="hero-section rounded-2xl overflow-hidden">
 			<nav class="flex flex-wrap justify-between w-full lg:px-16 px-8 mt-10">
         <div>
@@ -34,22 +46,14 @@
             />
           </a>
         </div>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
+        <button
           id="menu-button"
-          class="h-12 w-12 cursor-pointer lg:hidden block"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+          class="hamburger lg:hidden"
+          aria-label="Menu"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-        <div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+          <span></span><span></span><span></span>
+        </button>
+        <div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
           <ul
             class="pt-4 text-base text-gray-700 lg:flex lg:justify-between lg:pt-0"
           >
@@ -113,7 +117,7 @@
         Frequently Asked Questions 
       </h2>
 
-      <div class="faq">
+      <div class="faq reveal-on-scroll">
         <a href="#" class="button">
           <span class="question"
             >How much does the PowerPod battery-pack costs?</span
@@ -130,7 +134,7 @@
         </a>
       </div>
 
-      <div class="faq">
+      <div class="faq reveal-on-scroll">
         <a href="#" class="button">
           <span class="question">How does the 'pay-as-you-go' model work?</span>
           <span class="answer">
@@ -147,7 +151,7 @@
         </a>
       </div>
 
-      <div class="faq">
+      <div class="faq reveal-on-scroll">
         <a href="#" class="button">
           <span class="question">Is the PowerPod compatible with my EV?</span>
           <span class="answer"
@@ -160,7 +164,7 @@
         </a>
       </div>
 
-      <div class="faq">
+      <div class="faq reveal-on-scroll">
         <a href="#" class="button">
           <span class="question"
             >How much range will I get with a single PowerPod?</span
@@ -171,7 +175,7 @@
           >
         </a>
       </div>
-      <div class="faq">
+      <div class="faq reveal-on-scroll">
         <a href="#" class="button">
           <span class="question">
             How much does GridXenergy charge for the energy usage?</span
@@ -179,7 +183,7 @@
           <span class="answer">We charge ₹35/kWh (kiloWattHour). </span>
         </a>
       </div>
-      <div class="faq">
+      <div class="faq reveal-on-scroll">
         <a href="#" class="button">
           <span class="question">How many SwapNests are there in my area?</span>
           <span class="answer"
@@ -198,11 +202,13 @@
       <section class="footer-grid">
         <div class="footer-container">
           <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
-            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
+            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" loading="lazy" />
             <address class="company-address">
-              D66, Pocket D<br>
-								Phase 1, Okhla.<br>
-								New Delhi, 110020.
+              <a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                D66, Pocket D<br>
+                Phase 1, Okhla.<br>
+                New Delhi, 110020.
+              </a>
             </address>
           </div>
         </div>
@@ -244,7 +250,7 @@
         <hr class="footer-divider" />
         <div class="footer-copyright">
           <p>Designed and Developed in-house @ GridXenergy</p>
-          <p>© Copyright 2026 Movio Technologies Private Limited</p>
+          <p>© Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
           <div class="footer-links">
             <a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
             <span class="separator">•</span>
@@ -651,5 +657,6 @@
   </style>
 </body>
 </footer>
+<script src="polish.js"></script>
 </html>
 

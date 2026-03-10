@@ -19,8 +19,18 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
     integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+  <link href="./polish.css" rel="stylesheet" />
  
   <style>
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     .premium-section {
         position: relative;
         padding: 4rem;
@@ -567,6 +577,7 @@
 </head>
 
 <body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
+  <div class="scroll-progress"></div>
   
   <header class="hero-section rounded-2xl overflow-hidden">
     <div class="content">
@@ -577,11 +588,10 @@
               style="width: auto;" />
             </a>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" id="menu-button" class="h-12 w-12 cursor-pointer lg:hidden block"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          <div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+          <button id="menu-button" class="hamburger lg:hidden" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
             <ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
               <li class="mx-2 py-3 block text-white"> <a style="display: block;width: 100%;height: 100%;"
                   href="product.html">Products</a>
@@ -636,25 +646,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery1">
               <!-- Large box -->
               <div class=" large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/p1.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/p2.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/p3.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/p4.jpeg" alt="Small Box Image 4"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -663,21 +673,21 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery2">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_2021.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_2021.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_2021.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
 
               </div>
@@ -704,25 +714,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery3">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_2021.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/5_2021.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/6_2021.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/7_2021.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -769,25 +779,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery4">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_2022.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_2022.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_2022.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_2022.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -811,25 +821,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery5">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/5_2022.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/6_2022.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/7_2022.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/8_2022.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -839,25 +849,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery6">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_2023.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_2023.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_2023.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_2023.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -886,25 +896,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery7">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/5_2023.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/6_2023.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/7_2023.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/8_2023.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -929,25 +939,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery8">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_proto.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_proto.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_proto.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_proto.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -971,25 +981,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery9">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_mvp.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_mvp.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_mvp.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_mvp.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -1015,25 +1025,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery10">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_brand.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_brand.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_brand.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_brand.jpeg" alt="Small Box Image 4"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
 
               </div>
@@ -1076,25 +1086,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery11">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_2024.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_2024.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_2024.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_2024.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -1121,17 +1131,17 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery12">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_sun.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_sun.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
 
               </div>
@@ -1156,25 +1166,25 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery13">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/1_final.png" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/2_final.png" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/3_final.jpeg" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/4_final.png" alt="Small Box Image 3"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -1193,17 +1203,17 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery14">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/cust_1.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/cust_2.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -1224,17 +1234,17 @@
             <div class="image-gallery flex flex-col gap-2 p-2" id="gallery15">
               <!-- Large box -->
               <div class="large-box w-full bg-blue-300 overflow-hidden rounded">
-                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full">
+                <img src="" alt="Large Box Image" class="large-box-image object-cover object-center w-full h-full" loading="lazy">
               </div>
               <!-- Small boxes container -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 small-boxes-container">
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/cust_3.jpeg" alt="Small Box Image 1"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
                 <div class="w-full h-32 bg-green-300 rounded overflow-hidden cursor-pointer">
                   <img src="./Website Resources/Timeline/cust_4.jpeg" alt="Small Box Image 2"
-                    class="object-cover w-full h-full">
+                    class="object-cover w-full h-full" loading="lazy">
                 </div>
               </div>
             </div>
@@ -1265,11 +1275,13 @@
       <section class="footer-grid">
         <div class="footer-container">
           <div class="footer-card company-info">
-            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
+            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" loading="lazy" />
             <address class="company-address">
-              D66, Pocket D<br>
-							Phase 1, Okhla.<br>
-							New Delhi, 110020.
+              <a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                D66, Pocket D<br>
+                Phase 1, Okhla.<br>
+                New Delhi, 110020.
+              </a>
             </address>
           </div>
         </div>
@@ -1311,7 +1323,7 @@
         <hr class="footer-divider" />
         <div class="footer-copyright">
           <p>Designed and Developed in-house @ GridXenergy</p>
-          <p>© Copyright 2026 Movio Technologies Private Limited</p>
+          <p>© Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
           <div class="footer-links">
             <a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
             <span class="separator">•</span>
@@ -1594,12 +1606,19 @@
       
       // Add scroll progress functionality
       var progressBar = document.querySelector('.timeline-progress');
+      var journeyScrollTicking = false;
       window.addEventListener('scroll', function() {
-        var scrollPosition = window.scrollY;
-        var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        var scrollPercent = (scrollPosition / maxScroll) * 100;
-        progressBar.style.transform = 'scaleX(' + (scrollPercent / 100) + ')';
-      });
+        if (!journeyScrollTicking) {
+          requestAnimationFrame(function() {
+            var scrollPosition = window.scrollY;
+            var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            var scrollPercent = (scrollPosition / maxScroll) * 100;
+            progressBar.style.transform = 'scaleX(' + (scrollPercent / 100) + ')';
+            journeyScrollTicking = false;
+          });
+          journeyScrollTicking = true;
+        }
+      }, { passive: true });
       
       // Add scroll-to-top functionality
       var scrollToTopButton = document.querySelector('.scroll-to-top');
@@ -1609,24 +1628,28 @@
         scrollToTopButton.classList.add('visible');
       }
       
+      var topBtnTicking = false;
       window.addEventListener('scroll', function() {
-        // More aggressive threshold for mobile
-        var threshold = window.innerWidth <= 768 ? 200 : 300;
-        
-        if (window.scrollY > threshold) {
-          scrollToTopButton.classList.add('visible');
-          // Ensure z-index is high on mobile
-          if (window.innerWidth <= 768) {
-            scrollToTopButton.style.zIndex = '9999';
-          }
-        } else {
-          scrollToTopButton.classList.remove('visible');
+        if (!topBtnTicking) {
+          requestAnimationFrame(function() {
+            var threshold = window.innerWidth <= 768 ? 200 : 300;
+            
+            if (window.scrollY > threshold) {
+              scrollToTopButton.classList.add('visible');
+              if (window.innerWidth <= 768) {
+                scrollToTopButton.style.zIndex = '9999';
+              }
+            } else {
+              scrollToTopButton.classList.remove('visible');
+            }
+            topBtnTicking = false;
+          });
+          topBtnTicking = true;
         }
-      });
+      }, { passive: true });
       
-      // Make sure click works on mobile too with touchend
       scrollToTopButton.addEventListener('click', scrollToTopFunction);
-      scrollToTopButton.addEventListener('touchend', scrollToTopFunction);
+      scrollToTopButton.addEventListener('touchend', scrollToTopFunction, { passive: false });
       
       function scrollToTopFunction(e) {
         e.preventDefault();
@@ -1655,4 +1678,5 @@
   </script>
 </body>
 
+<script src="polish.js"></script>
 </html>

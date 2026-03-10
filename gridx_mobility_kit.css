@@ -163,7 +163,7 @@ transition: transform 0.3s ease-in-out;
     height: auto;
     background-color: black;
     color: white;
-    text-align: -webkit-center;
+    text-align: center;
     justify-content: center;
     align-items: center;
     /* bottom: auto; To avoid conflicting with JavaScript positioning */

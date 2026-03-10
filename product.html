@@ -12,12 +12,24 @@
     rel="stylesheet">
 
     <link href="partnerships.css" rel="stylesheet" />
+  <link href="./polish.css" rel="stylesheet" />
   <meta content="width=device-width, initial-scale=1" name="viewport" />
   <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
     integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 
 <body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
+  <div class="scroll-progress"></div>
   <section class="hero-section rounded-2xl overflow-hidden relative">
 
     <!-- 	Navbar -->
@@ -30,11 +42,10 @@
           <img src="./assets/newLOGO.png" alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto logo" style="width: auto;" />
         </a>
       </div>
-      <svg xmlns="http://www.w3.org/2000/svg" id="menu-button" class="h-12 w-12 cursor-pointer lg:hidden block"
-        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-      <div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+      <button id="menu-button" class="hamburger lg:hidden" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
         <ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
           <li class="mx-2 py-3 block "> <a style="display: block;width: 100%;height: 100%; color: rgb(152, 192, 130);"
               href="product.html">Products</a>
@@ -64,13 +75,13 @@
     <div class="relative flex flex-col justify-center text-center" style="height: 80%;">
 
       <h1 style="margin-top: -10vh;
-      font-weight: bold;" class="lg:text-5xl text-3xl">Products
+      font-weight: bold;" class="lg:text-5xl text-3xl hero-text-enter">Products
       </h1>
-      <div class="text-md lg:text-lg"
+      <div class="text-md lg:text-lg hero-text-enter hero-delay-1 gradient-text"
         style="color: rgb(152, 192, 130); font-family: 'DM Sans', monospace; font-weight: bold;">
         Your Journey, Our Energy
       </div>
-      <div class="absolute text-center scroll-button">
+      <div class="absolute text-center scroll-button hero-text-enter hero-delay-2">
         <div class="scroll-indicator"></div>
         <p class="mt-2">Scroll</p>
       </div>
@@ -82,7 +93,7 @@
 
 
 
-  <section class="lg:px-0 px-5" style="margin-top: 10vh">
+  <section class="lg:px-0 px-5 reveal-on-scroll" style="margin-top: 10vh">
     <div>
       <h2 class="text-white font-bold lg:text-5xl text-3xl">Experience The Freedom Of Limitless Energy</h2>
       <p class="text-gray-400 mx-auto text-md lg:text-lg max-w-screen-md px-10"
@@ -101,7 +112,7 @@
 
     </div>
 
-    <section id="nav2-item1" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5">
+    <section id="nav2-item1" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5 reveal-on-scroll">
         <div class="premium-product-card">
             <div class="content">
                 <h2 style="font-weight: bold;" class="lg:text-5xl text-3xl mb-6">PowerPod</h2>
@@ -116,7 +127,7 @@
                     swapping.
                 </p>
                 <div class="product-image-container">
-                    <img src="PowerPod_products.jpg" class="product-img" alt="PowerPod" />
+                    <img src="PowerPod_products.jpg" class="product-img" alt="PowerPod" loading="lazy" />
                 </div>
             </div>
             <div class="glow"></div>
@@ -124,7 +135,7 @@
         </div>
     </section>
 
-    <section id="nav2-item2" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5">
+    <section id="nav2-item2" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5 reveal-on-scroll">
         <div class="premium-product-card">
             <div class="content">
                 <h2 style="font-weight: bold;" class="lg:text-5xl text-3xl mb-6">Power Access Card</h2>
@@ -136,7 +147,7 @@
                     making your vehicle Powerpod-compatible and ready for swaps.
                 </p>
                 <div class="product-image-container">
-                    <img src="PAC_products.jpg" class="product-img" alt="Power Access Card" />
+                    <img src="PAC_products.jpg" class="product-img" alt="Power Access Card" loading="lazy" />
                 </div>
             </div>
             <div class="glow"></div>
@@ -146,7 +157,7 @@
 
 
 
-    <section id="nav2-item3" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5">
+    <section id="nav2-item3" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5 reveal-on-scroll">
         <div class="premium-product-card">
             <div class="content">
                 <h2 style="font-weight: bold;" class="lg:text-5xl text-3xl mb-6">Home Dock</h2>
@@ -158,7 +169,7 @@
                     convenience. Experience seamless energy, wherever life takes you.
                 </p>
                 <div class="product-image-container">
-                    <img src="HomeDock_products.jpg" class="product-img" alt="Home Dock" />
+                    <img src="HomeDock_products.jpg" class="product-img" alt="Home Dock" loading="lazy" />
                 </div>
             </div>
             <div class="glow"></div>
@@ -169,7 +180,7 @@
 
 
 
-    <section id="nav2-item4" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5">
+    <section id="nav2-item4" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5 reveal-on-scroll">
         <div class="premium-product-card">
             <div class="content">
                 <h2 style="font-weight: bold;" class="lg:text-5xl text-3xl mb-6">SwapNest</h2>
@@ -184,7 +195,7 @@
                     Simply swap, take off, and keep moving without a pause.
                 </p>
                 <div class="product-image-container">
-                    <img src="Swapnest_products.jpg" class="product-img" alt="SwapNest" />
+                    <img src="Swapnest_products.jpg" class="product-img" alt="SwapNest" loading="lazy" />
                 </div>
             </div>
             <div class="glow"></div>
@@ -195,7 +206,7 @@
 
 
 
-    <section id="nav2-item5" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5">
+    <section id="nav2-item5" style="scroll-margin-top: 80px; width: 100%; margin-bottom: 5rem;" class="lg:px-0 px-5 reveal-on-scroll">
         <div class="premium-product-card">
             <div class="content">
                 <h2 style="font-weight: bold;" class="lg:text-5xl text-3xl mb-6">GridX App</h2>
@@ -208,7 +219,7 @@
                     <br>—just the way it should be.
                 </p>
                 <div class="product-image-container">
-                    <img src="App_products.png" class="product-img" alt="GridX App" />
+                    <img src="App_products.png" class="product-img" alt="GridX App" loading="lazy" />
                 </div>
             </div>
             <div class="glow"></div>
@@ -216,7 +227,7 @@
         </div>
     </section>
 
-    <div class="buttons-wrapper" style="display: flex; justify-content: center; margin: 4rem auto;">
+    <div class="buttons-wrapper reveal-on-scroll" style="display: flex; justify-content: center; margin: 4rem auto;">
         <a href="GridX_Product_Portfolio.pdf" class="learn-more-btn" target="_blank">
             <span>Download the Product Portfolio</span>
         </a>
@@ -232,11 +243,13 @@
       <section class="footer-grid">
         <div class="footer-container">
           <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
-            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
+            <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" loading="lazy" />
             <address class="company-address">
-             D66, Pocket D<br>
-		Phase 1, Okhla.<br>
-		New Delhi, 110020.
+              <a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                D66, Pocket D<br>
+                Phase 1, Okhla.<br>
+                New Delhi, 110020.
+              </a>
             </address>
           </div>
         </div>
@@ -278,7 +291,7 @@
         <hr class="footer-divider" />
         <div class="footer-copyright">
           <p>Designed and Developed in-house @ GridXenergy</p>
-          <p>© Copyright 2026 Movio Technologies Private Limited</p>
+          <p>© Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
           <div class="footer-links">
             <a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
             <span class="separator">•</span>
@@ -577,6 +590,7 @@
         margin: 50px auto;
         width: calc(100vw - 100px);
         height: calc(100vh - 100px);
+        height: calc(100dvh - 100px);
       }
 
       .hero-section>video {
@@ -770,7 +784,7 @@
           margin: 30px auto;
           width: calc(100vw - 60px);
           height: calc(100vh - 80px);
-
+          height: calc(100dvh - 80px);
         }
 
         .logo {
@@ -793,7 +807,7 @@
 
       }
 
-      @media screen and (max-width: 68) {
+      @media screen and (max-width: 680px) {
         h2 {
           font-size: 2rem;
         }
@@ -1005,47 +1019,44 @@
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.premium-product-card');
         
-        cards.forEach(card => {
-            card.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                // Update the CSS variables for the glow effect
-                card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
-                card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
-                
-                // Calculate the rotation based on mouse position
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = ((y - centerY) / centerY) * -2; // Reduced rotation angle
-                const rotateY = ((x - centerX) / centerX) * 2; // Reduced rotation angle
-                
-                // Apply the transform with easing
-                card.style.transform = `
-                    perspective(1500px)
-                    rotateX(${rotateX}deg)
-                    rotateY(${rotateY}deg)
-                    translateZ(0)
-                `;
-            });
+        if (window.matchMedia('(hover: hover)').matches) {
+            cards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                    card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -2;
+                    const rotateY = ((x - centerX) / centerX) * 2;
+                    
+                    card.style.transform = `
+                        perspective(1500px)
+                        rotateX(${rotateX}deg)
+                        rotateY(${rotateY}deg)
+                        translateZ(0)
+                    `;
+                });
 
-            card.addEventListener('mouseleave', () => {
-                // Reset the transform smoothly
-                card.style.transform = `
-                    perspective(1500px)
-                    rotateX(0deg)
-                    rotateY(0deg)
-                    translateZ(0)
-                `;
-            });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `
+                        perspective(1500px)
+                        rotateX(0deg)
+                        rotateY(0deg)
+                        translateZ(0)
+                    `;
+                });
 
-            // Prevent transition on initial load
-            card.style.transition = 'none';
-            requestAnimationFrame(() => {
-                card.style.transition = 'transform 0.3s ease-out';
+                card.style.transition = 'none';
+                requestAnimationFrame(() => {
+                    card.style.transition = 'transform 0.3s ease-out';
+                });
             });
-        });
+        }
     });
     </script>
 
@@ -1104,4 +1115,5 @@
     }
     </style>
 
+    <script src="polish.js"></script>
 </html>

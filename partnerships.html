@@ -18,12 +18,24 @@
 
     <title>GridXenergy | Partnerships</title>
     <link rel="icon" type="image/x-icon" href="logoSmall.jpeg" />
+    <link href="./polish.css" rel="stylesheet" />
+    <style>
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
   </head>
 
   <body
     style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif"
     class="text-center text-white"
   >
+    <div class="scroll-progress"></div>
     <section class="hero-section rounded-2xl overflow-hidden relative">
       <!-- 	Navbar -->
       <nav class="flex flex-wrap justify-between w-full lg:px-16 px-8 mt-10">
@@ -37,22 +49,14 @@
             />
           </a>
         </div>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
+        <button
           id="menu-button"
-          class="h-12 w-12 cursor-pointer lg:hidden block"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+          class="hamburger lg:hidden"
+          aria-label="Menu"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-        <div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+          <span></span><span></span><span></span>
+        </button>
+        <div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
           <ul
             class="pt-4 text-base text-gray-700 lg:flex lg:justify-between lg:pt-0"
           >
@@ -115,16 +119,16 @@
         class="relative flex flex-col justify-center text-center"
         style="height: 80%"
       >
-        <h1 style="margin-top: -10vh; font-weight: bold; font-size: 3rem">
+        <h1 class="hero-text-enter" style="margin-top: -10vh; font-weight: bold; font-size: 3rem">
           Partnerships
         </h1>
         <div
-          class="text-md lg:text-lg"
+          class="text-md lg:text-lg hero-text-enter hero-delay-1"
           style="font-family: 'DM Sans', monospace; font-weight: bold"
         >
           Why Host Your Own Swapping Network?
           <p style="color: rgb(152, 192, 130)">
-            <strong>Partner with Us</strong>
+            <strong class="gradient-text">Partner with Us</strong>
           </p>
         </div>
         <div class="absolute text-center scroll-button">
@@ -145,6 +149,7 @@
     </section>
 
     <h3
+      class="reveal-on-scroll"
       style="
         margin-top: 2rem;
         margin-bottom: 1rem;
@@ -154,7 +159,7 @@
     >
       What's in it for you?
     </h3>
-    <section class="second-section lg:px-0 px-5 text-lg">
+    <section class="second-section lg:px-0 px-5 text-lg reveal-on-scroll">
         <div class="unified-card">
             <div class="content">
                 <div class="text-section">
@@ -192,7 +197,7 @@
         </div>
     </section>
 
-   <div class="buttons-wrapper" style="display: flex; justify-content: center; margin: 4rem auto;">
+   <div class="buttons-wrapper reveal-on-scroll" style="display: flex; justify-content: center; margin: 4rem auto;">
         <a href="GridX_Product_Portfolio.pdf" class="learn-more-btn" target="_blank">
             <span style="font-weight: bold;">Download the Product Portfolio</span>
         </a>
@@ -421,27 +426,31 @@
   </style>
 
   <script>
-  document.querySelector('.unified-card').addEventListener('mousemove', (e) => {
-      const card = e.currentTarget;
-      const rect = card.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / card.clientWidth) * 100;
-      const y = ((e.clientY - rect.top) / card.clientHeight) * 100;
-      
-      card.style.setProperty('--mouse-x', `${x}%`);
-      card.style.setProperty('--mouse-y', `${y}%`);
-  });
+  if (window.matchMedia('(hover: hover)').matches) {
+      document.querySelector('.unified-card').addEventListener('mousemove', (e) => {
+          const card = e.currentTarget;
+          const rect = card.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / card.clientWidth) * 100;
+          const y = ((e.clientY - rect.top) / card.clientHeight) * 100;
+          
+          card.style.setProperty('--mouse-x', `${x}%`);
+          card.style.setProperty('--mouse-y', `${y}%`);
+      });
+  }
   </script>
 
-  <footer class="premium-footer">
+  <footer class="premium-footer reveal-on-scroll">
     <div class="footer-content">
       <section class="footer-grid">
         <div class="footer-container">
           <div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
             <img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
             <address class="company-address">
-             D66, Pocket D<br>
-								Phase 1, Okhla.<br>
-								New Delhi, 110020.
+              <a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+                D66, Pocket D<br>
+                Phase 1, Okhla.<br>
+                New Delhi, 110020.
+              </a>
             </address>
           </div>
         </div>
@@ -483,7 +492,7 @@
         <hr class="footer-divider" />
         <div class="footer-copyright">
           <p>Designed and Developed in-house @ GridXenergy</p>
-          <p>© Copyright 2026 Movio Technologies Private Limited</p>
+          <p>© Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
           <div class="footer-links">
             <a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
             <span class="separator">•</span>
@@ -786,6 +795,7 @@
   margin: 50px auto;
   width: calc(100vw - 100px);
   height: calc(100vh - 100px);
+  height: calc(100dvh - 100px);
 }
 
 .hero-section>video {
@@ -992,7 +1002,7 @@ h2 {
     margin: 30px auto;
     width: calc(100vw - 60px);
     height: calc(100vh - 80px);
-
+    height: calc(100dvh - 80px);
   }
 
   .service-col {
@@ -1009,12 +1019,13 @@ h2 {
   }
 }
 
-@media screen and (max-width: 68) {
+@media screen and (max-width: 680px) {
   h2 {
     font-size: 2rem;
   }
 }
 </style>
 
+<script src="polish.js"></script>
 </html>
 

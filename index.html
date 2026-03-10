@@ -14,12 +14,34 @@
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="./polish.css" rel="stylesheet">
 	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"
 		integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
 	<style>
-		/* Add smooth scrolling behavior */
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+				scroll-behavior: auto !important;
+			}
+		}
+
+		html, body {
+			overflow-x: hidden;
+		}
+
 		html {
 			scroll-behavior: smooth;
+		}
+
+		.section-spacer {
+			height: 6rem;
+		}
+		@media (max-width: 768px) {
+			.section-spacer {
+				height: 2.5rem;
+			}
 		}
 
 		/* Add loading animation for videos */
@@ -46,14 +68,6 @@
 			100% { transform: rotate(360deg); }
 		}
 
-		/* Desktop menu styles */
-		@media screen and (min-width: 769px) {
-			#menu {
-				display: flex;
-			}
-		}
-
-		/* Enhance How it works section */
 		.box {
 			position: relative;
 			padding: 2rem;
@@ -61,7 +75,7 @@
 			border-radius: 15px;
 			transform-style: preserve-3d;
 			transform: translateZ(0);
-			transition: all 0.3s ease-out;
+			transition: transform 0.3s ease-out, background 0.3s ease-out, box-shadow 0.3s ease-out;
 			overflow: hidden;
 			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 			cursor: pointer;
@@ -126,30 +140,6 @@
 
 		.box:hover p {
 			transform: scale(1.02);
-		}
-
-		/* Update container perspective */
-		.container-video-frame {
-			perspective: 1000px;
-		}
-
-		/* Desktop menu styles */
-		@media screen and (min-width: 769px) {
-			#menu {
-				display: flex;
-			}
-		}
-
-		/* Enhance How it works section */
-		.box {
-			transition: all 0.3s ease;
-			border: 2px solid transparent;
-			background: rgba(255,255,255,0.05);
-		}
-
-		.box:hover {
-			transform: translateX(10px);
-			background: rgba(255,255,255,0.1);
 		}
 
 		.video-frame video {
@@ -333,7 +323,9 @@
 		/* Speed card hover effects */
 		.speed-card {
 			position: relative;
-			transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			-webkit-backdrop-filter: blur(10px);
+			backdrop-filter: blur(10px);
+			transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, box-shadow 0.3s ease;
 			background: rgba(255, 255, 255, 0.03);
 			overflow: hidden;
 		}
@@ -422,7 +414,7 @@
 			border-radius: 20px;
 			transform-style: preserve-3d;
 			transform: translateZ(0);
-			transition: all 0.3s ease-out;
+			transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 			overflow: hidden;
 			box-shadow: 
 				0 15px 35px rgba(0, 0, 0, 0.3),
@@ -524,7 +516,7 @@
 			border-radius: 20px;
 			transform-style: preserve-3d;
 			transform: translateZ(0);
-			transition: all 0.3s ease-out;
+			transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 			overflow: hidden;
 			flex-grow: 0;
 			flex-basis: 45%;
@@ -743,7 +735,7 @@
 			border-radius: 20px;
 			transform-style: preserve-3d;
 			transform: translateZ(0);
-			transition: all 0.3s ease-out;
+			transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 			overflow: hidden;
 			box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
 			width: calc(100vw - 100px);
@@ -772,7 +764,7 @@
 			background: rgba(255, 255, 255, 0.03);
 			padding: 2rem;
 			border-radius: 15px;
-			transition: all 0.3s ease;
+			transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 			position: relative;
 			overflow: hidden;
 		}
@@ -902,7 +894,7 @@
 		border-radius: 20px;
 			transform-style: preserve-3d;
 			transform: translateZ(0);
-			transition: all 0.3s ease-out;
+			transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 		overflow: hidden;
 			box-shadow: 
 				0 15px 35px rgba(0, 0, 0, 0.3),
@@ -1192,8 +1184,8 @@
 </head>
 
 <body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
-	<font-family: 'DM Sans' , sans-serif>
-		<section class="hero-section rounded-2xl overflow-hidden relative">
+	<div class="scroll-progress"></div>
+	<section class="hero-section rounded-2xl overflow-hidden relative">
 
 
 			<!-- 	Navbar -->
@@ -1204,12 +1196,10 @@
 							style="width: auto;" />
 					</a>
 				</div>
-				<svg xmlns="http://www.w3.org/2000/svg" id="menu-button"
-					class="h-12 w-12 cursor-pointer lg:hidden block" fill="none" viewBox="0 0 24 24"
-					stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-				</svg>
-				<div id="menu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
+			<button id="menu-button" class="hamburger lg:hidden" aria-label="Menu">
+				<span></span><span></span><span></span>
+			</button>
+				<div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
 					<ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between  lg:pt-0">
 						<li class="mx-2 py-3 block text-white"> <a class="nav-link" href="product.html">Products</a>
 						</li>
@@ -1232,14 +1222,14 @@
 
 
 			<div class="relative flex flex-col justify-center text-center lg:p-0 p-6" style="height: 80%;">
-				<div class="text-md lg:text-lg font-bold" style="color: rgb(152, 192, 130);">Reliable. Affordable.
+				<div class="text-md lg:text-lg font-bold hero-text-enter gradient-text">Reliable. Affordable.
 					Flexible.
 				</div>
-				<h2 class="header text-white font-bold lg:text-5xl text-3xl">The Only Battery You Will Ever Need</h2>
-				<div class="mx-auto text-gray-400 text-md lg:text-lg font-bolder max-w-screen-lg">
+				<h2 class="header text-white font-bold lg:text-5xl text-3xl hero-text-enter hero-delay-1">The Only Battery You Will Ever Need</h2>
+				<div class="mx-auto text-gray-400 text-md lg:text-lg font-bolder max-w-screen-lg hero-text-enter hero-delay-2">
 					India's first Energy-as-a-Service Platform that focuses on personal mobility and storage
 				</div>
-				<div class="mt-16">
+				<div class="mt-16 hero-text-enter hero-delay-3">
 					<a href="./product.html" class="learn-more-btn">
 						<span>Learn More</span>
 					</a>
@@ -1255,12 +1245,7 @@
 				<source src="SwapSystem.mp4" />
 			</video>
 		</section>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
+		<div class="section-spacer"></div>
 
 		<section class="premium-card-section lg:px-0 px-5">
 			<div class="premium-card">
@@ -1277,12 +1262,7 @@
 			</div>
 		</section>
 
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
+		<div class="section-spacer"></div>
 
 		</section>
 		<h1 class="text-white font-bold lg:text-5xl text-3xl mb-2">How it works?</h1>
@@ -1304,7 +1284,7 @@
 
 						<div class="icon-div" style="display: inline;">
 							<!-- <object type="image/svg+xml" data="assets/step1.svg" style="max-width: 90px;"></object> -->
-							<img src="assets/step1.svg" alt="Description of SVG" style="max-width: 40px;">
+							<img src="assets/step1.svg" alt="Description of SVG" style="max-width: 40px;" loading="lazy">
 							<!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3" fill="currentColor"
 								viewBox="0 0 24 24">
 								<path
@@ -1318,7 +1298,7 @@
 					</div>
 					<div class="box" data-index="1">
 						<div class="icon-div" style="display: inline;">
-							<img src="assets/step2.svg" alt="Description of SVG" style="max-width: 40px;">
+							<img src="assets/step2.svg" alt="Description of SVG" style="max-width: 40px;" loading="lazy">
 
 							<!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3" fill="currentColor"
 								viewBox="0 0 24 24">
@@ -1333,7 +1313,7 @@
 					</div>
 					<div class="box" data-index="2">
 						<div class="icon-div" style="display: inline;">
-							<img src="assets/step3.svg" alt="Description of SVG" style="max-width: 40px;">
+							<img src="assets/step3.svg" alt="Description of SVG" style="max-width: 40px;" loading="lazy">
 							<!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3" fill="currentColor"
 								viewBox="0 0 24 24">
 								<path
@@ -1348,7 +1328,7 @@
 					</div>
 					<div class="box" data-index="3">
 						<div class="icon-div" style="display: inline;">
-							<img src="assets/step4.svg" alt="Description of SVG" style="max-width: 40px;">
+							<img src="assets/step4.svg" alt="Description of SVG" style="max-width: 40px;" loading="lazy">
 							<!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-3" fill="currentColor"
 								viewBox="0 0 24 24">
 								<path
@@ -1376,18 +1356,12 @@
 				</div>
 
 				<div class="static-image">
-					<img src="./assets/swapnest.png" alt="Static">
+					<img src="./assets/swapnest.png" alt="Static" loading="lazy">
 				</div>
 			</div>
 		</section>
 
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-
+		<div class="section-spacer"></div>
 
 		<section class="flex flex-col xl:flex-row justify-start mx-auto lg:px-24 px-5 my-10" style="min-height: 50vh; margin: 5vh auto; perspective: 1000px;">
 			<div class="premium-card forging-card">
@@ -1406,7 +1380,7 @@
 						<div class="text-left mt-8">
 							<a href="product.html" class="premium-link">
 								<span>Our Products</span>
-								<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" />
+								<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" loading="lazy" />
 							</a>
 						</div>
 					</div>
@@ -1429,7 +1403,7 @@
 			border-radius: 20px;
 			transform-style: preserve-3d;
 			transform: translateZ(0);
-			transition: all 0.3s ease-out;
+			transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
 			overflow: hidden;
 			box-shadow: 
 				0 15px 35px rgba(0, 0, 0, 0.3),
@@ -1490,40 +1464,36 @@
 
 		<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			const forgingCard = document.querySelector('.forging-card');
-			
-			forgingCard.addEventListener('mousemove', (e) => {
-				const rect = forgingCard.getBoundingClientRect();
-				const x = ((e.clientX - rect.left) / forgingCard.clientWidth) * 100;
-				const y = ((e.clientY - rect.top) / forgingCard.clientHeight) * 100;
+			if (window.matchMedia('(hover: hover)').matches) {
+				const forgingCard = document.querySelector('.forging-card');
 				
-				const rotateY = (x - 50) * 0.03;
-				const rotateX = (y - 50) * -0.03;
-				
-				forgingCard.style.setProperty('--mouse-x', `${x}%`);
-				forgingCard.style.setProperty('--mouse-y', `${y}%`);
-				
-				forgingCard.style.transform = `
-					perspective(1000px)
-					rotateX(${rotateX}deg)
-					rotateY(${rotateY}deg)
-					translateZ(0)
-				`;
-			});
+				forgingCard.addEventListener('mousemove', (e) => {
+					const rect = forgingCard.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / forgingCard.clientWidth) * 100;
+					const y = ((e.clientY - rect.top) / forgingCard.clientHeight) * 100;
+					
+					const rotateY = (x - 50) * 0.03;
+					const rotateX = (y - 50) * -0.03;
+					
+					forgingCard.style.setProperty('--mouse-x', `${x}%`);
+					forgingCard.style.setProperty('--mouse-y', `${y}%`);
+					
+					forgingCard.style.transform = `
+						perspective(1000px)
+						rotateX(${rotateX}deg)
+						rotateY(${rotateY}deg)
+						translateZ(0)
+					`;
+				});
 
-			forgingCard.addEventListener('mouseleave', () => {
-				forgingCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-			});
+				forgingCard.addEventListener('mouseleave', () => {
+					forgingCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+				});
+			}
 		});
 		</script>
 
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-
+		<div class="section-spacer"></div>
 
 		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
 			<div class="premium-card-features">
@@ -1531,21 +1501,21 @@
 					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-10">Unlock the 2-wheeler riding freedom with</h2>
 					<div class="flex lg:flex-row flex-col justify-between mt-10 lg:gap-20 gap-10 mx-auto service-col">
 						<div class="feature-card flex-1">
-							<img src="./assets/bluetooth.svg" alt="Bluetooth" class="mx-auto w-12" />
+							<img src="./assets/bluetooth.svg" alt="Bluetooth" class="mx-auto w-12" loading="lazy" />
 							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Vehicle Smartification</h3>
 							<p class="px-2 text-xl text-gray-400">
 								Smart Application, Integrated Maps, Payments through Wallet
 							</p>
 						</div>
 						<div class="feature-card flex-1">
-							<img src="evcoins.png" alt="Bluetooth" class="mx-auto w-12" />
+							<img src="evcoins.png" alt="Bluetooth" class="mx-auto w-12" loading="lazy" />
 							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Lowest Running Cost</h3>
 							<p class="px-2 text-xl text-gray-400">
 								₹0.5/Km to ₹1.5/Km, depending on the usage
 							</p>
 						</div>
 						<div class="feature-card flex-1">
-							<img src="evcharge.png" alt="Bluetooth" class="mx-auto w-12" />
+							<img src="evcharge.png" alt="Bluetooth" class="mx-auto w-12" loading="lazy" />
 							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Multiple Refueling Options</h3>
 							<p class="px-2 text-xl text-gray-400">
 								Charge at home, Swap on the fly: Gridx PowerPod sets the new standard in battery innovation
@@ -1558,12 +1528,7 @@
 			</div>
 		</section>
 
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
+		<div class="section-spacer"></div>
 
 		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
 			<div class="premium-card calculator-card">
@@ -1765,16 +1730,6 @@
 			left: 100%;
 		}
 
-		.speed-card {
-			backdrop-filter: blur(10px);
-			transition: all 0.3s ease;
-		}
-
-		.speed-card:hover {
-			transform: translateY(-2px);
-			background: rgba(255, 255, 255, 0.05);
-		}
-
 		.speed-card.selected {
 			background: rgba(152, 192, 130, 0.15);
 			border-color: rgb(152, 192, 130) !important;
@@ -1935,17 +1890,19 @@
 		</script>
 
 		<script>
-			// Add mouse tracking effect for boxes
-			document.querySelectorAll('.box').forEach(box => {
-				box.addEventListener('mousemove', (e) => {
-					const rect = box.getBoundingClientRect();
-					const x = ((e.clientX - rect.left) / box.clientWidth) * 100;
-					const y = ((e.clientY - rect.top) / box.clientHeight) * 100;
-					
-					box.style.setProperty('--mouse-x', `${x}%`);
-					box.style.setProperty('--mouse-y', `${y}%`);
+			// Add mouse tracking effect for boxes (desktop only)
+			if (window.matchMedia('(hover: hover)').matches) {
+				document.querySelectorAll('.box').forEach(box => {
+					box.addEventListener('mousemove', (e) => {
+						const rect = box.getBoundingClientRect();
+						const x = ((e.clientX - rect.left) / box.clientWidth) * 100;
+						const y = ((e.clientY - rect.top) / box.clientHeight) * 100;
+						
+						box.style.setProperty('--mouse-x', `${x}%`);
+						box.style.setProperty('--mouse-y', `${y}%`);
+					});
 				});
-			});
+			}
 
 			// Replace scroll icon with animated version
 			document.querySelector('.scroll-button').innerHTML = `
@@ -1972,95 +1929,127 @@
 		</script>
 
 		<script>
-			// Simple menu toggle
-			const menuButton = document.getElementById('menu-button');
-			const menu = document.getElementById('menu');
+			(function() {
+				var menuButton = document.getElementById('menu-button');
+				var menu = document.getElementById('menu');
+				if (!menuButton || !menu) return;
 
-			menuButton.addEventListener('click', () => {
-				menu.classList.toggle('hidden');
-			});
+				function openMenu() {
+					menu.classList.add('menu-open');
+					menuButton.classList.add('open');
+					document.body.style.overflow = 'hidden';
+				}
+				function closeMenu() {
+					menu.classList.remove('menu-open');
+					menuButton.classList.remove('open');
+					document.body.style.overflow = '';
+				}
+
+				menuButton.addEventListener('click', function(e) {
+					e.stopPropagation();
+					menu.classList.contains('menu-open') ? closeMenu() : openMenu();
+				});
+
+				menu.querySelectorAll('a').forEach(function(link) {
+					link.addEventListener('click', closeMenu);
+				});
+
+				document.addEventListener('click', function(e) {
+					if (menu.classList.contains('menu-open') &&
+						!menu.contains(e.target) &&
+						!menuButton.contains(e.target)) {
+						closeMenu();
+					}
+				});
+			})();
 		</script>
 
 		<script>
-			// Add 3D tilt effect to premium card
-			const card = document.querySelector('.premium-card');
-			const content = card.querySelector('.content');
+			// Add 3D tilt effect to premium card (desktop only)
+			if (window.matchMedia('(hover: hover)').matches) {
+				const card = document.querySelector('.premium-card');
+				const content = card.querySelector('.content');
 
-			card.addEventListener('mousemove', (e) => {
-				const rect = card.getBoundingClientRect();
-				const x = ((e.clientX - rect.left) / card.clientWidth) * 100;
-				const y = ((e.clientY - rect.top) / card.clientHeight) * 100;
-				
-				const rotateY = (x - 50) * 0.1;
-				const rotateX = (y - 50) * -0.1;
-				
-				card.style.setProperty('--mouse-x', `${x}%`);
-				card.style.setProperty('--mouse-y', `${y}%`);
-				
-				card.style.transform = `
-					rotateX(${rotateX}deg)
-					rotateY(${rotateY}deg)
-					translateZ(0)
-				`;
-			});
+				card.addEventListener('mousemove', (e) => {
+					const rect = card.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / card.clientWidth) * 100;
+					const y = ((e.clientY - rect.top) / card.clientHeight) * 100;
+					
+					const rotateY = (x - 50) * 0.1;
+					const rotateX = (y - 50) * -0.1;
+					
+					card.style.setProperty('--mouse-x', `${x}%`);
+					card.style.setProperty('--mouse-y', `${y}%`);
+					
+					card.style.transform = `
+						rotateX(${rotateX}deg)
+						rotateY(${rotateY}deg)
+						translateZ(0)
+					`;
+				});
 
-			card.addEventListener('mouseleave', () => {
-				card.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
-			});
+				card.addEventListener('mouseleave', () => {
+					card.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+				});
+			}
 		</script>
 
 		<script>
-			// Add 3D tilt effect to premium card wide
-			const cardWide = document.querySelector('.premium-card-wide');
+			// Add 3D tilt effect to premium card wide (desktop only)
+			if (window.matchMedia('(hover: hover)').matches) {
+				const cardWide = document.querySelector('.premium-card-wide');
 
-			cardWide.addEventListener('mousemove', (e) => {
-				const rect = cardWide.getBoundingClientRect();
-				const x = ((e.clientX - rect.left) / cardWide.clientWidth) * 100;
-				const y = ((e.clientY - rect.top) / cardWide.clientHeight) * 100;
-				
-				const rotateY = (x - 50) * 0.05;
-				const rotateX = (y - 50) * -0.05;
-				
-				cardWide.style.setProperty('--mouse-x', `${x}%`);
-				cardWide.style.setProperty('--mouse-y', `${y}%`);
-				
-				cardWide.style.transform = `
-					rotateX(${rotateX}deg)
-					rotateY(${rotateY}deg)
-					translateZ(0)
-				`;
-			});
+				cardWide.addEventListener('mousemove', (e) => {
+					const rect = cardWide.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / cardWide.clientWidth) * 100;
+					const y = ((e.clientY - rect.top) / cardWide.clientHeight) * 100;
+					
+					const rotateY = (x - 50) * 0.05;
+					const rotateX = (y - 50) * -0.05;
+					
+					cardWide.style.setProperty('--mouse-x', `${x}%`);
+					cardWide.style.setProperty('--mouse-y', `${y}%`);
+					
+					cardWide.style.transform = `
+						rotateX(${rotateX}deg)
+						rotateY(${rotateY}deg)
+						translateZ(0)
+					`;
+				});
 
-			cardWide.addEventListener('mouseleave', () => {
-				cardWide.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
-			});
+				cardWide.addEventListener('mouseleave', () => {
+					cardWide.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+				});
+			}
 		</script>
 
 		<script>
-			// Add 3D tilt effect to features card
-			const featuresCard = document.querySelector('.premium-card-features');
+			// Add 3D tilt effect to features card (desktop only)
+			if (window.matchMedia('(hover: hover)').matches) {
+				const featuresCard = document.querySelector('.premium-card-features');
 
-			featuresCard.addEventListener('mousemove', (e) => {
-				const rect = featuresCard.getBoundingClientRect();
-				const x = ((e.clientX - rect.left) / featuresCard.clientWidth) * 100;
-				const y = ((e.clientY - rect.top) / featuresCard.clientHeight) * 100;
-				
-				const rotateY = (x - 50) * 0.03;
-				const rotateX = (y - 50) * -0.03;
-				
-				featuresCard.style.setProperty('--mouse-x', `${x}%`);
-				featuresCard.style.setProperty('--mouse-y', `${y}%`);
-				
-				featuresCard.style.transform = `
-					rotateX(${rotateX}deg)
-					rotateY(${rotateY}deg)
-					translateZ(0)
-				`;
-			});
+				featuresCard.addEventListener('mousemove', (e) => {
+					const rect = featuresCard.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / featuresCard.clientWidth) * 100;
+					const y = ((e.clientY - rect.top) / featuresCard.clientHeight) * 100;
+					
+					const rotateY = (x - 50) * 0.03;
+					const rotateX = (y - 50) * -0.03;
+					
+					featuresCard.style.setProperty('--mouse-x', `${x}%`);
+					featuresCard.style.setProperty('--mouse-y', `${y}%`);
+					
+					featuresCard.style.transform = `
+						rotateX(${rotateX}deg)
+						rotateY(${rotateY}deg)
+						translateZ(0)
+					`;
+				});
 
-			featuresCard.addEventListener('mouseleave', () => {
-				featuresCard.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
-			});
+				featuresCard.addEventListener('mouseleave', () => {
+					featuresCard.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+				});
+			}
 		</script>
 
 		<!-- Add this footer section before the closing </body> tag -->
@@ -2068,14 +2057,14 @@
 			<div class="footer-content">
 				<section class="footer-grid">
 					<div class="footer-container">
-						<div class="footer-card company-info" onclick="scrollToTop()" style="cursor: pointer;">
+						<a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" class="footer-card company-info" style="cursor: pointer; color: inherit; text-decoration: none; display: flex;">
 							<img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
 							<address class="company-address">
 								D66, Pocket D<br>
 								Phase 1, Okhla.<br>
 								New Delhi, 110020.
 							</address>
-						</div>
+						</a>
 					</div>
 					<div class="footer-container">
 						<div class="footer-card">
@@ -2115,7 +2104,7 @@
 					<hr class="footer-divider" />
 					<div class="footer-copyright">
 						<p>Designed and Developed in-house @ GridXenergy</p>
-						<p>© Copyright 2026 Movio Technologies Private Limited</p>
+						<p>© Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
 						<div class="footer-links">
 							<a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
 							<span class="separator">•</span>
@@ -2467,32 +2456,33 @@
 		</script>
 
 		<script>
-		// Add this to your existing JavaScript
 		document.addEventListener('DOMContentLoaded', function() {
-			const calculatorCard = document.querySelector('.calculator-card');
-			
-			calculatorCard.addEventListener('mousemove', (e) => {
-				const rect = calculatorCard.getBoundingClientRect();
-				const x = ((e.clientX - rect.left) / calculatorCard.clientWidth) * 100;
-				const y = ((e.clientY - rect.top) / calculatorCard.clientHeight) * 100;
+			if (window.matchMedia('(hover: hover)').matches) {
+				const calculatorCard = document.querySelector('.calculator-card');
 				
-				const rotateY = (x - 50) * 0.03;
-				const rotateX = (y - 50) * -0.03;
-				
-				calculatorCard.style.setProperty('--mouse-x', `${x}%`);
-				calculatorCard.style.setProperty('--mouse-y', `${y}%`);
-				
-				calculatorCard.style.transform = `
-					perspective(1000px)
-					rotateX(${rotateX}deg)
-					rotateY(${rotateY}deg)
-					translateZ(0)
-				`;
-			});
+				calculatorCard.addEventListener('mousemove', (e) => {
+					const rect = calculatorCard.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / calculatorCard.clientWidth) * 100;
+					const y = ((e.clientY - rect.top) / calculatorCard.clientHeight) * 100;
+					
+					const rotateY = (x - 50) * 0.03;
+					const rotateX = (y - 50) * -0.03;
+					
+					calculatorCard.style.setProperty('--mouse-x', `${x}%`);
+					calculatorCard.style.setProperty('--mouse-y', `${y}%`);
+					
+					calculatorCard.style.transform = `
+						perspective(1000px)
+						rotateX(${rotateX}deg)
+						rotateY(${rotateY}deg)
+						translateZ(0)
+					`;
+				});
 
-			calculatorCard.addEventListener('mouseleave', () => {
-				calculatorCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-			});
+				calculatorCard.addEventListener('mouseleave', () => {
+					calculatorCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+				});
+			}
 		});
 		</script>
 
@@ -2661,41 +2651,45 @@
 
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
-				// Existing code...
-
-				// Change scrollbar color based on scroll position
+				let scrollTicking = false;
 				window.addEventListener('scroll', function() {
-					const scrollPosition = window.scrollY;
-					const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
-					const scrollPercentage = (scrollPosition / documentHeight) * 100;
+					if (!scrollTicking) {
+						requestAnimationFrame(function() {
+							const scrollPosition = window.scrollY;
+							const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+							const scrollPercentage = (scrollPosition / documentHeight) * 100;
 
-					// Calculate the color based on scroll percentage
-					const greenValue = Math.min(255, Math.floor((scrollPercentage / 100) * 255));
-					const greyValue = 255 - greenValue;
+							const greenValue = Math.min(255, Math.floor((scrollPercentage / 100) * 255));
+							const greyValue = 255 - greenValue;
 
-					// Set the scrollbar thumb color
-					document.documentElement.style.setProperty('--scrollbar-thumb-color', `rgb(${greyValue}, ${greenValue}, ${greyValue})`);
-				});
+							document.documentElement.style.setProperty('--scrollbar-thumb-color', `rgb(${greyValue}, ${greenValue}, ${greyValue})`);
+							scrollTicking = false;
+						});
+						scrollTicking = true;
+					}
+				}, { passive: true });
 			});
 		</script>
 
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
-				const buttons = document.querySelectorAll('.contact-us-button');
+				if (window.matchMedia('(hover: hover)').matches) {
+					const buttons = document.querySelectorAll('.contact-us-button');
 
-				buttons.forEach(button => {
-					button.addEventListener('mousemove', function(e) {
-						const rect = button.getBoundingClientRect();
-						const x = e.clientX - rect.left - rect.width / 2;
-						const y = e.clientY - rect.top - rect.height / 2;
+					buttons.forEach(button => {
+						button.addEventListener('mousemove', function(e) {
+							const rect = button.getBoundingClientRect();
+							const x = e.clientX - rect.left - rect.width / 2;
+							const y = e.clientY - rect.top - rect.height / 2;
 
-						button.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+							button.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+						});
+
+						button.addEventListener('mouseleave', function() {
+							button.style.transform = 'translate(0, 0)';
+						});
 					});
-
-					button.addEventListener('mouseleave', function() {
-						button.style.transform = 'translate(0, 0)';
-					});
-				});
+				}
 			});
 		</script>
 </body>
@@ -2709,6 +2703,7 @@
 		margin: 50px auto;
 		width: calc(100vw - 100px);
 		height: calc(100vh - 100px);
+		height: calc(100dvh - 100px);
 	}
 
 	.hero-section>video {
@@ -2747,26 +2742,13 @@
 	}
 
 
-	.container-video-frame {
-
-		height: 80vh;
-		max-width: 1600px;
-		display: flex;
-		justify-content: space-around;
-		gap: 0 50px;
-		align-items: center
-	}
-
 	.video-frame {
 		flex: 2;
 	}
 
 	.video-frame video {
 		height: 100%;
-
 		display: none;
-
-
 	}
 
 	.video-frame video.active {
@@ -2914,7 +2896,7 @@
 			margin: 30px auto;
 			width: calc(100vw - 60px);
 			height: calc(100vh - 80px);
-
+			height: calc(100dvh - 80px);
 		}
 
 		.service-col {
@@ -2931,7 +2913,7 @@
 		}
 	}
 
-	@media screen and (max-width: 68) {
+	@media screen and (max-width: 680px) {
 		h2 {
 			font-size: 2rem;
 		}
@@ -3059,6 +3041,38 @@
 		box-shadow: none;
 	}
 
+	@media (max-width: 768px) {
+		.card-animate {
+			transform: translateY(30px);
+		}
+		.card-animate.visible {
+			transform: translateY(0);
+		}
+		.card-animate.exit {
+			transform: translateY(-30px);
+		}
+		.card-animate h2,
+		.card-animate h3,
+		.card-animate h4,
+		.card-animate .text-green-on-active {
+			transform: none;
+			transform-style: flat;
+			perspective: none;
+		}
+		.card-animate.visible h2,
+		.card-animate.visible h3,
+		.card-animate.visible h4,
+		.card-animate.visible .text-green-on-active {
+			transform: none;
+		}
+		.card-animate.exit h2,
+		.card-animate.exit h3,
+		.card-animate.exit h4,
+		.card-animate.exit .text-green-on-active {
+			transform: none;
+		}
+	}
+
 	.bar-wrapper {
 		position: relative;
 		transition: all 0.5s ease-in-out;
@@ -3080,7 +3094,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Select all card elements to animate
-        const cards = document.querySelectorAll('.premium-card, .feature-card, .forging-card, .calculator-card, .footer-card, .box');
+        const cards = document.querySelectorAll('.premium-card, .feature-card, .forging-card, .calculator-card, .box');
         
         // Add the animation class to all cards
         cards.forEach(card => {
@@ -3146,4 +3160,5 @@
   });
 </script>
 
+<script src="polish.js"></script>
 </html>

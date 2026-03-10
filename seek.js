@@ -1,3 +1,6 @@
+if (!$('#speed').length || !$('#seek').length) {
+    // Calculator elements not present on this page
+} else {
 var speed = 25;
 var distance = 65;
 $('#speed button')[0].value = 15;
@@ -67,4 +70,4 @@ var gridxbarfrac =
 
 $('#seek')[0].onchange = seekchange;
 $('button.speed-card').click(speedchange);
-
+}
