@@ -463,7 +463,10 @@
 		selectedFile = null;
 
 		document.getElementById('jobModal').classList.add('open');
-		document.body.style.overflow = 'hidden';
+		var scrollY = window.scrollY;
+		document.body.classList.add('modal-open');
+		document.body.style.top = '-' + scrollY + 'px';
+		document.body.dataset.scrollY = scrollY;
 	}
 
 	function section(title, html) {
@@ -477,7 +480,10 @@
 	// Close modal
 	function closeModal() {
 		document.getElementById('jobModal').classList.remove('open');
-		document.body.style.overflow = '';
+		var scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
+		document.body.classList.remove('modal-open');
+		document.body.style.top = '';
+		window.scrollTo(0, scrollY);
 		currentJob = null;
 	}
 

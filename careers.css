@@ -372,6 +372,15 @@
 	opacity: 0.3;
 }
 
+/* ===== Scroll Lock (when modal is open) ===== */
+body.modal-open {
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
 /* ===== Job Detail Modal ===== */
 .modal-overlay {
 	position: fixed;
@@ -387,6 +396,8 @@
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity 0.3s ease, visibility 0.3s ease;
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.open {
