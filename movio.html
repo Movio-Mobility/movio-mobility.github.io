@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GridX Admin</title>
+	<link rel="icon" type="image/x-icon" href="logoSmall.jpeg">
+	<link href="./rdstailwind.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+	<link href="./movio.css" rel="stylesheet">
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+</head>
+
+<body style="background-color:#0a0a0a; font-family:'DM Sans',sans-serif; margin:0;" class="text-white">
+
+	<!-- Login Screen -->
+	<div class="login-screen" id="loginScreen">
+		<div class="login-card">
+			<img src="./logo.png" alt="GridX" class="login-logo">
+			<h1 class="login-title">Admin Portal</h1>
+			<p class="login-subtitle">Sign in with your @gridxenergy.in account</p>
+			<form id="loginForm">
+				<input class="login-input" type="email" id="loginEmail" placeholder="Email address" required autocomplete="email">
+				<input class="login-input" type="password" id="loginPass" placeholder="Password" required autocomplete="current-password">
+				<button class="login-btn" type="submit" id="loginBtn">Sign In</button>
+			</form>
+			<p class="login-error" id="loginError"></p>
+		</div>
+	</div>
+
+	<!-- Dashboard -->
+	<div class="dashboard" id="dashboard">
+		<header class="dash-header">
+			<div class="dash-header-left">
+				<img src="./logo.png" alt="GridX" class="dash-logo">
+				<span class="dash-title">Admin Dashboard</span>
+			</div>
+			<div class="dash-header-right">
+				<span class="dash-user" id="dashUser"></span>
+				<button class="dash-signout" id="signOutBtn">Sign Out</button>
+			</div>
+		</header>
+
+		<div class="dash-content">
+			<div class="dash-tabs">
+				<button class="dash-tab active" data-tab="jobs">Job Postings</button>
+				<button class="dash-tab" data-tab="applications">Applications</button>
+			</div>
+
+			<!-- Jobs Tab -->
+			<div class="tab-panel active" id="tabJobs">
+				<div class="action-bar">
+					<h2 class="action-title">Job Postings</h2>
+					<button class="new-job-btn" id="newJobBtn">
+						<span class="material-symbols-outlined">add</span> Post New Job
+					</button>
+				</div>
+				<div class="admin-jobs-list" id="jobsList">
+					<div class="empty-state" id="jobsLoadingAdmin">
+						<div class="spinner" style="width:28px;height:28px;border-width:3px;margin:0 auto 1rem;"></div>
+						<p>Loading jobs...</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Applications Tab -->
+			<div class="tab-panel" id="tabApplications">
+				<div class="action-bar">
+					<h2 class="action-title">Applications</h2>
+				</div>
+				<div class="app-filters-bar">
+					<div class="app-status-tabs" id="appStatusTabs">
+						<button class="app-status-tab active" data-status="all">All <span class="count" id="countAll">0</span></button>
+						<button class="app-status-tab" data-status="pending">Pending <span class="count" id="countPending">0</span></button>
+						<button class="app-status-tab" data-status="shortlisted">Shortlisted <span class="count" id="countShortlisted">0</span></button>
+						<button class="app-status-tab" data-status="rejected">Rejected <span class="count" id="countRejected">0</span></button>
+					</div>
+					<div class="app-filter">
+						<select id="appJobFilter">
+							<option value="all">All Jobs</option>
+						</select>
+					</div>
+				</div>
+				<div id="appsList">
+					<div class="empty-state">
+						<span class="material-symbols-outlined">inbox</span>
+						<p>No applications yet.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Job Form Modal -->
+	<div class="form-overlay" id="formOverlay">
+		<div class="form-panel">
+			<div class="form-panel-header">
+				<h3 class="form-panel-title" id="formTitle">Post New Job</h3>
+				<button class="form-panel-close" id="formClose">
+					<span class="material-symbols-outlined" style="font-size:18px;">close</span>
+				</button>
+			</div>
+			<div class="form-panel-body">
+				<form id="jobForm">
+					<div class="admin-form-group">
+						<label class="admin-form-label">Job Title *</label>
+						<input class="admin-form-input" type="text" name="title" required placeholder="e.g. Embedded Systems Engineer">
+					</div>
+					<div class="admin-form-row">
+						<div class="admin-form-group">
+							<label class="admin-form-label">Location</label>
+							<input class="admin-form-input" type="text" name="location" value="Okhla, New Delhi" placeholder="Okhla, New Delhi">
+						</div>
+						<div class="admin-form-group">
+							<label class="admin-form-label">Domain *</label>
+							<select class="admin-form-select" name="domain" required>
+								<option value="">Select domain</option>
+								<option value="Mechanical">Mechanical</option>
+								<option value="Electronics">Electronics</option>
+								<option value="CS">CS</option>
+								<option value="Finance">Finance</option>
+								<option value="Business">Business</option>
+							</select>
+						</div>
+					</div>
+					<div class="admin-form-row">
+						<div class="admin-form-group">
+							<label class="admin-form-label">Reporting To</label>
+							<input class="admin-form-input" type="text" name="reportingTo" placeholder="e.g. VP Engineering">
+						</div>
+						<div class="admin-form-group">
+							<label class="admin-form-label">Team Name</label>
+							<input class="admin-form-input" type="text" name="teamName" placeholder="e.g. Hardware Team">
+						</div>
+					</div>
+					<div class="admin-form-group">
+						<label class="admin-form-label">Job Description</label>
+						<textarea class="admin-form-textarea" name="description" rows="3" placeholder="Brief overview of the role..."></textarea>
+					</div>
+					<div class="admin-form-group">
+						<label class="admin-form-label">About the Team & Role</label>
+						<textarea class="admin-form-textarea" name="aboutTeamAndRole" rows="3" placeholder="What the team does and why this role matters..."></textarea>
+					</div>
+					<div class="admin-form-group">
+						<label class="admin-form-label">Responsibilities</label>
+						<textarea class="admin-form-textarea" name="responsibilities" rows="4" placeholder="One responsibility per line"></textarea>
+						<p class="admin-form-hint">Enter each responsibility on a new line</p>
+					</div>
+					<div class="admin-form-group">
+						<label class="admin-form-label">Experience & Qualifications</label>
+						<textarea class="admin-form-textarea" name="experienceAndQualifications" rows="3" placeholder="One qualification per line"></textarea>
+						<p class="admin-form-hint">Enter each qualification on a new line</p>
+					</div>
+					<div class="admin-form-group">
+						<label class="admin-form-label">Must Have Competencies</label>
+						<textarea class="admin-form-textarea" name="mustHaveCompetencies" rows="3" placeholder="One competency per line"></textarea>
+						<p class="admin-form-hint">Enter each competency on a new line</p>
+					</div>
+				</form>
+			</div>
+			<div class="form-panel-footer">
+				<button class="form-cancel-btn" id="formCancelBtn">Cancel</button>
+				<button class="form-save-btn" id="formSaveBtn">Publish Job</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toggle Confirmation -->
+	<div class="confirm-overlay" id="toggleConfirmOverlay">
+		<div class="confirm-box">
+			<h3 id="toggleConfirmTitle">Toggle Job Status</h3>
+			<p id="toggleConfirmMsg"></p>
+			<div class="confirm-actions">
+				<button class="confirm-cancel" id="toggleConfirmCancel">Cancel</button>
+				<button class="confirm-ok" id="toggleConfirmOk">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Delete Confirmation -->
+	<div class="confirm-overlay" id="deleteConfirmOverlay">
+		<div class="confirm-box">
+			<h3>Delete this job posting?</h3>
+			<p>This action cannot be undone. All data for this posting will be permanently removed.</p>
+			<div class="confirm-actions">
+				<button class="confirm-cancel" id="deleteConfirmCancel">Cancel</button>
+				<button class="confirm-delete" id="deleteConfirmDelete">Delete</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- PDF Viewer -->
+	<div class="pdf-overlay" id="pdfOverlay">
+		<div class="pdf-panel">
+			<div class="pdf-panel-header">
+				<span class="pdf-panel-title" id="pdfTitle">Resume</span>
+				<div class="pdf-panel-actions">
+					<a class="row-btn" id="pdfDownload" href="#" target="_blank" rel="noopener" title="Open in new tab">
+						<span class="material-symbols-outlined">open_in_new</span>
+					</a>
+					<button class="row-btn" id="pdfClose" title="Close">
+						<span class="material-symbols-outlined">close</span>
+					</button>
+				</div>
+			</div>
+			<iframe id="pdfFrame" src="about:blank"></iframe>
+		</div>
+	</div>
+
+	<!-- Email Confirmation Dialog -->
+	<div class="email-overlay" id="emailOverlay">
+		<div class="email-panel">
+			<div class="email-panel-header">
+				<h3 class="email-panel-title" id="emailDialogTitle">Confirm Action</h3>
+				<p class="email-panel-subtitle" id="emailDialogSubtitle"></p>
+			</div>
+			<div class="email-panel-body">
+				<div class="email-to" id="emailTo"></div>
+				<input class="email-subject-input" type="text" id="emailSubject" placeholder="Subject line">
+				<textarea class="email-textarea" id="emailBody"></textarea>
+			</div>
+			<div class="email-panel-footer">
+				<button class="email-cancel-btn" id="emailCancel">Cancel</button>
+				<button class="email-send-btn" id="emailSend">
+					<span class="material-symbols-outlined">send</span>
+					Send & Update Status
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toast -->
+	<div class="admin-toast" id="adminToast"></div>
+
+	<!-- Anti-inspect deterrents -->
+	<script>
+	(function(){
+		document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+		document.addEventListener('keydown', function(e){
+			if (e.key === 'F12') { e.preventDefault(); return false; }
+			if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) { e.preventDefault(); return false; }
+			if ((e.ctrlKey || e.metaKey) && e.key.toUpperCase() === 'U') { e.preventDefault(); return false; }
+		});
+	})();
+	</script>
+
+	<!-- Firebase logic -->
+	<script type="module">
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+	import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+	import { getFirestore, collection, doc, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+	const firebaseConfig = {
+		apiKey: "AIzaSyAUx-H9BK-WJ6MYnI8MKVHI-QUrxquFjik",
+		authDomain: "websitegridx.firebaseapp.com",
+		projectId: "websitegridx",
+		storageBucket: "websitegridx.firebasestorage.app",
+		messagingSenderId: "309802930921",
+		appId: "1:309802930921:web:839ba247bc968c246fd678",
+		measurementId: "G-NPBBYVCF4R"
+	};
+
+	const app = initializeApp(firebaseConfig);
+	const auth = getAuth(app);
+	const db = getFirestore(app);
+
+	let currentUser = null;
+	let allAdminJobs = [];
+	let allApplications = [];
+	let editingJobId = null;
+	let deletingJobId = null;
+	let toggleJobId = null;
+	let toggleNewState = null;
+	let expandedJobId = null;
+	let activeAppStatus = 'all';
+	let emailActionData = null;
+	let unsubJobs = null;
+	let unsubApps = null;
+
+	const SHORTLIST_TEMPLATE = function(name, role) {
+		return 'Dear ' + name + ',\n\nThank you for applying for the ' + role + ' position at GridXenergy.\n\nWe are pleased to inform you that your application has been shortlisted! Our team was impressed with your profile and we would like to move forward with the next steps of the hiring process.\n\nA member of our HR team will reach out to you shortly to schedule the next round. In the meantime, feel free to reach out if you have any questions.\n\nWe look forward to speaking with you!\n\nWarm regards,\nThe GridXenergy Team';
+	};
+
+	const REJECT_TEMPLATE = function(name, role) {
+		return 'Dear ' + name + ',\n\nThank you for taking the time to apply for the ' + role + ' position at GridXenergy. We truly appreciate your interest in joining our team.\n\nAfter careful consideration, we have decided to move forward with other candidates whose experience more closely aligns with the current requirements of this role.\n\nThis decision does not reflect on your abilities, and we encourage you to apply for future openings that match your skill set. We will keep your profile on file for upcoming opportunities.\n\nWe wish you all the best in your career journey.\n\nWarm regards,\nThe GridXenergy Team';
+	};
+
+	// ===== AUTH =====
+	onAuthStateChanged(auth, (user) => {
+		if (user && user.email && user.email.endsWith('@gridxenergy.in')) {
+			currentUser = user;
+			showDashboard();
+		} else {
+			if (user) signOut(auth);
+			currentUser = null;
+			showLogin();
+		}
+	});
+
+	document.getElementById('loginForm').addEventListener('submit', async function(e) {
+		e.preventDefault();
+		var email = document.getElementById('loginEmail').value.trim();
+		var pass = document.getElementById('loginPass').value;
+		var errEl = document.getElementById('loginError');
+		var btn = document.getElementById('loginBtn');
+
+		if (!email.endsWith('@gridxenergy.in')) {
+			errEl.textContent = 'Only @gridxenergy.in accounts are allowed.';
+			errEl.classList.add('show');
+			return;
+		}
+
+		errEl.classList.remove('show');
+		btn.disabled = true;
+		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
+
+		try {
+			await signInWithEmailAndPassword(auth, email, pass);
+		} catch (err) {
+			var msg = 'Invalid credentials. Please try again.';
+			if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+				msg = 'Invalid email or password.';
+			} else if (err.code === 'auth/too-many-requests') {
+				msg = 'Too many attempts. Please wait and try again.';
+			}
+			errEl.textContent = msg;
+			errEl.classList.add('show');
+			btn.disabled = false;
+			btn.textContent = 'Sign In';
+		}
+	});
+
+	document.getElementById('signOutBtn').addEventListener('click', async function() {
+		if (unsubJobs) unsubJobs();
+		if (unsubApps) unsubApps();
+		await signOut(auth);
+	});
+
+	function showLogin() {
+		document.getElementById('loginScreen').style.display = 'flex';
+		document.getElementById('dashboard').classList.remove('active');
+		document.getElementById('loginBtn').disabled = false;
+		document.getElementById('loginBtn').textContent = 'Sign In';
+	}
+
+	function showDashboard() {
+		document.getElementById('loginScreen').style.display = 'none';
+		document.getElementById('dashboard').classList.add('active');
+		document.getElementById('dashUser').textContent = currentUser.email;
+		startListeners();
+	}
+
+	// ===== REAL-TIME LISTENERS =====
+	function startListeners() {
+		unsubJobs = onSnapshot(query(collection(db, 'jobs'), orderBy('postedAt', 'desc')), (snap) => {
+			allAdminJobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+			renderAdminJobs();
+			updateAppJobFilter();
+		}, (err) => console.error('Jobs listener error:', err));
+
+		unsubApps = onSnapshot(query(collection(db, 'applications'), orderBy('appliedAt', 'desc')), (snap) => {
+			allApplications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+			renderApplications();
+			updateStatusCounts();
+		}, (err) => console.error('Apps listener error:', err));
+	}
+
+	// ===== TABS =====
+	document.querySelectorAll('.dash-tab').forEach(function(tab) {
+		tab.addEventListener('click', function() {
+			document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+			document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+			this.classList.add('active');
+			document.getElementById('tab' + capitalize(this.dataset.tab)).classList.add('active');
+		});
+	});
+
+	function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+	// ===== RENDER JOB CARDS =====
+	function renderAdminJobs() {
+		var container = document.getElementById('jobsList');
+
+		if (allAdminJobs.length === 0) {
+			container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">work_off</span><p>No job postings yet. Click "Post New Job" to create one.</p></div>';
+			return;
+		}
+
+		container.innerHTML = allAdminJobs.map(function(job) {
+			var date = job.postedAt ? new Date(job.postedAt.seconds * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+			var appCount = allApplications.filter(a => a.jobId === job.id).length;
+			var isExpanded = expandedJobId === job.id;
+
+			var html = '<div class="admin-job-card' + (isExpanded ? ' expanded' : '') + '" data-job-id="' + job.id + '">';
+			html += '<div class="admin-job-top">';
+			html += '<div class="admin-job-info">';
+			html += '<div class="admin-job-title">' + esc(job.title) + '</div>';
+			html += '<div class="admin-job-meta"><span>' + esc(job.domain) + '</span><span>' + date + '</span><span>' + esc(job.postedBy || '') + '</span></div>';
+			html += '</div>';
+			html += '<div class="admin-job-actions">';
+			if (appCount > 0) {
+				html += '<span class="app-count-badge"><span class="material-symbols-outlined">person</span>' + appCount + '</span>';
+			}
+			html += '<button class="toggle' + (job.isActive ? ' active' : '') + '" data-id="' + job.id + '" data-action="toggle" title="' + (job.isActive ? 'Live' : 'Offline') + '"></button>';
+			html += '<button class="row-btn" data-id="' + job.id + '" data-action="edit" title="Edit"><span class="material-symbols-outlined">edit</span></button>';
+			html += '<button class="row-btn danger" data-id="' + job.id + '" data-action="delete" title="Delete"><span class="material-symbols-outlined">delete</span></button>';
+			html += '</div></div>';
+
+			if (isExpanded) {
+				html += renderApplicantPanel(job.id);
+			}
+
+			html += '</div>';
+			return html;
+		}).join('');
+
+		container.querySelectorAll('.admin-job-card').forEach(function(card) {
+			card.querySelector('.admin-job-top').addEventListener('click', function(e) {
+				if (e.target.closest('[data-action]')) return;
+				var jobId = card.dataset.jobId;
+				expandedJobId = expandedJobId === jobId ? null : jobId;
+				renderAdminJobs();
+			});
+		});
+
+		container.addEventListener('click', handleJobAction, { once: true });
+		container.addEventListener('click', handleApplicantAction);
+	}
+
+	function renderApplicantPanel(jobId) {
+		var apps = allApplications.filter(a => a.jobId === jobId);
+		var html = '<div class="applicant-panel">';
+		html += '<div class="applicant-panel-header">';
+		html += '<span class="applicant-panel-title">' + apps.length + ' Application' + (apps.length !== 1 ? 's' : '') + '</span>';
+		html += '</div>';
+
+		if (apps.length === 0) {
+			html += '<div class="empty-state" style="padding:2rem 1rem;"><span class="material-symbols-outlined">inbox</span><p>No applications for this position yet.</p></div>';
+		} else {
+			html += '<div class="applicant-cards">';
+			apps.forEach(function(a) {
+				var status = a.status || 'pending';
+				var initials = ((a.firstName || '')[0] || '') + ((a.lastName || '')[0] || '');
+				var date = a.appliedAt ? new Date(a.appliedAt.seconds * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '';
+
+				html += '<div class="applicant-card">';
+				html += '<div class="applicant-card-top">';
+				html += '<div class="applicant-avatar">' + esc(initials.toUpperCase()) + '</div>';
+				html += '<div class="applicant-info">';
+				html += '<div class="applicant-name">' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '</div>';
+				html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + date + '</span></div>';
+				html += '</div>';
+				html += '<span class="status-badge ' + status + '">' + status + '</span>';
+				html += '<div class="applicant-actions">';
+				if (a.resumeUrl) {
+					html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl) + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
+				}
+				if (status === 'pending') {
+					html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
+					html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+				}
+				html += '</div></div></div>';
+			});
+			html += '</div>';
+		}
+
+		html += '</div>';
+		return html;
+	}
+
+	// ===== JOB ACTIONS =====
+	function handleJobAction(e) {
+		var btn = e.target.closest('[data-action]');
+		if (!btn) return;
+
+		var id = btn.dataset.id;
+		var action = btn.dataset.action;
+
+		if (action === 'toggle') {
+			var job = allAdminJobs.find(j => j.id === id);
+			if (!job) return;
+			toggleJobId = id;
+			toggleNewState = !job.isActive;
+			document.getElementById('toggleConfirmTitle').textContent = toggleNewState ? 'Make this job live?' : 'Take this job offline?';
+			document.getElementById('toggleConfirmMsg').textContent = toggleNewState
+				? 'This job will be visible on the careers page immediately.'
+				: 'This job will be hidden from the careers page immediately.';
+			document.getElementById('toggleConfirmOverlay').classList.add('open');
+		} else if (action === 'edit') {
+			openFormForEdit(id);
+		} else if (action === 'delete') {
+			deletingJobId = id;
+			document.getElementById('deleteConfirmOverlay').classList.add('open');
+		}
+	}
+
+	// Toggle confirmation
+	document.getElementById('toggleConfirmCancel').addEventListener('click', function() {
+		document.getElementById('toggleConfirmOverlay').classList.remove('open');
+		toggleJobId = null;
+	});
+
+	document.getElementById('toggleConfirmOk').addEventListener('click', async function() {
+		if (!toggleJobId) return;
+		try {
+			await updateDoc(doc(db, 'jobs', toggleJobId), { isActive: toggleNewState, updatedAt: Timestamp.now() });
+			showToast(toggleNewState ? 'Job is now live' : 'Job taken offline');
+		} catch (err) {
+			console.error('Toggle error:', err);
+		}
+		document.getElementById('toggleConfirmOverlay').classList.remove('open');
+		toggleJobId = null;
+	});
+
+	// ===== APPLICANT ACTIONS =====
+	function handleApplicantAction(e) {
+		var btn = e.target.closest('[data-app-action]');
+		if (!btn) return;
+		var action = btn.dataset.appAction;
+
+		if (action === 'viewResume') {
+			openPdfViewer(btn.dataset.url, btn.dataset.name + "'s Resume");
+		} else if (action === 'shortlist' || action === 'reject') {
+			openEmailDialog(action, btn.dataset);
+		}
+	}
+
+	// ===== PDF VIEWER =====
+	function openPdfViewer(url, title) {
+		document.getElementById('pdfTitle').textContent = title || 'Resume';
+		document.getElementById('pdfDownload').href = url;
+		document.getElementById('pdfFrame').src = url;
+		document.getElementById('pdfOverlay').classList.add('open');
+	}
+
+	document.getElementById('pdfClose').addEventListener('click', function() {
+		document.getElementById('pdfOverlay').classList.remove('open');
+		document.getElementById('pdfFrame').src = 'about:blank';
+	});
+
+	document.getElementById('pdfOverlay').addEventListener('click', function(e) {
+		if (e.target === this) {
+			this.classList.remove('open');
+			document.getElementById('pdfFrame').src = 'about:blank';
+		}
+	});
+
+	// ===== EMAIL CONFIRMATION DIALOG =====
+	function openEmailDialog(action, data) {
+		emailActionData = { action: action, appId: data.appId, email: data.appEmail, name: data.appName, jobTitle: data.jobTitle };
+
+		var isShortlist = action === 'shortlist';
+		document.getElementById('emailDialogTitle').textContent = isShortlist ? 'Shortlist Candidate' : 'Reject Candidate';
+		document.getElementById('emailDialogSubtitle').textContent = isShortlist
+			? 'This will mark the candidate as shortlisted and send them the email below.'
+			: 'This will mark the candidate as rejected and send them the email below.';
+		document.getElementById('emailTo').innerHTML = 'To: <strong>' + esc(data.appEmail) + '</strong>';
+		document.getElementById('emailSubject').value = isShortlist
+			? 'Your Application at GridXenergy — You\'ve Been Shortlisted!'
+			: 'Your Application at GridXenergy — Update';
+		document.getElementById('emailBody').value = isShortlist
+			? SHORTLIST_TEMPLATE(data.appName, data.jobTitle)
+			: REJECT_TEMPLATE(data.appName, data.jobTitle);
+
+		var sendBtn = document.getElementById('emailSend');
+		sendBtn.className = 'email-send-btn ' + (isShortlist ? 'shortlist-action' : 'reject-action');
+		sendBtn.disabled = false;
+		sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+
+		document.getElementById('emailOverlay').classList.add('open');
+	}
+
+	document.getElementById('emailCancel').addEventListener('click', function() {
+		document.getElementById('emailOverlay').classList.remove('open');
+		emailActionData = null;
+	});
+
+	document.getElementById('emailOverlay').addEventListener('click', function(e) {
+		if (e.target === this) {
+			this.classList.remove('open');
+			emailActionData = null;
+		}
+	});
+
+	document.getElementById('emailSend').addEventListener('click', async function() {
+		if (!emailActionData) return;
+		var btn = this;
+		btn.disabled = true;
+		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
+
+		try {
+			await updateDoc(doc(db, 'applications', emailActionData.appId), {
+				status: emailActionData.action === 'shortlist' ? 'shortlisted' : 'rejected',
+				emailSubject: document.getElementById('emailSubject').value,
+				emailBody: document.getElementById('emailBody').value,
+				statusUpdatedAt: Timestamp.now(),
+				statusUpdatedBy: currentUser.email
+			});
+
+			showToast(emailActionData.action === 'shortlist' ? 'Candidate shortlisted' : 'Candidate rejected');
+			document.getElementById('emailOverlay').classList.remove('open');
+			emailActionData = null;
+		} catch (err) {
+			console.error('Status update error:', err);
+			alert('Failed to update status. Check your permissions.');
+			btn.disabled = false;
+			btn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+		}
+	});
+
+	// ===== APPLICATIONS TAB =====
+	document.getElementById('appStatusTabs').addEventListener('click', function(e) {
+		var tab = e.target.closest('.app-status-tab');
+		if (!tab) return;
+		activeAppStatus = tab.dataset.status;
+		this.querySelectorAll('.app-status-tab').forEach(t => t.classList.remove('active'));
+		tab.classList.add('active');
+		renderApplications();
+	});
+
+	document.getElementById('appJobFilter').addEventListener('change', renderApplications);
+
+	function updateStatusCounts() {
+		var all = allApplications.length;
+		var pending = allApplications.filter(a => !a.status || a.status === 'pending').length;
+		var shortlisted = allApplications.filter(a => a.status === 'shortlisted').length;
+		var rejected = allApplications.filter(a => a.status === 'rejected').length;
+
+		document.getElementById('countAll').textContent = all;
+		document.getElementById('countPending').textContent = pending;
+		document.getElementById('countShortlisted').textContent = shortlisted;
+		document.getElementById('countRejected').textContent = rejected;
+	}
+
+	function updateAppJobFilter() {
+		var select = document.getElementById('appJobFilter');
+		var current = select.value;
+		select.innerHTML = '<option value="all">All Jobs</option>';
+		allAdminJobs.forEach(function(job) {
+			select.innerHTML += '<option value="' + job.id + '">' + esc(job.title) + '</option>';
+		});
+		select.value = current || 'all';
+	}
+
+	function renderApplications() {
+		var container = document.getElementById('appsList');
+		var jobFilter = document.getElementById('appJobFilter').value;
+		var filtered = allApplications;
+
+		if (jobFilter !== 'all') {
+			filtered = filtered.filter(a => a.jobId === jobFilter);
+		}
+		if (activeAppStatus !== 'all') {
+			filtered = filtered.filter(a => {
+				var s = a.status || 'pending';
+				return s === activeAppStatus;
+			});
+		}
+
+		if (filtered.length === 0) {
+			container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">inbox</span><p>No applications match the current filters.</p></div>';
+			return;
+		}
+
+		var html = '<div class="applicant-cards">';
+		filtered.forEach(function(a) {
+			var status = a.status || 'pending';
+			var initials = ((a.firstName || '')[0] || '') + ((a.lastName || '')[0] || '');
+			var date = a.appliedAt ? new Date(a.appliedAt.seconds * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+			var jobTitle = a.jobTitle || '';
+
+			html += '<div class="applicant-card">';
+			html += '<div class="applicant-card-top">';
+			html += '<div class="applicant-avatar">' + esc(initials.toUpperCase()) + '</div>';
+			html += '<div class="applicant-info">';
+			html += '<div class="applicant-name">' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '</div>';
+			html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + esc(jobTitle) + '</span><span>' + date + '</span></div>';
+			html += '</div>';
+			html += '<span class="status-badge ' + status + '">' + status + '</span>';
+			html += '<div class="applicant-actions">';
+			if (a.resumeUrl) {
+				html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl) + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
+			}
+			if (status === 'pending') {
+				html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
+				html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+			}
+			html += '</div></div></div>';
+		});
+		html += '</div>';
+		container.innerHTML = html;
+
+		container.addEventListener('click', handleApplicantAction);
+	}
+
+	// ===== JOB FORM =====
+	document.getElementById('newJobBtn').addEventListener('click', function() { openFormForNew(); });
+
+	function openFormForNew() {
+		editingJobId = null;
+		document.getElementById('formTitle').textContent = 'Post New Job';
+		document.getElementById('formSaveBtn').textContent = 'Publish Job';
+		document.getElementById('jobForm').reset();
+		document.querySelector('[name="location"]').value = 'Okhla, New Delhi';
+		document.getElementById('formOverlay').classList.add('open');
+	}
+
+	function openFormForEdit(id) {
+		var job = allAdminJobs.find(j => j.id === id);
+		if (!job) return;
+
+		editingJobId = id;
+		document.getElementById('formTitle').textContent = 'Edit Job';
+		document.getElementById('formSaveBtn').textContent = 'Save Changes';
+
+		var form = document.getElementById('jobForm');
+		form.querySelector('[name="title"]').value = job.title || '';
+		form.querySelector('[name="location"]').value = job.location || 'Okhla, New Delhi';
+		form.querySelector('[name="domain"]').value = job.domain || '';
+		form.querySelector('[name="reportingTo"]').value = job.reportingTo || '';
+		form.querySelector('[name="teamName"]').value = job.teamName || '';
+		form.querySelector('[name="description"]').value = job.description || '';
+		form.querySelector('[name="aboutTeamAndRole"]').value = job.aboutTeamAndRole || '';
+		form.querySelector('[name="responsibilities"]').value = (job.responsibilities || []).join('\n');
+		form.querySelector('[name="experienceAndQualifications"]').value = (job.experienceAndQualifications || []).join('\n');
+		form.querySelector('[name="mustHaveCompetencies"]').value = (job.mustHaveCompetencies || []).join('\n');
+
+		document.getElementById('formOverlay').classList.add('open');
+	}
+
+	function closeForm() {
+		document.getElementById('formOverlay').classList.remove('open');
+		editingJobId = null;
+	}
+
+	document.getElementById('formClose').addEventListener('click', closeForm);
+	document.getElementById('formCancelBtn').addEventListener('click', closeForm);
+	document.getElementById('formOverlay').addEventListener('click', function(e) {
+		if (e.target === this) closeForm();
+	});
+
+	function textareaToArray(val) {
+		return val.split('\n').map(s => s.trim()).filter(Boolean);
+	}
+
+	document.getElementById('formSaveBtn').addEventListener('click', async function() {
+		var form = document.getElementById('jobForm');
+		if (!form.checkValidity()) { form.reportValidity(); return; }
+
+		var btn = this;
+		btn.disabled = true;
+		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
+
+		var data = {
+			title: form.querySelector('[name="title"]').value.trim(),
+			location: form.querySelector('[name="location"]').value.trim() || 'Okhla, New Delhi',
+			domain: form.querySelector('[name="domain"]').value,
+			reportingTo: form.querySelector('[name="reportingTo"]').value.trim(),
+			teamName: form.querySelector('[name="teamName"]').value.trim(),
+			description: form.querySelector('[name="description"]').value.trim(),
+			aboutTeamAndRole: form.querySelector('[name="aboutTeamAndRole"]').value.trim(),
+			responsibilities: textareaToArray(form.querySelector('[name="responsibilities"]').value),
+			experienceAndQualifications: textareaToArray(form.querySelector('[name="experienceAndQualifications"]').value),
+			mustHaveCompetencies: textareaToArray(form.querySelector('[name="mustHaveCompetencies"]').value),
+			updatedAt: Timestamp.now()
+		};
+
+		try {
+			if (editingJobId) {
+				await updateDoc(doc(db, 'jobs', editingJobId), data);
+				showToast('Job updated');
+			} else {
+				data.isActive = true;
+				data.postedBy = currentUser.email;
+				data.postedAt = Timestamp.now();
+				await addDoc(collection(db, 'jobs'), data);
+				showToast('Job published');
+			}
+			closeForm();
+		} catch (err) {
+			console.error('Save error:', err);
+			alert('Failed to save. Check your permissions and try again.');
+		}
+
+		btn.disabled = false;
+		btn.textContent = editingJobId ? 'Save Changes' : 'Publish Job';
+	});
+
+	// ===== DELETE CONFIRMATION =====
+	document.getElementById('deleteConfirmCancel').addEventListener('click', function() {
+		document.getElementById('deleteConfirmOverlay').classList.remove('open');
+		deletingJobId = null;
+	});
+
+	document.getElementById('deleteConfirmDelete').addEventListener('click', async function() {
+		if (!deletingJobId) return;
+		try {
+			await deleteDoc(doc(db, 'jobs', deletingJobId));
+			showToast('Job deleted');
+		} catch (err) {
+			console.error('Delete error:', err);
+			alert('Failed to delete. Check your permissions.');
+		}
+		document.getElementById('deleteConfirmOverlay').classList.remove('open');
+		deletingJobId = null;
+	});
+
+	// ===== UTILITIES =====
+	function showToast(msg) {
+		var toast = document.getElementById('adminToast');
+		toast.textContent = msg;
+		toast.classList.add('show');
+		setTimeout(function() { toast.classList.remove('show'); }, 2500);
+	}
+
+	function esc(str) {
+		if (!str) return '';
+		var d = document.createElement('div');
+		d.textContent = str;
+		return d.innerHTML;
+	}
+	</script>
+</body>
+</html>

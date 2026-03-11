@@ -1,0 +1,14 @@
+{
+  "name": "gridx-admin-functions",
+  "description": "Firebase Cloud Functions for GridXenergy admin — sends shortlist/rejection emails on application status change.",
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0",
+    "nodemailer": "^6.9.0"
+  },
+  "private": true
+}
