@@ -266,6 +266,22 @@
 	background: rgba(255, 138, 128, 0.12);
 	color: #ff8a80;
 }
+.job-card-icon[data-domain="Design"] {
+	background: rgba(38, 198, 218, 0.12);
+	color: #26c6da;
+}
+.job-card-icon[data-domain="Corporate"] {
+	background: rgba(92, 107, 192, 0.12);
+	color: #5c6bc0;
+}
+.job-card-icon[data-domain="Operations"] {
+	background: rgba(120, 144, 156, 0.12);
+	color: #78909c;
+}
+.job-card-icon[data-domain="Media"] {
+	background: rgba(236, 64, 122, 0.12);
+	color: #ec407a;
+}
 
 .job-card::before {
 	content: '';
@@ -343,6 +359,22 @@
 .domain-badge[data-domain="Business"] {
 	background: rgba(255, 138, 128, 0.12);
 	color: #ff8a80;
+}
+.domain-badge[data-domain="Design"] {
+	background: rgba(38, 198, 218, 0.12);
+	color: #26c6da;
+}
+.domain-badge[data-domain="Corporate"] {
+	background: rgba(92, 107, 192, 0.12);
+	color: #5c6bc0;
+}
+.domain-badge[data-domain="Operations"] {
+	background: rgba(120, 144, 156, 0.12);
+	color: #78909c;
+}
+.domain-badge[data-domain="Media"] {
+	background: rgba(236, 64, 122, 0.12);
+	color: #ec407a;
 }
 
 .job-card-arrow {
