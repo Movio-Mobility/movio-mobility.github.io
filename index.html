@@ -2673,17 +2673,6 @@
 			});
 		</script>
 
-	<script>
-(function(){
-	document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-	document.addEventListener('keydown', function(e){
-		if (e.key === 'F12') { e.preventDefault(); return false; }
-		if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) { e.preventDefault(); return false; }
-		if ((e.ctrlKey || e.metaKey) && e.key.toUpperCase() === 'U') { e.preventDefault(); return false; }
-	});
-})();
-</script>
-
 </body>
 
 

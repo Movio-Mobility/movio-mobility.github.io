@@ -38,12 +38,16 @@
   <p>If you are not redirected, <a href="https://paddockgridx.app/login" rel="noopener">click here</a>.</p>
   <script>
 (function(){
-	document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+	document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, true);
 	document.addEventListener('keydown', function(e){
-		if (e.key === 'F12') { e.preventDefault(); return false; }
-		if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) { e.preventDefault(); return false; }
-		if ((e.ctrlKey || e.metaKey) && e.key.toUpperCase() === 'U') { e.preventDefault(); return false; }
-	});
+		var k=(e.key||'').toUpperCase();
+		if(e.key==='F12'||e.keyCode===123){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
+		if(e.ctrlKey&&e.shiftKey&&['I','J','C','K'].indexOf(k)!==-1){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
+		if(e.metaKey&&e.altKey&&['I','J','C','U'].indexOf(k)!==-1){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
+		if(e.metaKey&&e.shiftKey&&k==='C'){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
+		if(e.ctrlKey&&k==='U'){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
+	}, true);
+	setInterval(function(){(function(){return false;})['constructor']('debugger')();},50);
 })();
 </script>
 </body>

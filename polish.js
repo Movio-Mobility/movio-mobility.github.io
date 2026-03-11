@@ -1,6 +1,25 @@
 (function() {
   'use strict';
 
+  // --- Anti-inspect: disable right-click and DevTools/source shortcuts (Mac, Windows, Linux) ---
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); }, true);
+  document.addEventListener('keydown', function(e) {
+    var k = (e.key || '').toUpperCase();
+    // F12 - DevTools (Windows/Linux)
+    if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    // Ctrl+Shift+I, J, C, K - DevTools (Windows/Linux: Chrome, Firefox)
+    if (e.ctrlKey && e.shiftKey && ['I','J','C','K'].indexOf(k) !== -1) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    // Cmd+Option+I, J, C, U - DevTools, View Source (Mac: Chrome, Safari)
+    if (e.metaKey && e.altKey && ['I','J','C','U'].indexOf(k) !== -1) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    // Cmd+Shift+C - Inspect element (Mac Chrome)
+    if (e.metaKey && e.shiftKey && k === 'C') { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    // Ctrl+U - View Source (Windows/Linux)
+    if (e.ctrlKey && k === 'U') { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+  }, true);
+
+  // --- Debugger trap: pauses execution when DevTools is open ---
+  (function trap() { setInterval(function() { (function() { return false; })['constructor']('debugger')(); }, 50); })();
+
   // --- Scroll-aware navbar ---
   var nav = document.querySelector('nav');
   if (nav) {
