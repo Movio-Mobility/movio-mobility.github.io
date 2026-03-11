@@ -1106,6 +1106,43 @@
 	box-shadow: none;
 }
 
+.form-draft-btn {
+	padding: 0.65rem 1.5rem;
+	background: transparent;
+	border: 1px solid rgba(255,255,255,0.15);
+	border-radius: 600px;
+	color: rgba(255,255,255,0.7);
+	font-weight: 600;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.9rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.form-draft-btn:hover {
+	background: rgba(255,255,255,0.06);
+	border-color: rgba(255,255,255,0.25);
+	color: #fff;
+}
+
+.form-draft-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Draft badge on job cards */
+.draft-badge {
+	display: inline-block;
+	padding: 0.1rem 0.5rem;
+	background: rgba(255, 193, 7, 0.12);
+	color: #ffc107;
+	border-radius: 600px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
 /* ===== Empty States ===== */
 .empty-state {
 	text-align: center;

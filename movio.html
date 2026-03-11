@@ -163,6 +163,7 @@
 			</div>
 			<div class="form-panel-footer">
 				<button class="form-cancel-btn" id="formCancelBtn">Cancel</button>
+				<button class="form-draft-btn" id="formDraftBtn">Save as Draft</button>
 				<button class="form-save-btn" id="formSaveBtn">Publish Job</button>
 			</div>
 		</div>
@@ -404,7 +405,9 @@
 			html += '<div class="admin-job-top">';
 			html += '<div class="admin-job-info">';
 			html += '<div class="admin-job-title">' + esc(job.title) + '</div>';
-			html += '<div class="admin-job-meta"><span>' + esc(job.domain) + '</span><span>' + date + '</span><span>' + esc(job.postedBy || '') + '</span></div>';
+			html += '<div class="admin-job-meta">';
+			if (!job.isActive) html += '<span class="draft-badge">Draft</span>';
+			html += '<span>' + esc(job.domain) + '</span><span>' + date + '</span><span>' + esc(job.postedBy || '') + '</span></div>';
 			html += '</div>';
 			html += '<div class="admin-job-actions">';
 			if (appCount > 0) {
@@ -733,6 +736,7 @@
 		editingJobId = null;
 		document.getElementById('formTitle').textContent = 'Post New Job';
 		document.getElementById('formSaveBtn').textContent = 'Publish Job';
+		document.getElementById('formDraftBtn').style.display = '';
 		document.getElementById('jobForm').reset();
 		document.querySelector('[name="location"]').value = 'Okhla, New Delhi';
 		document.getElementById('formOverlay').classList.add('open');
@@ -743,8 +747,11 @@
 		if (!job) return;
 
 		editingJobId = id;
-		document.getElementById('formTitle').textContent = 'Edit Job';
-		document.getElementById('formSaveBtn').textContent = 'Save Changes';
+		var isDraft = !job.isActive;
+		document.getElementById('formTitle').textContent = isDraft ? 'Edit Draft' : 'Edit Job';
+		document.getElementById('formSaveBtn').textContent = isDraft ? 'Publish Job' : 'Save Changes';
+		document.getElementById('formDraftBtn').style.display = isDraft ? '' : 'none';
+		if (isDraft) document.getElementById('formDraftBtn').textContent = 'Save Draft';
 
 		var form = document.getElementById('jobForm');
 		form.querySelector('[name="title"]').value = job.title || '';
@@ -776,15 +783,9 @@
 		return val.split('\n').map(s => s.trim()).filter(Boolean);
 	}
 
-	document.getElementById('formSaveBtn').addEventListener('click', async function() {
+	function getFormData() {
 		var form = document.getElementById('jobForm');
-		if (!form.checkValidity()) { form.reportValidity(); return; }
-
-		var btn = this;
-		btn.disabled = true;
-		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
-
-		var data = {
+		return {
 			title: form.querySelector('[name="title"]').value.trim(),
 			location: form.querySelector('[name="location"]').value.trim() || 'Okhla, New Delhi',
 			domain: form.querySelector('[name="domain"]').value,
@@ -797,11 +798,57 @@
 			mustHaveCompetencies: textareaToArray(form.querySelector('[name="mustHaveCompetencies"]').value),
 			updatedAt: Timestamp.now()
 		};
+	}
+
+	// Save as Draft
+	document.getElementById('formDraftBtn').addEventListener('click', async function() {
+		var form = document.getElementById('jobForm');
+		if (!form.checkValidity()) { form.reportValidity(); return; }
+
+		var btn = this;
+		btn.disabled = true;
+		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
+
+		var data = getFormData();
+		data.isActive = false;
 
 		try {
 			if (editingJobId) {
 				await updateDoc(doc(db, 'jobs', editingJobId), data);
-				showToast('Job updated');
+				showToast('Draft updated');
+			} else {
+				data.postedBy = currentUser.email;
+				data.postedAt = Timestamp.now();
+				await addDoc(collection(db, 'jobs'), data);
+				showToast('Draft saved');
+			}
+			closeForm();
+		} catch (err) {
+			console.error('Save error:', err);
+			alert('Failed to save. Check your permissions and try again.');
+		}
+
+		btn.disabled = false;
+		btn.textContent = editingJobId ? 'Save Draft' : 'Save as Draft';
+	});
+
+	// Publish / Save Changes
+	document.getElementById('formSaveBtn').addEventListener('click', async function() {
+		var form = document.getElementById('jobForm');
+		if (!form.checkValidity()) { form.reportValidity(); return; }
+
+		var btn = this;
+		btn.disabled = true;
+		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
+
+		var data = getFormData();
+
+		try {
+			if (editingJobId) {
+				var existingJob = allAdminJobs.find(j => j.id === editingJobId);
+				if (existingJob && !existingJob.isActive) data.isActive = true;
+				await updateDoc(doc(db, 'jobs', editingJobId), data);
+				showToast(data.isActive ? 'Job published' : 'Job updated');
 			} else {
 				data.isActive = true;
 				data.postedBy = currentUser.email;
