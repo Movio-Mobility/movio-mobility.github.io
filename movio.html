@@ -252,6 +252,7 @@
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 	import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 	import { getFirestore, collection, doc, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+	import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
 	const firebaseConfig = {
 		apiKey: "AIzaSyAUx-H9BK-WJ6MYnI8MKVHI-QUrxquFjik",
@@ -266,6 +267,7 @@
 	const app = initializeApp(firebaseConfig);
 	const auth = getAuth(app);
 	const db = getFirestore(app);
+	const storage = getStorage(app);
 
 	let currentUser = null;
 	let allAdminJobs = [];
@@ -454,17 +456,17 @@
 				html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + date + '</span></div>';
 				html += '</div>';
 				html += '<span class="status-badge ' + status + '">' + status + '</span>';
-				html += '<div class="applicant-actions">';
-				if (a.resumeUrl) {
-					html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl) + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
-				}
-				if (status === 'pending') {
-					html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
-					html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
-				}
-				html += '</div></div></div>';
-			});
-			html += '</div>';
+			html += '<div class="applicant-actions">';
+			if (a.resumeUrl || a.resumePath) {
+				html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
+			}
+			if (status === 'pending') {
+				html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
+				html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+			}
+			html += '</div></div></div>';
+		});
+		html += '</div>';
 		}
 
 		html += '</div>';
@@ -516,13 +518,25 @@
 	});
 
 	// ===== APPLICANT ACTIONS =====
-	function handleApplicantAction(e) {
+	async function handleApplicantAction(e) {
 		var btn = e.target.closest('[data-app-action]');
 		if (!btn) return;
 		var action = btn.dataset.appAction;
 
 		if (action === 'viewResume') {
-			openPdfViewer(btn.dataset.url, btn.dataset.name + "'s Resume");
+			var resumeUrl = btn.dataset.url;
+			var resumePath = btn.dataset.path;
+			if (resumeUrl) {
+				openPdfViewer(resumeUrl, btn.dataset.name + "'s Resume");
+			} else if (resumePath) {
+				try {
+					var url = await getDownloadURL(storageRef(storage, resumePath));
+					openPdfViewer(url, btn.dataset.name + "'s Resume");
+				} catch (e) {
+					console.error('Failed to load resume:', e);
+					showToast('Could not load resume');
+				}
+			}
 		} else if (action === 'shortlist' || action === 'reject') {
 			openEmailDialog(action, btn.dataset);
 		}
@@ -681,8 +695,8 @@
 			html += '</div>';
 			html += '<span class="status-badge ' + status + '">' + status + '</span>';
 			html += '<div class="applicant-actions">';
-			if (a.resumeUrl) {
-				html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl) + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
+			if (a.resumeUrl || a.resumePath) {
+				html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
 			}
 			if (status === 'pending') {
 				html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';

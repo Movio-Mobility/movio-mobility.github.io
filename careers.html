@@ -560,12 +560,13 @@
 
 		try {
 			var fd = new FormData(this);
-			var resumeUrl = '';
+			var resumePath = '';
 
 			if (selectedFile) {
-				var storageRef = ref(storage, 'resumes/' + Date.now() + '_' + selectedFile.name);
-				var snap = await uploadBytes(storageRef, selectedFile);
-				resumeUrl = await getDownloadURL(snap.ref);
+				var filePath = 'resumes/' + Date.now() + '_' + selectedFile.name;
+				var storageRef = ref(storage, filePath);
+				await uploadBytes(storageRef, selectedFile);
+				resumePath = filePath;
 			}
 
 			await addDoc(collection(db, 'applications'), {
@@ -575,7 +576,7 @@
 				lastName: fd.get('lastName'),
 				email: fd.get('email'),
 				contactNumber: fd.get('phone'),
-				resumeUrl: resumeUrl,
+				resumePath: resumePath,
 				appliedAt: Timestamp.now()
 			});
 
