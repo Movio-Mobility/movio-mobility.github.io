@@ -437,7 +437,6 @@
 
 		var icon = DOMAIN_ICONS[job.domain] || 'work';
 		document.getElementById('modalMeta').innerHTML =
-			'<div class="job-card-icon" data-domain="' + escapeHtml(job.domain) + '" style="margin-bottom:0.75rem;"><span class="material-symbols-outlined">' + icon + '</span></div>' +
 			'<div class="domain-badge" data-domain="' + escapeHtml(job.domain) + '"><span class="material-symbols-outlined">' + icon + '</span>' + escapeHtml(job.domain) + '</div>' +
 			'<div class="modal-meta-item"><span class="material-symbols-outlined">location_on</span>' + escapeHtml(job.location || 'Okhla, New Delhi') + '</div>' +
 			(job.teamName ? '<div class="modal-meta-item"><span class="material-symbols-outlined">group</span>' + escapeHtml(job.teamName) + '</div>' : '');

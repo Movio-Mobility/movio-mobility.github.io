@@ -419,18 +419,29 @@
 			return html;
 		}).join('');
 
-		container.querySelectorAll('.admin-job-card').forEach(function(card) {
-			card.querySelector('.admin-job-top').addEventListener('click', function(e) {
-				if (e.target.closest('[data-action]')) return;
-				var jobId = card.dataset.jobId;
-				expandedJobId = expandedJobId === jobId ? null : jobId;
-				renderAdminJobs();
-			});
-		});
-
-		container.addEventListener('click', handleJobAction, { once: true });
-		container.addEventListener('click', handleApplicantAction);
 	}
+
+	// Persistent delegated listeners on #jobsList (attached once, never re-added)
+	(function() {
+		var jobsContainer = document.getElementById('jobsList');
+
+		jobsContainer.addEventListener('click', function(e) {
+			// Expand/collapse card when clicking the top bar (but not action buttons)
+			var topBar = e.target.closest('.admin-job-top');
+			if (topBar && !e.target.closest('[data-action]')) {
+				var card = topBar.closest('.admin-job-card');
+				if (card) {
+					var jobId = card.dataset.jobId;
+					expandedJobId = expandedJobId === jobId ? null : jobId;
+					renderAdminJobs();
+				}
+				return;
+			}
+
+			handleJobAction(e);
+			handleApplicantAction(e);
+		});
+	})();
 
 	function renderApplicantPanel(jobId) {
 		var apps = allApplications.filter(a => a.jobId === jobId);
@@ -706,9 +717,10 @@
 		});
 		html += '</div>';
 		container.innerHTML = html;
-
-		container.addEventListener('click', handleApplicantAction);
 	}
+
+	// Persistent delegated listener on #appsList (attached once)
+	document.getElementById('appsList').addEventListener('click', handleApplicantAction);
 
 	// ===== JOB FORM =====
 	document.getElementById('newJobBtn').addEventListener('click', function() { openFormForNew(); });
