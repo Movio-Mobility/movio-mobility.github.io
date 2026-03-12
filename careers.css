@@ -444,11 +444,19 @@ body.modal-open {
 	max-height: 90vh;
 	background: #1a1a1a;
 	border-radius: 20px;
-	overflow: hidden;
+	overflow-y: auto;
+	overflow-x: hidden;
 	display: flex;
 	flex-direction: column;
 	transform: translateY(30px) scale(0.97);
 	transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-sheet::-webkit-scrollbar { width: 6px; }
+.modal-sheet::-webkit-scrollbar-track { background: transparent; }
+.modal-sheet::-webkit-scrollbar-thumb {
+	background: rgba(255,255,255,0.1);
+	border-radius: 3px;
 }
 
 .modal-overlay.open .modal-sheet {
@@ -650,20 +658,62 @@ body.modal-open {
 }
 
 /* ===== Application Form ===== */
+@keyframes formSlideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 .apply-form-section {
 	padding: 2rem;
 	border-top: 1px solid rgba(255,255,255,0.06);
-	display: none;
 	text-align: left;
+	display: none;
 }
 
-.apply-form-section.open { display: block; }
+.apply-form-section.open {
+	display: block;
+	animation: formSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.apply-form-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
+}
 
 .apply-form-title {
 	font-size: 1.15rem;
 	font-weight: 700;
 	color: #fff;
-	margin-bottom: 1.5rem;
+	margin-bottom: 0;
+}
+
+.apply-form-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	border: 1px solid rgba(255,255,255,0.12);
+	background: rgba(255,255,255,0.05);
+	color: rgba(255,255,255,0.6);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+}
+
+.apply-form-close:hover {
+	background: rgba(255,255,255,0.1);
+	color: #fff;
+	border-color: rgba(255,255,255,0.25);
 }
 
 .form-row {

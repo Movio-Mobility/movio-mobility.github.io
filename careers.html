@@ -148,9 +148,14 @@
 			</button>
 		</div>
 		<div class="share-toast" id="shareToast">Link copied to clipboard!</div>
-			<div class="apply-form-section" id="applyForm">
+		<div class="apply-form-section" id="applyForm">
+			<div class="apply-form-header">
 				<h3 class="apply-form-title">Your Application</h3>
-				<form id="applicationForm" autocomplete="on">
+				<button type="button" class="apply-form-close" id="applyFormClose" aria-label="Close form">
+					<span class="material-symbols-outlined" style="font-size:18px;">close</span>
+				</button>
+			</div>
+			<form id="applicationForm" autocomplete="on">
 					<div class="form-row">
 						<div class="form-group">
 							<label class="form-label">First Name</label>
@@ -515,7 +520,15 @@
 	document.getElementById('applyBtn').addEventListener('click', function() {
 		document.getElementById('applyForm').classList.add('open');
 		document.getElementById('modalFooter').style.display = 'none';
-		document.getElementById('applyForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		setTimeout(function() {
+			document.getElementById('applyForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}, 100);
+	});
+
+	// Close application form
+	document.getElementById('applyFormClose').addEventListener('click', function() {
+		document.getElementById('applyForm').classList.remove('open');
+		document.getElementById('modalFooter').style.display = 'flex';
 	});
 
 	// Resume upload
