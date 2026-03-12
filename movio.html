@@ -475,25 +475,32 @@
 				html += '<div class="applicant-avatar">' + esc(initials.toUpperCase()) + '</div>';
 				html += '<div class="applicant-info">';
 				html += '<div class="applicant-name">' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '</div>';
-				html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + date + '</span></div>';
-				html += '</div>';
-				html += '<span class="status-badge ' + status + '">' + status + '</span>';
-			html += '<div class="applicant-actions">';
-			if (a.resumeUrl || a.resumePath) {
-				html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
-			}
-			if (status === 'pending') {
-				html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
-				html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
-			}
-			html += '</div></div></div>';
-		});
-		html += '</div>';
+			html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + date + '</span></div>';
+			html += '</div>';
+			html += '<span class="status-badge ' + status + '">' + status + '</span>';
+		html += '<div class="applicant-actions">';
+		if (a.resumeUrl || a.resumePath) {
+			html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
 		}
-
+		if (status === 'pending') {
+			html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
+			html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+		}
+		html += '</div></div>';
+		if (a.whyGridX) {
+			html += '<div class="applicant-why" style="padding:0.75rem 1rem;margin-top:0.5rem;background:rgba(152,192,130,0.08);border-radius:8px;border-left:3px solid rgb(152,192,130);">';
+			html += '<div style="font-size:0.7rem;font-weight:600;color:rgb(152,192,130);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">Why GridXenergy?</div>';
+			html += '<div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.5;white-space:pre-wrap;">' + esc(a.whyGridX) + '</div>';
+			html += '</div>';
+		}
 		html += '</div>';
-		return html;
+	});
+	html += '</div>';
 	}
+
+	html += '</div>';
+	return html;
+}
 
 	// ===== JOB ACTIONS =====
 	function handleJobAction(e) {
@@ -713,18 +720,25 @@
 			html += '<div class="applicant-avatar">' + esc(initials.toUpperCase()) + '</div>';
 			html += '<div class="applicant-info">';
 			html += '<div class="applicant-name">' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '</div>';
-			html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + esc(jobTitle) + '</span><span>' + date + '</span></div>';
+		html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + esc(jobTitle) + '</span><span>' + date + '</span></div>';
+		html += '</div>';
+		html += '<span class="status-badge ' + status + '">' + status + '</span>';
+		html += '<div class="applicant-actions">';
+		if (a.resumeUrl || a.resumePath) {
+			html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
+		}
+		if (status === 'pending') {
+			html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
+			html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+		}
+		html += '</div></div>';
+		if (a.whyGridX) {
+			html += '<div class="applicant-why" style="padding:0.75rem 1rem;margin-top:0.5rem;background:rgba(152,192,130,0.08);border-radius:8px;border-left:3px solid rgb(152,192,130);">';
+			html += '<div style="font-size:0.7rem;font-weight:600;color:rgb(152,192,130);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">Why GridXenergy?</div>';
+			html += '<div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.5;white-space:pre-wrap;">' + esc(a.whyGridX) + '</div>';
 			html += '</div>';
-			html += '<span class="status-badge ' + status + '">' + status + '</span>';
-			html += '<div class="applicant-actions">';
-			if (a.resumeUrl || a.resumePath) {
-				html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
-			}
-			if (status === 'pending') {
-				html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
-				html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
-			}
-			html += '</div></div></div>';
+		}
+		html += '</div>';
 		});
 		html += '</div>';
 		container.innerHTML = html;
