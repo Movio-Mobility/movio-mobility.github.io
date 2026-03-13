@@ -518,6 +518,9 @@
 		if (status === 'pending') {
 			html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
 			html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+		} else if (status === 'shortlisted' || status === 'rejected') {
+			html += '<button class="act-btn shortlist" data-app-action="scheduleMeet" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">video_call</span>Schedule Meet</button>';
+			html += '<button class="act-btn mail" data-app-action="sendMail" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">mail</span>Send Mail</button>';
 		}
 		html += '</div></div>';
 		if (a.whyGridX) {
@@ -599,7 +602,7 @@
 					showToast('Could not load resume');
 				}
 			}
-		} else if (action === 'shortlist' || action === 'reject') {
+		} else if (action === 'shortlist' || action === 'reject' || action === 'scheduleMeet' || action === 'sendMail') {
 			openEmailDialog(action, btn.dataset);
 		}
 	}
@@ -629,25 +632,41 @@
 		emailActionData = { action: action, appId: data.appId, email: data.appEmail, name: data.appName, jobTitle: data.jobTitle };
 
 		var isShortlist = action === 'shortlist';
-		document.getElementById('emailDialogTitle').textContent = isShortlist ? 'Shortlist Candidate' : 'Reject Candidate';
-		document.getElementById('emailDialogSubtitle').textContent = isShortlist
-			? 'This will mark the candidate as shortlisted and send them the email below.'
-			: 'This will mark the candidate as rejected and send them the email below.';
+		var isScheduleMeet = action === 'scheduleMeet';
+		var isSendMail = action === 'sendMail';
+
+		if (isScheduleMeet) {
+			document.getElementById('emailDialogTitle').textContent = 'Schedule Meet';
+			document.getElementById('emailDialogSubtitle').textContent = 'Schedule a Google Meet and send the invite to this candidate. If they were rejected, this will mark them as shortlisted.';
+			document.getElementById('emailSubject').value = 'Your Interview at GridXenergy — Meet Link';
+			document.getElementById('emailBody').value = SHORTLIST_TEMPLATE(data.appName, data.jobTitle);
+		} else if (isSendMail) {
+			document.getElementById('emailDialogTitle').textContent = 'Send Email';
+			document.getElementById('emailDialogSubtitle').textContent = 'Send an email to this candidate. No status change.';
+			document.getElementById('emailSubject').value = 'Your Application at GridXenergy — Update';
+			document.getElementById('emailBody').value = 'Dear ' + (data.appName || 'Candidate') + ',\n\n';
+		} else {
+			document.getElementById('emailDialogTitle').textContent = isShortlist ? 'Shortlist Candidate' : 'Reject Candidate';
+			document.getElementById('emailDialogSubtitle').textContent = isShortlist
+				? 'This will mark the candidate as shortlisted and send them the email below.'
+				: 'This will mark the candidate as rejected and send them the email below.';
+			document.getElementById('emailSubject').value = isShortlist
+				? 'Your Application at GridXenergy — You\'ve Been Shortlisted!'
+				: 'Your Application at GridXenergy — Update';
+			document.getElementById('emailBody').value = isShortlist
+				? SHORTLIST_TEMPLATE(data.appName, data.jobTitle)
+				: REJECT_TEMPLATE(data.appName, data.jobTitle);
+		}
+
 		document.getElementById('emailTo').innerHTML = 'To: <strong>' + esc(data.appEmail) + '</strong>';
-		document.getElementById('emailSubject').value = isShortlist
-			? 'Your Application at GridXenergy — You\'ve Been Shortlisted!'
-			: 'Your Application at GridXenergy — Update';
-		document.getElementById('emailBody').value = isShortlist
-			? SHORTLIST_TEMPLATE(data.appName, data.jobTitle)
-			: REJECT_TEMPLATE(data.appName, data.jobTitle);
 
 		var meetSection = document.getElementById('meetScheduleSection');
 		var meetCheckbox = document.getElementById('meetScheduleCheckbox');
 		var meetFields = document.getElementById('meetScheduleFields');
-		if (isShortlist) {
+		if (isShortlist || isScheduleMeet) {
 			meetSection.classList.add('visible');
-			meetCheckbox.checked = false;
-			meetFields.classList.remove('visible');
+			meetCheckbox.checked = isScheduleMeet;
+			meetFields.classList.toggle('visible', isScheduleMeet);
 			var now = new Date();
 			now.setDate(now.getDate() + 1);
 			now.setHours(10, 0, 0, 0);
@@ -662,9 +681,15 @@
 		}
 
 		var sendBtn = document.getElementById('emailSend');
-		sendBtn.className = 'email-send-btn ' + (isShortlist ? 'shortlist-action' : 'reject-action');
+		sendBtn.className = 'email-send-btn ' + (isShortlist || isScheduleMeet ? 'shortlist-action' : isSendMail ? '' : 'reject-action');
 		sendBtn.disabled = false;
-		sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+		if (isScheduleMeet) {
+			sendBtn.innerHTML = '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet';
+		} else if (isSendMail) {
+			sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send Email';
+		} else {
+			sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+		}
 
 		document.getElementById('emailOverlay').classList.add('open');
 	}
@@ -675,12 +700,18 @@
 		var sendBtn = document.getElementById('emailSend');
 		if (this.checked) {
 			fields.classList.add('visible');
-			if (emailActionData && emailActionData.action === 'shortlist') {
+			if (emailActionData && (emailActionData.action === 'shortlist' || emailActionData.action === 'scheduleMeet')) {
 				sendBtn.innerHTML = '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet';
 			}
 		} else {
 			fields.classList.remove('visible');
-			sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+			if (emailActionData && emailActionData.action === 'scheduleMeet') {
+				sendBtn.innerHTML = '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet';
+			} else if (emailActionData && emailActionData.action === 'shortlist') {
+				sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+			} else {
+				sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+			}
 		}
 	});
 
@@ -700,7 +731,9 @@
 		if (!emailActionData) return;
 		var btn = this;
 		var isShortlist = emailActionData.action === 'shortlist';
-		var scheduleMeet = isShortlist && document.getElementById('meetScheduleCheckbox').checked;
+		var isScheduleMeet = emailActionData.action === 'scheduleMeet';
+		var isSendMail = emailActionData.action === 'sendMail';
+		var scheduleMeet = (isShortlist || isScheduleMeet) && document.getElementById('meetScheduleCheckbox').checked;
 
 		if (scheduleMeet) {
 			var meetDT = document.getElementById('meetDateTime').value;
@@ -713,6 +746,10 @@
 				alert('Meeting date must be in the future.');
 				return;
 			}
+		}
+		if (isScheduleMeet && !scheduleMeet) {
+			alert('Please check "Schedule Google Meet" and fill in the date & time.');
+			return;
 		}
 
 		btn.disabled = true;
@@ -739,7 +776,15 @@
 					updatedBy: currentUser.email
 				});
 
-				showToast('Candidate shortlisted — Meet scheduled');
+				showToast(isScheduleMeet ? 'Meet scheduled & email sent' : 'Candidate shortlisted — Meet scheduled');
+			} else if (isSendMail) {
+				var sendEmailFn = httpsCallable(functions, 'sendEmailOnly');
+				await sendEmailFn({
+					appId: emailActionData.appId,
+					emailSubject: document.getElementById('emailSubject').value,
+					emailBody: document.getElementById('emailBody').value
+				});
+				showToast('Email sent');
 			} else if (isShortlist) {
 				await updateDoc(doc(db, 'applications', emailActionData.appId), {
 					status: 'shortlisted',
@@ -762,17 +807,18 @@
 				showToast('Candidate rejected');
 			}
 
-			// Optimistic UI update: reflect status change immediately without waiting for Firestore snapshot
-			var appId = emailActionData.appId;
-			var newStatus = isShortlist ? 'shortlisted' : 'rejected';
-			var app = allApplications.find(function(a) { return a.id === appId; });
-			if (app) {
-				app.status = newStatus;
-				// Switch to the relevant status tab so user sees the update (e.g. shortlisted → Shortlisted tab)
-				activeAppStatus = newStatus;
-				document.querySelectorAll('.app-status-tab').forEach(function(t) {
-					t.classList.toggle('active', t.dataset.status === newStatus);
-				});
+			// Optimistic UI update: reflect status change immediately (skip for sendMail — no status change)
+			if (!isSendMail) {
+				var appId = emailActionData.appId;
+				var newStatus = (isShortlist || isScheduleMeet) ? 'shortlisted' : 'rejected';
+				var app = allApplications.find(function(a) { return a.id === appId; });
+				if (app) {
+					app.status = newStatus;
+					activeAppStatus = newStatus;
+					document.querySelectorAll('.app-status-tab').forEach(function(t) {
+						t.classList.toggle('active', t.dataset.status === newStatus);
+					});
+				}
 			}
 			renderAdminJobs();
 			renderApplications();
@@ -786,9 +832,14 @@
 			if (err.details) errMsg = err.details;
 			alert(errMsg);
 			btn.disabled = false;
-			btn.innerHTML = scheduleMeet
+			var btnLabel = isScheduleMeet
+				? '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet'
+				: isSendMail
+				? '<span class="material-symbols-outlined">send</span> Send Email'
+				: scheduleMeet
 				? '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet'
 				: '<span class="material-symbols-outlined">send</span> Send & Update Status';
+			btn.innerHTML = btnLabel;
 		}
 	});
 
@@ -868,6 +919,9 @@
 		if (status === 'pending') {
 			html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
 			html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+		} else if (status === 'shortlisted' || status === 'rejected') {
+			html += '<button class="act-btn shortlist" data-app-action="scheduleMeet" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">video_call</span>Schedule Meet</button>';
+			html += '<button class="act-btn mail" data-app-action="sendMail" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">mail</span>Send Mail</button>';
 		}
 		html += '</div></div>';
 		if (a.whyGridX) {

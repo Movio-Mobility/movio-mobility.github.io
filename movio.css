@@ -542,6 +542,16 @@
 	color: #fff;
 }
 
+.act-btn.mail {
+	background: rgba(100, 181, 246, 0.12);
+	color: rgb(100, 181, 246);
+}
+
+.act-btn.mail:hover {
+	background: rgba(100, 181, 246, 0.25);
+	color: #64b5f6;
+}
+
 /* ===== PDF Viewer Modal ===== */
 .pdf-overlay {
 	position: fixed;

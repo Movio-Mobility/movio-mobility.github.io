@@ -193,4 +193,59 @@ const shortlistWithMeet = onCall(
   }
 );
 
-module.exports = { sendStatusEmail, shortlistWithMeet };
+// ===== Send email only (no status change) =====
+
+const sendEmailOnly = onCall(
+  {
+    secrets: ["SMTP_EMAIL", "SMTP_PASSWORD"],
+  },
+  async (request) => {
+    if (!request.auth || !request.auth.token.email?.endsWith("@gridxenergy.in")) {
+      throw new HttpsError("permission-denied", "Only @gridxenergy.in accounts can perform this action.");
+    }
+
+    const { appId, emailSubject, emailBody } = request.data;
+
+    if (!appId || !emailSubject || !emailBody) {
+      throw new HttpsError("invalid-argument", "Missing required fields: appId, emailSubject, emailBody.");
+    }
+
+    const appDoc = await db.collection("applications").doc(appId).get();
+    if (!appDoc.exists) {
+      throw new HttpsError("not-found", "Application not found.");
+    }
+
+    const appData = appDoc.data();
+    const toEmail = appData.email;
+
+    if (!toEmail) {
+      throw new HttpsError("failed-precondition", "Applicant has no email address.");
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `GridXenergy Careers <${process.env.SMTP_EMAIL}>`,
+      to: toEmail,
+      subject: emailSubject,
+      text: emailBody,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent to ${toEmail} (sendEmailOnly)`);
+      return { success: true };
+    } catch (err) {
+      console.error("Failed to send email:", err);
+      throw new HttpsError("internal", "Failed to send email.");
+    }
+  }
+);
+
+module.exports = { sendStatusEmail, shortlistWithMeet, sendEmailOnly };
