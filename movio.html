@@ -406,6 +406,7 @@
 
 		unsubApps = onSnapshot(query(collection(db, 'applications'), orderBy('appliedAt', 'desc')), (snap) => {
 			allApplications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+			renderAdminJobs();
 			renderApplications();
 			updateStatusCounts();
 		}, (err) => console.error('Apps listener error:', err));
@@ -760,6 +761,22 @@
 
 				showToast('Candidate rejected');
 			}
+
+			// Optimistic UI update: reflect status change immediately without waiting for Firestore snapshot
+			var appId = emailActionData.appId;
+			var newStatus = isShortlist ? 'shortlisted' : 'rejected';
+			var app = allApplications.find(function(a) { return a.id === appId; });
+			if (app) {
+				app.status = newStatus;
+				// Switch to the relevant status tab so user sees the update (e.g. shortlisted → Shortlisted tab)
+				activeAppStatus = newStatus;
+				document.querySelectorAll('.app-status-tab').forEach(function(t) {
+					t.classList.toggle('active', t.dataset.status === newStatus);
+				});
+			}
+			renderAdminJobs();
+			renderApplications();
+			updateStatusCounts();
 
 			document.getElementById('emailOverlay').classList.remove('open');
 			emailActionData = null;
