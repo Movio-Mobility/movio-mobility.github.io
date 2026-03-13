@@ -775,6 +775,107 @@
 	box-shadow: none;
 }
 
+/* ===== Meet Schedule Section ===== */
+.meet-schedule-section {
+	display: none;
+	margin-bottom: 1rem;
+	padding: 1rem 1.25rem;
+	background: rgba(152, 192, 130, 0.06);
+	border: 1px solid rgba(152, 192, 130, 0.15);
+	border-radius: 12px;
+}
+
+.meet-schedule-section.visible { display: block; }
+
+.meet-schedule-toggle {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.88rem;
+	font-weight: 700;
+	color: rgb(152, 192, 130);
+	cursor: pointer;
+	user-select: none;
+}
+
+.meet-schedule-toggle input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	accent-color: rgb(152, 192, 130);
+	cursor: pointer;
+	margin: 0;
+}
+
+.meet-schedule-fields {
+	display: none;
+	margin-top: 1rem;
+}
+
+.meet-schedule-fields.visible { display: block; }
+
+.meet-schedule-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+}
+
+@media (max-width: 520px) {
+	.meet-schedule-row { grid-template-columns: 1fr; }
+}
+
+.meet-schedule-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.meet-schedule-label {
+	font-size: 0.72rem;
+	font-weight: 600;
+	color: rgba(255,255,255,0.5);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.meet-schedule-input,
+.meet-schedule-select {
+	width: 100%;
+	padding: 0.55rem 0.8rem;
+	background: rgba(255,255,255,0.04);
+	border: 1px solid rgba(255,255,255,0.1);
+	border-radius: 8px;
+	color: #fff;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.85rem;
+	outline: none;
+	transition: border-color 0.2s ease;
+	box-sizing: border-box;
+}
+
+.meet-schedule-input:focus,
+.meet-schedule-select:focus {
+	border-color: rgb(152, 192, 130);
+}
+
+.meet-schedule-select option {
+	background: #1a1a1a;
+	color: #fff;
+}
+
+.meet-schedule-input::placeholder {
+	color: rgba(255,255,255,0.25);
+}
+
+.meet-schedule-input::-webkit-calendar-picker-indicator {
+	filter: invert(1) brightness(0.7);
+}
+
+.meet-schedule-hint {
+	font-size: 0.72rem;
+	color: rgba(255,255,255,0.3);
+	margin-top: 0.2rem;
+}
+
 /* ===== Toggle Confirmation Dialog ===== */
 .confirm-overlay {
 	position: fixed;

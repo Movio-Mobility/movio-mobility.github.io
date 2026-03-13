@@ -222,11 +222,41 @@
 				<h3 class="email-panel-title" id="emailDialogTitle">Confirm Action</h3>
 				<p class="email-panel-subtitle" id="emailDialogSubtitle"></p>
 			</div>
-			<div class="email-panel-body">
-				<div class="email-to" id="emailTo"></div>
-				<input class="email-subject-input" type="text" id="emailSubject" placeholder="Subject line">
-				<textarea class="email-textarea" id="emailBody"></textarea>
+		<div class="email-panel-body">
+			<div class="email-to" id="emailTo"></div>
+
+			<div class="meet-schedule-section" id="meetScheduleSection">
+				<label class="meet-schedule-toggle">
+					<input type="checkbox" id="meetScheduleCheckbox">
+					<span class="material-symbols-outlined" style="font-size:18px;color:rgb(152,192,130);">video_call</span>
+					<span>Schedule Google Meet</span>
+				</label>
+				<div class="meet-schedule-fields" id="meetScheduleFields">
+					<div class="meet-schedule-row">
+						<div class="meet-schedule-field">
+							<label class="meet-schedule-label">Date & Time</label>
+							<input class="meet-schedule-input" type="datetime-local" id="meetDateTime">
+						</div>
+						<div class="meet-schedule-field">
+							<label class="meet-schedule-label">Duration</label>
+							<select class="meet-schedule-select" id="meetDuration">
+								<option value="30">30 minutes</option>
+								<option value="45">45 minutes</option>
+								<option value="60" selected>1 hour</option>
+							</select>
+						</div>
+					</div>
+					<div class="meet-schedule-field" style="margin-top:0.75rem;">
+						<label class="meet-schedule-label">Additional Invitees</label>
+						<input class="meet-schedule-input" type="text" id="meetExtraEmails" placeholder="e.g. cto@gridxenergy.in, hr@gridxenergy.in (comma-separated)">
+						<p class="meet-schedule-hint">These people will also receive the Google Calendar invite with the Meet link</p>
+					</div>
+				</div>
 			</div>
+
+			<input class="email-subject-input" type="text" id="emailSubject" placeholder="Subject line">
+			<textarea class="email-textarea" id="emailBody"></textarea>
+		</div>
 			<div class="email-panel-footer">
 				<button class="email-cancel-btn" id="emailCancel">Cancel</button>
 				<button class="email-send-btn" id="emailSend">
@@ -262,6 +292,7 @@
 	import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 	import { getFirestore, collection, doc, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 	import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+	import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-functions.js";
 
 	const firebaseConfig = {
 		apiKey: "AIzaSyAUx-H9BK-WJ6MYnI8MKVHI-QUrxquFjik",
@@ -277,6 +308,7 @@
 	const auth = getAuth(app);
 	const db = getFirestore(app);
 	const storage = getStorage(app);
+	const functions = getFunctions(app);
 
 	let currentUser = null;
 	let allAdminJobs = [];
@@ -608,6 +640,26 @@
 			? SHORTLIST_TEMPLATE(data.appName, data.jobTitle)
 			: REJECT_TEMPLATE(data.appName, data.jobTitle);
 
+		var meetSection = document.getElementById('meetScheduleSection');
+		var meetCheckbox = document.getElementById('meetScheduleCheckbox');
+		var meetFields = document.getElementById('meetScheduleFields');
+		if (isShortlist) {
+			meetSection.classList.add('visible');
+			meetCheckbox.checked = false;
+			meetFields.classList.remove('visible');
+			var now = new Date();
+			now.setDate(now.getDate() + 1);
+			now.setHours(10, 0, 0, 0);
+			var y = now.getFullYear();
+			var m = String(now.getMonth() + 1).padStart(2, '0');
+			var d = String(now.getDate()).padStart(2, '0');
+			document.getElementById('meetDateTime').value = y + '-' + m + '-' + d + 'T10:00';
+			document.getElementById('meetDuration').value = '60';
+			document.getElementById('meetExtraEmails').value = '';
+		} else {
+			meetSection.classList.remove('visible');
+		}
+
 		var sendBtn = document.getElementById('emailSend');
 		sendBtn.className = 'email-send-btn ' + (isShortlist ? 'shortlist-action' : 'reject-action');
 		sendBtn.disabled = false;
@@ -615,6 +667,21 @@
 
 		document.getElementById('emailOverlay').classList.add('open');
 	}
+
+	// Toggle Meet fields visibility and button text
+	document.getElementById('meetScheduleCheckbox').addEventListener('change', function() {
+		var fields = document.getElementById('meetScheduleFields');
+		var sendBtn = document.getElementById('emailSend');
+		if (this.checked) {
+			fields.classList.add('visible');
+			if (emailActionData && emailActionData.action === 'shortlist') {
+				sendBtn.innerHTML = '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet';
+			}
+		} else {
+			fields.classList.remove('visible');
+			sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+		}
+	});
 
 	document.getElementById('emailCancel').addEventListener('click', function() {
 		document.getElementById('emailOverlay').classList.remove('open');
@@ -631,26 +698,80 @@
 	document.getElementById('emailSend').addEventListener('click', async function() {
 		if (!emailActionData) return;
 		var btn = this;
+		var isShortlist = emailActionData.action === 'shortlist';
+		var scheduleMeet = isShortlist && document.getElementById('meetScheduleCheckbox').checked;
+
+		if (scheduleMeet) {
+			var meetDT = document.getElementById('meetDateTime').value;
+			if (!meetDT) {
+				alert('Please select a meeting date & time.');
+				return;
+			}
+			var meetDate = new Date(meetDT);
+			if (meetDate <= new Date()) {
+				alert('Meeting date must be in the future.');
+				return;
+			}
+		}
+
 		btn.disabled = true;
 		btn.innerHTML = '<span class="spinner spinner-dark"></span>';
 
 		try {
-			await updateDoc(doc(db, 'applications', emailActionData.appId), {
-				status: emailActionData.action === 'shortlist' ? 'shortlisted' : 'rejected',
-				emailSubject: document.getElementById('emailSubject').value,
-				emailBody: document.getElementById('emailBody').value,
-				statusUpdatedAt: Timestamp.now(),
-				statusUpdatedBy: currentUser.email
-			});
+			if (scheduleMeet) {
+				var extraEmailsRaw = document.getElementById('meetExtraEmails').value;
+				var additionalEmails = extraEmailsRaw
+					.split(',')
+					.map(function(e) { return e.trim(); })
+					.filter(function(e) { return e && e.includes('@'); });
 
-			showToast(emailActionData.action === 'shortlist' ? 'Candidate shortlisted' : 'Candidate rejected');
+				var shortlistFn = httpsCallable(functions, 'shortlistWithMeet');
+				var rawMeetDT = document.getElementById('meetDateTime').value;
+				var meetingDateTimeIST = rawMeetDT + '+05:30';
+				await shortlistFn({
+					appId: emailActionData.appId,
+					meetingDateTime: meetingDateTimeIST,
+					duration: parseInt(document.getElementById('meetDuration').value, 10),
+					additionalEmails: additionalEmails,
+					emailSubject: document.getElementById('emailSubject').value,
+					emailBody: document.getElementById('emailBody').value,
+					updatedBy: currentUser.email
+				});
+
+				showToast('Candidate shortlisted — Meet scheduled');
+			} else if (isShortlist) {
+				await updateDoc(doc(db, 'applications', emailActionData.appId), {
+					status: 'shortlisted',
+					emailSubject: document.getElementById('emailSubject').value,
+					emailBody: document.getElementById('emailBody').value,
+					statusUpdatedAt: Timestamp.now(),
+					statusUpdatedBy: currentUser.email
+				});
+
+				showToast('Candidate shortlisted');
+			} else {
+				await updateDoc(doc(db, 'applications', emailActionData.appId), {
+					status: 'rejected',
+					emailSubject: document.getElementById('emailSubject').value,
+					emailBody: document.getElementById('emailBody').value,
+					statusUpdatedAt: Timestamp.now(),
+					statusUpdatedBy: currentUser.email
+				});
+
+				showToast('Candidate rejected');
+			}
+
 			document.getElementById('emailOverlay').classList.remove('open');
 			emailActionData = null;
 		} catch (err) {
 			console.error('Status update error:', err);
-			alert('Failed to update status. Check your permissions.');
+			var errMsg = err.message || 'Failed to update status. Check your permissions.';
+			if (err.details) errMsg = err.details;
+			alert(errMsg);
 			btn.disabled = false;
-			btn.innerHTML = '<span class="material-symbols-outlined">send</span> Send & Update Status';
+			btn.innerHTML = scheduleMeet
+				? '<span class="material-symbols-outlined">video_call</span> Send & Schedule Meet'
+				: '<span class="material-symbols-outlined">send</span> Send & Update Status';
 		}
 	});
 
