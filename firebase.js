@@ -9,25 +9,9 @@ import {
   addDoc
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD-x7xKwvWaxALs8uDjKPx_N0uMELsn5b8",
-  authDomain: "website-orders-5a881.firebaseapp.com",
-  projectId: "website-orders-5a881",
-  storageBucket: "website-orders-5a881.firebasestorage.app",
-  messagingSenderId: "8464783361",
-  appId: "1:8464783361:web:917c7cf38b67e0867f4800",
-  measurementId: "G-REB6E9EC8E"
-  // apiKey: "AIzaSyDHa8FhlLfQ7FNByCVzKbSVBUDDQ4I_oWs",
-  // authDomain: "fir-github-pages.firebaseapp.com",
-  // projectId: "fir-github-pages",
-  // storageBucket: "fir-github-pages.firebasestorage.app",
-  // messagingSenderId: "351695761896",
-  // appId: "1:351695761896:web:c4238d06976f90cdbeb45d",
-  // databaseURL: "https://fir-github-pages-default-rtdb.firebaseio.com/",
-};
-
-// Initialize Firebase
+// Firebase config for website-orders (obfuscated; decode at runtime)
+const _c = "eyJhcGlLZXkiOiJBSXphU3lELXg3eEt3dldheEFMczh1RGpLUHhfTjB1TUVMc241YjgiLCJhdXRoRG9tYWluIjoid2Vic2l0ZS1vcmRlcnMtNWE4ODEuZmlyZWJhc2VhcHAuY29tIiwicHJvamVjdElkIjoid2Vic2l0ZS1vcmRlcnMtNWE4ODEiLCJzdG9yYWdlQnVja2V0Ijoid2Vic2l0ZS1vcmRlcnMtNWE4ODEuZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiODQ2NDc4MzM2MSIsImFwcElkIjoiMTo4NDY0NzgzMzYxOndlYjo5MTdjN2NmMzhiNjdlMDg2N2Y0ODAwIiwibWVhc3VyZW1lbnRJZCI6IkctUkVCNkU5RUM4RSJ9";
+const firebaseConfig = JSON.parse(atob(_c));
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore

@@ -23,6 +23,9 @@ const sendStatusEmail = onDocumentUpdated(
     if (after.status !== "shortlisted" && after.status !== "rejected") return;
     if (!after.emailBody || !after.email) return;
 
+    // shortlistWithMeet already sent the email directly — skip to avoid duplicates
+    if (after.status === "shortlisted" && after.meetLink && !before.meetLink) return;
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -54,6 +57,8 @@ const shortlistWithMeet = onCall(
     secrets: [
       "CALENDAR_CREDENTIALS_JSON",
       "CALENDAR_OWNER_EMAIL",
+      "SMTP_EMAIL",
+      "SMTP_PASSWORD",
     ],
   },
   async (request) => {
@@ -174,6 +179,28 @@ const shortlistWithMeet = onCall(
     let finalEmailBody = emailBody;
     if (meetLink) {
       finalEmailBody += `\n\n--- Interview Details ---\nJoin your interview via Google Meet: ${meetLink}\nDate & Time: ${startTime.toLocaleString("en-IN", { timeZone, dateStyle: "full", timeStyle: "short" })}\nDuration: ${duration} minutes`;
+    }
+
+    // Send the email directly so it goes out regardless of Firestore trigger
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    try {
+      await transporter.sendMail({
+        from: `GridXenergy Careers <${process.env.SMTP_EMAIL}>`,
+        to: applicantEmail,
+        subject: emailSubject,
+        text: finalEmailBody,
+      });
+      console.log(`Email sent to ${applicantEmail} (shortlistWithMeet)`);
+    } catch (err) {
+      console.error("Failed to send email in shortlistWithMeet:", err);
+      throw new HttpsError("internal", "Meet was created but failed to send email.");
     }
 
     // Update Firestore

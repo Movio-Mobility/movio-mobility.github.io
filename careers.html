@@ -334,19 +334,10 @@
 
 	<!-- Firebase: real-time job listings + application submission -->
 	<script type="module">
+	import { firebaseConfig } from "./firebase-config.js";
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 	import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 	import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
-
-	const firebaseConfig = {
-		apiKey: "AIzaSyAUx-H9BK-WJ6MYnI8MKVHI-QUrxquFjik",
-		authDomain: "websitegridx.firebaseapp.com",
-		projectId: "websitegridx",
-		storageBucket: "websitegridx.firebasestorage.app",
-		messagingSenderId: "309802930921",
-		appId: "1:309802930921:web:839ba247bc968c246fd678",
-		measurementId: "G-NPBBYVCF4R"
-	};
 
 	const app = initializeApp(firebaseConfig);
 	const db = getFirestore(app);

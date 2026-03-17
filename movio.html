@@ -288,21 +288,12 @@
 
 	<!-- Firebase logic -->
 	<script type="module">
+	import { firebaseConfig } from "./firebase-config.js";
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 	import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 	import { getFirestore, collection, doc, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 	import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 	import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-functions.js";
-
-	const firebaseConfig = {
-		apiKey: "AIzaSyAUx-H9BK-WJ6MYnI8MKVHI-QUrxquFjik",
-		authDomain: "websitegridx.firebaseapp.com",
-		projectId: "websitegridx",
-		storageBucket: "websitegridx.firebasestorage.app",
-		messagingSenderId: "309802930921",
-		appId: "1:309802930921:web:839ba247bc968c246fd678",
-		measurementId: "G-NPBBYVCF4R"
-	};
 
 	const app = initializeApp(firebaseConfig);
 	const auth = getAuth(app);
@@ -638,7 +629,9 @@
 		if (isScheduleMeet) {
 			document.getElementById('emailDialogTitle').textContent = 'Schedule Meet';
 			document.getElementById('emailDialogSubtitle').textContent = 'Schedule a Google Meet and send the invite to this candidate. If they were rejected, this will mark them as shortlisted.';
-			document.getElementById('emailSubject').value = 'Your Interview at GridXenergy — Meet Link';
+			document.getElementById('emailSubject').value = data.jobTitle
+				? 'Interview Invitation: ' + data.jobTitle + ' at GridXenergy — Meet Link'
+				: 'Your Interview at GridXenergy — Meet Link';
 			document.getElementById('emailBody').value = SHORTLIST_TEMPLATE(data.appName, data.jobTitle);
 		} else if (isSendMail) {
 			document.getElementById('emailDialogTitle').textContent = 'Send Email';
