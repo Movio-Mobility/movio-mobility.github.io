@@ -1027,6 +1027,12 @@
 	background: rgba(255,255,255,0.15);
 }
 
+.app-filter-group {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
 .app-filter select {
 	padding: 0.45rem 2rem 0.45rem 0.75rem;
 	background: rgba(255,255,255,0.04);
@@ -1307,6 +1313,24 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Availability badge */
+.applicant-availability {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.5rem;
+	padding: 0.45rem 0.75rem;
+	font-size: 0.8rem;
+	color: rgba(255,255,255,0.7);
+	background: rgba(255,255,255,0.04);
+	border-radius: 6px;
+	border-left: 3px solid rgba(152, 192, 130, 0.5);
+}
+
+.applicant-availability strong {
+	color: #fff;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {

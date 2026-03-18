@@ -185,11 +185,25 @@
 							<input type="file" id="resumeInput" accept=".pdf,.doc,.docx" hidden>
 						</div>
 					</div>
-					<div class="form-group full">
-						<label class="form-label">Why do you want to work at GridXenergy?</label>
-						<textarea class="form-input" name="whyGridX" rows="4" required placeholder="Tell us what excites you about GridXenergy and why you'd be a great fit..."></textarea>
+				<div class="form-group full">
+					<label class="form-label">Why do you want to work at GridXenergy?</label>
+					<textarea class="form-input" name="whyGridX" rows="4" required placeholder="Tell us what excites you about GridXenergy and why you'd be a great fit..."></textarea>
+				</div>
+				<div class="form-group full">
+					<label class="form-label">When can you join?</label>
+					<div class="join-selector">
+						<select class="form-input" name="joinType" id="joinType" required>
+							<option value="" disabled selected>Select availability</option>
+							<option value="Immediately">Immediately</option>
+							<option value="exactDate">Specific date</option>
+							<option value="1 month">1 month</option>
+							<option value="2 months">2 months</option>
+							<option value="3 months">3 months</option>
+						</select>
+						<input class="form-input join-date-input" type="date" name="joinDate" id="joinDate" style="display:none;">
 					</div>
-					<button type="submit" class="submit-btn" id="submitBtn">Submit Application</button>
+				</div>
+				<button type="submit" class="submit-btn" id="submitBtn">Submit Application</button>
 				</form>
 			</div>
 			<div class="apply-success" id="applySuccess">
@@ -552,6 +566,19 @@
 		fileNameEl.style.display = 'block';
 	}
 
+	// Join date toggle
+	document.getElementById('joinType').addEventListener('change', function() {
+		var dateInput = document.getElementById('joinDate');
+		if (this.value === 'exactDate') {
+			dateInput.style.display = 'block';
+			dateInput.required = true;
+		} else {
+			dateInput.style.display = 'none';
+			dateInput.required = false;
+			dateInput.value = '';
+		}
+	});
+
 	// Submit application
 	document.getElementById('applicationForm').addEventListener('submit', async function(e) {
 		e.preventDefault();
@@ -572,17 +599,21 @@
 				resumePath = filePath;
 			}
 
-			await addDoc(collection(db, 'applications'), {
-				jobId: currentJob.id,
-				jobTitle: currentJob.title,
-				firstName: fd.get('firstName'),
-				lastName: fd.get('lastName'),
-				email: fd.get('email'),
-				contactNumber: fd.get('phone'),
-				whyGridX: fd.get('whyGridX'),
-				resumePath: resumePath,
-				appliedAt: Timestamp.now()
-			});
+		var joinType = fd.get('joinType');
+		var availableFrom = joinType === 'exactDate' ? fd.get('joinDate') : joinType;
+
+		await addDoc(collection(db, 'applications'), {
+			jobId: currentJob.id,
+			jobTitle: currentJob.title,
+			firstName: fd.get('firstName'),
+			lastName: fd.get('lastName'),
+			email: fd.get('email'),
+			contactNumber: fd.get('phone'),
+			whyGridX: fd.get('whyGridX'),
+			availableFrom: availableFrom,
+			resumePath: resumePath,
+			appliedAt: Timestamp.now()
+		});
 
 			document.getElementById('applyForm').classList.remove('open');
 			document.getElementById('applySuccess').classList.add('show');

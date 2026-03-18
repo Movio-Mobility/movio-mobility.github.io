@@ -78,11 +78,21 @@
 						<button class="app-status-tab" data-status="shortlisted">Shortlisted <span class="count" id="countShortlisted">0</span></button>
 						<button class="app-status-tab" data-status="rejected">Rejected <span class="count" id="countRejected">0</span></button>
 					</div>
+				<div class="app-filter-group">
 					<div class="app-filter">
 						<select id="appJobFilter">
 							<option value="all">All Jobs</option>
 						</select>
 					</div>
+					<div class="app-filter">
+						<select id="appSortBy">
+							<option value="appliedAt">Sort by: Application Date</option>
+							<option value="availableFrom">Sort by: Joining Date</option>
+							<option value="postedBy">Sort by: Posted By</option>
+							<option value="jobTitle">Sort by: Role</option>
+						</select>
+					</div>
+				</div>
 				</div>
 				<div id="appsList">
 					<div class="empty-state">
@@ -499,28 +509,31 @@
 				html += '<div class="applicant-avatar">' + esc(initials.toUpperCase()) + '</div>';
 				html += '<div class="applicant-info">';
 				html += '<div class="applicant-name">' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '</div>';
-			html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + date + '</span></div>';
-			html += '</div>';
-			html += '<span class="status-badge ' + status + '">' + status + '</span>';
-		html += '<div class="applicant-actions">';
-		if (a.resumeUrl || a.resumePath) {
-			html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
-		}
-		if (status === 'pending') {
-			html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
-			html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
-		} else if (status === 'shortlisted' || status === 'rejected') {
-			html += '<button class="act-btn shortlist" data-app-action="scheduleMeet" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">video_call</span>Schedule Meet</button>';
-			html += '<button class="act-btn mail" data-app-action="sendMail" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">mail</span>Send Mail</button>';
-		}
-		html += '</div></div>';
-		if (a.whyGridX) {
-			html += '<div class="applicant-why" style="padding:0.75rem 1rem;margin-top:0.5rem;background:rgba(152,192,130,0.08);border-radius:8px;border-left:3px solid rgb(152,192,130);">';
-			html += '<div style="font-size:0.7rem;font-weight:600;color:rgb(152,192,130);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">Why GridXenergy?</div>';
-			html += '<div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.5;white-space:pre-wrap;">' + esc(a.whyGridX) + '</div>';
-			html += '</div>';
-		}
+		html += '<div class="applicant-detail"><span>' + esc(a.email || '') + '</span><span>' + esc(a.contactNumber || '') + '</span><span>' + date + '</span></div>';
 		html += '</div>';
+		html += '<span class="status-badge ' + status + '">' + status + '</span>';
+	html += '<div class="applicant-actions">';
+	if (a.resumeUrl || a.resumePath) {
+		html += '<button class="act-btn resume" data-app-action="viewResume" data-url="' + esc(a.resumeUrl || '') + '" data-path="' + esc(a.resumePath || '') + '" data-name="' + esc(a.firstName || '') + ' ' + esc(a.lastName || '') + '"><span class="material-symbols-outlined">description</span>Resume</button>';
+	}
+	if (status === 'pending') {
+		html += '<button class="act-btn shortlist" data-app-action="shortlist" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">check_circle</span>Shortlist</button>';
+		html += '<button class="act-btn reject" data-app-action="reject" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">cancel</span>Reject</button>';
+	} else if (status === 'shortlisted' || status === 'rejected') {
+		html += '<button class="act-btn shortlist" data-app-action="scheduleMeet" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">video_call</span>Schedule Meet</button>';
+		html += '<button class="act-btn mail" data-app-action="sendMail" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(a.jobTitle || '') + '"><span class="material-symbols-outlined">mail</span>Send Mail</button>';
+	}
+	html += '</div></div>';
+	if (a.availableFrom) {
+		html += '<div class="applicant-availability"><span class="material-symbols-outlined" style="font-size:14px;">event_available</span> Can join: <strong>' + esc(a.availableFrom) + '</strong></div>';
+	}
+	if (a.whyGridX) {
+		html += '<div class="applicant-why" style="padding:0.75rem 1rem;margin-top:0.5rem;background:rgba(152,192,130,0.08);border-radius:8px;border-left:3px solid rgb(152,192,130);">';
+		html += '<div style="font-size:0.7rem;font-weight:600;color:rgb(152,192,130);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">Why GridXenergy?</div>';
+		html += '<div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.5;white-space:pre-wrap;">' + esc(a.whyGridX) + '</div>';
+		html += '</div>';
+	}
+	html += '</div>';
 	});
 	html += '</div>';
 	}
@@ -847,6 +860,7 @@
 	});
 
 	document.getElementById('appJobFilter').addEventListener('change', renderApplications);
+	document.getElementById('appSortBy').addEventListener('change', renderApplications);
 
 	function updateStatusCounts() {
 		var all = allApplications.length;
@@ -870,10 +884,25 @@
 		select.value = current || 'all';
 	}
 
+	function getAvailabilityOrder(val) {
+		if (!val) return 9999;
+		if (val === 'Immediately') return 0;
+		if (val === '1 month') return 1;
+		if (val === '2 months') return 2;
+		if (val === '3 months') return 3;
+		return new Date(val).getTime() || 9998;
+	}
+
+	function getJobPostedBy(a) {
+		var job = allAdminJobs.find(function(j) { return j.id === a.jobId; });
+		return (job && job.postedBy) ? job.postedBy.toLowerCase() : 'zzz';
+	}
+
 	function renderApplications() {
 		var container = document.getElementById('appsList');
 		var jobFilter = document.getElementById('appJobFilter').value;
-		var filtered = allApplications;
+		var sortBy = document.getElementById('appSortBy').value;
+		var filtered = allApplications.slice();
 
 		if (jobFilter !== 'all') {
 			filtered = filtered.filter(a => a.jobId === jobFilter);
@@ -883,6 +912,14 @@
 				var s = a.status || 'pending';
 				return s === activeAppStatus;
 			});
+		}
+
+		if (sortBy === 'availableFrom') {
+			filtered.sort(function(a, b) { return getAvailabilityOrder(a.availableFrom) - getAvailabilityOrder(b.availableFrom); });
+		} else if (sortBy === 'postedBy') {
+			filtered.sort(function(a, b) { return getJobPostedBy(a).localeCompare(getJobPostedBy(b)); });
+		} else if (sortBy === 'jobTitle') {
+			filtered.sort(function(a, b) { return (a.jobTitle || '').toLowerCase().localeCompare((b.jobTitle || '').toLowerCase()); });
 		}
 
 		if (filtered.length === 0) {
@@ -916,17 +953,20 @@
 			html += '<button class="act-btn shortlist" data-app-action="scheduleMeet" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">video_call</span>Schedule Meet</button>';
 			html += '<button class="act-btn mail" data-app-action="sendMail" data-app-id="' + a.id + '" data-app-name="' + esc(a.firstName || '') + '" data-app-email="' + esc(a.email || '') + '" data-job-title="' + esc(jobTitle) + '"><span class="material-symbols-outlined">mail</span>Send Mail</button>';
 		}
-		html += '</div></div>';
-		if (a.whyGridX) {
-			html += '<div class="applicant-why" style="padding:0.75rem 1rem;margin-top:0.5rem;background:rgba(152,192,130,0.08);border-radius:8px;border-left:3px solid rgb(152,192,130);">';
-			html += '<div style="font-size:0.7rem;font-weight:600;color:rgb(152,192,130);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">Why GridXenergy?</div>';
-			html += '<div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.5;white-space:pre-wrap;">' + esc(a.whyGridX) + '</div>';
-			html += '</div>';
-		}
+	html += '</div></div>';
+	if (a.availableFrom) {
+		html += '<div class="applicant-availability"><span class="material-symbols-outlined" style="font-size:14px;">event_available</span> Can join: <strong>' + esc(a.availableFrom) + '</strong></div>';
+	}
+	if (a.whyGridX) {
+		html += '<div class="applicant-why" style="padding:0.75rem 1rem;margin-top:0.5rem;background:rgba(152,192,130,0.08);border-radius:8px;border-left:3px solid rgb(152,192,130);">';
+		html += '<div style="font-size:0.7rem;font-weight:600;color:rgb(152,192,130);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.5px;">Why GridXenergy?</div>';
+		html += '<div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.5;white-space:pre-wrap;">' + esc(a.whyGridX) + '</div>';
 		html += '</div>';
-		});
-		html += '</div>';
-		container.innerHTML = html;
+	}
+	html += '</div>';
+	});
+	html += '</div>';
+	container.innerHTML = html;
 	}
 
 	// Persistent delegated listener on #appsList (attached once)

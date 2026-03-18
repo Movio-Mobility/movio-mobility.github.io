@@ -763,6 +763,17 @@ body.modal-open {
 	color: rgba(255,255,255,0.25);
 }
 
+/* Join availability selector */
+.join-selector {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.join-date-input {
+	color-scheme: dark;
+}
+
 /* Resume drop zone */
 .resume-drop {
 	border: 2px dashed rgba(255,255,255,0.12);
