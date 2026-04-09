@@ -6,9 +6,12 @@
 
     <link href="./rdstailwind.min.css" rel="stylesheet" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700&family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
@@ -135,6 +138,8 @@
         muted
         loop
         playsinline
+        controlsList="nodownload nofullscreen noremoteplayback"
+        disablePictureInPicture
         class="absolute w-full h-full top-0 left-0 opacity-50"
       >
         <source src="Partnerships_video.mp4" />
@@ -191,8 +196,8 @@
     </section>
 
    <div class="buttons-wrapper reveal-on-scroll" style="display: flex; justify-content: center; margin: 4rem auto;">
-        <a href="GridX_Product_Portfolio.pdf" class="learn-more-btn" target="_blank">
-            <span style="font-weight: bold;">Download the Product Portfolio</span>
+        <a href="GridX_Product_Portfolio.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" class="learn-more-btn" target="_blank" onclick="event.preventDefault();window.open(this.href,'_blank','menubar=no,toolbar=no,location=no,status=no');">
+            <span style="font-weight: bold;">View the Product Portfolio</span>
         </a>
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSe0iN67BEGAV9Q4rmIwS-N5YGgK41-FSwrW5yfHWdVZSPiDPw/viewform?usp=sf_link" class="learn-more-btn">
             <span style="font-weight: bold;">Join us as a Valued Partner</span>

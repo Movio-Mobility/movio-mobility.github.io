@@ -12,10 +12,11 @@
 	<link
 		href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
 		rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="./polish.css" rel="stylesheet">
@@ -1221,7 +1222,7 @@
 			</div>
 
 
-			<video autoplay muted loop playsinline class="absolute w-full h-full top-0 left-0 opacity-50">
+			<video autoplay muted loop playsinline controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture class="absolute w-full h-full top-0 left-0 opacity-50">
 				<source src="SwapSystem.mp4" />
 			</video>
 		</section>
@@ -1250,10 +1251,10 @@
 
 			<div class="container-video-frame">
 				<div class="video-frame">
-					<video id="video1" src="./assets/website1.mov" muted></video>
-					<video id="video2" src="./assets/website2.mov" muted></video>
-					<video id="video3" src="./assets/website3.mov" muted></video>
-					<video id="video4" src="./assets/website4.mov" muted></video>
+					<video id="video1" src="./assets/website1.mov" muted controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
+					<video id="video2" src="./assets/website2.mov" muted controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
+					<video id="video3" src="./assets/website3.mov" muted controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
+					<video id="video4" src="./assets/website4.mov" muted controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture></video>
 					<!-- <video id="video5" src="./assets/animated vid.mov" muted></video> -->
 				</div>
 
@@ -1366,7 +1367,7 @@
 					</div>
 					<div class="xl:w-1/2 flex flex-col justify-center">
 						<div class="video-container" style="overflow: hidden; border-radius: 12px; width: 80%; margin: 0 auto;">
-							<video autoplay muted loop playsinline src="HomeSecond_video.mp4" class="object-cover w-full h-full rounded-xl" style="border-radius: 12px; overflow: hidden;"></video>
+							<video autoplay muted loop playsinline controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture src="HomeSecond_video.mp4" class="object-cover w-full h-full rounded-xl" style="border-radius: 12px; overflow: hidden;"></video>
 						</div>
 					</div>
 				</div>

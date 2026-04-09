@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const parent = costElement.closest(".charger, .text-container");
             if (!parent || parent.classList.contains("necessary")) {
                 const cost = parseInt(costElement.textContent.replace("₹", ""), 10);
-                console.log(`Added necessary cost: ₹${cost}`);
                 total += cost;
             }
         });
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (isSelected) {
                 const cost = charger.querySelector(".cost");
                 const costValue = parseInt(cost.textContent.replace("₹", ""), 10);
-                console.log(`Added selected charger cost: ₹${costValue}`);
                 total += costValue;
             }
         });
@@ -34,11 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (additionalContainer && additionalContainer.classList.contains("selected")) {
             const cost = additionalContainer.querySelector(".cost");
             const costValue = parseInt(cost.textContent.replace("₹", ""), 10);
-            console.log(`Added optional container cost: ₹${costValue}`);
             total += costValue;
         }
 
-        console.log(`Total cost calculated: ₹${total}`);
         totalElement.textContent = `₹${total}`;
     };
 

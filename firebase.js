@@ -72,25 +72,15 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     };
 
-    console.log("Data to save:", data);
-
-    // Save data to Firebase Firestore
     saveToFirebase(data);
 };
 
 
 const saveToFirebase = async (data) => {
   try {
-    console.log("Saving to Firebase:", data);
-    // Add data to the "orders" collection with an auto-generated ID
     const docRef = await addDoc(collection(db, "orders"), data);
-
-    
-    
-    // Log the document ID
-    console.log("Document saved with ID:", docRef.id);
   } catch (error) {
-    console.error("Error saving data to Firestore:", error);
+    // silently fail
   }};
 
 

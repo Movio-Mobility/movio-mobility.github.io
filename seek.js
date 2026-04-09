@@ -24,8 +24,6 @@ var speedchange = function (x) {
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
-    console.log("x");
-
 
     $('#saving')[0].innerHTML = 100 - Math.floor((gridbar * 100) / IECbar);
     $('#distance')[0].innerHTML = distance;
@@ -42,7 +40,6 @@ var seekchange = function (x) {
 
     gridx_cost.innerHTML = gridbar;
     local_cost.innerHTML = IECbar;
-    console.log("x");
 
     $("#gridbar").height($("#gridbar").parent().height() * (gridbar / max));
     $("#IECbar").height($("#gridbar").parent().height() * (IECbar / max));

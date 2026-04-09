@@ -9,12 +9,13 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
 	<link rel="manifest" href="./site.webmanifest">
   <link href="./rdstailwind.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
     rel="stylesheet" />
   <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
   <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
     integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
   <link href="./polish.css" rel="stylesheet" />
@@ -91,18 +92,21 @@
 
       <div class="contact-info-block">
         <p>mail us at</p>
-        <h2>info@gridxenergy.in</h2>
+        <h2 id="contact-email"></h2>
       </div>
       <div class="contact-info-block">
         <p>call us at</p>
-        <h2>+91 9521738266</h2>
+        <h2 id="contact-phone"></h2>
       </div>
+      <script>
+      (function(){var a='info',b='gridxenergy',c='.in';document.getElementById('contact-email').textContent=a+'@'+b+c;var p=['+','9','1',' ','9','5','2','1','7','3','8','2','6','6'];document.getElementById('contact-phone').textContent=p.join('');})();
+      </script>
       <div class="contact-info-block">
         <p><a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">D66, Pocket D, Phase 1, Okhla, New Delhi, 110020.</a></p>
       </div>
     </div>
 
-    <video autoplay muted loop playsinline class="absolute w-full h-full top-0 left-0 opacity-50">
+    <video autoplay muted loop playsinline controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture class="absolute w-full h-full top-0 left-0 opacity-50">
       <source src="ContactUs_video.mp4" />
     </video>
   </section>

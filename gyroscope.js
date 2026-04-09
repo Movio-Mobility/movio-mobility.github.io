@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         addCalibrationButton(gyroControlsContainer);
                     }
                 })
-                .catch(console.error);
+                .catch(function() {});
         });
         
         gyroControlsContainer.appendChild(permissionButton);

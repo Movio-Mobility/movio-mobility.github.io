@@ -3,18 +3,31 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Only authenticated @gridxenergy.in users can manage jobs
     match /jobs/{jobId} {
       allow read: if true;
       allow create, update, delete: if request.auth != null
         && request.auth.token.email.matches('.*@gridxenergy[.]in$');
     }
 
-    // Anyone can submit an application; only admins can read/update
     match /applications/{appId} {
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'phone', 'jobId'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 200
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('^[^@]+@[^@]+\\.[^@]+$')
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 7
+        && request.resource.data.phone.size() <= 20
+        && request.resource.data.jobId is string
+        && request.resource.data.jobId.size() > 0;
+
       allow read, update, delete: if request.auth != null
         && request.auth.token.email.matches('.*@gridxenergy[.]in$');
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

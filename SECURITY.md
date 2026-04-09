@@ -5,4 +5,4 @@ All
 
 ## Reporting a Vulnerability
 
-Mail it at vishrut@gridxenergy.in
+Mail it at vishrut [at] gridxenergy [dot] in

@@ -2,11 +2,19 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Anyone can upload a resume (max 10 MB, PDF/Word only)
     match /resumes/{fileName} {
       allow read: if request.auth != null
         && request.auth.token.email.matches('.*@gridxenergy[.]in$');
-      allow create: if request.resource.size < 10 * 1024 * 1024;
+
+      allow create: if request.auth != null
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('application/pdf|application/msword|application/vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document');
+
+      allow update, delete: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -1,24 +1,62 @@
 (function() {
   'use strict';
 
-  // --- Anti-inspect: disable right-click and DevTools/source shortcuts (Mac, Windows, Linux) ---
+  // --- Frame-busting: prevent embedding in iframes ---
+  if (window.top !== window.self) {
+    window.top.location = window.self.location;
+  }
+
+  // --- Silence console to prevent info leaks ---
+  (function() {
+    var noop = function() {};
+    var methods = ['log', 'debug', 'info', 'warn', 'error', 'table', 'trace', 'dir', 'dirxml', 'group', 'groupEnd', 'time', 'timeEnd', 'count', 'profile', 'profileEnd'];
+    for (var i = 0; i < methods.length; i++) {
+      try { window.console[methods[i]] = noop; } catch(e) {}
+    }
+    setInterval(function() {
+      try { console.clear(); } catch(e) {}
+    }, 1000);
+  })();
+
+  // --- Anti-inspect: disable right-click and all dangerous shortcuts ---
   document.addEventListener('contextmenu', function(e) { e.preventDefault(); }, true);
   document.addEventListener('keydown', function(e) {
     var k = (e.key || '').toUpperCase();
-    // F12 - DevTools (Windows/Linux)
-    if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
-    // Ctrl+Shift+I, J, C, K - DevTools (Windows/Linux: Chrome, Firefox)
-    if (e.ctrlKey && e.shiftKey && ['I','J','C','K'].indexOf(k) !== -1) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
-    // Cmd+Option+I, J, C, U - DevTools, View Source (Mac: Chrome, Safari)
-    if (e.metaKey && e.altKey && ['I','J','C','U'].indexOf(k) !== -1) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
-    // Cmd+Shift+C - Inspect element (Mac Chrome)
-    if (e.metaKey && e.shiftKey && k === 'C') { e.preventDefault(); e.stopImmediatePropagation(); return false; }
-    // Ctrl+U - View Source (Windows/Linux)
-    if (e.ctrlKey && k === 'U') { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    var block = function() { e.preventDefault(); e.stopImmediatePropagation(); return false; };
+
+    if (e.key === 'F12' || e.keyCode === 123) return block();
+    if (e.ctrlKey && e.shiftKey && ['I','J','C','K'].indexOf(k) !== -1) return block();
+    if (e.metaKey && e.altKey && ['I','J','C','U'].indexOf(k) !== -1) return block();
+    if (e.metaKey && e.shiftKey && k === 'C') return block();
+    if (e.ctrlKey && k === 'U') return block();
+    if ((e.ctrlKey || e.metaKey) && k === 'S') return block();
+    if ((e.ctrlKey || e.metaKey) && k === 'P') return block();
+    if ((e.ctrlKey || e.metaKey) && k === 'A') return block();
+    if ((e.ctrlKey || e.metaKey) && k === 'C') return block();
   }, true);
 
-  // --- Debugger trap: pauses execution when DevTools is open ---
+  // --- Block drag on all elements ---
+  document.addEventListener('dragstart', function(e) { e.preventDefault(); }, true);
+  document.addEventListener('drop', function(e) { e.preventDefault(); }, true);
+
+  // --- Block copy/cut/paste of page content ---
+  document.addEventListener('copy', function(e) { e.preventDefault(); }, true);
+  document.addEventListener('cut', function(e) { e.preventDefault(); }, true);
+
+  // --- Debugger trap + DevTools size detection ---
   (function trap() { setInterval(function() { (function() { return false; })['constructor']('debugger')(); }, 50); })();
+  (function() {
+    var threshold = 160;
+    var check = function() {
+      var w = window.outerWidth - window.innerWidth > threshold;
+      var h = window.outerHeight - window.innerHeight > threshold;
+      if (w || h) {
+        document.documentElement.innerHTML = '';
+      }
+    };
+    setInterval(check, 1000);
+    window.addEventListener('resize', check);
+  })();
 
   // --- Scroll-aware navbar ---
   var nav = document.querySelector('nav');

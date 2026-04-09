@@ -16,6 +16,5 @@ $(".pro-card")[10].value =3;
 $(".pro-card")[11].value =3;
 $(".pro-card").click(
     function(e){
-        console.log(e.target);
         img.src=imagessrc[parseInt(e.target.value)]; 
     })

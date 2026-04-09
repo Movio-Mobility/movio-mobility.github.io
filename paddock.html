@@ -9,7 +9,9 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
   <meta http-equiv="refresh" content="0; url=https://paddockgridx.app/login">
+  <link href="./polish.css" rel="stylesheet" />
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; display: grid; place-items: center; min-height: 100vh; color: #111; background: #fff; }
     a { color: #2563eb; }
@@ -36,20 +38,7 @@
   </noscript>
   <img src="Paddock.png" alt="Paddock" style="max-width: min(420px, 80vw); height: auto;">
   <p>If you are not redirected, <a href="https://paddockgridx.app/login" rel="noopener">click here</a>.</p>
-  <script>
-(function(){
-	document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, true);
-	document.addEventListener('keydown', function(e){
-		var k=(e.key||'').toUpperCase();
-		if(e.key==='F12'||e.keyCode===123){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
-		if(e.ctrlKey&&e.shiftKey&&['I','J','C','K'].indexOf(k)!==-1){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
-		if(e.metaKey&&e.altKey&&['I','J','C','U'].indexOf(k)!==-1){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
-		if(e.metaKey&&e.shiftKey&&k==='C'){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
-		if(e.ctrlKey&&k==='U'){ e.preventDefault(); e.stopImmediatePropagation(); return false; }
-	}, true);
-	setInterval(function(){(function(){return false;})['constructor']('debugger')();},50);
-})();
-</script>
+  <script src="./polish.js"></script>
 </body>
 </html>
 

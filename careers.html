@@ -10,10 +10,11 @@
 	<link href="./rdstailwind.min.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 	<link href="./polish.css" rel="stylesheet">
 	<link href="./careers.css" rel="stylesheet">
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
 
 	<!-- Open Graph meta for link previews -->
 	<meta property="og:type" content="website" />
@@ -389,7 +390,6 @@
 		renderJobs();
 		checkDeepLink();
 	}, (error) => {
-		console.error('Firestore listener error:', error);
 		allJobs = [];
 		renderJobs();
 	});
@@ -618,7 +618,6 @@
 			document.getElementById('applyForm').classList.remove('open');
 			document.getElementById('applySuccess').classList.add('show');
 		} catch (err) {
-			console.error('Application error:', err);
 			alert('Something went wrong. Please try again.');
 			btn.disabled = false;
 			btn.textContent = 'Submit Application';
