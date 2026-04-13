@@ -353,10 +353,12 @@
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 	import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 	import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+	import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
 	const app = initializeApp(firebaseConfig);
 	const db = getFirestore(app);
 	const storage = getStorage(app);
+	const auth = getAuth(app);
 
 	const DOMAIN_ICONS = {
 		Mechanical: 'engineering',
@@ -593,6 +595,8 @@
 			var resumePath = '';
 
 			if (selectedFile) {
+				// Storage rules require auth; enable Anonymous in Firebase Console → Authentication.
+				await signInAnonymously(auth);
 				var filePath = 'resumes/' + Date.now() + '_' + selectedFile.name;
 				var storageRef = ref(storage, filePath);
 				await uploadBytes(storageRef, selectedFile);

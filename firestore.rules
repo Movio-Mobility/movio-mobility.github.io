@@ -10,15 +10,18 @@ service cloud.firestore {
     }
 
     match /applications/{appId} {
-      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'phone', 'jobId'])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() > 0
-        && request.resource.data.name.size() <= 200
+      allow create: if request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'contactNumber', 'jobId'])
+        && request.resource.data.firstName is string
+        && request.resource.data.firstName.size() > 0
+        && request.resource.data.firstName.size() <= 100
+        && request.resource.data.lastName is string
+        && request.resource.data.lastName.size() > 0
+        && request.resource.data.lastName.size() <= 100
         && request.resource.data.email is string
         && request.resource.data.email.matches('^[^@]+@[^@]+\\.[^@]+$')
-        && request.resource.data.phone is string
-        && request.resource.data.phone.size() >= 7
-        && request.resource.data.phone.size() <= 20
+        && request.resource.data.contactNumber is string
+        && request.resource.data.contactNumber.size() >= 7
+        && request.resource.data.contactNumber.size() <= 20
         && request.resource.data.jobId is string
         && request.resource.data.jobId.size() > 0;
 
