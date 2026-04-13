@@ -6,8 +6,8 @@ service firebase.storage {
       allow read: if request.auth != null
         && request.auth.token.email.matches('.*@gridxenergy[.]in$');
 
-      allow create: if request.auth != null
-        && request.resource.size < 10 * 1024 * 1024
+      // Public create (careers page): no auth so uploads work without Anonymous sign-in.
+      allow create: if request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('application/pdf|application/msword|application/vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document');
 
       allow update, delete: if false;

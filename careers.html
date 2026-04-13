@@ -352,13 +352,11 @@
 	import { firebaseConfig } from "./firebase-config.js";
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 	import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-	import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
-	import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+	import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
 	const app = initializeApp(firebaseConfig);
 	const db = getFirestore(app);
 	const storage = getStorage(app);
-	const auth = getAuth(app);
 
 	const DOMAIN_ICONS = {
 		Mechanical: 'engineering',
@@ -595,25 +593,42 @@
 			var resumePath = '';
 
 			if (selectedFile) {
-				// Storage rules require auth; enable Anonymous in Firebase Console → Authentication.
-				await signInAnonymously(auth);
-				var filePath = 'resumes/' + Date.now() + '_' + selectedFile.name;
+				var filePath = 'resumes/' + Date.now() + '_' + selectedFile.name.replace(/[^\w.\-()+ ]/g, '_');
 				var storageRef = ref(storage, filePath);
-				await uploadBytes(storageRef, selectedFile);
+				var mime = selectedFile.type;
+				if (!mime || !['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(mime)) {
+					var n = selectedFile.name.toLowerCase();
+					if (n.endsWith('.pdf')) mime = 'application/pdf';
+					else if (n.endsWith('.doc')) mime = 'application/msword';
+					else if (n.endsWith('.docx')) mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+					else mime = 'application/pdf';
+				}
+				await uploadBytes(storageRef, selectedFile, { contentType: mime });
 				resumePath = filePath;
 			}
 
 		var joinType = fd.get('joinType');
 		var availableFrom = joinType === 'exactDate' ? fd.get('joinDate') : joinType;
 
+		var firstName = String(fd.get('firstName') || '').trim();
+		var lastName = String(fd.get('lastName') || '').trim();
+		var email = String(fd.get('email') || '').trim();
+		var contactNumber = String(fd.get('phone') || '').trim();
+		if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || contactNumber.length < 5) {
+			alert('Please fill in your name, email, and a valid contact number (at least 5 characters).');
+			btn.disabled = false;
+			btn.textContent = 'Submit Application';
+			return;
+		}
+
 		await addDoc(collection(db, 'applications'), {
 			jobId: currentJob.id,
 			jobTitle: currentJob.title,
-			firstName: fd.get('firstName'),
-			lastName: fd.get('lastName'),
-			email: fd.get('email'),
-			contactNumber: fd.get('phone'),
-			whyGridX: fd.get('whyGridX'),
+			firstName: firstName,
+			lastName: lastName,
+			email: email,
+			contactNumber: contactNumber,
+			whyGridX: String(fd.get('whyGridX') || '').trim(),
 			availableFrom: availableFrom,
 			resumePath: resumePath,
 			appliedAt: Timestamp.now()
@@ -622,7 +637,9 @@
 			document.getElementById('applyForm').classList.remove('open');
 			document.getElementById('applySuccess').classList.add('show');
 		} catch (err) {
-			alert('Something went wrong. Please try again.');
+			console.error(err);
+			var hint = (err && err.code === 'permission-denied') ? ' Permission was denied (try again or contact us).' : '';
+			alert((err && err.message ? err.message : 'Something went wrong.') + hint);
 			btn.disabled = false;
 			btn.textContent = 'Submit Application';
 		}

@@ -20,8 +20,8 @@ service cloud.firestore {
         && request.resource.data.email is string
         && request.resource.data.email.matches('^[^@]+@[^@]+\\.[^@]+$')
         && request.resource.data.contactNumber is string
-        && request.resource.data.contactNumber.size() >= 7
-        && request.resource.data.contactNumber.size() <= 20
+        && request.resource.data.contactNumber.size() >= 5
+        && request.resource.data.contactNumber.size() <= 32
         && request.resource.data.jobId is string
         && request.resource.data.jobId.size() > 0;
 
