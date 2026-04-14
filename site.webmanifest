@@ -1,6 +1,8 @@
 {
   "name": "GridXenergy",
   "short_name": "GridX",
+  "start_url": "/movio.html",
+  "scope": "/",
   "icons": [
     { "src": "/assets/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/assets/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }

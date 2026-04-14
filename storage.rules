@@ -10,7 +10,10 @@ service firebase.storage {
       allow create: if request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('application/pdf|application/msword|application/vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document');
 
-      allow update, delete: if false;
+      allow update: if false;
+
+      allow delete: if request.auth != null
+        && request.auth.token.email.matches('.*@gridxenergy[.]in$');
     }
 
     match /{allPaths=**} {
