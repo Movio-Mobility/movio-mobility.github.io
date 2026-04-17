@@ -16,7 +16,7 @@
 	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'self' https://*.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
 </head>
 
-<body style="background-color:#0a0a0a; font-family:'DM Sans',sans-serif; margin:0;" class="text-white">
+<body style="background-color:#0a0a0a; font-family:'DM Sans',sans-serif; margin:0;" class="admin-portal text-white">
 
 	<!-- Login Screen -->
 	<div class="login-screen" id="loginScreen">
@@ -442,12 +442,22 @@
 
 	function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
+	function statusDisplayLabel(status) {
+		var key = (status || '').toLowerCase();
+		if (key === 'pending') return 'Pending';
+		if (key === 'shortlisted') return 'Shortlisted';
+		if (key === 'rejected') return 'Rejected';
+		if (!status) return 'Pending';
+		return capitalize(String(status));
+	}
+
 	function statusBadgeMarkup(a) {
 		var status = a.status || 'pending';
+		var label = esc(statusDisplayLabel(status));
 		if (status === 'shortlisted' || status === 'rejected') {
-			return '<button type="button" class="status-badge status-badge-btn ' + esc(status) + '" data-app-action="openStatusSheet" data-app-id="' + esc(a.id) + '" data-current-status="' + esc(status) + '" aria-label="Change application status">' + esc(status) + '</button>';
+			return '<button type="button" class="status-badge status-badge-btn ' + esc(status) + '" data-app-action="openStatusSheet" data-app-id="' + esc(a.id) + '" data-current-status="' + esc(status) + '" aria-label="Change application status">' + label + '</button>';
 		}
-		return '<span class="status-badge ' + esc(status) + '">' + esc(status) + '</span>';
+		return '<span class="status-badge ' + esc(status) + '">' + label + '</span>';
 	}
 
 	function deleteAppButtonMarkup(a) {
