@@ -774,6 +774,130 @@ body.modal-open {
 	color-scheme: dark;
 }
 
+/* Custom availability listbox (avoids native OS dropdown: white-on-white) */
+.join-custom {
+	position: relative;
+	width: 100%;
+}
+
+.join-custom-trigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+	color: #fff;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.95rem;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.join-custom-trigger:hover {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.14);
+}
+
+.join-custom-trigger:focus {
+	outline: none;
+}
+
+.join-custom-trigger:focus-visible {
+	border-color: rgb(152, 192, 130);
+	box-shadow: 0 0 0 2px rgba(152, 192, 130, 0.35);
+}
+
+.join-custom-trigger[aria-expanded="true"] {
+	border-color: rgb(152, 192, 130);
+	background: rgba(152, 192, 130, 0.06);
+}
+
+.join-custom-trigger[aria-expanded="true"] .join-custom-chevron {
+	transform: rotate(180deg);
+}
+
+.join-custom-value {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.join-custom-placeholder {
+	color: rgba(255, 255, 255, 0.35);
+}
+
+.join-custom-chevron {
+	font-size: 22px;
+	color: rgba(255, 255, 255, 0.45);
+	transition: transform 0.25s ease;
+	flex-shrink: 0;
+}
+
+.join-custom-list {
+	position: fixed;
+	margin: 0;
+	padding: 0.35rem;
+	list-style: none;
+	box-sizing: border-box;
+	background: linear-gradient(165deg, rgba(34, 34, 34, 0.98), rgba(22, 22, 22, 0.99));
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(152, 192, 130, 0.08);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	z-index: 5000;
+	-webkit-overflow-scrolling: touch;
+}
+
+.join-custom-list:not(.is-open) {
+	pointer-events: none;
+	visibility: hidden;
+	opacity: 0;
+}
+
+.join-custom-list.is-open {
+	pointer-events: auto;
+	visibility: visible;
+	opacity: 1;
+}
+
+.join-custom-option {
+	margin: 0;
+	padding: 0.65rem 0.85rem;
+	border-radius: 8px;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.92rem;
+	font-weight: 500;
+	color: rgba(255, 255, 255, 0.88);
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+	outline: none;
+}
+
+.join-custom-option:hover,
+.join-custom-option:focus {
+	background: rgba(152, 192, 130, 0.12);
+	color: #fff;
+}
+
+.join-custom-option:focus-visible {
+	box-shadow: inset 0 0 0 2px rgba(152, 192, 130, 0.45);
+}
+
+.join-custom-option[aria-selected="true"] {
+	background: rgba(152, 192, 130, 0.18);
+	color: #fff;
+	font-weight: 600;
+}
+
 /* Resume drop zone */
 .resume-drop {
 	border: 2px dashed rgba(255,255,255,0.12);

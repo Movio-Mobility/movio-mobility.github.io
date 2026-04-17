@@ -191,16 +191,22 @@
 					<textarea class="form-input" name="whyGridX" rows="4" required placeholder="Tell us what excites you about GridXenergy and why you'd be a great fit..."></textarea>
 				</div>
 				<div class="form-group full">
-					<label class="form-label">When can you join?</label>
+					<label class="form-label" id="joinLabel" for="joinTrigger">When can you join?</label>
 					<div class="join-selector">
-						<select class="form-input" name="joinType" id="joinType" required>
-							<option value="" disabled selected>Select availability</option>
-							<option value="Immediately">Immediately</option>
-							<option value="exactDate">Specific date</option>
-							<option value="1 month">1 month</option>
-							<option value="2 months">2 months</option>
-							<option value="3 months">3 months</option>
-						</select>
+						<input type="hidden" name="joinType" id="joinType" value="" required>
+						<div class="join-custom" id="joinCustom">
+							<button type="button" class="join-custom-trigger" id="joinTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="joinList" aria-labelledby="joinLabel joinTriggerText">
+								<span class="join-custom-value join-custom-placeholder" id="joinTriggerText">Select availability</span>
+								<span class="material-symbols-outlined join-custom-chevron" aria-hidden="true">expand_more</span>
+							</button>
+							<ul class="join-custom-list" id="joinList" role="listbox" aria-labelledby="joinLabel" aria-hidden="true">
+								<li role="option" class="join-custom-option" data-value="Immediately" tabindex="-1">Immediately</li>
+								<li role="option" class="join-custom-option" data-value="exactDate" tabindex="-1">Specific date</li>
+								<li role="option" class="join-custom-option" data-value="1 month" tabindex="-1">1 month</li>
+								<li role="option" class="join-custom-option" data-value="2 months" tabindex="-1">2 months</li>
+								<li role="option" class="join-custom-option" data-value="3 months" tabindex="-1">3 months</li>
+							</ul>
+						</div>
 						<input class="form-input join-date-input" type="date" name="joinDate" id="joinDate" style="display:none;">
 					</div>
 				</div>
@@ -566,18 +572,150 @@
 		fileNameEl.style.display = 'block';
 	}
 
-	// Join date toggle
-	document.getElementById('joinType').addEventListener('change', function() {
-		var dateInput = document.getElementById('joinDate');
-		if (this.value === 'exactDate') {
-			dateInput.style.display = 'block';
-			dateInput.required = true;
-		} else {
-			dateInput.style.display = 'none';
-			dateInput.required = false;
-			dateInput.value = '';
+	// Join availability: custom listbox (readable on all platforms; modal-safe positioning)
+	(function initJoinAvailability() {
+		var JOIN_LABELS = {
+			'Immediately': 'Immediately',
+			'exactDate': 'Specific date',
+			'1 month': '1 month',
+			'2 months': '2 months',
+			'3 months': '3 months'
+		};
+		var joinHidden = document.getElementById('joinType');
+		var joinTrigger = document.getElementById('joinTrigger');
+		var joinTriggerText = document.getElementById('joinTriggerText');
+		var joinList = document.getElementById('joinList');
+		var joinDate = document.getElementById('joinDate');
+		var options = joinList ? joinList.querySelectorAll('.join-custom-option') : [];
+
+		function syncDateField(value) {
+			if (value === 'exactDate') {
+				joinDate.style.display = 'block';
+				joinDate.required = true;
+			} else {
+				joinDate.style.display = 'none';
+				joinDate.required = false;
+				joinDate.value = '';
+			}
 		}
-	});
+
+		function setJoinValue(value, closePanel) {
+			joinHidden.value = value || '';
+			if (!value) {
+				joinTriggerText.textContent = 'Select availability';
+				joinTriggerText.classList.add('join-custom-placeholder');
+			} else {
+				joinTriggerText.textContent = JOIN_LABELS[value] || value;
+				joinTriggerText.classList.remove('join-custom-placeholder');
+			}
+			syncDateField(value);
+			options.forEach(function(opt) {
+				opt.setAttribute('aria-selected', opt.getAttribute('data-value') === value ? 'true' : 'false');
+			});
+			if (closePanel) closeJoinPanel();
+		}
+
+		function positionJoinPanel() {
+			if (!joinList.classList.contains('is-open')) return;
+			var rect = joinTrigger.getBoundingClientRect();
+			var gap = 6;
+			var pad = 8;
+			var maxH = Math.min(320, Math.max(120, window.innerHeight - rect.bottom - gap - pad));
+			var w = Math.min(rect.width, window.innerWidth - pad * 2);
+			var left = rect.left;
+			if (left + w > window.innerWidth - pad) left = window.innerWidth - pad - w;
+			if (left < pad) left = pad;
+			joinList.style.left = left + 'px';
+			joinList.style.width = w + 'px';
+			joinList.style.top = (rect.bottom + gap) + 'px';
+			joinList.style.maxHeight = maxH + 'px';
+		}
+
+		function openJoinPanel() {
+			if (joinList.classList.contains('is-open')) return;
+			joinList.classList.add('is-open');
+			joinList.setAttribute('aria-hidden', 'false');
+			joinTrigger.setAttribute('aria-expanded', 'true');
+			positionJoinPanel();
+			window.addEventListener('scroll', positionJoinPanel, true);
+			window.addEventListener('resize', positionJoinPanel);
+		}
+
+		function closeJoinPanel() {
+			if (!joinList.classList.contains('is-open')) return;
+			joinList.classList.remove('is-open');
+			joinList.setAttribute('aria-hidden', 'true');
+			joinTrigger.setAttribute('aria-expanded', 'false');
+			window.removeEventListener('scroll', positionJoinPanel, true);
+			window.removeEventListener('resize', positionJoinPanel);
+		}
+
+		function toggleJoinPanel() {
+			if (joinList.classList.contains('is-open')) closeJoinPanel();
+			else openJoinPanel();
+		}
+
+		joinTrigger.addEventListener('click', function(e) {
+			e.stopPropagation();
+			toggleJoinPanel();
+		});
+
+		joinList.addEventListener('click', function(e) {
+			var opt = e.target.closest('.join-custom-option');
+			if (!opt) return;
+			setJoinValue(opt.getAttribute('data-value'), true);
+			joinTrigger.focus();
+		});
+
+		document.addEventListener('click', function(e) {
+			if (joinList.classList.contains('is-open') && !joinTrigger.contains(e.target) && !joinList.contains(e.target)) {
+				closeJoinPanel();
+			}
+		});
+
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape' && joinList.classList.contains('is-open')) {
+				e.preventDefault();
+				e.stopPropagation();
+				closeJoinPanel();
+				joinTrigger.focus();
+			}
+		}, true);
+
+		joinTrigger.addEventListener('keydown', function(e) {
+			if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+				e.preventDefault();
+				if (!joinList.classList.contains('is-open')) openJoinPanel();
+				var arr = Array.prototype.slice.call(options);
+				var i = e.key === 'ArrowDown' ? 0 : arr.length - 1;
+				arr[i].focus();
+			}
+		});
+
+		joinList.addEventListener('keydown', function(e) {
+			var arr = Array.prototype.slice.call(options);
+			var idx = arr.indexOf(document.activeElement);
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				if (idx < arr.length - 1) arr[idx + 1].focus();
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				if (idx > 0) arr[idx - 1].focus();
+				else joinTrigger.focus();
+			} else if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				if (idx >= 0) {
+					setJoinValue(arr[idx].getAttribute('data-value'), true);
+					joinTrigger.focus();
+				}
+			}
+		});
+
+		document.getElementById('applicationForm').addEventListener('reset', function() {
+			setJoinValue('', false);
+			closeJoinPanel();
+		});
+	})();
 
 	// Submit application
 	document.getElementById('applicationForm').addEventListener('submit', async function(e) {
