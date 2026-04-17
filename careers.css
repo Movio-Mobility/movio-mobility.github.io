@@ -841,8 +841,8 @@ body.modal-open {
 	flex-shrink: 0;
 }
 
+/* Panel is portaled to body while open; geometry set in JS (fixed viewport). */
 .join-custom-list {
-	position: fixed;
 	margin: 0;
 	padding: 0.35rem;
 	list-style: none;
@@ -853,20 +853,16 @@ body.modal-open {
 	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(152, 192, 130, 0.08);
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	z-index: 5000;
 	-webkit-overflow-scrolling: touch;
 }
 
 .join-custom-list:not(.is-open) {
-	pointer-events: none;
-	visibility: hidden;
-	opacity: 0;
+	display: none;
 }
 
 .join-custom-list.is-open {
-	pointer-events: auto;
-	visibility: visible;
-	opacity: 1;
+	display: block;
+	z-index: 10000;
 }
 
 .join-custom-option {

@@ -572,7 +572,8 @@
 		fileNameEl.style.display = 'block';
 	}
 
-	// Join availability: custom listbox (readable on all platforms; modal-safe positioning)
+	// Join availability: custom listbox. While open, list is moved to document.body so
+	// position:fixed uses the viewport (ancestor .modal-sheet has transform → fixed was jittering).
 	(function initJoinAvailability() {
 		var JOIN_LABELS = {
 			'Immediately': 'Immediately',
@@ -582,11 +583,14 @@
 			'3 months': '3 months'
 		};
 		var joinHidden = document.getElementById('joinType');
+		var joinCustom = document.getElementById('joinCustom');
 		var joinTrigger = document.getElementById('joinTrigger');
 		var joinTriggerText = document.getElementById('joinTriggerText');
 		var joinList = document.getElementById('joinList');
 		var joinDate = document.getElementById('joinDate');
 		var options = joinList ? joinList.querySelectorAll('.join-custom-option') : [];
+		var posRaf = null;
+		var onScrollOrResize = function() { scheduleJoinPanelGeometry(); };
 
 		function syncDateField(value) {
 			if (value === 'exactDate') {
@@ -615,39 +619,81 @@
 			if (closePanel) closeJoinPanel();
 		}
 
-		function positionJoinPanel() {
+		function cancelJoinPanelRaf() {
+			if (posRaf != null) {
+				cancelAnimationFrame(posRaf);
+				posRaf = null;
+			}
+		}
+
+		function scheduleJoinPanelGeometry() {
+			if (!joinList.classList.contains('is-open')) return;
+			if (posRaf != null) return;
+			posRaf = requestAnimationFrame(function() {
+				posRaf = null;
+				applyJoinPanelGeometry();
+			});
+		}
+
+		function applyJoinPanelGeometry() {
 			if (!joinList.classList.contains('is-open')) return;
 			var rect = joinTrigger.getBoundingClientRect();
 			var gap = 6;
 			var pad = 8;
 			var maxH = Math.min(320, Math.max(120, window.innerHeight - rect.bottom - gap - pad));
-			var w = Math.min(rect.width, window.innerWidth - pad * 2);
+			var w = Math.min(Math.max(rect.width, 160), window.innerWidth - pad * 2);
 			var left = rect.left;
 			if (left + w > window.innerWidth - pad) left = window.innerWidth - pad - w;
 			if (left < pad) left = pad;
+			joinList.style.position = 'fixed';
 			joinList.style.left = left + 'px';
 			joinList.style.width = w + 'px';
 			joinList.style.top = (rect.bottom + gap) + 'px';
 			joinList.style.maxHeight = maxH + 'px';
 		}
 
+		var modalSheet = null;
+
+		function bindPanelReposition() {
+			unbindPanelReposition();
+			modalSheet = joinTrigger.closest('.modal-sheet');
+			if (modalSheet) modalSheet.addEventListener('scroll', onScrollOrResize, { passive: true });
+			window.addEventListener('scroll', onScrollOrResize, { passive: true });
+			window.addEventListener('resize', onScrollOrResize);
+		}
+
+		function unbindPanelReposition() {
+			if (modalSheet) {
+				modalSheet.removeEventListener('scroll', onScrollOrResize);
+				modalSheet = null;
+			}
+			window.removeEventListener('scroll', onScrollOrResize);
+			window.removeEventListener('resize', onScrollOrResize);
+			cancelJoinPanelRaf();
+		}
+
 		function openJoinPanel() {
 			if (joinList.classList.contains('is-open')) return;
+			document.body.appendChild(joinList);
 			joinList.classList.add('is-open');
 			joinList.setAttribute('aria-hidden', 'false');
 			joinTrigger.setAttribute('aria-expanded', 'true');
-			positionJoinPanel();
-			window.addEventListener('scroll', positionJoinPanel, true);
-			window.addEventListener('resize', positionJoinPanel);
+			applyJoinPanelGeometry();
+			bindPanelReposition();
 		}
 
 		function closeJoinPanel() {
 			if (!joinList.classList.contains('is-open')) return;
+			unbindPanelReposition();
 			joinList.classList.remove('is-open');
 			joinList.setAttribute('aria-hidden', 'true');
 			joinTrigger.setAttribute('aria-expanded', 'false');
-			window.removeEventListener('scroll', positionJoinPanel, true);
-			window.removeEventListener('resize', positionJoinPanel);
+			joinList.style.position = '';
+			joinList.style.left = '';
+			joinList.style.top = '';
+			joinList.style.width = '';
+			joinList.style.maxHeight = '';
+			if (joinCustom) joinCustom.appendChild(joinList);
 		}
 
 		function toggleJoinPanel() {
