@@ -159,7 +159,7 @@
                     swapping.
                 </p>
                 <div class="product-image-container">
-                    <img src="PowerPod_products.jpg" class="product-img" alt="PowerPod" loading="lazy" />
+                    <img src="PowerPod_products.jpg" class="product-img" alt="PowerPod" loading="eager" fetchpriority="high" />
                 </div>
             </div>
             <div class="glow"></div>
@@ -280,11 +280,7 @@
         </a>
     </div>
 
-    <script src="myscripts.js"></script>
-    <!-- <script src="seek.js"></script> -->
-
-  </body>
-
+  </section>
 
   <footer class="premium-footer">
     <div class="footer-content">
@@ -576,48 +572,42 @@
     transform: translateY(0);
   }
   </style>
-    </footer>
 
-
-    <script src="myscripts.js"></script>
-    <script src="products.js"></script>
-    <!-- JS for active color of stick nav-bar -->
     <script>
-      // Select all navigation links
-      const navLinks = document.querySelectorAll('.second-nav ul li a');
+      // Active state for desktop sticky product nav
+      (function () {
+        const secondNav = document.querySelector('.second-nav');
+        if (!secondNav || window.matchMedia('(max-width: 768px)').matches) return;
 
-      // Observe each section in the document
-      const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.second-nav ul li a');
+        const sections = document.querySelectorAll('section[id^="nav2-item"]');
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Remove 'active' class from all nav links
-            navLinks.forEach(link => link.classList.remove('active'));
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              navLinks.forEach(link => link.classList.remove('active'));
+              const activeLink = document.querySelector(`a[href="#${entry.target.id}"]`);
+              if (activeLink) activeLink.classList.add('active');
+            }
+          });
+        }, { threshold: 0.7 });
 
-            // Add 'active' class to the current visible section's nav link
-            const activeLink = document.querySelector(`a[href="#${entry.target.id}"]`);
-            activeLink.classList.add('active');
-          }
-        });
-      }, {
-        threshold: 0.7 // Trigger when 70% of the section is visible
-      });
-
-      // Observe each section
-      sections.forEach(section => observer.observe(section));
+        sections.forEach(section => observer.observe(section));
+      })();
     </script>
 
     <script>
-      // Add scroll functionality to the scroll button
       document.addEventListener('DOMContentLoaded', function() {
         const scrollButton = document.querySelector('.scroll-button');
-        
+        if (!scrollButton) return;
+
         scrollButton.addEventListener('click', function() {
-          // Scroll to the next section
-          const nextSection = document.querySelector('.second-nav');
-          if (nextSection) {
-            nextSection.scrollIntoView({ behavior: 'smooth' });
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          const target = isMobile
+            ? document.querySelector('#nav2-item1')
+            : document.querySelector('.second-nav');
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
           }
         });
       });
@@ -639,6 +629,11 @@
         width: calc(100vw - 100px);
         height: calc(100vh - 100px);
         height: calc(100dvh - 100px);
+      }
+
+      .hero-section nav {
+        position: relative;
+        z-index: 102;
       }
 
       .hero-section>video {
@@ -846,15 +841,49 @@
           transform: translateX(-50%);
         }
 
-        .second-nav ul {
-          display: flex;
-          flex-direction: column;
+        .second-nav {
+          display: none;
         }
-        .product-img {
-        margin: 0px;
-        max-width: 100%;
 
-      }
+        .reveal-on-scroll {
+          opacity: 1;
+          transform: none;
+        }
+
+        section[id^="nav2-item"] {
+          padding-left: 0;
+          padding-right: 0;
+          width: 100%;
+        }
+
+        .premium-product-card {
+          width: 100%;
+          max-width: 100%;
+          margin-left: auto;
+          margin-right: auto;
+          padding: 1.5rem 1rem;
+          perspective: none;
+          overflow: visible;
+        }
+
+        .premium-product-card .content {
+          transform: none;
+        }
+
+        .product-image-container {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+        }
+
+        .product-img {
+          display: block;
+          width: 100%;
+          max-width: 100%;
+          height: auto;
+          margin: 0 auto;
+          object-fit: contain;
+        }
 
       }
 
@@ -958,13 +987,6 @@
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
       }
 
-      @media screen and (max-width: 768px) {
-        .premium-product-card {
-          width: calc(100vw - 40px);
-          max-width: calc(100vw - 40px);
-          padding: 2rem 1.5rem;
-        }
-      }
 
       .learn-more-btn {
         display: inline-flex;
@@ -1166,5 +1188,7 @@
     }
     </style>
 
+    <script src="myscripts.js"></script>
     <script src="polish.js"></script>
+</body>
 </html>
