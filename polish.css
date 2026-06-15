@@ -27,6 +27,41 @@ label, [onclick], [data-toggle], .nav-link, .contact-us-button {
 }
 video { controlsList: nodownload; }
 
+/* ===== Global Typography ===== */
+html {
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, a, span, div, li, label,
+button, input, select, textarea, optgroup,
+.learn-more-btn,
+.learn-more-btn span,
+.nav-link,
+.hero-headline,
+.gradient-text {
+  font-family: 'DM Sans', sans-serif;
+}
+
+::placeholder {
+  font-family: 'DM Sans', sans-serif;
+}
+
+.fa,
+.fa::before {
+  font-family: FontAwesome !important;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+}
+
 /* ===== Page Entrance Animation ===== */
 body {
   animation: pageEntrance 0.6s ease-out;
@@ -194,4 +229,79 @@ nav {
 @keyframes gradientShimmer {
   0%   { background-position: 0% center; }
   100% { background-position: 200% center; }
+}
+
+/* ===== Hero Headline ===== */
+.hero-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(24px);
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 38%,
+    rgba(255, 255, 255, 0.45) 50%,
+    #ffffff 62%,
+    #ffffff 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    heroReveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+    heroHeadlineShine 2.6s ease-in-out 0.75s 1 forwards;
+}
+@keyframes heroHeadlineShine {
+  0%   { background-position: 100% center; }
+  100% { background-position: 0% center; }
+}
+
+/* ===== Hero Content Layout ===== */
+.hero-content {
+  height: 80%;
+  gap: 0.5rem;
+}
+@media (max-width: 768px) {
+  .hero-content {
+    height: 85%;
+    padding-bottom: 2rem;
+  }
+  .hero-headline {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+  }
+}
+
+/* ===== Hero CTA Buttons ===== */
+.hero-cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.25rem;
+  margin-top: clamp(3rem, 7vh, 4.5rem);
+  padding: 0 1.25rem;
+  width: 100%;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 480px) {
+  .hero-cta-group {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 26rem;
+    gap: 1.75rem;
+  }
+}
+.hero-cta-btn {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
+  white-space: nowrap;
+  font-weight: 400;
 }

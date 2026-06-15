@@ -1,8 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-	<title>GridXenergy | Home</title>
+	<meta charset="UTF-8">
+	<title>GridXenergy | GridX PowerPod — EV Battery Swap &amp; BaaS India</title>
+	<meta name="description" content="GridXenergy (GridX) offers the PowerPod — India's interoperable EV battery with swap, home charge, and pay-as-you-go energy. GridX pod, GridX battery, and battery-as-a-service for two-wheelers.">
+	<link rel="canonical" href="https://gridxenergy.in/">
+	<meta name="robots" content="index, follow">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="GridXenergy | GridX PowerPod — EV Battery Swap &amp; BaaS India">
+	<meta property="og:description" content="GridXenergy (GridX) offers the PowerPod — India's interoperable EV battery with swap, home charge, and pay-as-you-go energy.">
+	<meta property="og:url" content="https://gridxenergy.in/">
+	<meta property="og:site_name" content="GridXenergy">
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:title" content="GridXenergy | GridX PowerPod — EV Battery Swap &amp; BaaS India">
+	<meta name="twitter:description" content="GridXenergy (GridX) offers the PowerPod — India's interoperable EV battery with swap, home charge, and pay-as-you-go energy.">
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		"name": "GridXenergy",
+		"alternateName": ["GridX", "GridX Energy", "gridxenergy"],
+		"url": "https://gridxenergy.in",
+		"logo": "https://gridxenergy.in/assets/newLOGO.png",
+		"sameAs": [
+			"https://www.linkedin.com/company/gridxenergy/",
+			"https://www.instagram.com/gridxenergy/",
+			"https://www.youtube.com/@gridxenergy"
+		]
+	}
+	</script>
 	<link rel="icon" href="./favicon.ico" sizes="any">
 	<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
@@ -34,6 +61,7 @@
 
 		html, body {
 			overflow-x: hidden;
+			font-family: 'DM Sans', sans-serif;
 		}
 
 		html {
@@ -161,7 +189,7 @@
 			display: inline-flex;
 			align-items: center;
 			padding: 0.75rem 1.5rem;
-			font-weight: bold;
+			font-weight: 400;
 			color: #1d1d1d !important;
 			background-color: rgb(152, 192, 130);
 			border-radius: 30px;
@@ -200,34 +228,6 @@
 			position: relative;
 			z-index: 2;
 			color: #1d1d1d;
-		}
-
-		/* Animated scroll icon */
-		.scroll-indicator {
-			width: 30px;
-			height: 50px;
-			border: 2px solid #fff;
-			border-radius: 25px;
-			position: relative;
-			margin: 0 auto;
-		}
-
-		.scroll-indicator::before {
-			content: '';
-			position: absolute;
-			width: 6px;
-			height: 6px;
-			background: #fff;
-			left: 50%;
-			transform: translateX(-50%);
-			top: 8px;
-			border-radius: 50%;
-			animation: scrollAnim 2s infinite;
-		}
-
-		@keyframes scrollAnim {
-			0% { top: 8px; opacity: 1; }
-			100% { top: 32px; opacity: 0; }
 		}
 
 		/* Enhanced card hover effects */
@@ -559,7 +559,7 @@
 			display: inline-flex;
 			align-items: center;
 			padding: 0.75rem 1.5rem;
-			font-weight: bold;
+			font-weight: 400;
 			color: #1d1d1d;
 			background-color: rgb(152, 192, 130);
 			border-radius: 30px;
@@ -1123,7 +1123,7 @@
 
 		.contact-us-button .nav-link {
 			color: #1d1d1d !important;
-			font-weight: 600;
+			font-weight: 400;
 			transition: all 0.3s ease;
 		}
 
@@ -1202,22 +1202,21 @@
 			</nav>
 
 
-			<div class="relative flex flex-col justify-center text-center lg:p-0 p-6" style="height: 80%;">
-				<div class="text-md lg:text-lg font-bold hero-text-enter gradient-text">Reliable. Affordable.
+			<div class="hero-content relative flex flex-col justify-center text-center lg:p-0 px-5 py-8">
+				<div class="text-md lg:text-lg font-normal hero-text-enter gradient-text">Reliable. Affordable.
 					Flexible.
 				</div>
-				<h2 class="header text-white font-bold lg:text-5xl text-3xl hero-text-enter hero-delay-1">The Only Battery You Will Ever Need</h2>
-				<div class="mx-auto text-gray-400 text-md lg:text-lg font-bolder max-w-screen-lg hero-text-enter hero-delay-2">
-					India's first Energy-as-a-Service Platform that focuses on personal mobility and storage
+				<h2 class="header hero-headline text-white lg:text-5xl text-3xl">The Interoperable Energy Platform</h2>
+				<div class="mx-auto text-gray-400 text-md lg:text-lg max-w-screen-lg hero-text-enter hero-delay-2 mt-2 leading-relaxed">
+					Portable. Connected. Compatible.
 				</div>
-				<div class="mt-16 hero-text-enter hero-delay-3">
-					<a href="./product.html" class="learn-more-btn">
-						<span>Learn More</span>
+				<div class="hero-cta-group hero-text-enter hero-delay-3">
+					<a href="./product.html" class="learn-more-btn hero-cta-btn">
+						<span>Explore Platform</span>
 					</a>
-				</div>
-				<div class="absolute text-center scroll-button">
-					<div class="scroll-indicator"></div>
-					<p class="mt-2">Scroll</p>
+					<a href="https://play.google.com/store/apps/details?id=com.gridxapp&pcampaignid=web_share" id="get-powerpod-btn" class="learn-more-btn hero-cta-btn" target="_blank" rel="noopener noreferrer">
+						<span>Get PowerPod</span>
+					</a>
 				</div>
 			</div>
 
@@ -1231,11 +1230,10 @@
 		<section class="premium-card-section lg:px-0 px-5">
 			<div class="premium-card">
 				<div class="content">
-					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-6">Pay For The Miles, Not The Metal</h2>
+					<h2 class="text-white font-normal lg:text-5xl text-3xl mb-6">A Common Energy Layer</h2>
 					<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md leading-relaxed">
-						Empower your energy journey with our platform—
-						<br>no need to buy a battery, just pay for the energy you consume.
-						<br>Simplified, cost-effective, and built around your lifestyle.
+						A platform that makes energy portable, connected, and accessible.
+						<br>Built on standardised hardware, intelligent software, and connected infrastructure.
 					</p>
 				</div>
 				<div class="glow"></div>
@@ -1245,8 +1243,43 @@
 
 		<div class="section-spacer"></div>
 
+		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
+			<div class="premium-card-features">
+				<div class="content">
+					<h2 class="text-white font-normal lg:text-5xl text-3xl mb-10">Energy. Without Boundaries.</h2>
+					<div class="flex lg:flex-row flex-col justify-between mt-10 lg:gap-20 gap-10 mx-auto service-col">
+						<div class="feature-card flex-1">
+							<img src="./assets/icon-one-battery.svg" alt="One Battery" class="mx-auto w-12" loading="lazy" />
+							<h3 class="mt-6 text-white text-md lg:text-lg font-normal">One Battery</h3>
+							<p class="px-2 text-xl text-gray-400">
+								Standardized Energy Interface
+							</p>
+						</div>
+						<div class="feature-card flex-1">
+							<img src="./assets/icon-one-app.svg" alt="One App" class="mx-auto w-12" loading="lazy" />
+							<h3 class="mt-6 text-white text-md lg:text-lg font-normal">One App</h3>
+							<p class="px-2 text-xl text-gray-400">
+								Built to Keep You Connected
+							</p>
+						</div>
+						<div class="feature-card flex-1">
+							<img src="./assets/icon-one-platform.svg" alt="One Platform" class="mx-auto w-12" loading="lazy" />
+							<h3 class="mt-6 text-white text-md lg:text-lg font-normal">One Platform</h3>
+							<p class="px-2 text-xl text-gray-400">
+								The Energy Operating System
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="glow"></div>
+				<div class="particles"></div>
+			</div>
 		</section>
-		<h1 class="text-white font-bold lg:text-5xl text-3xl mb-2">How it works?</h1>
+
+		<div class="section-spacer"></div>
+
+		</section>
+		<h1 class="text-white font-normal lg:text-5xl text-3xl mb-2">How it works?</h1>
 		<section class="px-5" style="justify-items: center;">
 
 			<div class="container-video-frame">
@@ -1344,179 +1377,12 @@
 
 		<div class="section-spacer"></div>
 
-		<section class="flex flex-col xl:flex-row justify-start mx-auto lg:px-24 px-5 my-10" style="min-height: 50vh; margin: 5vh auto; perspective: 1000px;">
-			<div class="premium-card forging-card">
-				<div class="content flex xl:flex-row flex-col gap-10">
-					<div class="xl:w-1/2">
-						<h2 class="text-white font-bold lg:text-4xl text-2xl mb-6 text-left">
-							Forging the path towards the future of two-wheelers by eradicating EV restrictions.
-						</h2>
-						<ul class="text-base lg:text-lg text-gray-400 mb-10 feature-list text-left">
-							<li>No High Upfront cost</li>
-							<li>No Range Anxiety</li>
-							<li>No Lack of Charging Infrastructure</li>
-							<li>Zero Charging Downtime</li>
-							<li>Zero Battery Replacement Cost</li>
-						</ul>
-						<div class="text-left mt-8">
-							<a href="product.html" class="premium-link">
-								<span>Our Products</span>
-								<img src="./assets/arrow-right.svg" alt="Right Arrow" class="arrow-icon" loading="lazy" />
-							</a>
-						</div>
-					</div>
-					<div class="xl:w-1/2 flex flex-col justify-center">
-						<div class="video-container" style="overflow: hidden; border-radius: 12px; width: 80%; margin: 0 auto;">
-							<video autoplay muted loop playsinline controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture src="HomeSecond_video.mp4" class="object-cover w-full h-full rounded-xl" style="border-radius: 12px; overflow: hidden;"></video>
-						</div>
-					</div>
-				</div>
-				<div class="glow"></div>
-				
-			</div>
-		</section>
-
-		<style>
-		.forging-card {
-			position: relative;
-			padding: 3rem 2rem;
-			background: linear-gradient(145deg, rgba(29, 29, 29, 0.9), rgba(25, 25, 25, 0.8));
-			border-radius: 20px;
-			transform-style: preserve-3d;
-			transform: translateZ(0);
-			transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
-			overflow: hidden;
-			box-shadow: 
-				0 15px 35px rgba(0, 0, 0, 0.3),
-				0 5px 15px rgba(0, 0, 0, 0.2);
-			width: calc(100vw - 100px);
-			max-width: calc(100vw - 100px);
-			margin: 0 auto;
-		}
-
-		.forging-card::before {
-			content: '';
-			position: absolute;
-			inset: 0;
-			background: radial-gradient(
-				800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-				rgba(255, 255, 255, 0.06),
-				transparent 40%
-			);
-			opacity: 0;
-			transition: opacity 0.3s;
-		}
-
-		.forging-card:hover::before {
-			opacity: 1;
-		}
-
-		.forging-card .content {
-			position: relative;
-			z-index: 1;
-			transform: translateZ(10px);
-			transition: transform 0.3s ease-out;
-		}
-
-		.forging-card:hover .content {
-			transform: translateZ(15px);
-		}
-
-		.forging-card video {
-			transition: all 0.3s ease;
-			box-shadow: none;
-			border-radius: 12px;
-			overflow: hidden;
-		}
-
-		.forging-card:hover video {
-			transform: none;
-			box-shadow: none;
-		}
-
-		@media screen and (max-width: 768px) {
-			.forging-card {
-				width: calc(100vw - 40px);
-				max-width: calc(100vw - 40px);
-				padding: 2rem 1.5rem;
-			}
-		}
-		</style>
-
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			if (window.matchMedia('(hover: hover)').matches) {
-				const forgingCard = document.querySelector('.forging-card');
-				
-				forgingCard.addEventListener('mousemove', (e) => {
-					const rect = forgingCard.getBoundingClientRect();
-					const x = ((e.clientX - rect.left) / forgingCard.clientWidth) * 100;
-					const y = ((e.clientY - rect.top) / forgingCard.clientHeight) * 100;
-					
-					const rotateY = (x - 50) * 0.03;
-					const rotateX = (y - 50) * -0.03;
-					
-					forgingCard.style.setProperty('--mouse-x', `${x}%`);
-					forgingCard.style.setProperty('--mouse-y', `${y}%`);
-					
-					forgingCard.style.transform = `
-						perspective(1000px)
-						rotateX(${rotateX}deg)
-						rotateY(${rotateY}deg)
-						translateZ(0)
-					`;
-				});
-
-				forgingCard.addEventListener('mouseleave', () => {
-					forgingCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-				});
-			}
-		});
-		</script>
-
-		<div class="section-spacer"></div>
-
-		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
-			<div class="premium-card-features">
-				<div class="content">
-					<h2 class="text-white font-bold lg:text-5xl text-3xl mb-10">Unlock the 2-wheeler riding freedom with</h2>
-					<div class="flex lg:flex-row flex-col justify-between mt-10 lg:gap-20 gap-10 mx-auto service-col">
-						<div class="feature-card flex-1">
-							<img src="./assets/bluetooth.svg" alt="Bluetooth" class="mx-auto w-12" loading="lazy" />
-							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Vehicle Smartification</h3>
-							<p class="px-2 text-xl text-gray-400">
-								Smart Application, Integrated Maps, Payments through Wallet
-							</p>
-						</div>
-						<div class="feature-card flex-1">
-							<img src="evcoins.png" alt="Bluetooth" class="mx-auto w-12" loading="lazy" />
-							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Lowest Running Cost</h3>
-							<p class="px-2 text-xl text-gray-400">
-								₹0.5/Km to ₹1.5/Km, depending on the usage
-							</p>
-						</div>
-						<div class="feature-card flex-1">
-							<img src="evcharge.png" alt="Bluetooth" class="mx-auto w-12" loading="lazy" />
-							<h3 class="mt-6 text-white text-md lg:text-lg font-bold">Multiple Refueling Options</h3>
-							<p class="px-2 text-xl text-gray-400">
-								Charge at home, Swap on the fly: Gridx PowerPod sets the new standard in battery innovation
-							</p>
-						</div>
-					</div>
-				</div>
-				<div class="glow"></div>
-				<div class="particles"></div>
-			</div>
-		</section>
-
-		<div class="section-spacer"></div>
-
 		<section style="margin: 5vh auto; perspective: 1000px;" class="lg:px-0 px-5">
 			<div class="premium-card calculator-card">
 				<div class="content">
 					<!-- Add this right after the calculator card's title -->
 					<div class="flex justify-center items-center mb-6">
-						<h2 class="text-white font-bold lg:text-5xl text-3xl">Calculate Your Savings</h2>
+						<h2 class="text-white font-normal lg:text-5xl text-3xl">Calculate Your Savings</h2>
 					</div>
 					<p class="text-gray-400 text-md lg:text-lg mx-auto max-w-screen-md mb-16">
 				Still spending more on ICE for high performance?
@@ -1532,15 +1398,15 @@
 							<h3 class="text-gray-400 text-xl mb-5">Select Your Type of Vehicle</h3>
 									<div id="speed" class="flex lg:flex-row flex-col border border-gray-500 rounded-xl p-3 gap-3 text-center justify-evenly" style="max-width: 750px">
 										<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl selected">
-											<h4 class="text-lg font-bold text-white">Low Speed</h4>
+											<h4 class="text-lg font-normal text-white">Low Speed</h4>
 									<p class="text-lg">(Up to 25 Km/h)</p>
 								</button>
 								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
-											<h4 class="text-lg font-bold text-white">Medium Speed</h4>
+											<h4 class="text-lg font-normal text-white">Medium Speed</h4>
 									<p class="text-lg">(Up to 45 Km/h)</p>
 								</button>
 								<button class="speed-card border border-gray-700 py-5 px-10 rounded-xl">
-											<h4 class="text-lg font-bold text-white">High Speed</h4>
+											<h4 class="text-lg font-normal text-white">High Speed</h4>
 									<p class="text-lg">(Up to 80 Km/h)</p>
 								</button>
 							</div>
@@ -1553,7 +1419,7 @@
 									<div>120 Km</div>
 								</div>
 						</div>
-						<div class="text-xl font-bold">
+						<div class="text-xl font-normal">
 							<span style="color: rgb(152, 192, 130);" id="saving">30</span>% increase in savings with GridX
 							<br><br>
 							<span class="text-sm text-gray-400">*ICE vehicle refers to a conventional mass-market 100cc scooter</span>
@@ -1572,7 +1438,7 @@
 											<div class="bar-wrapper">
 												<div id="gridbar" class="w-full transition-all duration-500 ease-in-out" 
 													 style="background: linear-gradient(#92B97D, #59714C); height: 150px;">
-													<div class="text-center text-white font-bold py-2">₹<span id="gridx-cost">300</span></div>
+													<div class="text-center text-white font-normal py-2">₹<span id="gridx-cost">300</span></div>
 												</div>
 											</div>
 											<img src="./assets/newLOGO.png" style="height: 20px" alt="GridX Logo">
@@ -1583,10 +1449,10 @@
 											<div class="bar-wrapper">
 												<div id="IECbar" class="w-full transition-all duration-500 ease-in-out" 
 													 style="background: linear-gradient(#E14444, #6F2222); height: 300px;">
-													<div class="text-center text-white font-bold py-2">₹<span id="local-cost">900</span></div>
+													<div class="text-center text-white font-normal py-2">₹<span id="local-cost">900</span></div>
 												</div>
 											</div>
-											<div class="text-white font-bold text-xl">I.C.E. Vehicle</div>
+											<div class="text-white font-normal text-xl ice-vehicle-label">I.C.E. Vehicle</div>
 										</div>
 									</div>
 								</div>
@@ -1718,6 +1584,29 @@
 		</style>
 
 		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const GRIDX_PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.gridxapp&pcampaignid=web_share';
+			const GRIDX_IOS_APP_URL = '/ios-app.html';
+
+			const powerPodBtn = document.getElementById('get-powerpod-btn');
+			if (powerPodBtn) {
+				const ua = navigator.userAgent || '';
+				const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+					(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+				if (isIOS) {
+					powerPodBtn.href = GRIDX_IOS_APP_URL;
+					powerPodBtn.removeAttribute('target');
+					powerPodBtn.removeAttribute('rel');
+				} else {
+					powerPodBtn.href = GRIDX_PLAY_STORE_URL;
+					powerPodBtn.target = '_blank';
+					powerPodBtn.rel = 'noopener noreferrer';
+				}
+			}
+		});
+		</script>
+
+		<script>
 		// Calculator functionality
 		document.addEventListener('DOMContentLoaded', function() {
 			const speedCards = document.querySelectorAll('.speed-card');
@@ -1735,7 +1624,6 @@
 			function updateCalculations() {
 				let gridxRate, iceRate, fixedSavingsPercentage;
 
-				// Set fixed savings percentages based on speed
 				switch(selectedSpeed) {
 					case 'low':
 						fixedSavingsPercentage = 77;
@@ -1748,44 +1636,33 @@
 						break;
 				}
 
-				// Calculate ICE cost first
-				iceRate = distance * 2; // Base ICE rate
+				iceRate = distance * 2;
 				const iceMonthly = Math.round(distance * 30 * iceRate / 100);
-
-				// Calculate GridX cost based on the fixed savings percentage
 				const gridxMonthly = Math.round(iceMonthly * (1 - fixedSavingsPercentage / 100));
 
-				// Update costs with animation
 				animateNumber(gridxCost, parseInt(gridxCost.textContent), gridxMonthly);
 				animateNumber(localCost, parseInt(localCost.textContent), iceMonthly);
-				
-				// Update savings percentage
 				savingDisplay.textContent = fixedSavingsPercentage;
 
-				// Update bar heights with smooth transition
-				const maxHeight = 300; // Maximum height in pixels (matching the bar-wrapper height)
+				const maxHeight = 300;
 				const ratio = gridxMonthly / iceMonthly;
-				const newHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
+				const newHeight = Math.max(maxHeight * ratio, 30);
 
-				// Add smooth transition to the bars
 				gridBar.style.transition = 'height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 				iecBar.style.transition = 'height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-				
 				gridBar.style.height = `${newHeight}px`;
-				iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
+				iecBar.style.height = `${maxHeight}px`;
 			}
 
 			function animateNumber(element, start, end) {
 				const duration = 500;
 				const startTime = performance.now();
-				
+
 				function update(currentTime) {
 					const elapsed = currentTime - startTime;
 					const progress = Math.min(elapsed / duration, 1);
-
 					const current = Math.round(start + (end - start) * progress);
 					element.textContent = current;
-
 					if (progress < 1) {
 						requestAnimationFrame(update);
 					}
@@ -1794,7 +1671,6 @@
 				requestAnimationFrame(update);
 			}
 
-			// Event Listeners
 			speedCards.forEach((card, index) => {
 				card.addEventListener('click', () => {
 					speedCards.forEach(c => c.classList.remove('selected'));
@@ -1807,15 +1683,11 @@
 			seekBar.addEventListener('input', (e) => {
 				distance = parseInt(e.target.value);
 				distanceDisplay.textContent = `${distance} Km`;
-				
-				// Calculate and set the progress variable for the gradient
 				const progress = ((distance - seekBar.min) / (seekBar.max - seekBar.min)) * 100;
 				seekBar.style.setProperty('--range-progress', progress);
-				
 				updateCalculations();
 			});
 
-			// Initialize with first card selected and set initial slider progress
 			speedCards[0].classList.add('selected');
 			const initialProgress = ((seekBar.value - seekBar.min) / (seekBar.max - seekBar.min)) * 100;
 			seekBar.style.setProperty('--range-progress', initialProgress);
@@ -1884,12 +1756,6 @@
 					});
 				});
 			}
-
-			// Replace scroll icon with animated version
-			document.querySelector('.scroll-button').innerHTML = `
-				<div class="scroll-indicator"></div>
-				<p class="mt-2">Scroll</p>
-			`;
 
 			// Add classes to elements
 			document.querySelector('.bg-white').classList.add('learn-more-btn');
@@ -2050,7 +1916,7 @@
 					<div class="footer-container">
 						<div class="footer-card">
 							<div class="social-links">
-								<h4 class="text-xl font-bold mb-6">Connect With Us</h4>
+								<h4 class="text-xl font-normal mb-6">Connect With Us</h4>
 								<ul class="flex flex-col gap-4">
 									<li>
 										<a href="https://www.instagram.com/gridxenergy/" class="social-link">
@@ -2324,7 +2190,6 @@
 		</style>
 
 		<script>
-			// Get all the necessary elements
 			const calculatorElements = {
 				speedCards: document.querySelectorAll('.speed-card'),
 				seekBar: document.getElementById('seek'),
@@ -2336,81 +2201,61 @@
 				iecBar: document.getElementById('IECbar')
 			};
 
-			// Initialize variables
-			let selectedSpeed = 'low'; // default speed
-			let distance = 10; // default distance
+			let selectedSpeed = 'low';
+			let distance = 10;
 
-			// Add click handlers for speed cards
 			calculatorElements.speedCards.forEach((card, index) => {
 				card.addEventListener('click', () => {
-					// Remove selected class from all cards
 					calculatorElements.speedCards.forEach(c => c.classList.remove('selected'));
-					// Add selected class to clicked card
 					card.classList.add('selected');
-					
-					// Update selected speed
 					switch(index) {
-						case 0:
-							selectedSpeed = 'low';
-							break;
-						case 1:
-							selectedSpeed = 'medium';
-							break;
-						case 2:
-							selectedSpeed = 'high';
-							break;
+						case 0: selectedSpeed = 'low'; break;
+						case 1: selectedSpeed = 'medium'; break;
+						case 2: selectedSpeed = 'high'; break;
 					}
 					updateCosts();
 				});
 			});
 
-			// Add input handler for distance slider
 			calculatorElements.seekBar.addEventListener('input', (e) => {
 				distance = parseInt(e.target.value);
-				calculatorElements.distanceDisplay.textContent = `${distance} Km`; // Add Km unit
+				calculatorElements.distanceDisplay.textContent = `${distance} Km`;
 				updateCosts();
 			});
 
-			// Function to calculate costs
 			function updateCosts() {
 				let gridxMonthly;
 				let iceMonthly;
-				
-				// Calculate costs based on speed and distance
+
 				switch(selectedSpeed) {
 					case 'low':
-						gridxMonthly = distance * 30 * 0.5; // ₹0.5 per km
-						iceMonthly = distance * 30 * 1.5; // ₹1.5 per km
+						gridxMonthly = distance * 30 * 0.5;
+						iceMonthly = distance * 30 * 1.5;
 						break;
 					case 'medium':
-						gridxMonthly = distance * 30 * 0.8; // ₹0.8 per km
-						iceMonthly = distance * 30 * 2.0; // ₹2.0 per km
+						gridxMonthly = distance * 30 * 0.8;
+						iceMonthly = distance * 30 * 2.0;
 						break;
 					case 'high':
-						gridxMonthly = distance * 30 * 1.2; // ₹1.2 per km
-						iceMonthly = distance * 30 * 2.5; // ₹2.5 per km
+						gridxMonthly = distance * 30 * 1.2;
+						iceMonthly = distance * 30 * 2.5;
 						break;
 				}
 
-				// Calculate savings percentage
 				const savingsPercent = Math.round(((iceMonthly - gridxMonthly) / iceMonthly) * 100);
 
-				// Update displays with smooth animation
 				animateValue(calculatorElements.gridxCost, parseInt(calculatorElements.gridxCost.textContent), Math.round(gridxMonthly), 500);
 				animateValue(calculatorElements.localCost, parseInt(calculatorElements.localCost.textContent), Math.round(iceMonthly), 500);
 				calculatorElements.savingDisplay.textContent = savingsPercent;
 
-				// Update bar heights with proper scaling - using pixels for consistent alignment
-				const maxHeight = 300; // Maximum height in pixels (matching the bar-wrapper height)
+				const maxHeight = 300;
 				const ratio = gridxMonthly / iceMonthly;
-				const gridBarHeight = Math.max(maxHeight * ratio, 30); // Minimum height of 30px
-				
-				// Set both bars to use pixel heights for consistent alignment
+				const gridBarHeight = Math.max(maxHeight * ratio, 30);
+
 				calculatorElements.gridBar.style.height = `${gridBarHeight}px`;
-				calculatorElements.iecBar.style.height = `${maxHeight}px`; // ICE bar is always maximum height
+				calculatorElements.iecBar.style.height = `${maxHeight}px`;
 			}
 
-			// Helper function to animate number changes
 			function animateValue(element, start, end, duration) {
 				const range = end - start;
 				const increment = range / (duration / 16);
@@ -2429,7 +2274,6 @@
 				animate();
 			}
 
-			// Initialize the calculator
 			calculatorElements.speedCards[0].classList.add('selected');
 			calculatorElements.seekBar.value = 10;
 			calculatorElements.distanceDisplay.textContent = "10 Km";
@@ -2613,8 +2457,10 @@
 				monthlyTitle.textContent = isHindi ? translations.monthlyCost.hi : translations.monthlyCost.en;
 				
 				// Update ICE Vehicle text
-				const iceVehicleText = document.querySelector('.savings-graph .text-white.font-bold.text-xl');
-				iceVehicleText.textContent = isHindi ? translations.iceVehicle.hi : translations.iceVehicle.en;
+				const iceVehicleText = document.querySelector('.ice-vehicle-label');
+				if (iceVehicleText) {
+					iceVehicleText.textContent = isHindi ? translations.iceVehicle.hi : translations.iceVehicle.en;
+				}
 
 				// Update distance range labels
 				const rangeLabels = document.querySelectorAll('.flex.flex-row.justify-between.text-white.text-lg div');
@@ -2849,16 +2695,6 @@
 		height: 40px;
 	}
 
-	.scroll-button {
-		left: 50%;
-		transform: translateX(-50%);
-		bottom: 2rem;
-		color: #fff;
-		font-size: 0.9rem;
-		cursor: pointer;
-		z-index: 10;
-	}
-
 	@media screen and (max-width: 768px) {
 		.cal-chart {
 			min-width: 350px;
@@ -2887,11 +2723,6 @@
 
 		.logo {
 			height: 30px;
-		}
-
-		.scroll-button {
-			left: 50%;
-			transform: translateX(-50%);
 		}
 	}
 
@@ -3111,17 +2942,6 @@
         // Observe all cards
         cards.forEach(card => {
             observer.observe(card);
-        });
-        
-        // Add scroll functionality to the scroll button
-        const scrollButton = document.querySelector('.scroll-button');
-        
-        scrollButton.addEventListener('click', function() {
-            // Scroll to the next section
-            const nextSection = document.querySelector('.premium-card-section');
-            if (nextSection) {
-                nextSection.scrollIntoView({ behavior: 'smooth' });
-            }
         });
     });
 </script>

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /movio.html
+Disallow: /dummy.html
+Disallow: /paddock.html
+
+Sitemap: https://gridxenergy.in/sitemap.xml
