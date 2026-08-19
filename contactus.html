@@ -90,28 +90,19 @@
       </div>
     </nav>
 
-    <div class="p-2 reveal-on-scroll">
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-
+    <div class="contact-hero-content p-2 reveal-on-scroll">
       <div class="contact-info-block">
         <p>mail us at</p>
         <h2 id="contact-email"></h2>
       </div>
       <div class="contact-info-block">
-        <p>call us at</p>
-        <h2 id="contact-phone"></h2>
+        <a href="https://wa.me/919220199098" target="_blank" rel="noopener noreferrer" class="contact-whatsapp-link">
+          <p>tap here to Whatsapp us at</p>
+          <h2 id="contact-phone"></h2>
+        </a>
       </div>
       <script>
-      (function(){var a='info',b='gridxenergy',c='.in';document.getElementById('contact-email').textContent=a+'@'+b+c;var p=['+','9','1',' ','9','5','2','1','7','3','8','2','6','6'];document.getElementById('contact-phone').textContent=p.join('');})();
+      (function(){var a='info',b='gridxenergy',c='.in';document.getElementById('contact-email').textContent=a+'@'+b+c;var p=['+','9','1',' ','9','2','2','0','1','9','9','0','9','8'];document.getElementById('contact-phone').textContent=p.join('');})();
       </script>
       <div class="contact-info-block">
         <p><a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">D66, Pocket D, Phase 1, Okhla, New Delhi, 110020.</a></p>
@@ -474,6 +465,13 @@
   .contact-info-block:last-child {
     margin-bottom: 0;
   }
+  .contact-whatsapp-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+  }
   </style>
 </body>
 
@@ -488,6 +486,19 @@
     width: calc(100vw - 100px);
     height: calc(100vh - 100px);
     height: calc(100dvh - 100px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contact-hero-content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
   }
 
   .hero-section>video {
@@ -586,6 +597,7 @@
 
   h2 {
     font-size: 3rem;
+    overflow-wrap: anywhere;
   }
 
   .logo {
@@ -596,8 +608,14 @@
     .hero-section {
       margin: 30px auto;
       width: calc(100vw - 60px);
-      height: calc(100vh - 80px);
-      height: calc(100dvh - 80px);
+      height: auto;
+      min-height: calc(100vh - 80px);
+      min-height: calc(100dvh - 80px);
+    }
+
+    .contact-hero-content {
+      padding-top: 2rem;
+      padding-bottom: 2.5rem;
     }
 
     .logo {
@@ -605,13 +623,13 @@
     }
 
     h2 {
-      font-size: 2rem;
+      font-size: clamp(1.35rem, 6vw, 2rem);
     }
   }
 
   @media screen and (max-width: 680px) {
     h2 {
-      font-size: 2rem;
+      font-size: clamp(1.25rem, 7vw, 2rem);
     }
   }
 
