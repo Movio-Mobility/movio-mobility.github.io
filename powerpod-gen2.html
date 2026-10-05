@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PowerPod Gen2 | GridXenergy</title>
+  <meta name="description" content="Configure your PowerPod Gen2: charger, portable adapter and vehicle dock.">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/powerpod-gen2.css">
+
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used.
+       pg2-shell says JavaScript is on, so the panel becomes a staged flow.
+       island-click-only keeps the nav pill shut until it is clicked, and is-compact is set
+       here rather than by topbar.js so it is already shut on the first paint instead of
+       animating closed a moment after arrival (see topbar.js). -->
+  <script>
+    if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');
+    document.documentElement.classList.add('pg2-shell', 'island-click-only', 'is-compact');
+  </script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GRID home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">PowerPod</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="journey.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
+              <span class="island__label">Journey</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: this page lives under Store, so it keeps the Store icon. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pg2">
+    <!-- The stage paints no background of its own, so the particle field on #bg shows through it.
+         It is also inert: powerpod-gen2.js stops wheel and touch events here from reaching the
+         particle engine, so nothing on the left responds to a scroll gesture.
+         The poster is the loading state, the no-WebGL state and the no-JS state, all in 12.5 KB. -->
+    <div class="pg2__stage" id="pg2-stage">
+      <canvas id="pod" aria-hidden="true"></canvas>
+      <img class="pg2__poster" id="pg2-poster" src="assets/productImages/store/gen2.webp"
+           alt="PowerPod Gen2" width="335" height="1000" fetchpriority="high" decoding="async">
+      <figure class="pg2__companion" id="pg2-companion" data-art="idle" aria-hidden="true">
+        <img id="pg2-companion-img" src="assets/productImages/store/adapter.webp" alt="" width="818" height="679" decoding="async">
+      </figure>
+    </div>
+
+    <div class="pg2__panel" id="pg2-panel">
+
+      <!-- ============================================================ header -->
+      <!-- The chevron sits on its own row above the bar, and on desktop that row lines up
+           with the collapsed nav pill floating at the top right. -->
+      <div class="pg2__bar">
+        <button class="pg2-back" id="pg2-back" type="button" aria-label="Back to the store">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+        </button>
+
+        <ol class="pg2-progress" id="pg2-progress">
+          <li class="pg2-progress__seg" data-stage="1">
+            <span class="pg2-progress__fill"></span>
+            <span class="pg2-progress__name">Configure</span>
+          </li>
+          <li class="pg2-progress__seg" data-stage="2">
+            <span class="pg2-progress__fill"></span>
+            <span class="pg2-progress__name">Details</span>
+          </li>
+          <li class="pg2-progress__seg" data-stage="3">
+            <span class="pg2-progress__fill"></span>
+            <span class="pg2-progress__name">Payment</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- ============================================================ stages -->
+      <!-- Three stages, one shown at a time. Every stage is visible by default and the
+           script hides the inactive ones, so with no JavaScript this degrades to one long
+           readable document rather than a dead screen. -->
+      <div class="pg2__scroll" id="pg2-scroll">
+        <form class="pg2-config" id="pg2-config" novalidate>
+
+          <!-- ====================================== stage 1: configure -->
+          <!-- One vertical flow. Steps you have not reached yet stay visible but
+               lightened, so what is coming is always in sight. -->
+          <section class="pg2-view is-active" id="view-configure" data-stage="1">
+
+            <article class="pg2-step" id="step-pod" data-step="1">
+              <h2 class="pg2-step__title" tabindex="-1">PowerPod Gen2.</h2>
+              <p class="pg2-step__sub">Power, reimagined.</p>
+
+              <!-- Not a control. Someone on this page has already chosen it, so it is presented
+                   as settled rather than as a checkbox they could switch off. -->
+              <article class="opt opt--locked" data-selected="true">
+                <span class="opt__art">
+                  <img src="assets/productImages/store/gen2.webp" alt="" width="335" height="1000" decoding="async">
+                </span>
+                <span class="opt__body">
+                  <span class="opt__title">PowerPod Gen2</span>
+                  <span class="opt__lede">Smarter, stronger and ready for every ride.</span>
+                  <span class="opt__pill">Included</span>
+                </span>
+                <span class="opt__price">₹24,999</span>
+                <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              </article>
+
+              <!-- Included, not chosen, so it is deliberately not styled as a selectable card. -->
+              <section class="propack">
+                <h3 class="propack__title">GridX-Pro Pack</h3>
+                <p class="propack__lede">Everything your PowerPod can do, in one app.</p>
+                <ul class="propack__list">
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 6 13.5h5l-1 7.5 7-10.5h-5z"/></svg>
+                    <span>Remote charge check</span>
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5V12m5 7.5V6.5m5 13V14m5 5.5V9.5"/></svg>
+                    <span>Riding insights and energy use per ride</span>
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5.6c0 4.3 3 8 7 9.4 4-1.4 7-5.1 7-9.4V6z"/><path d="M12 10v4"/></svg>
+                    <span>Theft protection with remote disable</span>
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 20h18.4z"/><path d="M12 10.2v4.3"/><path d="M12 17.3h.01"/></svg>
+                    <span>Crash alerts and emergency SOS on WhatsApp</span>
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+                    <span>Live location sharing, with distance to you</span>
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.4 12.4 2.5 2.5 4.7-5.2"/></svg>
+                    <span>Warranty status in the app</span>
+                  </li>
+                </ul>
+                <p class="propack__note">Free for your first year, then ₹999/year.</p>
+              </section>
+            </article>
+
+          <!-- ------------------------------------------------ 2. Vehicle -->
+          <!-- DRAFT COPY: written to match the voice of the other screens, not yet approved. -->
+            <article class="pg2-step" id="step-vehicle" data-step="2" data-group="vehicle" data-copy="draft">
+              <h2 class="pg2-step__title" tabindex="-1">Do you need a vehicle too?</h2>
+              <p class="pg2-step__sub">Take PowerPod with a new electric two wheeler, or fit it to the ride you already have.</p>
+
+              <fieldset class="pg2-step__options">
+                <legend class="pg2-sr">Choose whether you need a vehicle</legend>
+
+                <label class="opt" data-group="vehicle" data-value="yes" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="vehicle" value="yes">
+                  <span class="opt__art">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="5.5" cy="17" r="3.2"/><circle cx="18.5" cy="17" r="3.2"/>
+                      <path d="M8.7 17h6.6"/><path d="m5.5 17 2.6-7.4h4l3.6 5.6"/><path d="M12.1 9.6h3.4L17 5.6h2.2"/>
+                    </svg>
+                  </span>
+                  <span class="opt__body">
+                    <span class="opt__title">PowerPod with an EV two wheeler</span>
+                    <span class="opt__lede">One ride, one battery, sorted together.</span>
+                    <span class="opt__detail">You pick the exact two wheeler with us at the dealership, so it is not priced here.</span>
+                    <span class="opt__aside">You will choose your two wheeler with a GridX dealer. Nothing for the vehicle is charged on this page.</span>
+                  </span>
+                  <span class="opt__price opt__price--soft">At the dealership</span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+
+                <label class="opt opt--plain" data-group="vehicle" data-value="no" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="vehicle" value="no">
+                  <span class="opt__body">
+                    <span class="opt__title">PowerPod on its own</span>
+                    <span class="opt__lede">I already have a ride.</span>
+                  </span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+              </fieldset>
+            </article>
+
+          <!-- ------------------------------------------------ 3. Charger -->
+            <article class="pg2-step" id="step-charger" data-step="3" data-group="charger">
+              <h2 class="pg2-step__title" tabindex="-1">Select your charger</h2>
+              <p class="pg2-step__sub">Both charge your PowerPod fully. One just gets there faster.</p>
+
+              <fieldset class="pg2-step__options">
+                <legend class="pg2-sr">Choose a charger</legend>
+
+                <label class="opt" data-group="charger" data-value="6a" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="charger" value="6a">
+                  <span class="opt__art">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5V7m6-3.5V7"/><path d="M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z"/><path d="M12 16v4.5"/></svg>
+                  </span>
+                  <span class="opt__body">
+                    <span class="opt__title">6A Charger</span>
+                    <span class="opt__lede">Steady and dependable.</span>
+                    <span class="opt__detail">A full charge in 4 hours. Ideal for overnight charging.</span>
+                  </span>
+                  <span class="opt__price">₹2,199</span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+
+                <label class="opt" data-group="charger" data-value="10a" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="charger" value="10a">
+                  <span class="opt__art">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5V7m6-3.5V7"/><path d="M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z"/><path d="M12 16v4.5"/></svg>
+                  </span>
+                  <span class="opt__body">
+                    <span class="opt__title">10A Charger</span>
+                    <span class="opt__lede">Fast, by design.</span>
+                    <span class="opt__detail">A full charge in just 2.5 hours. For days that don't wait.</span>
+                  </span>
+                  <span class="opt__price">₹2,699</span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+              </fieldset>
+
+              <details class="pg2-help">
+                <summary>Not sure which to choose?</summary>
+                <p class="pg2-help__body">If you mostly charge overnight, 6A is all you need. If you ride more than once a day, go with 10A.</p>
+              </details>
+            </article>
+
+          <!-- ------------------------------------------------ 4. Adapter -->
+            <article class="pg2-step" id="step-adapter" data-step="4" data-group="adapter">
+              <h2 class="pg2-step__title" tabindex="-1">Portable charging adapter</h2>
+              <p class="pg2-step__sub">Take PowerPod out of your vehicle and charge it at home, cafés, or anywhere you can carry it around.</p>
+
+              <fieldset class="pg2-step__options">
+                <legend class="pg2-sr">Add a portable charging adapter</legend>
+
+                <label class="opt" data-group="adapter" data-value="yes" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="adapter" value="yes">
+                  <span class="opt__art">
+                    <img src="assets/productImages/store/adapter.webp" alt="" width="818" height="679" decoding="async" loading="lazy">
+                  </span>
+                  <span class="opt__body">
+                    <span class="opt__title">Add Portable Charging Adapter</span>
+                    <span class="opt__lede">Your PowerPod, charged anywhere.</span>
+                    <span class="opt__detail">Connects PowerPod directly to your charger, so you can carry it up to your flat and plug it in.</span>
+                  </span>
+                  <span class="opt__price">+ ₹499</span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+
+                <label class="opt opt--plain" data-group="adapter" data-value="no" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="adapter" value="no">
+                  <span class="opt__body">
+                    <span class="opt__title">No adapter</span>
+                    <span class="opt__lede">I'll charge in my vehicle.</span>
+                  </span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+              </fieldset>
+            </article>
+
+          <!-- ------------------------------------------------ 5. Vehicle dock -->
+            <article class="pg2-step" id="step-dock" data-step="5" data-group="dock">
+              <h2 class="pg2-step__title" tabindex="-1">Vehicle dock</h2>
+              <p class="pg2-step__sub">A secure housing for PowerPod, wherever you ride.</p>
+
+              <fieldset class="pg2-step__options">
+                <legend class="pg2-sr">Add a vehicle dock</legend>
+
+                <label class="opt" data-group="dock" data-value="yes" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="dock" value="yes">
+                  <span class="opt__art">
+                    <img src="assets/productImages/store/vehicle-dock.webp" alt="" width="611" height="1002" decoding="async" loading="lazy">
+                  </span>
+                  <span class="opt__body">
+                    <span class="opt__title">Add Vehicle Dock</span>
+                    <span class="opt__lede">Built to hold on.</span>
+                    <span class="opt__detail">Crafted from robust metal to keep PowerPod secure through every turn, bump and mile.</span>
+                  </span>
+                  <span class="opt__price">+ ₹2,999</span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+
+                <label class="opt opt--plain" data-group="dock" data-value="no" data-selected="false">
+                  <input class="opt__input pg2-sr" type="radio" name="dock" value="no">
+                  <span class="opt__body">
+                    <span class="opt__title">No dock</span>
+                    <span class="opt__lede">I already have one.</span>
+                  </span>
+                  <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+                </label>
+              </fieldset>
+            </article>
+
+          <!-- ------------------------------------------------ 6. Review -->
+            <article class="pg2-step" id="step-review" data-step="6">
+              <h2 class="pg2-step__title" tabindex="-1">Your PowerPod Gen2.</h2>
+              <p class="pg2-step__sub">Everything you have chosen, in one place.</p>
+
+              <ul class="review" id="pg2-review"></ul>
+
+              <p class="review__note">GridX-Pro Pack: Free for your first year. ₹999/year after that.</p>
+              <p class="review__note" id="pg2-dealer" hidden>Your two wheeler is chosen and priced with you at the dealership.</p>
+            </article>
+
+          </section>
+
+
+          <!-- ------------------------------------------------ 7. Details -->
+          <section class="pg2-view" id="view-details" data-stage="2">
+            <h2 class="pg2-step__title" tabindex="-1">Your details.</h2>
+            <p class="pg2-step__sub">So we can confirm your order and point you to your nearest dealer.</p>
+
+            <div class="field">
+              <label class="field__label" for="f-name">Full name</label>
+              <input class="field__input" id="f-name" name="name" type="text"
+                     autocomplete="name" autocapitalize="words" spellcheck="false"
+                     aria-describedby="e-name">
+              <p class="field__err" id="e-name"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="f-phone">Phone number</label>
+              <input class="field__input" id="f-phone" name="phone" type="tel"
+                     inputmode="tel" autocomplete="tel" placeholder="10 digit mobile number"
+                     aria-describedby="e-phone">
+              <p class="field__err" id="e-phone"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="f-email">Email</label>
+              <input class="field__input" id="f-email" name="email" type="email"
+                     inputmode="email" autocomplete="email" spellcheck="false"
+                     aria-describedby="e-email">
+              <p class="field__err" id="e-email"></p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field__label" for="f-city">City</label>
+                <input class="field__input" id="f-city" name="city" type="text"
+                       autocomplete="address-level2" autocapitalize="words"
+                       aria-describedby="e-city">
+                <p class="field__err" id="e-city"></p>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="f-pin">Pincode</label>
+                <input class="field__input" id="f-pin" name="pincode" type="text"
+                       inputmode="numeric" autocomplete="postal-code" maxlength="6"
+                       aria-describedby="e-pin">
+                <p class="field__err" id="e-pin"></p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="f-gstin">
+                GSTIN <span class="field__opt">optional</span>
+              </label>
+              <!-- maxlength is 18, not 15, on purpose: a pasted GSTIN often carries spaces
+                   or is grouped ("22 AAOCM8150C 1ZN"), and maxlength counts raw characters,
+                   so a tight cap would silently clip the check digit off the end before any
+                   script could strip the whitespace. The script strips it, then the length
+                   is checked against 15. -->
+              <input class="field__input" id="f-gstin" name="gstin" type="text"
+                     inputmode="text" autocomplete="off" spellcheck="false"
+                     maxlength="18" placeholder="22AAAAA0000A1Z5"
+                     aria-describedby="e-gstin h-gstin">
+              <p class="field__hint" id="h-gstin">Buying through a business? Add your GSTIN and it will appear on your tax invoice.</p>
+              <p class="field__err" id="e-gstin"></p>
+            </div>
+          </section>
+
+          <!-- ------------------------------------------------ 8. Payment -->
+          <section class="pg2-view" id="view-payment" data-stage="3" data-group="pay">
+            <h2 class="pg2-step__title" tabindex="-1">How would you like to pay?</h2>
+            <p class="pg2-step__sub">Reserve yours now, or settle it in full today.</p>
+
+            <fieldset class="pg2-step__options">
+              <legend class="pg2-sr">Choose how to pay</legend>
+
+              <label class="opt opt--plain" data-group="pay" data-value="reserve" data-selected="false">
+                <input class="opt__input pg2-sr" type="radio" name="pay" value="reserve">
+                <span class="opt__body">
+                  <span class="opt__title">Reserve Now</span>
+                  <span class="opt__lede">Hold yours with a token amount.</span>
+                  <span class="opt__detail">₹499 today, fully redeemable against your purchase at the dealership.</span>
+                </span>
+                <span class="opt__price">₹499</span>
+                <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              </label>
+
+              <label class="opt opt--plain" data-group="pay" data-value="full" data-selected="false">
+                <input class="opt__input pg2-sr" type="radio" name="pay" value="full">
+                <span class="opt__body">
+                  <span class="opt__title">Pay Entirely</span>
+                  <span class="opt__lede">Settle it in one go.</span>
+                  <span class="opt__detail">Pay the full amount now and collect your PowerPod at the dealership.</span>
+                </span>
+                <span class="opt__price" id="pg2-pay-full">₹27,198</span>
+                <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              </label>
+            </fieldset>
+
+            <p class="pg2-status" id="pg2-status" role="status" aria-live="polite"></p>
+
+            <!-- Shown once Razorpay reports success. It says the receipt is on its way
+                 rather than that it has arrived, because the document is generated and
+                 sent server side from the webhook, moments after this appears. -->
+            <div class="pg2-done" id="pg2-done" hidden>
+              <h3 class="pg2-done__title" tabindex="-1">You are all set.</h3>
+              <p class="pg2-done__body">
+                <span id="pg2-done-where">Your order is confirmed. We have sent your receipt to </span>
+                <span id="pg2-done-to"></span>
+              </p>
+              <p class="pg2-done__ref">
+                <span class="pg2-done__reflabel">Order reference</span>
+                <span id="pg2-done-ref"></span>
+              </p>
+              <p class="pg2-done__note">
+                Keep this reference handy. Quote it in any message to us and we will find your
+                order straight away.
+              </p>
+              <a class="pg2-done__link" href="store.html">Back to the store</a>
+            </div>
+          </section>
+
+
+        </form>
+      </div>
+
+      <!-- ============================================================ footer -->
+      <div class="pg2__foot">
+        <div class="pg2-foot__money">
+          <p class="pg2-foot__total">
+            <span class="pg2-foot__label" id="pg2-total-label">From</span>
+            <span class="pg2-foot__amount" id="pg2-total">₹27,198</span>
+          </p>
+          <p class="pg2-foot__tax">(inclusive of all taxes)</p>
+        </div>
+        <button class="pg2-next" id="pg2-next" type="button" aria-disabled="false" aria-describedby="pg2-hint">
+          <span id="pg2-next-label">Continue</span>
+        </button>
+        <p class="pg2-foot__hint" id="pg2-hint" role="status" aria-live="polite"></p>
+      </div>
+
+      <noscript>
+        <p class="pg2-foot__hint">Ordering online needs JavaScript. To configure and buy a PowerPod Gen2,
+          <a href="dealers.html">find your nearest GridX dealer</a>.</p>
+      </noscript>
+
+    </div>
+  </main>
+
+  <!-- three.min.js, powerpod-data.js and powerpod-3d.js are loaded on idle by the page
+       script, so the configurator is usable long before 1.8 MB of 3D arrives. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/gstin.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/powerpod-gen2.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

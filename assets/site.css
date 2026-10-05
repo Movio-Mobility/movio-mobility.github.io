@@ -1,0 +1,446 @@
+/* GRID — styles shared by every page: studio backdrop, headline, top bar and page switcher. */
+
+:root {
+  --ink: #141414;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-gentle: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --morph: 0.8s;
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --rubber: cubic-bezier(0.26, 1.4, 0.36, 1);
+}
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* damped spring, ~2% overshoot — the Dynamic Island's soft settle */
+    --spring: linear(0, 0.058 3.6%, 0.189 7.1%, 0.348 10.7%, 0.505 14.3%, 0.644 17.9%, 0.759 21.4%, 0.849 25%, 0.915 28.6%, 0.96 32.1%, 0.99 35.7%, 1.007 39.3%, 1.016 42.9%, 1.02 46.4%, 1.019 50%, 1.017 53.6%, 1.014 57.1%, 1.011 60.7%, 1.008 64.3%, 1.006 67.9%, 1.004 71.4%, 1.002 75%, 1.001 78.6%, 1);
+    /* the same spring, less damped — ~4.6% overshoot, so the wordmark collapse
+       carries its weight past the mark and settles back instead of stopping dead */
+    --rubber: linear(0, 0.015 2%, 0.082 5%, 0.261 10%, 0.465 15%, 0.653 20%, 0.805 25%, 0.914 30%, 0.985 35%, 1.025 40%, 1.043 45%, 1.046 50%, 1.041 55%, 1.032 60%, 1.023 65%, 1.014 70%, 1.008 75%, 1.003 80%, 1.001 85%, 1);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Static approximation of the studio backdrop (fallback when WebGL2 is unavailable). */
+html {
+  min-height: 100%;
+  background-color: #cfcfcd;
+  background-image:
+    radial-gradient(ellipse 26% 16% at 37% 30%, rgb(236 236 234 / 0.95), rgb(236 236 234 / 0) 70%),
+    radial-gradient(ellipse 60% 8% at 74% 41%, rgb(236 236 234 / 0.9), rgb(236 236 234 / 0) 80%),
+    radial-gradient(ellipse 5% 12% at 0% 78%, rgb(245 245 243 / 0.8), rgb(245 245 243 / 0) 90%),
+    linear-gradient(180deg, #aeaeac 0%, #bdbdbb 26%, #d6d6d4 37%, #cfcfcd 46%, #d3d3d1 70%, #d8d8d6 100%);
+  background-attachment: fixed;
+}
+html.gl:not(.skip-intro) { background: #0d0d0d; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  height: 100lvh; /* large viewport: no resize thrash when mobile URL bars show/hide */
+  pointer-events: none;
+}
+html:not(.gl) #bg { display: none; }
+
+.hero {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding:
+    max(1.5rem, env(safe-area-inset-top))
+    max(1.5rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(1.5rem, env(safe-area-inset-left));
+  text-align: center;
+}
+
+.headline {
+  margin: 0;
+  font-weight: 500;
+  font-optical-sizing: auto;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.headline .w {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 0.4em, 0);
+  filter: blur(8px);
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 0.9s var(--ease-out),
+    filter 0.9s var(--ease-out);
+  transition-delay: calc(var(--i) * 55ms);
+}
+.headline.is-revealed .w {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+.headline.is-leaving .w {
+  opacity: 0;
+  transform: translate3d(0, -0.25em, 0);
+  filter: blur(8px);
+}
+
+/* ---------------------------------------------------------------- top bar */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding:
+    max(1.125rem, env(safe-area-inset-top))
+    max(1.5rem, env(safe-area-inset-right))
+    0
+    max(1.5rem, env(safe-area-inset-left));
+  pointer-events: none;
+}
+.topbar > * { pointer-events: auto; }
+
+/* Gentle entrance, shared by the logo and the island. */
+.brand,
+.island-wrap {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(0, -6px, 0);
+  transition:
+    opacity 2.4s var(--ease-gentle),
+    filter 2.4s var(--ease-gentle),
+    transform 2.4s var(--ease-gentle);
+}
+.island-wrap { transition-delay: 0.2s; }
+.chrome-in .brand,
+.chrome-in .island-wrap {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+/* Inner pages: no black stage or chrome fade — logo, title and island are on from first paint. */
+html.skip-intro .brand,
+html.skip-intro .island-wrap,
+html.skip-intro .headline .w {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+/* Page title sits to the right of GRID X and rides the wordmark collapse. */
+.brand-lockup {
+  --logo-h: 22px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 44px;
+  gap: 0.7rem;
+}
+.brand-lockup .headline {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: calc(var(--logo-h) * 1.18);
+}
+.brand-lockup .headline::before {
+  content: "";
+  flex: none;
+  width: 1px;
+  height: 0.72em;
+  background: rgb(20 20 20 / 0.22);
+  border-radius: 1px;
+}
+
+/* Logo: one image cropped into the GRID wordmark and the X mark (source 2048×256). */
+.brand {
+  --logo-h: 22px;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.brand__part {
+  position: relative;
+  flex: none;
+  height: var(--logo-h);
+  overflow: hidden;
+}
+.brand__part img {
+  position: absolute;
+  top: 0;
+  width: calc(var(--logo-h) * 2048 / 256);
+  max-width: none;
+  height: 100%;
+  filter: brightness(0); /* solid black logo */
+}
+/* Collapse: the wordmark is wiped from its right edge while the X — and, behind it,
+   the separator and page title, which ride the lockup's width — slide left on a
+   negative margin. A margin can overshoot where a width clamps at zero, so the group
+   carries a little past the mark and settles back. */
+.brand__word {
+  width: calc(var(--logo-h) * 1308 / 256);
+  margin-right: calc(var(--logo-h) * 108 / 256);
+  clip-path: inset(0% 0% 0% 0%);
+  transition:
+    clip-path var(--morph) var(--rubber),
+    opacity 0.45s ease,
+    filter 0.45s ease;
+}
+.brand__word img { left: 0; }
+.brand__mark {
+  width: calc(var(--logo-h) * 632 / 256);
+  margin-left: 0;
+  transition: margin-left var(--morph) var(--rubber);
+}
+.brand__mark img { left: calc(var(--logo-h) * -1416 / 256); }
+.is-compact .brand__word {
+  clip-path: inset(0% 100% 0% 0%);
+  opacity: 0;
+  filter: blur(6px);
+}
+/* 1308 wordmark + 108 gap: the mark lands exactly where the wordmark began. */
+.is-compact .brand__mark { margin-left: calc(var(--logo-h) * -1416 / 256); }
+
+/* Island: black capsule that morphs between the full nav and a circle. */
+.island {
+  --h: 44px;
+  position: relative;
+  width: var(--island-w, auto);
+  height: var(--h);
+  overflow: hidden;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  box-shadow:
+    0 12px 32px -14px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  transition: width var(--morph) var(--spring), box-shadow 0.28s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.is-compact .island {
+  width: var(--h);
+  cursor: pointer;
+}
+.island.is-scrubbing {
+  z-index: 2;
+  touch-action: none;
+}
+
+.island__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 36px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+  transform-origin: center center;
+  will-change: transform, width, height;
+  transition:
+    transform 0.38s var(--spring),
+    width 0.38s var(--spring),
+    height 0.38s var(--spring),
+    background 0.28s ease,
+    box-shadow 0.28s ease,
+    opacity 0.2s ease;
+}
+.island.thumb-ready .island__thumb { opacity: 1; }
+.is-compact .island__thumb { opacity: 0; }
+.island.is-scrubbing .island__thumb {
+  background: rgb(255 255 255 / 0.22);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+
+.island__list {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  margin: 0;
+  padding: 0 4px;
+  list-style: none;
+  transition: opacity 0.35s ease 0.12s, filter 0.35s ease 0.12s;
+}
+.is-compact .island__list {
+  opacity: 0;
+  filter: blur(4px);
+  pointer-events: none;
+  transition-delay: 0s;
+}
+
+.island__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  padding: 0 0.875rem 0 0.75rem;
+  border-radius: 999px;
+  color: rgb(255 255 255 / 0.6);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.island__link:hover,
+.island__link.is-aimed,
+.island__link[aria-current="page"] { color: #fff; }
+.island__link:focus-visible { outline: 2px solid rgb(255 255 255 / 0.75); outline-offset: -2px; }
+
+.island svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.island__compact {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--h);
+  height: var(--h);
+  opacity: 0;
+  filter: blur(4px);
+  transform: scale(0.6);
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    filter 0.3s ease,
+    transform var(--morph) var(--spring);
+}
+.island__compact svg { width: 20px; height: 20px; }
+.is-compact .island__compact {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  transition-delay: 0.1s;
+}
+
+/* Tablets: the island moves to the bottom right, within thumb reach,
+   and still collapses toward the right edge. Phones refine this below. */
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .island-wrap {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    transform: translate3d(0, 8px, 0);
+  }
+  .island { --h: 52px; }
+  .island__list { padding: 0 5px; }
+  .island__link { height: 42px; }
+  .island svg { width: 20px; height: 20px; }
+  .island__compact svg { width: 22px; height: 22px; }
+}
+
+/* Phones: icon + label stack. The pill stays pinned to the bottom-right
+   corner so it expands left and the collapsed circle sits on that edge. */
+@media (max-width: 759px) {
+  .topbar {
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  .brand,
+  .brand-lockup { --logo-h: 18px; }
+
+  /* Collapsed, the circle stays on the right edge, in thumb reach. Expanded, the pill
+     glides to the middle of the screen as it grows — one motion, same spring as the width.
+     The wrap keeps its right anchor, so the shift is measured from there. */
+  .island-wrap {
+    --edge: max(1rem, env(safe-area-inset-right));
+    pointer-events: none; /* the wrap's box stays right; only the pill takes taps */
+  }
+  .island {
+    --h: 56px;
+    pointer-events: auto;
+    transform: translate3d(calc(var(--island-w, 0px) / 2 + var(--edge) - 50vw), 0, 0);
+    transition:
+      width var(--morph) var(--spring),
+      transform var(--morph) var(--spring),
+      box-shadow 0.28s ease;
+  }
+  .is-compact .island { transform: none; }
+
+  .island__list { padding: 0 4px; }
+  .island__link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 52px;
+    height: 48px;
+    padding: 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --morph: 0.25s;
+    --spring: ease;
+    --rubber: ease;
+  }
+  .headline .w,
+  .headline.is-leaving .w {
+    transform: none;
+    filter: none;
+    transition: opacity 0.6s ease;
+    transition-delay: 0s;
+  }
+  .brand,
+  .island-wrap {
+    filter: none;
+    transform: none;
+    transition: opacity 0.6s ease;
+  }
+  .island__thumb {
+    transition: opacity 0.2s ease;
+  }
+}

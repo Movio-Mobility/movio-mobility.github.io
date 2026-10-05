@@ -1,840 +1,167 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en" class="skip-intro">
 <head>
-	<title>GridXenergy | Careers</title>
-	<link rel="icon" href="./favicon.ico" sizes="any">
-	<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
-	<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
-	<link rel="manifest" href="./site.webmanifest">
-	<link href="./rdstailwind.min.css" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-	<link href="./polish.css" rel="stylesheet">
-	<link href="./careers.css" rel="stylesheet">
-	<meta content="width=device-width, initial-scale=1" name="viewport" />
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.jquery.com unpkg.com www.gstatic.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.cloudfunctions.net; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Careers | GridXenergy</title>
+  <meta name="description" content="Work at GridXenergy.">
+  <meta name="theme-color" content="#c4c4c2">
 
-	<!-- Open Graph meta for link previews -->
-	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Careers at GridXenergy" />
-	<meta property="og:description" content="Join us. Be you. Explore open positions at GridXenergy and help build the future of energy." />
-	<meta property="og:image" content="https://gridxenergy.in/assets/og-careers.png" />
-	<meta property="og:url" content="https://gridxenergy.in/careers.html" />
-	<meta property="og:site_name" content="GridXenergy" />
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Careers at GridXenergy" />
-	<meta name="twitter:description" content="Join us. Be you. Explore open positions at GridXenergy." />
-	<meta name="twitter:image" content="https://gridxenergy.in/assets/og-careers.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/footer.css">
 
-	<style>
-		@media (prefers-reduced-motion: reduce) {
-			*, *::before, *::after {
-				animation-duration: 0.01ms !important;
-				animation-iteration-count: 1 !important;
-				transition-duration: 0.01ms !important;
-				scroll-behavior: auto !important;
-			}
-		}
-		html, body { overflow-x: hidden; }
-		html { scroll-behavior: smooth; }
-
-		.section-spacer { height: 6rem; }
-		@media (max-width: 768px) { .section-spacer { height: 2.5rem; } }
-
-		.logo { transition: transform 0.3s ease; }
-		.logo:hover { transform: scale(1.03); }
-	</style>
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
+  <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
 </head>
-
-<body style="background-color: #1d1d1d; font-family: 'DM Sans', sans-serif;" class="text-center text-white">
-	<div class="scroll-progress"></div>
-
-	<!-- Hero Section -->
-	<section class="hero-section rounded-2xl overflow-hidden relative">
-		<!-- Navbar -->
-		<nav class="flex flex-wrap justify-between w-full lg:px-16 px-8 mt-10">
-			<div>
-				<a href="./">
-					<img src="./assets/newLOGO.png" alt="Logo" class="mt-2 lg:mt-0 w-64 lg:w-auto logo" style="width: auto;" />
-				</a>
-			</div>
-			<button id="menu-button" class="hamburger lg:hidden" aria-label="Menu">
-				<span></span><span></span><span></span>
-			</button>
-			<div id="menu" class="w-full lg:flex lg:items-center lg:w-auto">
-				<ul class="pt-4 text-base text-gray-700 lg:flex lg:justify-between lg:pt-0">
-					<li class="mx-2 py-3 block text-white"><a class="nav-link" href="product.html">Products</a></li>
-					<li class="mx-2 py-3 block text-white"><a class="nav-link" href="partnerships.html">Partnerships</a></li>
-					<li class="mx-2 py-3 block text-white"><a class="nav-link" href="aboutus.html">About Us</a></li>
-					<li class="mx-2 py-3 block text-white"><a class="nav-link" href="journey.html">Journey</a></li>
-					<li class="mx-2 py-3 block text-white"><a class="nav-link" href="faqs.html">FAQs</a></li>
-					<li class="mx-2 py-3 block"><a class="nav-link" style="color: rgb(152, 192, 130);" href="careers.html">Careers</a></li>
-					<li class="mx-2 pt-3 pb-3 block px-10 text-black contact-us-button">
-						<a class="nav-link" href="./contactus.html">Contact Us</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-
-		<div class="relative flex flex-col justify-center text-center" style="height: 80%;">
-			<!-- Animated logo morph -->
-			<div class="logo-morph hero-text-enter">
-				<div class="morph-item-0"><img src="./logo.png" alt="GridX"></div>
-				<div class="morph-item-1"><span class="material-symbols-outlined">engineering</span></div>
-				<div class="morph-item-2"><span class="material-symbols-outlined">memory</span></div>
-				<div class="morph-item-3"><span class="material-symbols-outlined">code</span></div>
-				<div class="morph-item-4"><span class="material-symbols-outlined">analytics</span></div>
-			</div>
-
-			<h1 class="hero-tagline hero-text-enter hero-delay-1">Join us. <span>Be you.</span></h1>
-
-			<div class="absolute text-center scroll-button">
-				<div class="scroll-indicator"></div>
-				<p class="mt-2" style="font-size:0.85rem;color:rgba(255,255,255,0.6);">Scroll</p>
-			</div>
-		</div>
-
-	</section>
-
-	<!-- Job Listings -->
-	<div class="section-spacer"></div>
-	<section class="jobs-section" id="jobs">
-		<h2 class="jobs-section-title reveal-on-scroll">Open Positions</h2>
-		<p class="jobs-section-subtitle reveal-on-scroll">Find your place in the future of energy</p>
-
-		<div class="domain-filters reveal-on-scroll" id="domainFilters">
-			<button class="domain-tab active" data-domain="All">All</button>
-			<button class="domain-tab" data-domain="Mechanical">Mechanical</button>
-			<button class="domain-tab" data-domain="Electronics">Electronics</button>
-			<button class="domain-tab" data-domain="CS">CS</button>
-			<button class="domain-tab" data-domain="Finance">Finance</button>
-			<button class="domain-tab" data-domain="Business">Business</button>
-			<button class="domain-tab" data-domain="Design">Design</button>
-			<button class="domain-tab" data-domain="Corporate">Corporate</button>
-			<button class="domain-tab" data-domain="Operations">Operations</button>
-			<button class="domain-tab" data-domain="Media">Media</button>
-		</div>
-
-		<div class="jobs-grid" id="jobsGrid">
-			<div class="jobs-empty" id="jobsLoading">
-				<div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto 1rem;"></div>
-				<p>Loading positions...</p>
-			</div>
-		</div>
-	</section>
-
-	<div class="section-spacer"></div>
-
-	<!-- Job Detail Modal -->
-	<div class="modal-overlay" id="jobModal">
-		<div class="modal-sheet">
-			<div class="modal-header">
-				<button class="modal-close" id="modalClose">
-					<span class="material-symbols-outlined" style="font-size:20px;">close</span>
-				</button>
-				<h2 class="modal-title" id="modalTitle"></h2>
-				<div class="modal-meta" id="modalMeta"></div>
-			</div>
-			<div class="modal-body" id="modalBody"></div>
-		<div class="modal-footer" id="modalFooter">
-			<button class="apply-btn" id="applyBtn">
-				<span class="material-symbols-outlined" style="font-size:18px;">send</span>
-				Apply Now
-			</button>
-			<button class="share-btn" id="shareBtn">
-				<span class="material-symbols-outlined" style="font-size:18px;">share</span>
-				Share
-			</button>
-		</div>
-		<div class="share-toast" id="shareToast">Link copied to clipboard!</div>
-		<div class="apply-form-section" id="applyForm">
-			<div class="apply-form-header">
-				<h3 class="apply-form-title">Your Application</h3>
-				<button type="button" class="apply-form-close" id="applyFormClose" aria-label="Close form">
-					<span class="material-symbols-outlined" style="font-size:18px;">close</span>
-				</button>
-			</div>
-			<form id="applicationForm" autocomplete="on">
-					<div class="form-row">
-						<div class="form-group">
-							<label class="form-label">First Name</label>
-							<input class="form-input" type="text" name="firstName" required placeholder="e.g. Rahul">
-						</div>
-						<div class="form-group">
-							<label class="form-label">Last Name</label>
-							<input class="form-input" type="text" name="lastName" required placeholder="e.g. Sharma">
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group">
-							<label class="form-label">Email</label>
-							<input class="form-input" type="email" name="email" required placeholder="you@example.com">
-						</div>
-						<div class="form-group">
-							<label class="form-label">Contact Number</label>
-							<input class="form-input" type="tel" name="phone" required placeholder="+91 98765 43210">
-						</div>
-					</div>
-					<div class="form-group full" style="margin-bottom:0;">
-						<label class="form-label">Resume</label>
-						<div class="resume-drop" id="resumeDrop">
-							<span class="material-symbols-outlined">upload_file</span>
-							<p>Drop your resume here or <strong>click to browse</strong></p>
-							<p class="file-name" id="fileName" style="display:none;"></p>
-							<input type="file" id="resumeInput" accept=".pdf,.doc,.docx" hidden>
-						</div>
-					</div>
-				<div class="form-group full">
-					<label class="form-label">Why do you want to work at GridXenergy?</label>
-					<textarea class="form-input" name="whyGridX" rows="4" required placeholder="Tell us what excites you about GridXenergy and why you'd be a great fit..."></textarea>
-				</div>
-				<div class="form-group full">
-					<label class="form-label" id="joinLabel" for="joinTrigger">When can you join?</label>
-					<div class="join-selector">
-						<input type="hidden" name="joinType" id="joinType" value="" required>
-						<div class="join-custom" id="joinCustom">
-							<button type="button" class="join-custom-trigger" id="joinTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="joinList" aria-labelledby="joinLabel joinTriggerText">
-								<span class="join-custom-value join-custom-placeholder" id="joinTriggerText">Select availability</span>
-								<span class="material-symbols-outlined join-custom-chevron" aria-hidden="true">expand_more</span>
-							</button>
-							<ul class="join-custom-list" id="joinList" role="listbox" aria-labelledby="joinLabel" aria-hidden="true">
-								<li role="option" class="join-custom-option" data-value="Immediately" tabindex="-1">Immediately</li>
-								<li role="option" class="join-custom-option" data-value="exactDate" tabindex="-1">Specific date</li>
-								<li role="option" class="join-custom-option" data-value="1 month" tabindex="-1">1 month</li>
-								<li role="option" class="join-custom-option" data-value="2 months" tabindex="-1">2 months</li>
-								<li role="option" class="join-custom-option" data-value="3 months" tabindex="-1">3 months</li>
-							</ul>
-						</div>
-						<input class="form-input join-date-input" type="date" name="joinDate" id="joinDate" style="display:none;">
-					</div>
-				</div>
-				<button type="submit" class="submit-btn" id="submitBtn">Submit Application</button>
-				</form>
-			</div>
-			<div class="apply-success" id="applySuccess">
-				<span class="material-symbols-outlined">check_circle</span>
-				<h3>Application Submitted!</h3>
-				<p>We'll get back to you shortly. Keep an eye on your inbox.</p>
-			</div>
-		</div>
-	</div>
-
-	<!-- Footer -->
-	<footer class="premium-footer">
-		<div class="footer-content">
-			<section class="footer-grid">
-				<div class="footer-container">
-					<a href="https://maps.app.goo.gl/GoqhH5gwGhYdBjwK9" target="_blank" rel="noopener noreferrer" class="footer-card company-info" style="cursor:pointer;color:inherit;text-decoration:none;display:flex;">
-						<img src="./assets/newLOGO.png" alt="GridX Logo" class="footer-logo" />
-						<address class="company-address">
-							D66, Pocket D<br>Phase 1, Okhla.<br>New Delhi, 110020.
-						</address>
-					</a>
-				</div>
-				<div class="footer-container">
-					<div class="footer-card">
-						<div class="social-links">
-							<h4 class="text-xl font-bold mb-6">Connect With Us</h4>
-							<ul class="flex flex-col gap-4">
-								<li><a href="https://www.instagram.com/gridxenergy/" class="social-link">
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-									<span>Instagram</span>
-								</a></li>
-								<li><a href="https://www.linkedin.com/company/gridxenergy/" class="social-link">
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/></svg>
-									<span>LinkedIn</span>
-								</a></li>
-								<li><a href="https://www.youtube.com/@gridxenergy" class="social-link">
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-									<span>Youtube</span>
-								</a></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</section>
-			<div class="footer-bottom">
-				<hr class="footer-divider" />
-				<div class="footer-copyright">
-					<p>Designed and Developed in-house @ GridXenergy</p>
-					<p>&copy; Copyright <script>document.write(new Date().getFullYear())</script> Movio Technologies Private Limited</p>
-					<div class="footer-links">
-						<a href="https://gridxenergy.in/privacy_policy.html">Privacy Policy</a>
-						<span class="separator">&bull;</span>
-						<a href="https://gridxenergy.in/privacy_policy.html">Terms &amp; Conditions</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</footer>
-
-	<!-- Footer styles (matching index.html) -->
-	<style>
-	.premium-footer {
-		background: linear-gradient(145deg, rgba(29, 29, 29, 0.95), rgba(25, 25, 25, 0.9));
-		padding: 4rem 2rem 2rem;
-		margin-top: 4rem;
-		position: relative;
-		overflow: hidden;
-	}
-	.premium-footer::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(circle at 50% 0%, rgba(152, 192, 130, 0.1), transparent 70%);
-	}
-	.footer-content { position: relative; max-width: 1200px; margin: 0 auto; z-index: 1; }
-	.footer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 3rem; max-width: 1200px; margin-left: auto; margin-right: auto; }
-	.footer-container { width: 100%; }
-	.footer-card { padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 15px; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; }
-	.footer-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-	.company-info { display: flex; flex-direction: column; gap: 2.5rem; min-height: 180px; justify-content: flex-start; }
-	.footer-logo { height: 40px; width: auto; object-fit: contain; transition: transform 0.3s ease; display: block; margin-top: 0.5rem; }
-	.footer-card:hover .footer-logo { transform: scale(1.05); }
-	.company-address { color: rgba(255,255,255,0.7); font-style: normal; line-height: 1.6; font-size: 0.95rem; }
-	.social-links { height: 100%; display: flex; flex-direction: column; }
-	.social-links ul { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-	.social-link { display: flex; align-items: center; gap: 1rem; color: #fff; transition: all 0.3s ease; padding: 0.5rem; border-radius: 8px; }
-	.social-link:hover { background: rgba(152, 192, 130, 0.1); transform: translateX(5px); }
-	.social-link svg { transition: transform 0.3s ease; }
-	.social-link:hover svg { transform: scale(1.1); }
-	.footer-divider { border: none; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); margin: 2rem 0; }
-	.footer-copyright { text-align: center; color: rgba(255,255,255,0.7); font-size: 0.9rem; }
-	.footer-links { margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; align-items: center; }
-	.footer-links a { color: rgb(152, 192, 130); text-decoration: none; transition: color 0.3s ease; }
-	.footer-links a:hover { color: #fff; }
-	.separator { color: rgba(255,255,255,0.3); }
-	@media screen and (max-width: 768px) {
-		.premium-footer { padding: 3rem 1rem 1.5rem; }
-		.footer-grid { grid-template-columns: 1fr; }
-		.footer-links { flex-direction: column; gap: 0.5rem; }
-		.separator { display: none; }
-		.footer-card { min-height: 200px; }
-		.company-info, .social-links { align-items: center; text-align: center; justify-content: center; }
-		.company-info { min-height: auto; gap: 2rem; }
-		.footer-logo { height: 35px; }
-	}
-	</style>
-
-	<!-- Mobile menu + polish.js -->
-	<script>
-	(function() {
-		var menuBtn = document.getElementById('menu-button');
-		var menu = document.getElementById('menu');
-		if (menuBtn && menu) {
-			menuBtn.addEventListener('click', function() {
-				menuBtn.classList.toggle('open');
-				menu.classList.toggle('menu-open');
-			});
-			document.addEventListener('click', function(e) {
-				if (!menuBtn.contains(e.target) && !menu.contains(e.target)) {
-					menuBtn.classList.remove('open');
-					menu.classList.remove('menu-open');
-				}
-			});
-			menu.querySelectorAll('a').forEach(function(link) {
-				link.addEventListener('click', function() {
-					menuBtn.classList.remove('open');
-					menu.classList.remove('menu-open');
-				});
-			});
-		}
-	})();
-	</script>
-	<script src="./polish.js"></script>
-
-	<!-- Scroll button click -->
-	<script>
-	document.querySelector('.scroll-button').addEventListener('click', function() {
-		var target = document.getElementById('jobs');
-		if (target) target.scrollIntoView({ behavior: 'smooth' });
-	});
-	</script>
-
-	<!-- Firebase: real-time job listings + application submission -->
-	<script type="module">
-	import { firebaseConfig } from "./firebase-config.js";
-	import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-	import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-	import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
-
-	const app = initializeApp(firebaseConfig);
-	const db = getFirestore(app);
-	const storage = getStorage(app);
-
-	const DOMAIN_ICONS = {
-		Mechanical: 'engineering',
-		Electronics: 'memory',
-		CS: 'code',
-		Finance: 'analytics',
-		Business: 'business_center',
-		Design: 'design_services',
-		Corporate: 'corporate_fare',
-		Operations: 'precision_manufacturing',
-		Media: 'perm_media'
-	};
-
-	let allJobs = [];
-	let activeDomain = 'All';
-	let currentJob = null;
-	let selectedFile = null;
-
-	function checkDeepLink() {
-		var params = new URLSearchParams(window.location.search);
-		var jobParam = params.get('job');
-		if (!jobParam) return;
-		var job = allJobs.find(j => j.id === jobParam);
-		if (job) openModal(job);
-	}
-
-	const jobsQuery = query(collection(db, 'jobs'), where('isActive', '==', true), orderBy('postedAt', 'desc'));
-
-	onSnapshot(jobsQuery, (snapshot) => {
-		allJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-		renderJobs();
-		checkDeepLink();
-	}, (error) => {
-		allJobs = [];
-		renderJobs();
-	});
-
-	// Domain filter tabs
-	document.getElementById('domainFilters').addEventListener('click', function(e) {
-		var tab = e.target.closest('.domain-tab');
-		if (!tab) return;
-		activeDomain = tab.dataset.domain;
-		this.querySelectorAll('.domain-tab').forEach(t => t.classList.remove('active'));
-		tab.classList.add('active');
-		renderJobs();
-	});
-
-	function renderJobs() {
-		var grid = document.getElementById('jobsGrid');
-		var filtered = activeDomain === 'All' ? allJobs : allJobs.filter(j => j.domain === activeDomain);
-
-		if (filtered.length === 0) {
-			grid.innerHTML = '<div class="jobs-empty"><span class="material-symbols-outlined">work_off</span><p>No open positions in this category right now.<br>Check back soon!</p></div>';
-			return;
-		}
-
-		grid.innerHTML = filtered.map(function(job) {
-			var icon = DOMAIN_ICONS[job.domain] || 'work';
-			return '<div class="job-card reveal-on-scroll" data-id="' + job.id + '">' +
-				'<div class="job-card-icon" data-domain="' + escapeHtml(job.domain) + '"><span class="material-symbols-outlined">' + icon + '</span></div>' +
-				'<h3 class="job-card-title">' + escapeHtml(job.title) + '</h3>' +
-				'<div class="job-card-location"><span class="material-symbols-outlined">location_on</span>' + escapeHtml(job.location || 'Okhla, New Delhi') + '</div>' +
-				'<div class="domain-badge" data-domain="' + escapeHtml(job.domain) + '"><span class="material-symbols-outlined">' + icon + '</span>' + escapeHtml(job.domain) + '</div>' +
-				'<div class="job-card-arrow"><span class="material-symbols-outlined">arrow_forward</span></div>' +
-				'</div>';
-		}).join('');
-
-		// Reveal animation for newly added cards
-		requestAnimationFrame(function() {
-			grid.querySelectorAll('.reveal-on-scroll:not(.revealed)').forEach(function(el, i) {
-				setTimeout(function() { el.classList.add('revealed'); }, i * 80);
-			});
-		});
-
-		// Card click -> modal
-		grid.querySelectorAll('.job-card').forEach(function(card) {
-			card.addEventListener('click', function() {
-				var jobId = this.dataset.id;
-				var job = allJobs.find(j => j.id === jobId);
-				if (job) openModal(job);
-			});
-		});
-	}
-
-	function openModal(job) {
-		currentJob = job;
-		document.getElementById('modalTitle').textContent = job.title;
-
-		var icon = DOMAIN_ICONS[job.domain] || 'work';
-		document.getElementById('modalMeta').innerHTML =
-			'<div class="domain-badge" data-domain="' + escapeHtml(job.domain) + '"><span class="material-symbols-outlined">' + icon + '</span>' + escapeHtml(job.domain) + '</div>' +
-			'<div class="modal-meta-item"><span class="material-symbols-outlined">location_on</span>' + escapeHtml(job.location || 'Okhla, New Delhi') + '</div>' +
-			(job.teamName ? '<div class="modal-meta-item"><span class="material-symbols-outlined">group</span>' + escapeHtml(job.teamName) + '</div>' : '');
-
-		var body = '';
-		if (job.description) body += section('Job Description', '<p>' + escapeHtml(job.description) + '</p>');
-		if (job.location) body += section('Location', '<p>' + escapeHtml(job.location) + '</p>');
-		if (job.reportingTo) body += section('Reporting To', '<p>' + escapeHtml(job.reportingTo) + '</p>');
-		if (job.teamName) body += section('Team Name', '<p>' + escapeHtml(job.teamName) + '</p>');
-		if (job.aboutTeamAndRole) body += section('About the Team & Role', '<p>' + escapeHtml(job.aboutTeamAndRole) + '</p>');
-		if (job.responsibilities && job.responsibilities.length) body += section('Responsibilities', list(job.responsibilities));
-		if (job.experienceAndQualifications && job.experienceAndQualifications.length) body += section('Experience & Qualifications', list(job.experienceAndQualifications));
-		if (job.mustHaveCompetencies && job.mustHaveCompetencies.length) body += section('Must Have Competencies', list(job.mustHaveCompetencies));
-
-		document.getElementById('modalBody').innerHTML = body;
-
-		// Reset form state
-		document.getElementById('applyForm').classList.remove('open');
-		document.getElementById('applySuccess').classList.remove('show');
-		document.getElementById('modalFooter').style.display = 'flex';
-		document.getElementById('applicationForm').reset();
-		document.getElementById('fileName').style.display = 'none';
-		selectedFile = null;
-
-		document.getElementById('jobModal').classList.add('open');
-		var scrollY = window.scrollY;
-		document.body.classList.add('modal-open');
-		document.body.style.top = '-' + scrollY + 'px';
-		document.body.dataset.scrollY = scrollY;
-	}
-
-	function section(title, html) {
-		return '<div class="modal-section"><div class="modal-section-title">' + title + '</div><div class="modal-section-content">' + html + '</div></div>';
-	}
-
-	function list(items) {
-		return '<ul>' + items.map(i => '<li>' + escapeHtml(i) + '</li>').join('') + '</ul>';
-	}
-
-	// Close modal
-	function closeModal() {
-		document.getElementById('jobModal').classList.remove('open');
-		var scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
-		document.body.classList.remove('modal-open');
-		document.body.style.top = '';
-		window.scrollTo(0, scrollY);
-		currentJob = null;
-	}
-
-	document.getElementById('modalClose').addEventListener('click', closeModal);
-	document.getElementById('jobModal').addEventListener('click', function(e) {
-		if (e.target === this) closeModal();
-	});
-	document.addEventListener('keydown', function(e) {
-		if (e.key === 'Escape') closeModal();
-	});
-
-	// Share button
-	document.getElementById('shareBtn').addEventListener('click', function() {
-		if (!currentJob) return;
-		var shareUrl = window.location.origin + window.location.pathname + '?job=' + encodeURIComponent(currentJob.id);
-		var shareData = { title: currentJob.title + ' — GridXenergy', text: currentJob.title + ' at GridXenergy, ' + (currentJob.location || 'Okhla, New Delhi'), url: shareUrl };
-
-		if (navigator.share && navigator.maxTouchPoints > 0) {
-			navigator.share(shareData).catch(function() {});
-		} else {
-			navigator.clipboard.writeText(shareUrl).then(function() {
-				var toast = document.getElementById('shareToast');
-				toast.classList.add('show');
-				setTimeout(function() { toast.classList.remove('show'); }, 2500);
-			});
-		}
-	});
-
-	// Apply Now button
-	document.getElementById('applyBtn').addEventListener('click', function() {
-		document.getElementById('applyForm').classList.add('open');
-		document.getElementById('modalFooter').style.display = 'none';
-		setTimeout(function() {
-			document.getElementById('applyForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-		}, 100);
-	});
-
-	// Close application form
-	document.getElementById('applyFormClose').addEventListener('click', function() {
-		document.getElementById('applyForm').classList.remove('open');
-		document.getElementById('modalFooter').style.display = 'flex';
-	});
-
-	// Resume upload
-	var resumeDrop = document.getElementById('resumeDrop');
-	var resumeInput = document.getElementById('resumeInput');
-	var fileNameEl = document.getElementById('fileName');
-
-	resumeDrop.addEventListener('click', function() { resumeInput.click(); });
-	resumeDrop.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
-	resumeDrop.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
-	resumeDrop.addEventListener('drop', function(e) {
-		e.preventDefault();
-		this.classList.remove('dragover');
-		if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-	});
-	resumeInput.addEventListener('change', function() { if (this.files.length) handleFile(this.files[0]); });
-
-	function handleFile(file) {
-		var valid = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-		if (!valid.includes(file.type)) {
-			alert('Please upload a PDF or Word document.');
-			return;
-		}
-		if (file.size > 10 * 1024 * 1024) {
-			alert('File must be under 10 MB.');
-			return;
-		}
-		selectedFile = file;
-		fileNameEl.textContent = file.name;
-		fileNameEl.style.display = 'block';
-	}
-
-	// Join availability: custom listbox. While open, list is moved to document.body so
-	// position:fixed uses the viewport (ancestor .modal-sheet has transform → fixed was jittering).
-	(function initJoinAvailability() {
-		var JOIN_LABELS = {
-			'Immediately': 'Immediately',
-			'exactDate': 'Specific date',
-			'1 month': '1 month',
-			'2 months': '2 months',
-			'3 months': '3 months'
-		};
-		var joinHidden = document.getElementById('joinType');
-		var joinCustom = document.getElementById('joinCustom');
-		var joinTrigger = document.getElementById('joinTrigger');
-		var joinTriggerText = document.getElementById('joinTriggerText');
-		var joinList = document.getElementById('joinList');
-		var joinDate = document.getElementById('joinDate');
-		var options = joinList ? joinList.querySelectorAll('.join-custom-option') : [];
-		var posRaf = null;
-		var onScrollOrResize = function() { scheduleJoinPanelGeometry(); };
-
-		function syncDateField(value) {
-			if (value === 'exactDate') {
-				joinDate.style.display = 'block';
-				joinDate.required = true;
-			} else {
-				joinDate.style.display = 'none';
-				joinDate.required = false;
-				joinDate.value = '';
-			}
-		}
-
-		function setJoinValue(value, closePanel) {
-			joinHidden.value = value || '';
-			if (!value) {
-				joinTriggerText.textContent = 'Select availability';
-				joinTriggerText.classList.add('join-custom-placeholder');
-			} else {
-				joinTriggerText.textContent = JOIN_LABELS[value] || value;
-				joinTriggerText.classList.remove('join-custom-placeholder');
-			}
-			syncDateField(value);
-			options.forEach(function(opt) {
-				opt.setAttribute('aria-selected', opt.getAttribute('data-value') === value ? 'true' : 'false');
-			});
-			if (closePanel) closeJoinPanel();
-		}
-
-		function cancelJoinPanelRaf() {
-			if (posRaf != null) {
-				cancelAnimationFrame(posRaf);
-				posRaf = null;
-			}
-		}
-
-		function scheduleJoinPanelGeometry() {
-			if (!joinList.classList.contains('is-open')) return;
-			if (posRaf != null) return;
-			posRaf = requestAnimationFrame(function() {
-				posRaf = null;
-				applyJoinPanelGeometry();
-			});
-		}
-
-		function applyJoinPanelGeometry() {
-			if (!joinList.classList.contains('is-open')) return;
-			var rect = joinTrigger.getBoundingClientRect();
-			var gap = 6;
-			var pad = 8;
-			var maxH = Math.min(320, Math.max(120, window.innerHeight - rect.bottom - gap - pad));
-			var w = Math.min(Math.max(rect.width, 160), window.innerWidth - pad * 2);
-			var left = rect.left;
-			if (left + w > window.innerWidth - pad) left = window.innerWidth - pad - w;
-			if (left < pad) left = pad;
-			joinList.style.position = 'fixed';
-			joinList.style.left = left + 'px';
-			joinList.style.width = w + 'px';
-			joinList.style.top = (rect.bottom + gap) + 'px';
-			joinList.style.maxHeight = maxH + 'px';
-		}
-
-		var modalSheet = null;
-
-		function bindPanelReposition() {
-			unbindPanelReposition();
-			modalSheet = joinTrigger.closest('.modal-sheet');
-			if (modalSheet) modalSheet.addEventListener('scroll', onScrollOrResize, { passive: true });
-			window.addEventListener('scroll', onScrollOrResize, { passive: true });
-			window.addEventListener('resize', onScrollOrResize);
-		}
-
-		function unbindPanelReposition() {
-			if (modalSheet) {
-				modalSheet.removeEventListener('scroll', onScrollOrResize);
-				modalSheet = null;
-			}
-			window.removeEventListener('scroll', onScrollOrResize);
-			window.removeEventListener('resize', onScrollOrResize);
-			cancelJoinPanelRaf();
-		}
-
-		function openJoinPanel() {
-			if (joinList.classList.contains('is-open')) return;
-			document.body.appendChild(joinList);
-			joinList.classList.add('is-open');
-			joinList.setAttribute('aria-hidden', 'false');
-			joinTrigger.setAttribute('aria-expanded', 'true');
-			applyJoinPanelGeometry();
-			bindPanelReposition();
-		}
-
-		function closeJoinPanel() {
-			if (!joinList.classList.contains('is-open')) return;
-			unbindPanelReposition();
-			joinList.classList.remove('is-open');
-			joinList.setAttribute('aria-hidden', 'true');
-			joinTrigger.setAttribute('aria-expanded', 'false');
-			joinList.style.position = '';
-			joinList.style.left = '';
-			joinList.style.top = '';
-			joinList.style.width = '';
-			joinList.style.maxHeight = '';
-			if (joinCustom) joinCustom.appendChild(joinList);
-		}
-
-		function toggleJoinPanel() {
-			if (joinList.classList.contains('is-open')) closeJoinPanel();
-			else openJoinPanel();
-		}
-
-		joinTrigger.addEventListener('click', function(e) {
-			e.stopPropagation();
-			toggleJoinPanel();
-		});
-
-		joinList.addEventListener('click', function(e) {
-			var opt = e.target.closest('.join-custom-option');
-			if (!opt) return;
-			setJoinValue(opt.getAttribute('data-value'), true);
-			joinTrigger.focus();
-		});
-
-		document.addEventListener('click', function(e) {
-			if (joinList.classList.contains('is-open') && !joinTrigger.contains(e.target) && !joinList.contains(e.target)) {
-				closeJoinPanel();
-			}
-		});
-
-		document.addEventListener('keydown', function(e) {
-			if (e.key === 'Escape' && joinList.classList.contains('is-open')) {
-				e.preventDefault();
-				e.stopPropagation();
-				closeJoinPanel();
-				joinTrigger.focus();
-			}
-		}, true);
-
-		joinTrigger.addEventListener('keydown', function(e) {
-			if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-				e.preventDefault();
-				if (!joinList.classList.contains('is-open')) openJoinPanel();
-				var arr = Array.prototype.slice.call(options);
-				var i = e.key === 'ArrowDown' ? 0 : arr.length - 1;
-				arr[i].focus();
-			}
-		});
-
-		joinList.addEventListener('keydown', function(e) {
-			var arr = Array.prototype.slice.call(options);
-			var idx = arr.indexOf(document.activeElement);
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				if (idx < arr.length - 1) arr[idx + 1].focus();
-			} else if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				if (idx > 0) arr[idx - 1].focus();
-				else joinTrigger.focus();
-			} else if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				if (idx >= 0) {
-					setJoinValue(arr[idx].getAttribute('data-value'), true);
-					joinTrigger.focus();
-				}
-			}
-		});
-
-		document.getElementById('applicationForm').addEventListener('reset', function() {
-			setJoinValue('', false);
-			closeJoinPanel();
-		});
-	})();
-
-	// Submit application
-	document.getElementById('applicationForm').addEventListener('submit', async function(e) {
-		e.preventDefault();
-		if (!currentJob) return;
-
-		var btn = document.getElementById('submitBtn');
-		btn.disabled = true;
-		btn.innerHTML = '<span class="spinner"></span>';
-
-		try {
-			var fd = new FormData(this);
-			var resumePath = '';
-
-			if (selectedFile) {
-				var filePath = 'resumes/' + Date.now() + '_' + selectedFile.name.replace(/[^\w.\-()+ ]/g, '_');
-				var storageRef = ref(storage, filePath);
-				var mime = selectedFile.type;
-				if (!mime || !['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(mime)) {
-					var n = selectedFile.name.toLowerCase();
-					if (n.endsWith('.pdf')) mime = 'application/pdf';
-					else if (n.endsWith('.doc')) mime = 'application/msword';
-					else if (n.endsWith('.docx')) mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-					else mime = 'application/pdf';
-				}
-				await uploadBytes(storageRef, selectedFile, { contentType: mime });
-				resumePath = filePath;
-			}
-
-		var joinType = fd.get('joinType');
-		var availableFrom = joinType === 'exactDate' ? fd.get('joinDate') : joinType;
-
-		var firstName = String(fd.get('firstName') || '').trim();
-		var lastName = String(fd.get('lastName') || '').trim();
-		var email = String(fd.get('email') || '').trim();
-		var contactNumber = String(fd.get('phone') || '').trim();
-		if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || contactNumber.length < 5) {
-			alert('Please fill in your name, email, and a valid contact number (at least 5 characters).');
-			btn.disabled = false;
-			btn.textContent = 'Submit Application';
-			return;
-		}
-
-		await addDoc(collection(db, 'applications'), {
-			jobId: currentJob.id,
-			jobTitle: currentJob.title,
-			firstName: firstName,
-			lastName: lastName,
-			email: email,
-			contactNumber: contactNumber,
-			whyGridX: String(fd.get('whyGridX') || '').trim(),
-			availableFrom: availableFrom,
-			resumePath: resumePath,
-			appliedAt: Timestamp.now()
-		});
-
-			document.getElementById('applyForm').classList.remove('open');
-			document.getElementById('applySuccess').classList.add('show');
-		} catch (err) {
-			console.error(err);
-			var hint = (err && err.code === 'permission-denied') ? ' Permission was denied (try again or contact us).' : '';
-			alert((err && err.message ? err.message : 'Something went wrong.') + hint);
-			btn.disabled = false;
-			btn.textContent = 'Submit Application';
-		}
-	});
-
-	function escapeHtml(str) {
-		if (!str) return '';
-		var d = document.createElement('div');
-		d.textContent = str;
-		return d.innerHTML;
-	}
-	</script>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GRID home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Careers</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="journey.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
+              <span class="island__label">Journey</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon. Careers is not in the nav — it is
+             reached from the footer — so it carries its own glyph and marks nothing current. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hero"></main>
+
+  <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
+       the dark. Copied into every page the way the island nav is: the address and the sitemap
+       belong in the HTML, not in a script. The only per-page difference is aria-current. -->
+  <footer class="credits">
+    <div class="credits__stage">
+      <h2 class="credits__line">
+        <span class="credits__seg">
+          <span class="w" style="--i:0">Designed</span>
+          <span class="w" style="--i:1">and</span>
+          <span class="w" style="--i:2">Developed</span>
+        </span>
+        <span class="credits__seg">
+          <span class="w" style="--i:3">in-house</span>
+          <span class="w" style="--i:4">at</span>
+        </span>
+        <span class="credits__seg credits__seg--name">
+          <span class="w" style="--i:5">GridXenergy</span>
+        </span>
+      </h2>
+
+      <div class="credits__colophon">
+        <div class="credits__cols">
+          <div class="credits__col">
+            <h3 class="credits__label">Pages</h3>
+            <ul class="credits__list credits__list--pages">
+              <li><a class="credits__link" href="index.html">Home</a></li>
+              <li><a class="credits__link" href="store.html">Store</a></li>
+              <li><a class="credits__link" href="dealers.html">Dealers</a></li>
+              <li><a class="credits__link" href="support.html">Support</a></li>
+              <li><a class="credits__link" href="journey.html">Journey</a></li>
+              <li><a class="credits__link" href="careers.html" aria-current="page">Careers</a></li>
+            </ul>
+          </div>
+
+          <div class="credits__col">
+            <h3 class="credits__label">Connect</h3>
+            <ul class="credits__list credits__list--social">
+              <li>
+                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span class="credits__social-label">WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://instagram.com/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><path d="M16.9 7.1h.01"/></svg>
+                  <span class="credits__social-label">Instagram</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://youtube.com/@gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10.2 9.6 5.4 2.9-5.4 2.9z"/></svg>
+                  <span class="credits__social-label">YouTube</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://linkedin.com/company/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 7.9h.01"/><path d="M8 10.6v5.8"/><path d="M11.7 16.4v-5.8"/><path d="M11.7 13.1a2.35 2.35 0 0 1 4.7 0v3.3"/></svg>
+                  <span class="credits__social-label">LinkedIn</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="credits__col credits__col--mark">
+            <h3 class="credits__label">Address</h3>
+            <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
+            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+          </div>
+        </div>
+
+        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
+             is finished and the pages can drop in behind them. -->
+        <div class="credits__legal">
+          <a href="terms.html">Terms &amp; Conditions</a>
+          <a href="privacy.html">Privacy Policy</a>
+          <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/footer.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/analytics.js" defer></script>
 </body>
 </html>

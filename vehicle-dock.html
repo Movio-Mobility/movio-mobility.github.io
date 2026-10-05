@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Vehicle Dock | GridXenergy</title>
+  <meta name="description" content="The metal dock that holds PowerPod through every turn, bump and mile. ₹2,999.">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/powerpod-gen2.css">
+  <link rel="stylesheet" href="assets/order-sheet.css">
+  <link rel="stylesheet" href="assets/product.css">
+
+  <!-- The same three opt-ins powerpod-gen2.html sets. pg2-shell says JavaScript is on, so
+       the panel becomes a fixed sheet; island-click-only keeps the nav pill shut, because
+       on a page whose content scrolls inside a panel a wheel tick does not mean "I want the
+       nav"; is-compact is set here rather than by topbar.js so the pill is already shut on
+       the first paint instead of animating closed a moment after arrival. -->
+  <script>
+    if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');
+    document.documentElement.classList.add('pg2-shell', 'island-click-only', 'is-compact');
+  </script>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GRID home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Dock</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="journey.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
+              <span class="island__label">Journey</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pg2">
+    <!-- The stage paints no background of its own, so the particle field on #bg shows
+         through it and the product floats on the field, exactly as the pod does. -->
+    <div class="pg2__stage" id="pg2-stage">
+      <div class="gallery__frame">
+        <img class="gallery__img" alt="The Vehicle Dock assembly"
+             src="assets/productImages/vehicleDock/web/vehicledock-1-1400.webp"
+             srcset="assets/productImages/vehicleDock/web/vehicledock-1-700.webp 700w, assets/productImages/vehicleDock/web/vehicledock-1-1400.webp 1400w"
+             sizes="(min-width: 1025px) 55vw, 100vw"
+             width="1400" height="791" decoding="async" fetchpriority="high">
+        <img class="gallery__img" alt="The dock with a PowerPod seated in it"
+             src="assets/productImages/vehicleDock/web/vehicledock-2-1400.webp"
+             srcset="assets/productImages/vehicleDock/web/vehicledock-2-700.webp 700w, assets/productImages/vehicleDock/web/vehicledock-2-1400.webp 1400w"
+             sizes="(min-width: 1025px) 55vw, 100vw"
+             width="1400" height="791" decoding="async">
+        <img class="gallery__img" alt="The dock from above"
+             src="assets/productImages/vehicleDock/web/vehicledock-3-1400.webp"
+             srcset="assets/productImages/vehicleDock/web/vehicledock-3-700.webp 700w, assets/productImages/vehicleDock/web/vehicledock-3-1400.webp 1400w"
+             sizes="(min-width: 1025px) 55vw, 100vw"
+             width="1400" height="791" decoding="async">
+        <img class="gallery__img" alt="The dock's connector detail"
+             src="assets/productImages/vehicleDock/web/vehicledock-4-1400.webp"
+             srcset="assets/productImages/vehicleDock/web/vehicledock-4-700.webp 700w, assets/productImages/vehicleDock/web/vehicledock-4-1400.webp 1400w"
+             sizes="(min-width: 1025px) 55vw, 100vw"
+             width="1400" height="791" decoding="async">
+      </div>
+      <div class="gallery__nav"></div>
+    </div>
+
+    <div class="pg2__panel" id="pg2-panel">
+      <div class="pg2__bar">
+        <a class="pg2-back" href="store.html" aria-label="Back to the store">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+        </a>
+      </div>
+
+      <div class="pg2__scroll" id="pg2-scroll">
+        <!-- .pg2-config is what carries the reading measure on this shell: the bar, this
+             column and the foot all cap to 36rem with padding rather than max-width, so
+             rules and borders still run the full width of the panel. -->
+        <div class="pg2-config">
+          <article class="pg2-step" data-copy="draft">
+            <h2 class="pg2-step__title" tabindex="-1">Vehicle Dock</h2>
+            <p class="pg2-step__sub">Built to hold on.</p>
+            <section class="propack">
+              <ul class="propack__list">
+                <li>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V7a3.5 3.5 0 0 1 7 0v3.5"/></svg>
+                  <span>Four point hold, bolted through to the frame</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 6 13.5h5l-1 7.5 7-10.5h-5z"/></svg>
+                  <span>Contacts seat as the pod drops in, nothing to plug</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 5.5 6v6c0 4 2.7 7.2 6.5 8.5 3.8-1.3 6.5-4.5 6.5-8.5V6z"/></svg>
+                  <span>Sealed against dust and monsoon spray</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5V17L12 21l-8-4z"/><path d="M4 8.5 12 13l8-4.5M12 13v8"/></svg>
+                  <span>Fits under the seat of a standard EV two wheeler</span>
+                </li>
+              </ul>
+            </section>
+          </article>
+          <article class="pg2-step" data-copy="draft">
+            <h2 class="pg2-step__title" tabindex="-1">In the box.</h2>
+            <ul class="review">
+              <li><span class="review__label">Vehicle Dock</span><span class="review__value">1</span></li>
+              <li><span class="review__label">Mounting hardware</span><span class="review__value">Included</span></li>
+              <li><span class="review__label">Compatible with</span><span class="review__value">PowerPod Gen2</span></li>
+              <li><span class="review__label">Fitting</span><span class="review__value">At any GridX dealership</span></li>
+              <li><span class="review__label">Warranty</span><span class="review__value">1 year</span></li>
+              <li><span class="review__label">Delivery</span><span class="review__value">Free</span></li>
+            </ul>
+          </article>
+          <article class="pg2-step" data-copy="draft">
+            <h2 class="pg2-step__title" tabindex="-1">How many?</h2>
+            <div class="qty-row">
+              <span class="qty-row__unit"></span>
+              <div class="stepper">
+                <button class="stepper__btn" type="button" data-step="-1" aria-label="One fewer">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>
+                </button>
+                <output class="stepper__count" id="product-qty" aria-live="polite">1</output>
+                <button class="stepper__btn" type="button" data-step="1" aria-label="One more">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="pg2__foot">
+        <div class="pg2-foot__money">
+          <p class="pg2-foot__total">
+            <span class="pg2-foot__label" id="product-total-label">Total</span>
+            <span class="pg2-foot__amount" id="product-total">₹2,999</span>
+          </p>
+          <p class="pg2-foot__tax">(inclusive of all taxes)</p>
+        </div>
+        <button class="pg2-next" id="product-buy" type="button"
+                data-order-sku="dock" data-qty-from="product-qty"
+                aria-haspopup="dialog" aria-controls="order-sheet">
+          <span>Buy</span>
+        </button>
+      </div>
+
+      <noscript>
+        <p class="pg2-step__sub" style="padding: 1rem 1.25rem">Ordering online needs
+          JavaScript. You can also order on
+          <a href="https://wa.me/919220199098">WhatsApp</a>.</p>
+      </noscript>
+    </div>
+  </main>
+
+  <!-- Order matters. gridx-api.js first: order-sheet.js reaches Paddock through it.
+       catalogue.js and sheet.js before order-sheet.js, which reads the prices from one and
+       takes its behaviour from the other. Razorpay's own script is deferred, since nothing
+       needs it until Pay is pressed. No footer.js: like the configurator, this shell never
+       scrolls as a document, so there is nowhere for a footer to live. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/gstin.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/catalogue.js"></script>
+  <script src="assets/sheet.js"></script>
+  <script src="assets/order-sheet.js"></script>
+  <script src="assets/product.js"></script>
+  <script src="assets/topbar.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

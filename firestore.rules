@@ -1,7 +1,75 @@
 rules_version = '2';
 
+// ===============================================================
+// Firestore security rules for the `websitegridx` project.
+//
+// THIS FILE IS THE SINGLE SOURCE OF TRUTH. Two other repos used to carry their
+// own copy and both must now leave theirs alone, or a deploy from one will
+// silently delete the other's rules:
+//
+//   movio-mobility.github.io      the live gridxenergy.in site (jobs, applications)
+//   "powerpod-platform website"   the retired PowerPod Platform site (the lead form)
+//
+// Deploy with:  firebase deploy --only firestore
+//
+// firebase.json here declares firestore and nothing else, deliberately. The
+// same project also has Cloud Functions and Storage rules, owned by
+// movio-mobility.github.io, and a deploy only touches what is declared, so a
+// deploy from this folder cannot reach them.
+//
+// ---------------------------------------------------------------
+// THREE GROUPS, THREE OWNERS
+// ---------------------------------------------------------------
+//   1. Careers        jobs, applications. LIVE DATA, in use right now.
+//   2. Lead form      config/form, formVersions, submissions. Managed by Paddock.
+//   3. Orders         websiteOrders, websiteCounters, websiteAnalyticsDaily.
+//                     Written only by Paddock's Admin SDK, so closed to everyone.
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // -------------------------------------------------------------
+    // Helpers for the lead form in group 2 below, declared here at the top of
+    // the scope rather than next to the rules that use them. That is the
+    // conventional placement and it does not rely on declarations being
+    // hoisted. What each one is for is explained in group 2.
+    // -------------------------------------------------------------
+
+    // Rules get() bypasses rules, so this reads whether or not the caller
+    // could read the document themselves.
+    function formSpec() {
+      return get(/databases/$(database)/documents/config/form).data;
+    }
+
+    // `spec` is passed in rather than fetched here, so the get() above happens
+    // exactly once per create no matter how many checks read from it.
+    function isValidAnswers(answers, spec) {
+      return answers is map
+        && answers.size() <= 40
+        && answers.keys().hasOnly(spec.fieldIds)
+        && answers.keys().hasAll(spec.requiredIds);
+    }
+
+    function isValidSubmission(data) {
+      return data.keys().hasOnly(['answers', 'formVersion', 'createdAt', 'source'])
+        && data.source == 'website'
+        && data.formVersion is int
+        && data.formVersion >= 1
+        && data.formVersion <= 10000
+        && data.createdAt is timestamp
+        && data.createdAt == request.time
+        && isValidAnswers(data.answers, formSpec());
+    }
+
+    // =============================================================
+    // 1. CAREERS
+    // -------------------------------------------------------------
+    // Copied verbatim from movio-mobility.github.io/firestore.rules. This
+    // protects data the live site reads and writes today: the careers page
+    // lists `jobs` and submits to `applications`. Do not "tidy" this block
+    // without testing the live careers page against it.
+    // =============================================================
 
     match /jobs/{jobId} {
       allow read: if true;
@@ -29,6 +97,97 @@ service cloud.firestore {
         && request.auth.token.email.matches('.*@gridxenergy[.]in$');
     }
 
+    // =============================================================
+    // 2. LEAD FORM
+    // -------------------------------------------------------------
+    // Carried over from the retired PowerPod Platform site. Paddock still
+    // reads and writes these through src/lib/powerpod-platform/firestoreForm.js
+    // and firestoreSubmissions.js, so the rules move with the data.
+    //
+    // Collection: config, document `form`
+    //   Public read: yes, by design. A marketing form cannot require login.
+    //   Public write: no. Admin SDK / console only. Holds no PII.
+    //   Fields: version, updatedAt, fields[], fieldIds[], requiredIds[]
+    //
+    // Collection: formVersions, document id is the version number as a string
+    //   Admin SDK only, immutable once written, so Paddock can show an old
+    //   entry with the wording it was actually asked.
+    //
+    // Collection: submissions, auto-id
+    //   Leads are PII, so no public read, update or delete. Public create is
+    //   shape-validated below and App Check is enforced in the console.
+    //
+    // WHY THESE RULES NAME NO FIELD: they used to, and every question added in
+    // Paddock was then rejected on submit until this file was edited and
+    // redeployed. The allow-list now lives in the schema document itself.
+    // `fieldIds` and `requiredIds` are flat string arrays written on every
+    // publish, because rules cannot iterate an array of maps. That costs one
+    // get() per create, out of the ten a single-document request may make.
+    //
+    // `requiredIds` deliberately excludes any field carrying a `showIf`: a
+    // conditional question that was never asked is legitimately absent.
+    //
+    // The tradeoff is that per-value length and per-select enum checks are
+    // gone, since rules cannot walk a map's values. Holding the line instead:
+    // Firestore's 1 MiB document ceiling, the answers.size() cap below, and
+    // App Check. Turning App Check enforcement on is the real defence against
+    // a junk dump.
+    // =============================================================
+
+    // formSpec(), isValidAnswers() and isValidSubmission() are declared at the
+    // top of this scope.
+
+    match /config/{docId} {
+      allow read: if docId == 'form';
+      allow write: if false;
+    }
+
+    // Written and read by the Admin SDK from Paddock only.
+    match /formVersions/{version} {
+      allow read, write: if false;
+    }
+
+    match /submissions/{id} {
+      allow read, update, delete: if false;
+      allow create: if isValidSubmission(request.resource.data);
+    }
+
+    // =============================================================
+    // 3. ORDERS, COUNTERS AND ANALYTICS
+    // -------------------------------------------------------------
+    // Closed to every client, and that is the finished rule rather than a
+    // placeholder. Paddock writes all three with the Admin SDK, which bypasses
+    // security rules entirely, so denying everything here denies browsers
+    // without denying Paddock.
+    //
+    // It matters that these stay shut:
+    //
+    //   websiteOrders   a browser that could write here could invent an order
+    //                   marked paid, at any price. The whole order flow is
+    //                   built so the browser never sends a price and only the
+    //                   Razorpay webhook can mark an order paid.
+    //   websiteCounters holds the GST invoice serial. A client that could
+    //                   touch it could skip or repeat an invoice number.
+    //   websiteAnalyticsDaily  counters only, but a client that could
+    //                   increment them could fabricate traffic.
+    //
+    // The website reaches all three through Paddock's HTTP API instead, which
+    // rate limits by IP and validates before writing. See assets/gridx-api.js.
+    // =============================================================
+
+    match /websiteOrders/{orderNumber} {
+      allow read, write: if false;
+    }
+
+    match /websiteCounters/{fy} {
+      allow read, write: if false;
+    }
+
+    match /websiteAnalyticsDaily/{dateKey} {
+      allow read, write: if false;
+    }
+
+    // Anything not named above. Keep last.
     match /{document=**} {
       allow read, write: if false;
     }

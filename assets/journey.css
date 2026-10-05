@@ -1,0 +1,1273 @@
+/*
+ * Journey: the timeline tape and the years it opens.
+ *
+ * Two states, one class. Without .is-open the page is the overview: the tape lies on the
+ * studio's horizon band (journey.js measures it into --horizon-y) with a peek of the centred
+ * year beneath it. With .is-open the tape compacts, pins under the top bar, and the chosen
+ * year's chapters flow down the page beneath a big year title. journey.js moves elements
+ * between the two layouts with FLIP, so this file only has to describe where they rest.
+ *
+ * Without JavaScript the tape is hidden and every panel simply reads top to bottom.
+ */
+
+.journey {
+  --gutter-l: max(1rem, env(safe-area-inset-left));
+  --gutter-r: max(1rem, env(safe-area-inset-right));
+  --topbar-h: calc(max(1.125rem, env(safe-area-inset-top)) + 44px);
+  /* The tape's box. journey.js reads --hairline: keep the two in step. */
+  --bar-h: 78px;
+  --hairline: 56px;
+  --horizon-y: 40vh;
+  --ink-soft: rgb(20 20 20 / 0.78);
+  --ink-quiet: rgb(20 20 20 / 0.52);
+  --ink-faint: rgb(20 20 20 / 0.4);
+  position: relative;
+  z-index: 2;
+  /* Labels travel well past both edges. Clip, not hidden: no scroll container, so the tape
+     can still stick. */
+  overflow-x: clip;
+}
+
+.js .journey {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* ---------------------------------------------------------------- head: the big year */
+.tl-head {
+  padding: calc(var(--topbar-h) + clamp(1rem, 4.5vh, 3.25rem)) var(--gutter-r) 0 var(--gutter-l);
+  text-align: center;
+  pointer-events: none;
+}
+html:not(.js) .tl-head,
+html:not(.js) .tl-bar,
+html:not(.js) .tl-peek { display: none; }
+
+.tl-title {
+  margin: 0;
+  font-size: clamp(5.25rem, 27vw, 10.5rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1;
+  letter-spacing: -0.065em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  opacity: 0;
+}
+.tl-title__digits {
+  display: inline-block;
+  /* Tracking pulls the last digit's advance in; give it back so the number centres. */
+  margin-right: -0.065em;
+  will-change: transform;
+}
+/* One cell per digit. Old and new faces stack in the same cell while the odometer rolls, so
+   the cell is always as wide as the wider of the two, and anything rolling out is clipped.
+   The title's tight tracking makes each cell narrower than its glyph, so a plain clip shaved
+   the last digit's right edge off. Side padding cancelled by negative margins widens the clip
+   without moving a thing. (Not clip-path: Chrome lets compositor-animated faces escape it.) */
+.tl-digit {
+  display: inline-grid;
+  overflow: hidden;
+  padding: 0 0.14em;
+  margin: 0 -0.14em;
+  vertical-align: top;
+  /* A soft window, like an odometer's: a digit fades as it rolls past the cap line or the
+     baseline (at rest DM Sans digits sit between 0.14em and 0.84em of the cell). */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0.02em, #000 0.12em, #000 0.865em, transparent 0.97em);
+  mask-image: linear-gradient(180deg, transparent 0.02em, #000 0.12em, #000 0.865em, transparent 0.97em);
+}
+.tl-digit > span {
+  grid-area: 1 / 1;
+}
+
+/* Always one line tall, text or not: the open transition measures the layout with this line
+   in place, so it must never grow later and shove the tape down. */
+.tl-theme {
+  min-height: 1.4em;
+  margin: 0.55rem 0 0;
+  font-size: clamp(0.98rem, 0.35vw + 0.9rem, 1.2rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink-quiet);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition: opacity 0.3s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+.journey.is-open .tl-title { opacity: 1; }
+/* It arrives once the title is most of the way home. */
+.journey.is-open .tl-theme.is-shown {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--ease-out) 0.35s, transform 0.8s var(--ease-out) 0.35s;
+}
+
+/* ---------------------------------------------------------------- the tape */
+.tl-bar {
+  position: absolute;
+  top: calc(var(--horizon-y) - var(--hairline));
+  left: 0;
+  right: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.tl-bar__inner {
+  position: relative;
+  height: var(--bar-h);
+  overflow: hidden; /* off-screen labels must not widen the page */
+  pointer-events: auto;
+  touch-action: pan-y; /* sideways is ours, vertical still scrolls the page */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+  will-change: transform;
+}
+.journey.is-dragging .tl-bar__inner { cursor: grabbing; }
+
+/* The tape runs on past both edges of the screen. */
+.tl-bar__ticks,
+.tl-bar__labels,
+.tl-bar__glint-track {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
+}
+
+.tl-bar__ticks {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tl-bar__labels {
+  position: absolute;
+  inset: 0;
+}
+
+.tl-year {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-year > span { display: block; }
+.tl-year:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+/* The needle: fixed at the centre of the screen while the tape travels beneath it. */
+.tl-bar__needle {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--hairline) - 24px);
+  width: 2px;
+  height: 32px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--ink);
+  transform-origin: 50% 24px;
+  transition: transform var(--morph) var(--spring), opacity 0.6s ease;
+  pointer-events: none;
+}
+.tl-bar__needle::after {
+  content: "";
+  position: absolute;
+  left: -2.5px;
+  top: 21px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.28);
+}
+.journey.is-open .tl-bar__needle { transform: scaleY(0.72); }
+.journey:not(.is-ready) .tl-bar__needle { opacity: 0; }
+
+/* A soft light runs along the hairline when a mouse moves over the tape, in the direction it
+   moves (journey.js starts each sweep). Compositor only: no repaint. */
+.tl-bar__glint-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--hairline) - 2px);
+  height: 5px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.tl-bar__glint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.4) 45%, rgb(255 255 255 / 0));
+  opacity: 0;
+  transform: translate3d(-100%, 0, 0);
+}
+.tl-bar__glint.is-sweeping-right { animation: tl-glint-right 1.5s var(--ease-gentle) both; }
+.tl-bar__glint.is-sweeping-left { animation: tl-glint-left 1.5s var(--ease-gentle) both; }
+@keyframes tl-glint-right {
+  0% { transform: translate3d(-100%, 0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(340%, 0, 0); opacity: 0; }
+}
+@keyframes tl-glint-left {
+  0% { transform: translate3d(340%, 0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(-100%, 0, 0); opacity: 0; }
+}
+
+/* Back to all years, only while a year is open. On desktop it sits at the tape's right end,
+   where the open tape fades out early to make room; wherever the island has moved to the
+   bottom of the screen it takes the empty end of the top bar instead. */
+.tl-close {
+  position: absolute;
+  right: var(--gutter-r);
+  top: calc(var(--topbar-h) + 3px);
+  z-index: 1;
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  /* No backdrop blur: it would start sampling the WebGL canvas the moment the button fades
+     in, mid-flight, and that first readback costs a visible frame. */
+  background: rgb(236 236 234 / 0.62);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 0 0 1px rgb(255 255 255 / 0.28),
+    0 8px 20px -12px rgb(20 20 20 / 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.85);
+  transition: opacity 0.25s ease, transform 0.5s var(--spring), visibility 0s linear 0.25s;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.tl-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.journey.is-open .tl-close {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.35s ease 0.35s, transform 0.6s var(--spring) 0.3s, visibility 0s;
+}
+@media (hover: hover) {
+  .tl-close:hover { background: rgb(244 244 242 / 0.82); }
+}
+
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .tl-close {
+    position: fixed;
+    top: calc(max(1.125rem, env(safe-area-inset-top)) + 2px);
+  }
+}
+@media (min-width: 1025px) and (hover: hover) {
+  .journey.is-open .tl-bar__ticks,
+  .journey.is-open .tl-bar__labels {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 calc(100% - 220px), transparent calc(100% - 84px));
+    mask-image: linear-gradient(90deg, transparent, #000 13%, #000 calc(100% - 220px), transparent calc(100% - 84px));
+  }
+}
+
+/* Open: the tape pins under the top bar. Its box starts at the top of the screen, so the glass
+   band behind it also sits behind the logo; the negative margin keeps it snug under the title
+   until it pins. */
+.journey.is-open .tl-bar {
+  position: sticky;
+  top: 0;
+  margin-top: calc(-1 * var(--topbar-h) + 0.5rem);
+  padding-top: var(--topbar-h);
+}
+.tl-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -22px;
+  background: linear-gradient(180deg, rgb(204 204 202 / 0.7), rgb(210 210 208 / 0.46));
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.05);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 24px), transparent);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.journey.is-open .tl-bar.is-stuck::before { opacity: 1; }
+/* The first frame any backdrop blur draws over the WebGL canvas pays a one-off setup cost,
+   long enough to drop frames. journey.js turns the band on, all but invisibly, for a moment
+   during the film's opening still beat, so that cost is paid while nothing is moving. */
+.journey.is-warming .tl-bar::before {
+  opacity: 0.02;
+  transition: none;
+}
+
+/* ---------------------------------------------------------------- peek */
+.tl-peek {
+  position: absolute;
+  top: calc(var(--horizon-y) + 34px);
+  left: var(--gutter-l);
+  right: var(--gutter-r);
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  text-align: center;
+  transition: opacity 0.45s ease, transform 0.6s var(--ease-out), visibility 0s;
+}
+/* Hidden from the first paint until journey.js has set it up, then while the tape travels. */
+.js .journey:not(.is-ready) .tl-peek {
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+}
+.journey.is-open .tl-peek,
+.journey.is-filming .tl-peek {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 8px, 0);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.tl-peek__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  max-width: min(34rem, 100%);
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: clamp(1rem, 0.35vw + 0.92rem, 1.15rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-peek__open svg {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.4s var(--spring);
+}
+.tl-peek__open:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .tl-peek__open:hover { color: var(--ink); background: rgb(255 255 255 / 0.22); }
+  .tl-peek__open:hover svg { transform: translate3d(3px, 0, 0); }
+}
+.tl-peek__open:active { background: rgb(255 255 255 / 0.3); }
+
+.tl-peek__text {
+  transition: opacity 0.3s ease, transform 0.45s var(--ease-out), filter 0.3s ease;
+}
+.tl-peek__text.is-swapping {
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+  filter: blur(3px);
+  transition-duration: 0.15s;
+}
+
+.tl-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.tl-hint.is-shown { opacity: 1; }
+
+/* ---------------------------------------------------------------- panels */
+.tl-panels {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding:
+    0
+    var(--gutter-r)
+    calc(max(3rem, env(safe-area-inset-bottom)) + 96px)
+    var(--gutter-l);
+}
+html:not(.js) .tl-panels { padding-top: calc(var(--topbar-h) + 2rem); }
+
+.js .tl-panel { display: none; }
+.js .tl-panel.is-active { display: block; }
+html:not(.js) .tl-panel + .tl-panel { margin-top: 5rem; }
+
+/* The year heading belongs to the panel for anyone reading without the tape. With it, the
+   big title above is the visible heading and this stays for assistive tech. */
+.tl-panel__year {
+  margin: 0;
+  font-size: clamp(3.5rem, 16vw, 7rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+.tl-panel__theme {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink-quiet);
+}
+.js .tl-panel__year {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- chapters */
+.chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.1rem;
+  padding-top: clamp(2.75rem, 9vw, 5.5rem);
+}
+.chapter:first-of-type { padding-top: clamp(2rem, 6vw, 3.5rem); }
+
+.chapter__title {
+  margin: 0;
+  font-size: clamp(1.65rem, 1.6vw + 1.2rem, 2.6rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.chapter__text p {
+  max-width: 60ch;
+  margin: 0 0 0.95em;
+  font-size: clamp(1rem, 0.22vw + 0.96rem, 1.125rem);
+  line-height: 1.62;
+  letter-spacing: -0.003em;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+.chapter__text p:last-of-type { margin-bottom: 0; }
+
+.chapter__text q {
+  font-size: 1.08em;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink);
+  quotes: "\201C" "\201D";
+}
+.chapter__gloss {
+  display: block;
+  margin-top: 0.15em;
+  font-size: 0.9em;
+  color: var(--ink-quiet);
+}
+.chapter__lead {
+  font-size: clamp(1.25rem, 1vw + 1rem, 1.65rem) !important;
+  line-height: 1.38 !important;
+  letter-spacing: -0.018em !important;
+  color: var(--ink) !important;
+}
+
+/* Photos: a strip of real proportions, swiped sideways, edge to edge on phones. */
+.chapter__media {
+  --frame-h: clamp(210px, 58vw, 270px);
+  position: relative;
+  min-width: 0;
+  margin: 0 calc(-1 * var(--gutter-r)) 0 calc(-1 * var(--gutter-l));
+}
+.strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter-l) var(--gutter-r);
+  padding: 4px var(--gutter-r) 18px var(--gutter-l);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.strip::-webkit-scrollbar { display: none; }
+.strip:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 16px; }
+.strip.is-grabbing { scroll-snap-type: none; cursor: grabbing; }
+@media (hover: hover) and (pointer: fine) {
+  .strip { cursor: grab; }
+}
+
+.frame {
+  position: relative;
+  flex: none;
+  display: block;
+  width: min(calc(var(--frame-h) * var(--ar, 1.5)), 84vw);
+  height: var(--frame-h);
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgb(20 20 20 / 0.07);
+  box-shadow:
+    0 16px 30px -22px rgb(20 20 20 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.18);
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+}
+.frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.6s ease, transform 0.8s var(--ease-out);
+  -webkit-user-drag: none;
+}
+.js .frame img:not(.is-loaded) { opacity: 0; }
+.frame:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+@media (hover: hover) {
+  .frame:hover img { transform: scale(1.025); }
+}
+
+/* Arrows either side of the strip (journey.js adds them). They sit over the photos, centred
+   on them, and fade away at their end of the strip. */
+.strip-arrow {
+  position: absolute;
+  top: calc(4px + var(--frame-h) / 2 - 19px);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: rgb(236 236 234 / 0.8);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.65),
+    inset 0 0 0 1px rgb(255 255 255 / 0.3),
+    0 10px 22px -12px rgb(20 20 20 / 0.5);
+  opacity: 0;
+  transform: scale(0.86);
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.45s var(--spring), background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.strip-arrow.is-shown {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.strip-arrow svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.strip-arrow--prev { left: calc(var(--gutter-l) + 8px); }
+.strip-arrow--next { right: calc(var(--gutter-r) + 8px); }
+.strip-arrow:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.strip-arrow:active { transform: scale(0.94); }
+@media (hover: hover) {
+  .strip-arrow:hover { background: rgb(246 246 244 / 0.95); }
+}
+
+/* Founders who join in a chapter. */
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.5rem;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.person {
+  display: grid;
+  grid-template-columns: 42px auto;
+  grid-template-rows: auto auto;
+  column-gap: 0.7rem;
+  align-items: center;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.person:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.person img {
+  grid-row: 1 / span 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 50%; /* the -face crops are already centred on the face */
+  background: #fff;
+  box-shadow: 0 6px 14px -8px rgb(20 20 20 / 0.5);
+}
+.person__name {
+  align-self: end;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.person__line {
+  align-self: start;
+  max-width: 26ch;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--ink-quiet);
+}
+@media (hover: hover) {
+  .person:hover .person__name { text-decoration: underline; text-underline-offset: 3px; }
+}
+
+/* Backers, drawn in ink like the GRID logo. */
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.1rem 1.9rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.marks img {
+  display: block;
+  width: auto;
+  height: 34px;
+  filter: brightness(0);
+  opacity: 0.68;
+}
+
+/* Continue to the next year. */
+.tl-next {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: clamp(4.5rem, 14vw, 8rem) auto 0;
+  padding: 1.25rem 2rem 1.5rem;
+  border-radius: 28px;
+  color: var(--ink);
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease;
+}
+.tl-next__kicker,
+.tl-end__kicker,
+.backers__label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.tl-next__year {
+  font-size: clamp(3.25rem, 15vw, 6rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.6s var(--spring);
+}
+.tl-next__title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink-quiet);
+}
+.tl-next:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .tl-next:hover { background: rgb(255 255 255 / 0.18); }
+  .tl-next:hover .tl-next__year { transform: translate3d(0, -3px, 0); }
+}
+.tl-next:active { background: rgb(255 255 255 / 0.26); }
+
+/* ---------------------------------------------------------------- this year in review */
+/* The current year's photos as one rectangle of randomly sized tiles, drifting sideways for
+   ever, with the words over them. journey.js cuts the tiles and sets --page-w (the window's
+   width) and --review-dur; the track holds the pages twice, so sliding by half of it is one
+   seamless loop. */
+.review {
+  position: relative;
+  margin-top: clamp(1.75rem, 5vw, 3rem);
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 24px;
+  background: rgb(20 20 20 / 0.08);
+  box-shadow:
+    0 30px 60px -36px rgb(20 20 20 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+.review__window {
+  position: relative;
+  height: clamp(380px, 112vw, 460px);
+  overflow: hidden;
+}
+.review__track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: review-drift var(--review-dur, 140s) linear infinite;
+  will-change: transform;
+}
+.review.is-paused .review__track { animation-play-state: paused; }
+@keyframes review-drift {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.review__page {
+  position: relative;
+  flex: none;
+  width: var(--page-w, 100vw);
+  height: 100%;
+}
+.review__tile {
+  position: absolute;
+  padding: 3px;
+}
+.review__tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* The words, set over the photos on a soft dark rise. */
+.review__title {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  padding: clamp(4.5rem, 16vw, 8rem) clamp(1.25rem, 4vw, 2.5rem) clamp(1.35rem, 4vw, 2.25rem);
+  background: linear-gradient(0deg, rgb(10 10 10 / 0.74), rgb(10 10 10 / 0.4) 48%, rgb(10 10 10 / 0));
+  color: #fff;
+  pointer-events: none;
+}
+.review__kicker {
+  margin: 0 0 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.72);
+}
+.review__heading {
+  margin: 0;
+  font-size: clamp(2.6rem, 9vw, 5.5rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.review__heading span { display: block; }
+.review__heading span + span {
+  font-weight: 400;
+  color: rgb(255 255 255 / 0.78);
+}
+
+/* The pill under the words, and the button over the whole rectangle that it speaks for. */
+.review__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1.1rem 0 0;
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: #fff;
+  transition: background-color 0.25s ease;
+}
+.review__cta svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.55s var(--spring);
+}
+.review.is-open .review__cta svg { transform: rotate(180deg); }
+
+.review__toggle {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.review__toggle:focus-visible { outline: 2px solid #fff; outline-offset: -6px; }
+@media (hover: hover) {
+  .review:hover .review__cta { background: rgb(255 255 255 / 0.28); }
+}
+
+/* The current year's own chapters, folded under the review until it is opened. */
+.review-fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 0.75s var(--ease-out), visibility 0s linear 0.75s;
+}
+.review-fold.is-open {
+  grid-template-rows: 1fr;
+  visibility: inherit;
+  transition: grid-template-rows 0.75s var(--ease-out), visibility 0s;
+}
+.review-fold__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.review-fold.is-settled .review-fold__inner { overflow: visible; }
+
+/* Who we are, the founders and our backers live in no year of their own. journey.js moves
+   them into the current year; until it does (and without it) they follow the years. */
+.js .tl-today { display: none; }
+html:not(.js) .tl-today { margin-top: 5rem; }
+
+/* ---------------------------------------------------------------- today */
+.founders {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.6rem 0.75rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.founder {
+  display: block;
+  border-radius: 18px;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.founder:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+.founder img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 50%;
+  border-radius: 16px;
+  background: #fff; /* the portraits are cut out onto white: no grey flash while one loads */
+  box-shadow:
+    0 18px 34px -24px rgb(20 20 20 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.18);
+  transition: opacity 0.6s ease, transform 0.7s var(--ease-out), box-shadow 0.7s var(--ease-out);
+}
+@media (hover: hover) {
+  .founder:hover img {
+    transform: translate3d(0, -3px, 0);
+    box-shadow:
+      0 26px 40px -26px rgb(20 20 20 / 0.6),
+      inset 0 0 0 1px rgb(255 255 255 / 0.22);
+  }
+}
+/* While one founder has the light, the others step back a little, so it reads as theirs. */
+.founder {
+  transition: opacity 0.5s var(--ease-out);
+}
+@media (hover: hover) {
+  .founders:has(.founder:hover) .founder:not(:hover) { opacity: 0.55; }
+}
+.founders:has(.founder:focus-visible) .founder:not(:focus-visible) { opacity: 0.55; }
+.js .founder img:not(.is-loaded),
+.js .person img:not(.is-loaded) { opacity: 0; }
+.founder__name {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.8rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.founder__in {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
+.founder:hover .founder__in,
+.founder:focus-visible .founder__in { opacity: 1; }
+.founder__line {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--ink-quiet);
+  text-wrap: balance;
+}
+
+.backers {
+  display: grid;
+  gap: 2.2rem;
+  margin-top: 0.4rem;
+}
+.backers__label {
+  margin: 0;
+}
+.backers .marks { margin-top: 1.1rem; }
+
+.tl-end {
+  display: grid;
+  justify-items: center;
+  gap: 1.75rem;
+  margin: clamp(4.5rem, 14vw, 8rem) 0 0;
+  text-align: center;
+}
+.tl-end__link {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 1.25rem 2rem 1.5rem;
+  border-radius: 28px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-end__title {
+  font-size: clamp(2.5rem, 11vw, 4.75rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+.tl-end__rewind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  background: rgb(255 255 255 / 0.22);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-end__rewind svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tl-end__link:focus-visible,
+.tl-end__rewind:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .tl-end__link:hover { background: rgb(255 255 255 / 0.18); }
+  .tl-end__rewind:hover { color: var(--ink); background: rgb(255 255 255 / 0.36); }
+}
+
+/* ---------------------------------------------------------------- arrivals */
+/* Chapters rise in as they reach the screen; leaving a year slides them out sideways. */
+.js .review,
+.js .chapter,
+.js .tl-next,
+.js .tl-end {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 0.8s var(--ease-out),
+    transform 0.95s var(--ease-out),
+    background-color 0.3s ease;
+  transition-delay: var(--delay, 0ms), var(--delay, 0ms), 0ms;
+}
+.js .review.is-in,
+.js .chapter.is-in,
+.js .tl-next.is-in,
+.js .tl-end.is-in {
+  opacity: 1;
+  transform: none;
+}
+.js .review.is-leaving,
+.js .chapter.is-leaving,
+.js .tl-next.is-leaving,
+.js .tl-end.is-leaving {
+  opacity: 0;
+  transform: translate3d(var(--leave-x, 0px), 0, 0);
+  transition-duration: 0.22s, 0.26s, 0s;
+  transition-timing-function: ease-in, ease-in, ease;
+  transition-delay: 0ms;
+}
+
+/* ---------------------------------------------------------------- wider screens */
+.review-fold + .chapter { padding-top: clamp(2.75rem, 9vw, 5.5rem); }
+
+@media (min-width: 760px) {
+  .journey { --bar-h: 84px; --hairline: 60px; }
+  .review__window { height: clamp(420px, 42vw, 540px); }
+  .tl-year { font-size: 17px; }
+  .founders { gap: 2rem 1.25rem; }
+  .marks img { height: 40px; }
+}
+
+@media (min-width: 960px) {
+  /* Text on one side, photos on the other, swapping sides each chapter. */
+  .chapter {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-areas:
+      "title media"
+      "text  media";
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(2rem, 4.5vw, 4.5rem);
+    row-gap: 1.25rem;
+    align-items: start;
+  }
+  .chapter:nth-of-type(even) {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      "media title"
+      "media text";
+  }
+  .chapter__title { grid-area: title; align-self: end; }
+  .chapter__text { grid-area: text; }
+  .chapter__media {
+    grid-area: media;
+    margin: 0;
+  }
+  .strip {
+    padding: 4px 0 20px;
+    scroll-padding-inline: 0;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent);
+  }
+  .chapter__media { --frame-h: clamp(280px, 25vw, 360px); }
+  .frame { width: min(calc(var(--frame-h) * var(--ar, 1.5)), 100%); }
+  .strip-arrow--prev { left: 12px; }
+  .strip-arrow--next { right: 12px; }
+
+  .chapter--lead,
+  .chapter--lead:nth-of-type(even) {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-areas: "title text";
+    grid-template-rows: auto;
+  }
+  .chapter--lead .chapter__title { align-self: start; }
+
+  .chapter--team,
+  .chapter--team:nth-of-type(even),
+  .chapter--backers,
+  .chapter--backers:nth-of-type(even) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "title" "media";
+    grid-template-rows: auto;
+  }
+  .founders,
+  .backers { grid-area: media; }
+  .founders { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .backers { grid-template-columns: 1fr 1.4fr; gap: 3rem; }
+}
+
+/* ---------------------------------------------------------------- lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--ink);
+  overscroll-behavior: contain;
+  touch-action: none;
+}
+.lightbox::backdrop {
+  /* A gallery wall in the studio's grey. Not a blur: see .is-warming above. */
+  background: rgb(206 206 204 / 0.96);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.lightbox.is-open::backdrop { opacity: 1; }
+html.lightbox-open { overflow: hidden; }
+
+.lightbox__figure {
+  position: absolute;
+  inset:
+    calc(max(1rem, env(safe-area-inset-top)) + 56px)
+    max(1rem, env(safe-area-inset-right))
+    calc(max(1rem, env(safe-area-inset-bottom)) + 76px)
+    max(1rem, env(safe-area-inset-left));
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0;
+}
+.lightbox__img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  border-radius: 14px;
+  object-fit: contain;
+  box-shadow: 0 40px 70px -40px rgb(20 20 20 / 0.6);
+  will-change: transform;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.lightbox__caption {
+  max-width: 40rem;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--ink-quiet);
+  text-align: center;
+  transition: opacity 0.3s ease;
+}
+.lightbox:not(.is-open) .lightbox__caption,
+.lightbox:not(.is-open) .lightbox__btn { opacity: 0; }
+
+.lightbox__btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: rgb(255 255 255 / 0.4);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    0 10px 24px -14px rgb(20 20 20 / 0.45);
+  cursor: pointer;
+  transition: opacity 0.3s ease, background-color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.lightbox__btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lightbox__btn:disabled { opacity: 0.3 !important; cursor: default; }
+.lightbox__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .lightbox__btn:not(:disabled):hover { background: rgb(255 255 255 / 0.62); }
+}
+.lightbox__close {
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+}
+/* Phones: previous and next sit together at the bottom, under the thumb. */
+.lightbox__prev,
+.lightbox__next {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+.lightbox__prev { left: calc(50% - 52px); }
+.lightbox__next { left: calc(50% + 8px); }
+@media (min-width: 760px) {
+  .lightbox__prev,
+  .lightbox__next {
+    top: 50%;
+    bottom: auto;
+    margin-top: -22px;
+  }
+  .lightbox__prev { left: max(1.25rem, env(safe-area-inset-left)); }
+  .lightbox__next { left: auto; right: max(1.25rem, env(safe-area-inset-right)); }
+  .lightbox__figure {
+    inset: 4.5rem 5.5rem 2rem;
+  }
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .review__track { animation: none; }
+  .review-fold,
+  .review-fold.is-open { transition: none; }
+  .js .review,
+  .js .chapter,
+  .js .tl-next,
+  .js .tl-end,
+  .tl-theme,
+  .tl-peek,
+  .tl-peek__text {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 0.3s ease;
+  }
+  .tl-bar__glint { animation: none !important; }
+  .frame img,
+  .tl-next__year,
+  .tl-peek__open svg { transition: opacity 0.3s ease; transform: none !important; }
+}

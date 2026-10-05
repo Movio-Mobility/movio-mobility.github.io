@@ -1,0 +1,393 @@
+/*
+ * The accessories order sheet.
+ *
+ * The shell is the story sheet's: .story gives the bottom sheet, its backdrop, the
+ * grabber, the close button and the slide. Only the contents live here.
+ *
+ * THE FORM PRIMITIVES BELOW ARE A SECOND COPY. .field, .field__input, .field__err and
+ * .field-row are lifted from assets/powerpod-gen2.css (the block around its inputs), and
+ * --hair and --bad from the .pg2 token block there. They are copied rather than shared
+ * because this page does not load that stylesheet and pulling in a 30 KB app shell to
+ * borrow six selectors is the worse trade. Change one, change the other: a buyer who
+ * fills in this form and then the configurator must not see two different text fields.
+ *
+ * Mobile first throughout. Phone values are the base and 760px widens them, matching
+ * store.css rather than site.css, which is written the other way round.
+ */
+
+/* Several rules below set display, and an author display beats the UA stylesheet's
+   [hidden] { display: none }. Without this the foot keeps its Pay button on screen under
+   the confirmation. powerpod-gen2.css carries the same guard for the same reason. */
+.story--order [hidden] { display: none !important; }
+
+.story--order {
+  --hair: rgb(20 20 20 / 0.12);
+  --bad: #b3261e;
+  /* Taller than the story sheet: this one holds a form, and a sheet that only shows two
+     fields at a time reads as a scroll trap rather than a checkout. */
+  max-height: min(92svh, 860px);
+}
+
+/* .story[open] is the flex column; the form has to become one too, or the foot below
+   scrolls away with the fields instead of sitting under them. */
+.order {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The foot carries the bottom safe area now, so the scroller gives it back. */
+.story--order .story__scroll {
+  padding-bottom: 1.25rem;
+}
+
+.order__headline {
+  /* A step in a purchase, not the title of a story. */
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  margin-bottom: clamp(0.9rem, 2.5vw, 1.25rem);
+}
+
+.order__sub {
+  margin: clamp(1.5rem, 5vw, 2rem) 0 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------- the items */
+
+.order__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Four of these sit above the details form, so every row costs the buyer a scroll. Kept
+   as tight as a 44px stepper allows: the stepper is the row's height, and the name and
+   price stack inside it rather than beside it. */
+.order__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+.order__item:last-child { border-bottom: 0; }
+
+/* Briefly lit when a card deep links to this row, so the sheet answers the tap that
+   opened it instead of just appearing. */
+.order__item.is-aimed {
+  animation: order-aim 1.6s var(--ease-out);
+}
+
+@keyframes order-aim {
+  0%, 70% { background: rgb(20 20 20 / 0.05); }
+  100% { background: rgb(20 20 20 / 0); }
+}
+
+.order__item-text { min-width: 0; }
+
+.order__item-name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.order__item-price {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: rgb(20 20 20 / 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- the stepper */
+/* The one component the site did not already have. Built in the same language as .opt on
+   the configurator: a hairline inset rather than a border, so it sits on the glass the
+   way everything else does. */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 0.15rem;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.4);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+.stepper__btn {
+  display: grid;
+  place-items: center;
+  /* 44px is the floor for a thumb. Everything else here is sized around it. */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
+}
+
+.stepper__btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.stepper__btn:active { background: rgb(20 20 20 / 0.06); }
+.stepper__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* At a bound, not removed from the tab order. aria-disabled rather than disabled is the
+   house rule: a press can then say why nothing happened. */
+.stepper__btn[aria-disabled="true"] {
+  opacity: 0.25;
+  cursor: default;
+}
+.stepper__btn[aria-disabled="true"]:active { background: none; }
+
+.stepper__count {
+  min-width: 1.75rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A line nobody has taken yet should not shout its zero. */
+.order__item[data-qty="0"] .stepper__count { color: rgb(20 20 20 / 0.32); }
+
+/* ---------------------------------------------------------------- fields */
+/* Copied from assets/powerpod-gen2.css. See the note at the top of this file. */
+
+.field { margin-bottom: 0.9rem; }
+
+.field__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgb(20 20 20 / 0.6);
+}
+
+.field__input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-family: inherit;
+  font-size: 1rem; /* 16px: anything smaller makes iOS zoom the page on focus */
+  line-height: 1.3;
+  color: var(--ink);
+  transition: box-shadow 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+
+.field__input::placeholder { color: rgb(20 20 20 / 0.32); }
+.field__input:focus { background: #fff; box-shadow: inset 0 0 0 1.5px var(--ink); outline: none; }
+.field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.field.is-bad .field__input { box-shadow: inset 0 0 0 1.5px var(--bad); }
+
+.field__err { margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.4; color: var(--bad); }
+.field__err:empty { display: none; }
+
+.field__opt {
+  margin-left: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgb(20 20 20 / 0.38);
+}
+
+.field__hint { margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.45; color: rgb(20 20 20 / 0.5); }
+.field.is-bad .field__hint { display: none; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+/* ---------------------------------------------------------------- the foot */
+
+.order__foot {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem 1rem;
+  padding: 0.85rem var(--sheet-pad);
+  padding-bottom: max(0.95rem, env(safe-area-inset-bottom));
+  background: rgb(255 255 255 / 0.55);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+  box-shadow: 0 -12px 24px -24px rgb(20 20 20 / 0.5);
+}
+
+.order__money { grid-column: 1; min-width: 0; }
+
+.order__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.order__total-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.order__total-amount {
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.order__tax {
+  margin: 0.1rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: rgb(20 20 20 / 0.42);
+  font-variant-numeric: tabular-nums;
+}
+
+.order__pay {
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(9rem, 100%);
+  min-height: 50px;
+  padding: 0.8rem 1.5rem;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 14px 30px -18px rgb(20 20 20 / 0.8);
+  transition:
+    transform 0.4s var(--spring),
+    opacity 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out);
+}
+
+.order__pay:active { transform: scale(0.985); }
+.order__pay:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* Resting, not disabled: still focusable, and a press says what is missing rather than
+   doing nothing. A disabled attribute would drop it out of the tab order and explain
+   nothing. Same rule as .pg2-next on the configurator. */
+.order__pay[aria-disabled="true"] { opacity: 0.32; box-shadow: none; cursor: default; }
+.order__pay[aria-disabled="true"]:active { transform: none; }
+
+.order__hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.5);
+}
+.order__hint:empty { display: none; }
+.order__hint.is-bad { color: var(--bad); }
+
+/* ---------------------------------------------------------------- done */
+
+/* Focused when it appears, so a screen reader announces the confirmation rather than
+   leaving the buyer on a button that has just vanished. Shrunk to its text so the focus
+   ring hugs the words: a block level h3 would draw a full width box running under the
+   close button. */
+.order__done-title {
+  width: fit-content;
+  max-width: calc(100% - 3rem);
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.order__done-title:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+.order__done-where,
+.order__done-note {
+  margin: 0 0 0.8rem;
+  max-width: 42ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.order__done-note {
+  font-size: 0.85rem;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.order__done-ref {
+  margin: 0 0 0.8rem;
+  font-size: 0.95rem;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.order__done-ref span {
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- tablet up */
+
+@media (min-width: 760px) {
+  .order__item { padding: 1rem 0; }
+  .order__item-name { font-size: 1rem; }
+  .field-row { gap: 0.9rem; }
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .order__item.is-aimed { animation: none; background: rgb(20 20 20 / 0.05); }
+  .stepper__btn,
+  .order__pay {
+    transition: opacity 0.2s ease;
+  }
+  .order__pay:active,
+  .stepper__btn:active { transform: none; }
+}
+
+/* Without backdrop-filter the foot has to be opaque, or the fields scroll visibly
+   underneath it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .order__foot { background: rgb(234 234 232 / 0.97); }
+}

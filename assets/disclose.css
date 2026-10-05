@@ -1,0 +1,107 @@
+/*
+ * Disclosures: a heading that is its own button, and a panel that folds away beneath it.
+ *
+ * Used for whole sections (Order status, FAQs) and nested inside them (each question).
+ * assets/disclose.js keeps the state; this file only animates it. Every rule below is scoped
+ * with `>` to its own disclosure, so opening a section never opens what is folded inside it.
+ *
+ *   .disclose                      the section or item; .is-open, then .is-settled
+ *     > .disclose__head            the heading
+ *         .disclose__toggle        the button, holding the chevron and the label
+ *     > .disclose__panel           the fold
+ *         > .disclose__inner       the content
+ */
+
+/* The heading is the button. It keeps the heading's own type, so closed it reads as a heading
+   with a chevron in front, not as a control dropped onto the page. */
+.disclose__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28em;
+  /* A 44px target around a 32px line on phones, without moving the line. */
+  margin: -6px 0;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.disclose__toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+/* Points right while closed and turns down to point at what it opened, on the island's spring. */
+.disclose__chevron {
+  flex: none;
+  width: 0.62em;
+  height: 0.62em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--morph) var(--spring);
+}
+.disclose.is-open > .disclose__head .disclose__chevron { transform: rotate(90deg); }
+
+/* Grid rows from 0fr to 1fr is a height animation to the content's own height, whatever it
+   is, with nothing measured. Hidden rather than just flattened while closed, so the content
+   leaves the tab order and the accessibility tree with it. Visibility flips at once on the way
+   open and waits for the fold on the way shut. Open is `inherit`, not `visible`: a question
+   left open inside a section that has since closed has to go hidden with the section.
+   All of it is keyed to .js: without scripting nothing could open it, so everything simply
+   stands open and the chevrons have nothing to say. */
+.js .disclose > .disclose__panel {
+  display: grid;
+  /* One column exactly as wide as the section. Left to size itself, it grows to whatever the
+     content could be at its widest, and a row of pills can be wider than a phone. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--morph) var(--spring),
+    visibility 0s linear var(--morph);
+}
+.js .disclose.is-open > .disclose__panel {
+  grid-template-rows: 1fr;
+  visibility: inherit;
+  transition:
+    grid-template-rows var(--morph) var(--spring),
+    visibility 0s;
+}
+
+/* Opacity only, never filter: the track result behind here is glass, and a filter on its
+   ancestor would take its blur away. */
+.js .disclose > .disclose__panel > .disclose__inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.js .disclose.is-open > .disclose__panel > .disclose__inner {
+  opacity: 1;
+  transition: opacity 0.45s ease 0.12s;
+}
+/* Clipping is only for the fold. Once it has opened, focus rings and shadows reach past the
+   column, and they should not be cut off at its edge. */
+.js .disclose.is-settled > .disclose__panel > .disclose__inner { overflow: visible; }
+
+html:not(.js) .disclose__chevron { display: none; }
+html:not(.js) .disclose__toggle { cursor: auto; }
+
+/* A link to a section (#track, #faq) lands it below the fixed top bar, not under the logo:
+   the same clearance .store gives the top of the page, less its breathing room. Sections, not
+   the questions nested in them, which are .disclose too. */
+.store-section.disclose {
+  scroll-margin-top: calc(max(1.125rem, env(safe-area-inset-top)) + 52px + 1.25rem);
+}
+
+/* Phones: the store's 1rem gutter is right for a shelf of cards, but a column of full width
+   pills, and the focus ring drawn outside them, ran too close to the sides of the screen.
+   Half a rem more on each side. */
+@media (max-width: 759px) {
+  .store-section.disclose { padding-inline: 0.5rem; }
+}

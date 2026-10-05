@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Support | GridXenergy</title>
+  <meta name="description" content="Help with your GRID battery.">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/store.css">
+  <link rel="stylesheet" href="assets/order-sheet.css">
+  <link rel="stylesheet" href="assets/disclose.css">
+  <link rel="stylesheet" href="assets/track.css">
+  <link rel="stylesheet" href="assets/contact.css">
+  <link rel="stylesheet" href="assets/faq.css">
+  <link rel="stylesheet" href="assets/manuals.css">
+  <link rel="stylesheet" href="assets/footer.css">
+
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
+  <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GRID home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Support</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="journey.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
+              <span class="island__label">Journey</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- .store is the inner page container: it already pads for the fixed topbar and for the
+       nav island that floats bottom right below 1025px. .hero, which this page used to
+       carry, is a sticky full-viewport centred box, which is a title screen and the wrong
+       shape for a form. .store--split sets the four sections out as a centred 2x2 from 760px
+       up (faq.css); phones keep them stacked. -->
+  <main class="store store--split">
+    <!-- Two columns from 760px up (faq.css), each stacking on its own, so opening a section
+         only ever moves what is beneath it in its own column. On phones the columns are
+         plain blocks and everything reads down the page in this order. -->
+    <div class="store__col">
+      <section class="store-section track disclose" id="track">
+        <!-- A disclosure: the heading is the button, and the form folds away beneath it
+             until it is asked for. assets/disclose.js keeps the state; disclose.css animates it. -->
+        <h2 class="store-kicker disclose__head" style="--i:0">
+          <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="track-panel">
+            <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+            <span>Order status</span>
+          </button>
+        </h2>
+
+        <div class="disclose__panel" id="track-panel">
+          <div class="disclose__inner">
+            <p class="track__lede">Enter the reference from your invoice or your WhatsApp
+              confirmation, and the mobile number the order was placed with.</p>
+
+            <form id="track-form" novalidate>
+              <div class="field">
+                <label class="field__label" for="t-ref">Order reference</label>
+                <input class="field__input" id="t-ref" name="reference" type="text"
+                       autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                       placeholder="GX-XXXXXXXXXX" aria-describedby="et-ref">
+                <p class="field__err" id="et-ref"></p>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="t-phone">Phone number</label>
+                <input class="field__input" id="t-phone" name="phone" type="tel"
+                       inputmode="tel" autocomplete="tel" placeholder="10 digit mobile number"
+                       aria-describedby="et-phone">
+                <p class="field__err" id="et-phone"></p>
+              </div>
+
+              <button class="track__go" id="track-go" type="submit" aria-disabled="true"
+                      aria-describedby="track-note">Track</button>
+              <p class="track__note" id="track-note" role="status" aria-live="polite"></p>
+            </form>
+
+            <!-- Filled in by assets/track.js from what Paddock returns. The server resolves the
+                 timeline into labels and dates; this page only paints them. -->
+            <div class="track__result" id="track-result" hidden></div>
+
+            <noscript>
+              <p class="track__note">Tracking needs JavaScript. You can also ask us on
+                <a class="story__link" href="https://wa.me/919220199098">WhatsApp</a>, quoting
+                your order reference.</p>
+            </noscript>
+          </div>
+        </div>
+      </section>
+
+      <!-- How to reach a person. The number is only ever in the two buttons' hrefs, never printed:
+           the buttons are the way in. The open or closed line under Hours is assets/contact.js,
+           worked out in India's time; without JavaScript it stays hidden and the hours say it. -->
+      <section class="store-section contact disclose" id="contact">
+        <h2 class="store-kicker disclose__head" style="--i:1">
+          <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="contact-panel">
+            <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+            <span>Contact us</span>
+          </button>
+        </h2>
+
+        <div class="disclose__panel" id="contact-panel">
+          <div class="disclose__inner">
+            <p class="contact__lede">Talk to someone at GridX about your PowerPod, an order, or
+              anything else. A real person picks up.</p>
+
+            <div class="contact__actions">
+              <a class="contact__btn" href="tel:+919220199098" data-press>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.3c.5 0 .9.3 1 .8l.7 3.1c.1.4 0 .8-.3 1.1L8.8 10a11.5 11.5 0 0 0 5.2 5.2l1.5-1.5c.3-.3.7-.4 1.1-.3l3.1.7c.5.1.8.5.8 1v2.3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/></svg>
+                <span>Call GridX</span>
+              </a>
+              <a class="contact__btn" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20need%20help%20with%20my%20PowerPod." target="_blank" rel="noopener" data-press>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                <span>WhatsApp GridX</span>
+              </a>
+            </div>
+
+            <div class="contact__block">
+              <h3 class="contact__label">Hours</h3>
+              <p class="contact__status" id="contact-status" hidden></p>
+              <p class="contact__text">Monday to Friday, 11 AM to 6 PM (IST)<br>
+                Closed on Saturdays and Sundays</p>
+              <p class="contact__note">Outside these hours you can still WhatsApp us, and we will
+                reply once we are back.</p>
+            </div>
+
+            <div class="contact__block">
+              <h3 class="contact__label">Mailing address</h3>
+              <address class="contact__text">GridXenergy<br>
+                D66, First Floor, Pocket D<br>
+                Okhla Phase 1, New Delhi 110020<br>
+                India</address>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="store__col">
+      <!-- Questions people ask about the PowerPod, from the Gen 2 user manual and what support
+           tells people on the phone. The same disclosure as the form above, twice over: the
+           section folds away, and so does every answer inside it. The answers live here in the
+           HTML, so they read without JavaScript and to anything crawling the page. -->
+      <section class="store-section faq disclose" id="faq">
+        <h2 class="store-kicker disclose__head" style="--i:2">
+          <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-panel">
+            <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+            <span>FAQs</span>
+          </button>
+        </h2>
+
+        <div class="disclose__panel" id="faq-panel">
+          <div class="disclose__inner">
+            <ul class="faq__list">
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-1">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>Can I charge my PowerPod to 100% every time?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-1">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>Yes, whenever you like. The PowerPod has built in protection against overcharging, and the
+                        charger stops on its own once it reaches 100%, so there is nothing to watch and no need to
+                        unplug it on time.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-2">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>Does charging fully and often wear the battery out?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-2">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>No. The PowerPod is a smart battery with its own battery management system (BMS) looking
+                        after its cells, so charging it fully and riding it every day will not harm its health. It was
+                        designed and built from scratch to be safe, reliable and hassle free, so you can charge it
+                        with confidence.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-3">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>Why did my charge percentage look wrong after my vehicle was parked for a while?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-3">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>If a PowerPod sits unused for a long stretch without being fully charged, the percentage it
+                        shows can drift away from the charge it actually holds, usually reading higher than it should.
+                        One full charge to 100% lets it recalibrate and brings the reading back in line.</p>
+                      <p>After a long break, charge it to 100% before you ride again. Riding regularly and charging
+                        fully when needed keeps the reading accurate.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-4">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>How do I charge my PowerPod?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-4">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <ol>
+                        <li>Lay it down gently on a stable, dry floor, lying flat. It works standing up or lying
+                          down, but on the supplied charger it has to charge lying flat.</li>
+                        <li>Connect the charger to the connector on the bottom of the pod first, then plug the
+                          charger into the socket.</li>
+                        <li>Follow the charge in the GridXenergy app, and charge to 100% before you first use it.</li>
+                      </ol>
+                      <p>Never drop, throw or slam the pod down.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-5">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>How long does a charge take?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-5">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>About 2 hours from 0 to 80% with fast charging. The charger stops by itself once the pod
+                        reaches 100%.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-6">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>How do I see how much charge is left?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-6">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>The display on top of the pod, beside the handle, shows its state of charge.</p>
+                      <p>For more, get the GridXenergy app: search "Gridxenergy" on the Google Play Store or the App
+                        Store, and log in with the mobile number registered with your PowerPod. It shows your charge
+                        and your ride analytics, and it is where you manage your warranty and support.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-7">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>What does the warranty cover?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-7">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <ul>
+                        <li><strong>PowerPod battery:</strong> 3 years from your invoice date or 1000 kWh of energy
+                          used, whichever comes first, with at least 70% battery health (SoH) guaranteed.</li>
+                        <li><strong>Extended cover, optional:</strong> 2 more years against manufacturing defects,
+                          5 in total, up to 1500 kWh, with the same 70% SoH guarantee.</li>
+                        <li><strong>X-Connector, fast charger and vehicle dock:</strong> 1 year from your invoice
+                          date.</li>
+                      </ul>
+                      <p>There are no parts inside the pack you can service yourself, and opening it ends your
+                        cover.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-8">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>What should I never do with my PowerPod?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-8">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <ul>
+                        <li>Open, drill, crush or modify it, or its X-Connector, dock, wiring or firmware.</li>
+                        <li>Charge or ride it when it is wet, swollen, cracked, leaking or unusually hot.</li>
+                        <li>Leave it in direct sunlight, near fire, or anywhere above 60&nbsp;&deg;C.</li>
+                        <li>Store or charge it near the only exit of a building.</li>
+                        <li>Leave it fully drained for a long time.</li>
+                      </ul>
+                      <p>Always lift it by its handle, use only GridX approved chargers and adapters, and have it
+                        installed, serviced or repaired only by a GridX Authorised Dealer.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-9">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>My PowerPod looks, smells or feels wrong. What should I do?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-9">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>Stop using it straight away if you notice:</p>
+                      <ul>
+                        <li>Swelling, bulging or any change in its shape</li>
+                        <li>Smoke, or anything venting from it</li>
+                        <li>Liquid leaking from it</li>
+                        <li>Fire, sparks or arcing at the connector</li>
+                        <li>An unusual chemical or solvent smell</li>
+                        <li>Abnormal heat, or heat when it has not been used</li>
+                        <li>Cracks, or a connector that looks burnt or discoloured</li>
+                        <li>Repeated faults, or cutting out again and again</li>
+                      </ul>
+                      <p>Do not try to repair, open, cool, bag or bin it. <a class="story__link" href="tel:+919220199098">Call GridX</a> or
+                        <a class="story__link" href="https://wa.me/919220199098">WhatsApp GridX</a>, or speak to your GridX
+                        Authorised Dealer, and raise a claim in the GridXenergy app so the pod's own data goes with
+                        it. Reporting early costs you nothing.</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="faq__item disclose">
+                <h3 class="faq__q disclose__head">
+                  <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-10">
+                    <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+                    <span>What should I do in the unlikely event of a fire?</span>
+                  </button>
+                </h3>
+                <div class="disclose__panel" id="faq-10">
+                  <div class="disclose__inner">
+                    <div class="faq__a">
+                      <p>Every PowerPod is manufactured with the utmost attention to detail, and with safety
+                        built in at every level: ultra-safe NMC cells in a rugged aluminium body, a battery
+                        management system watching over them, and protection against over voltage, under
+                        voltage and short circuits. A fire is highly unlikely. But in that rare event:</p>
+                      <ol>
+                        <li>Move away to a safe distance. Do not touch it or move it.</li>
+                        <li>Call the fire service and tell them: "A lithium-ion battery is on fire."</li>
+                        <li>Do not try to put the fire out yourself. Leave it to the fire service.</li>
+                        <li>Stay out of the smoke, which can be toxic. If you are indoors, get out, and only open
+                          windows if it is safe to.</li>
+                        <li>Do not go back to it afterwards. A lithium-ion battery can reignite hours later, so wait
+                          for the fire service to say it is safe.</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Manuals to download. The size beside the link is written by hand: replace the PDF and
+           change it too (bytes / 1,000,000, one decimal place, as Finder shows it). -->
+      <section class="store-section manuals disclose" id="manuals">
+        <h2 class="store-kicker disclose__head" style="--i:3">
+          <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="manuals-panel">
+            <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
+            <span>Manuals</span>
+          </button>
+        </h2>
+
+        <div class="disclose__panel" id="manuals-panel">
+          <div class="disclose__inner">
+            <ul class="manuals__list">
+              <li>
+                <a class="manuals__link" href="assets/manuals/powerpod-gen2-user-manual.pdf"
+                   download="GridX PowerPod Gen 2 User Manual.pdf" data-press>
+                  <svg class="manuals__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h6.5L18 8v11.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M13.5 3.5V8H18"/><path d="M9 12.5h6M9 16h4"/></svg>
+                  <span class="manuals__name">
+                    <span class="manuals__title">PowerPod Gen 2 User Manual</span>
+                    <span class="manuals__sub">Quick start guide, in English and Hindi</span>
+                  </span>
+                  <span class="manuals__size">PDF &middot; 1.4&nbsp;MB</span>
+                  <svg class="manuals__get" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v11"/><path d="m7.5 11 4.5 4.5 4.5-4.5"/><path d="M5.5 19.5h13"/></svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
+       the dark. Copied into every page the way the island nav is: the address and the sitemap
+       belong in the HTML, not in a script. The only per-page difference is aria-current. -->
+  <footer class="credits">
+    <div class="credits__stage">
+      <h2 class="credits__line">
+        <span class="credits__seg">
+          <span class="w" style="--i:0">Designed</span>
+          <span class="w" style="--i:1">and</span>
+          <span class="w" style="--i:2">Developed</span>
+        </span>
+        <span class="credits__seg">
+          <span class="w" style="--i:3">in-house</span>
+          <span class="w" style="--i:4">at</span>
+        </span>
+        <span class="credits__seg credits__seg--name">
+          <span class="w" style="--i:5">GridXenergy</span>
+        </span>
+      </h2>
+
+      <div class="credits__colophon">
+        <div class="credits__cols">
+          <div class="credits__col">
+            <h3 class="credits__label">Pages</h3>
+            <ul class="credits__list credits__list--pages">
+              <li><a class="credits__link" href="index.html">Home</a></li>
+              <li><a class="credits__link" href="store.html">Store</a></li>
+              <li><a class="credits__link" href="dealers.html">Dealers</a></li>
+              <li><a class="credits__link" href="support.html" aria-current="page">Support</a></li>
+              <li><a class="credits__link" href="journey.html">Journey</a></li>
+              <li><a class="credits__link" href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+
+          <div class="credits__col">
+            <h3 class="credits__label">Connect</h3>
+            <ul class="credits__list credits__list--social">
+              <li>
+                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span class="credits__social-label">WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://instagram.com/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><path d="M16.9 7.1h.01"/></svg>
+                  <span class="credits__social-label">Instagram</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://youtube.com/@gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10.2 9.6 5.4 2.9-5.4 2.9z"/></svg>
+                  <span class="credits__social-label">YouTube</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://linkedin.com/company/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 7.9h.01"/><path d="M8 10.6v5.8"/><path d="M11.7 16.4v-5.8"/><path d="M11.7 13.1a2.35 2.35 0 0 1 4.7 0v3.3"/></svg>
+                  <span class="credits__social-label">LinkedIn</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="credits__col credits__col--mark">
+            <h3 class="credits__label">Address</h3>
+            <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
+            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+          </div>
+        </div>
+
+        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
+             is finished and the pages can drop in behind them. -->
+        <div class="credits__legal">
+          <a href="terms.html">Terms &amp; Conditions</a>
+          <a href="privacy.html">Privacy Policy</a>
+          <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- gridx-api.js first: track.js and analytics.js both reach Paddock through it. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/grid-bg.js"></script>
+  <!-- disclose.js before track.js, which opens the form through it. -->
+  <script src="assets/disclose.js"></script>
+  <script src="assets/contact.js"></script>
+  <script src="assets/track.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/footer.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

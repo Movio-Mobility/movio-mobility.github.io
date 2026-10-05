@@ -1,0 +1,125 @@
+/*
+ * Contact us, on the support page.
+ *
+ * The fold, the chevron and the particle rim are disclose.css and disclose.js, as for the
+ * other two sections. This file is the two ways in, the hours and the address.
+ */
+
+.contact { max-width: 34rem; }
+
+.contact__lede {
+  margin: 0 0 1.25rem;
+  max-width: 42ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.62);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- the two ways in */
+/* Side by side, the same width, wherever two fit; one above the other, full width, where they
+   do not, which is every phone and the narrowest tablet column. No breakpoint to keep in step. */
+.contact__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.75rem;
+  max-width: 30rem;
+}
+
+/* The nav island's pill: its black, its curve, its shadow and its icons. */
+.contact__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 50px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 12px 32px -14px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.4s var(--spring);
+}
+.contact__btn:active { transform: scale(0.985); }
+.contact__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.contact__btn svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------------------------------------------------------------- hours and address */
+.contact__block { margin-top: 1.75rem; }
+
+/* The footer's column labels, in the studio's ink rather than the dark stage's. */
+.contact__label {
+  margin: 0 0 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.contact__text {
+  margin: 0;
+  font-size: 1rem;
+  font-style: normal;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.62);
+}
+
+.contact__note {
+  margin: 0.5rem 0 0;
+  max-width: 42ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.5);
+  text-wrap: pretty;
+}
+
+/* Open or closed, right now, in India (contact.js). The track timeline's dots: filled for
+   open, hollow for closed, so the answer reads at a glance without a colour of its own. */
+.contact__status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.contact__status[hidden] { display: none; }
+.contact__status::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgb(20 20 20 / 0.28);
+}
+.contact__status.is-open::before {
+  background: var(--ink);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact__btn { transition: none; }
+  .contact__btn:active { transform: none; }
+}

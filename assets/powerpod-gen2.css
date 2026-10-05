@@ -1,0 +1,1149 @@
+/* PowerPod Gen2 order page.
+
+   An app shell, not a scrolling document: the stage and the panel are both fixed. This is
+   forced by the phone layout. The stage has to stay transparent so the particle field shows
+   through it, so a panel in normal flow would have its copy visible through the stage as it
+   scrolled past. Only a fixed box with overflow clips in viewport coordinates.
+
+   The panel is a three stage flow: a header carrying the back chevron and the progress
+   bar, a content region holding the current stage, and a footer carrying the running
+   total and the primary action. Stage 1 is six steps running vertically, all present at
+   once, with the ones you have not reached lightened rather than hidden. The content
+   region is the only thing on the page that scrolls.
+
+   Without JavaScript the pg2-shell class is never added: nothing is fixed, every stage is
+   visible, and the page falls back to one long readable document (see section 13).
+
+   Sections: 1 shell  2 stage  3 panel frame  4 header and progress  5 stages and steps
+   6 option cards  7 Pro Pack  8 review  9 form fields  10 footer  11 wide  12 reduced
+   motion  13 fallbacks */
+
+/* ---------------------------------------------------------------- 1. shell */
+.pg2 {
+  /* Shorter than a reading panel would want, because the flow adds a header and a footer
+     that both eat into the phone panel, and a choice screen wants both of its options in
+     view. The pod stays clearly present at this height. */
+  --stage-h: clamp(170px, 31svh, 320px);
+  --panel-w: clamp(360px, 36vw, 520px);
+  --bar-h: calc(max(1.125rem, env(safe-area-inset-top)) + 52px);
+  --gutter-l: max(1.25rem, env(safe-area-inset-left));
+  --gutter-r: max(1.25rem, env(safe-area-inset-right));
+  --pg2-radius: 18px;
+  --hair: rgb(20 20 20 / 0.12);
+  --bad: #b3261e;
+  /* Matches BEATS frame 0.62 and the stacked lens shift of -0.07. */
+  --poster-h: 62%;
+  --poster-drop: 7%;
+}
+
+html.pg2-shell,
+html.pg2-shell body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* The UA rule for [hidden] is display:none, but it is trivially outranked by any author
+   rule that sets display, which several classes here do (.pg2-step__options is a grid,
+   .pg2-next is a flex). Without this, el.hidden = true silently does nothing to them. */
+[hidden] { display: none !important; }
+
+/* Visually hidden, but still announced and still focusable. */
+.pg2-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- 2. stage */
+/* Paints no background of its own: #bg (z 0) shows straight through it. Also inert, see
+   the wheel and touch handlers in powerpod-gen2.js. */
+.pg2__stage {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  height: var(--stage-h);
+}
+
+/* The pod is black and the beats bring it right up under the brand lockup, so the top of
+   the stage falls off into the backdrop's own grey. Reads as studio falloff, and keeps the
+   GRID mark and the page title legible at every beat. */
+.pg2__stage::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  height: calc(var(--bar-h) + 2.25rem);
+  background: linear-gradient(
+    rgb(203 203 201 / 0.92),
+    rgb(203 203 201 / 0.55) 46%,
+    rgb(203 203 201 / 0));
+  pointer-events: none;
+}
+
+/* Width and height 100% of an explicitly sized box, which is what lets powerpod-3d.js read
+   its size from canvas.clientWidth/clientHeight and scope itself here. */
+#pod {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s var(--ease-out);
+}
+
+/* Loading state, no-WebGL state and no-JS state, all in one 12.5 KB file. Sized and
+   dropped to match the pod's own framing, so the handoff is a cross fade and not a jump. */
+.pg2__poster {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--poster-drop));
+  display: block;
+  width: auto;
+  height: var(--poster-h);
+  max-width: 62%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.7s var(--ease-out);
+}
+
+.pg2__stage.is-pod-live #pod { opacity: 1; }
+.pg2__stage.is-pod-live .pg2__poster { opacity: 0; }
+
+html:not(.gl) #pod { display: none; }
+
+/* The chosen accessory, on the stage beside the pod. Glass, as store.css:72-94. */
+.pg2__companion {
+  position: absolute;
+  left: var(--gutter-l);
+  bottom: 14px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: clamp(62px, 17svh, 118px);
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 11%;
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 70% at 12% 0%, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 60%),
+    linear-gradient(160deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.07) 48%, rgb(255 255 255 / 0.12));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.2),
+    0 16px 36px -22px rgb(20 20 20 / 0.3);
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(0.94);
+  transition:
+    opacity 0.5s var(--ease-out),
+    transform 0.5s var(--spring);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .pg2__companion { background-color: rgb(226 226 224 / 0.82); }
+}
+
+.pg2__companion[data-art="adapter"],
+.pg2__companion[data-art="dock"] {
+  opacity: 1;
+  transform: none;
+}
+
+.pg2__companion img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.4s var(--ease-out), filter 0.4s var(--ease-out);
+}
+
+/* Shown but declined: the same grey-out the retired Gen1 card uses (store.css:117-121). */
+.pg2__companion[data-declined="true"] img {
+  filter: grayscale(0.7) contrast(0.96);
+  opacity: 0.62;
+}
+
+/* ---------------------------------------------------------------- 3. panel frame */
+/* Opaque white, layered above #bg. Nothing scissors the WebGL canvas; the particles are
+   simply covered on this side of the screen. Three rows: header, screen, footer. */
+.pg2__panel {
+  position: fixed;
+  inset: var(--stage-h) 0 0 0;
+  z-index: 3;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  overflow: hidden; /* so the top radius clips the scrolling region */
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    0 -20px 44px -30px rgb(20 20 20 / 0.5);
+}
+
+/* The one scrolling thing on the page, and only when a screen overruns it. */
+.pg2__scroll {
+  position: relative;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Header, content and footer all cap their column at the same width and centre it. Done
+   with padding rather than max-width so the footer's rule and the header's still run the
+   full width of the panel: on a stacked tablet the panel is the whole window, and an
+   uncapped column would run lines of 600px or more. */
+.pg2__bar,
+.pg2-config,
+.pg2__foot {
+  --pad-l: max(var(--gutter-l), calc((100% - 36rem) / 2));
+  --pad-r: max(var(--gutter-r), calc((100% - 36rem) / 2));
+  padding-left: var(--pad-l);
+  padding-right: var(--pad-r);
+}
+
+.pg2-config {
+  padding-top: 1.25rem;
+  padding-bottom: 1.5rem;
+  margin: 0;
+  border: 0;
+}
+
+
+/* ---------------------------------------------------------------- 4. header */
+/* Two rows: the back chevron on its own, then the progress bar under it. */
+.pg2__bar {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.7rem;
+  background: #fff;
+  border-bottom: 1px solid rgb(20 20 20 / 0.07);
+}
+
+/* A chevron and nothing else. Pulled left by its own optical padding so the arrow lines
+   up with the column of text below it rather than its button box. */
+.pg2-back {
+  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: -0.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: rgb(20 20 20 / 0.55);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+
+.pg2-back svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pg2-back:hover { color: var(--ink); background: rgb(20 20 20 / 0.05); }
+.pg2-back:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* Three equal segments, one per stage. The fill is what says how far in you are. */
+.pg2-progress {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pg2-progress__seg {
+  position: relative;
+  min-width: 0;
+  padding-top: 11px;
+}
+
+.pg2-progress__seg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(20 20 20 / 0.12);
+}
+
+.pg2-progress__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--fill, 0%);
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ink);
+  transition: width 0.55s var(--ease-out);
+}
+
+.pg2-progress__name {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: rgb(20 20 20 / 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s var(--ease-out);
+}
+
+.pg2-progress__seg[data-state="current"] .pg2-progress__name,
+.pg2-progress__seg[data-state="done"] .pg2-progress__name {
+  color: rgb(20 20 20 / 0.72);
+}
+
+/* ---------------------------------------------------------------- 5. stages and steps */
+/* Three stage views, one shown at a time. All visible by default; the script hides the
+   inactive ones once it takes over, so a no-JS visitor still gets the lot as one
+   readable document. */
+html.pg2-shell .pg2-view { display: none; }
+
+html.pg2-shell .pg2-view.is-active {
+  display: block;
+  animation: pg2-view-in 0.42s var(--ease-out) both;
+}
+
+html.pg2-shell .pg2-view.is-active[data-dir="back"] {
+  animation-name: pg2-view-back;
+}
+
+@keyframes pg2-view-in {
+  from { opacity: 0; transform: translate3d(14px, 0, 0); }
+}
+
+@keyframes pg2-view-back {
+  from { opacity: 0; transform: translate3d(-14px, 0, 0); }
+}
+
+/* Inside a stage the steps run vertically, all of them on screen at once. A step you
+   have not reached yet stays legible but lightened, so what is coming next is always in
+   sight without competing with what you are choosing now. It is a wayfinding cue only:
+   the controls underneath stay live, so jumping ahead is allowed. */
+.pg2-step {
+  transition: opacity 0.5s var(--ease-out);
+}
+
+.pg2-step[data-open="false"] { opacity: 0.38; }
+
+.pg2-step + .pg2-step { margin-top: clamp(2rem, 5.5vw, 3rem); }
+
+.pg2-step__title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.35rem, 1rem + 1.6vw, 1.9rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.pg2-step__title:focus { outline: none; }
+.pg2-step__title:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 6px; }
+
+.pg2-step__sub {
+  margin: 0 0 clamp(0.95rem, 2.5vw, 1.35rem);
+  max-width: 40ch;
+  font-size: clamp(0.92rem, 0.88rem + 0.25vw, 1.02rem);
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.62);
+}
+
+.pg2-step__options {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------- 6. option cards */
+/* White on white: glass over flat white has nothing to refract, so these read with a
+   hairline at rest and a solid ink rim when chosen.
+
+   container-type is here so the CHILDREN can size themselves in cqi against the card. The
+   card's own padding and gap must not use cqi: an element never queries itself, so those
+   would silently resolve against the viewport instead. */
+.opt {
+  --opt-pad: 1.15rem;
+  position: relative;
+  display: grid;
+  container-type: inline-size;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "art title  tick"
+    "art lede   tick"
+    "art detail detail"
+    "art aside  aside"
+    "art price  price";
+  column-gap: 0.9rem;
+  align-items: start;
+  padding: var(--opt-pad);
+  border-radius: var(--pg2-radius);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--hair);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow 0.28s var(--ease-out),
+    background-color 0.28s var(--ease-out),
+    transform 0.4s var(--spring);
+}
+
+/* Cards with nothing to show drop the art column entirely, so they stay flush with the
+   ones above them instead of carrying an empty indent. */
+.opt--plain {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "title  tick"
+    "lede   tick"
+    "detail detail"
+    "aside  aside"
+    "price  price";
+}
+
+.opt[data-selected="true"] {
+  background: rgb(20 20 20 / 0.022);
+  box-shadow:
+    inset 0 0 0 2px var(--ink),
+    0 10px 26px -20px rgb(20 20 20 / 0.5);
+}
+
+.opt:active { transform: scale(0.99); }
+.opt--locked { cursor: default; }
+.opt--locked:active { transform: none; }
+
+/* The focus ring belongs on the card, not on the hidden radio inside it. */
+.opt:has(.opt__input:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .opt:not([data-selected="true"]):not(.opt--locked):hover {
+    box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.3);
+  }
+}
+
+/* No aspect-ratio here: these products are wildly different shapes, and a square box with
+   min-height:auto lets a tall image win the height fight anyway. The column is a fixed
+   width and the art is capped in height instead. */
+.opt__art {
+  grid-area: art;
+  display: grid;
+  place-items: center;
+  width: clamp(46px, 16cqi, 78px);
+}
+
+.opt__art img {
+  width: 100%;
+  height: auto;
+  max-height: clamp(66px, 26cqi, 118px);
+  object-fit: contain;
+}
+
+.opt__art svg {
+  width: 68%;
+  height: auto;
+  fill: none;
+  stroke: rgb(20 20 20 / 0.42);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.opt[data-selected="true"] .opt__art svg { stroke: var(--ink); }
+
+.opt__body { display: contents; }
+
+.opt__title {
+  grid-area: title;
+  font-size: clamp(0.98rem, 0.62rem + 3.4cqi, 1.2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.opt__lede {
+  grid-area: lede;
+  margin-top: 0.2em;
+  font-size: clamp(0.85rem, 0.6rem + 2.4cqi, 0.98rem);
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.62);
+}
+
+.opt__detail {
+  grid-area: detail;
+  margin-top: 0.55em;
+  font-size: clamp(0.8rem, 0.58rem + 2.1cqi, 0.92rem);
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* Only shown once the option it belongs to is the chosen one. */
+.opt__aside {
+  grid-area: aside;
+  display: none;
+  margin-top: 0.7em;
+  padding: 0.6em 0.75em;
+  border-radius: 10px;
+  background: rgb(20 20 20 / 0.045);
+  font-size: clamp(0.78rem, 0.56rem + 2cqi, 0.88rem);
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.66);
+}
+
+.opt[data-selected="true"] .opt__aside { display: block; }
+
+.opt__price {
+  grid-area: price;
+  margin-top: 0.75em;
+  font-size: clamp(0.92rem, 0.62rem + 2.8cqi, 1.05rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.opt__price--soft {
+  font-weight: 500;
+  color: rgb(20 20 20 / 0.45);
+}
+
+.opt__pill {
+  grid-area: aside;
+  justify-self: start;
+  display: inline-block;
+  margin-top: 0.7em;
+  padding: 0.34em 0.7em;
+  border-radius: 999px;
+  font-size: clamp(0.65rem, 0.45rem + 1.4cqi, 0.76rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.55);
+  background: rgb(20 20 20 / 0.055);
+}
+
+.opt__tick {
+  grid-area: tick;
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 0.22s var(--ease-out),
+    transform 0.34s var(--rubber);
+}
+
+.opt__tick svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.opt[data-selected="true"] .opt__tick {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------------------------------------------------------------- help disclosure */
+.pg2-help {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.pg2-help > summary {
+  display: inline-block;
+  padding: 0.2em 0;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  transition: text-decoration-thickness 0.2s ease;
+}
+
+.pg2-help > summary::-webkit-details-marker { display: none; }
+.pg2-help > summary:hover { text-decoration-thickness: 2.5px; }
+.pg2-help > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+.pg2-help__body {
+  margin: 0.55rem 0 0;
+  max-width: 44ch;
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.62);
+}
+
+/* ---------------------------------------------------------------- 7. Pro Pack */
+/* Included, not chosen. Deliberately not an .opt: it must not read as selectable. */
+.propack {
+  margin-top: 0.9rem;
+  padding: 1.05rem 1.15rem 1.1rem;
+  border-radius: var(--pg2-radius);
+  background: rgb(20 20 20 / 0.035);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+.propack__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.propack__lede {
+  margin: 0.2rem 0 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.62);
+}
+
+.propack__list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.propack__list li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.propack__list svg {
+  width: 18px;
+  height: 18px;
+  margin-top: 0.08em;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.72;
+}
+
+.propack__note {
+  margin: 0.95rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--hair);
+  font-size: 0.8rem;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* ---------------------------------------------------------------- 8. review */
+.review {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.review li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--hair);
+  font-size: 0.95rem;
+}
+
+.review li:last-child { border-bottom: 0; }
+
+.review__label { color: rgb(20 20 20 / 0.74); }
+
+.review__value {
+  flex: none;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.review__value--soft {
+  font-weight: 500;
+  color: rgb(20 20 20 / 0.45);
+}
+
+.review__note {
+  margin: 0 0 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* ---------------------------------------------------------------- 9. form fields */
+.field { margin-bottom: 0.9rem; }
+
+.field__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgb(20 20 20 / 0.6);
+}
+
+.field__input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: 12px;
+  background: rgb(20 20 20 / 0.04);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-family: inherit;
+  font-size: 1rem; /* 16px: anything smaller makes iOS zoom the page on focus */
+  line-height: 1.3;
+  color: var(--ink);
+  transition: box-shadow 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+
+.field__input::placeholder { color: rgb(20 20 20 / 0.32); }
+.field__input:focus { background: #fff; box-shadow: inset 0 0 0 1.5px var(--ink); outline: none; }
+.field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.field.is-bad .field__input { box-shadow: inset 0 0 0 1.5px var(--bad); }
+
+.field__err {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--bad);
+}
+
+.field__err:empty { display: none; }
+
+/* An optional field says so on its label, so nobody stalls wondering if it is required. */
+.field__opt {
+  margin-left: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgb(20 20 20 / 0.38);
+}
+
+.field__hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* Once the field is wrong the error takes over; two notes under one input is noise. */
+.field.is-bad .field__hint { display: none; }
+
+/* A GSTIN is upper case by convention and the validator uppercases it anyway, so show
+   it that way while it is being typed rather than silently changing it later. */
+#f-gstin { text-transform: uppercase; }
+#f-gstin::placeholder { text-transform: none; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.pg2-status {
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.pg2-status:empty { margin: 0; }
+
+/* ---------------------------------------------------------------- 10. footer */
+.pg2__foot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem 1rem;
+  padding-top: 0.85rem;
+  padding-bottom: max(0.95rem, env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+  box-shadow: 0 -12px 24px -24px rgb(20 20 20 / 0.5);
+}
+
+.pg2-foot__money {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.pg2-foot__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.pg2-foot__tax {
+  margin: 0.1rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.pg2-foot__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.pg2-foot__amount {
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg2-next {
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(9rem, 100%);
+  min-height: 50px;
+  padding: 0.8rem 1.5rem;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 14px 30px -18px rgb(20 20 20 / 0.8);
+  transition:
+    transform 0.4s var(--spring),
+    opacity 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out);
+}
+
+.pg2-next:active { transform: scale(0.985); }
+.pg2-next:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* Resting, not disabled: still focusable, and a press says what is missing rather than
+   doing nothing. A disabled attribute would drop it out of the tab order and explain
+   nothing. */
+.pg2-next[aria-disabled="true"] {
+  opacity: 0.32;
+  box-shadow: none;
+  cursor: default;
+}
+
+.pg2-next[aria-disabled="true"]:active { transform: none; }
+
+.pg2-foot__hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.pg2-foot__hint:empty { display: none; }
+
+.pg2-foot__hint a,
+.pg2-status a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* Wherever the nav island floats at the bottom right (site.css:369), the action bar lifts
+   clear of it rather than sitting underneath a black pill. */
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .pg2__foot {
+    padding-bottom: calc(max(0.95rem, env(safe-area-inset-bottom)) + 62px);
+  }
+}
+
+/* Phones: vertical space is the scarce resource, so the type and the cards tighten up to
+   keep both options of a choice screen in view. */
+@media (max-width: 759px) {
+  .pg2-config { padding-top: 1rem; padding-bottom: 1.1rem; }
+  .pg2-step__title { margin-bottom: 0.3rem; }
+  .pg2-step__sub { margin-bottom: 0.9rem; }
+  .pg2-step__options { gap: 0.55rem; }
+  .opt { --opt-pad: 1rem; }
+  .opt__detail { margin-top: 0.4em; }
+  .opt__price { margin-top: 0.55em; }
+}
+
+/* The narrowest phones keep the total and the button on one row, because stacking them
+   costs about 60px of the content region, which on a 568px tall screen is the difference
+   between seeing an option and not. They compact instead. */
+@media (max-width: 359px) {
+  .pg2-next {
+    min-width: 0;
+    padding-inline: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .pg2-foot__amount { font-size: 1.05rem; }
+  .pg2-foot__label { font-size: 0.72rem; }
+  .pg2__foot { gap: 0.4rem 0.6rem; }
+}
+
+/* Short viewports, where the stage would otherwise eat a content region that is already
+   tight. The pod gives up height before the options do. */
+@media (max-height: 700px) {
+  .pg2 { --stage-h: clamp(120px, 24svh, 220px); }
+}
+
+/* ---------------------------------------------------------------- 11. tablet and up */
+@media (min-width: 760px) {
+  .pg2 {
+    --gutter-l: max(2rem, env(safe-area-inset-left));
+    --gutter-r: max(2rem, env(safe-area-inset-right));
+    --pg2-radius: 24px;
+  }
+
+  .pg2-step__options { gap: 0.85rem; }
+  .opt { --opt-pad: 1.35rem; }
+}
+
+/* The split. The stage keeps the left, the panel owns the right and runs full bleed, so
+   the white strip is unbroken from the top of the window to the bottom. */
+@media (min-width: 1025px) {
+  .pg2 {
+    /* Matches BEATS frame 0.58, and the lens shift goes to zero: the stage is a tall
+       column here, so the brand lockup is nowhere near the pod. */
+    --poster-h: 58%;
+    --poster-drop: 0%;
+  }
+
+  .pg2__stage {
+    inset: 0 var(--panel-w) 0 0;
+    height: auto;
+  }
+
+  .pg2__panel {
+    inset: 0 0 0 auto;
+    width: var(--panel-w);
+    border-radius: 0;
+    box-shadow:
+      -1px 0 0 rgb(20 20 20 / 0.07),
+      -34px 0 68px -46px rgb(20 20 20 / 0.5);
+  }
+
+  /* The chevron row lines up with the collapsed nav pill floating at the top right: the
+     same top padding as .topbar, and the same 44px box height as .island. */
+  .pg2__bar { padding-top: max(1.125rem, env(safe-area-inset-top)); }
+  .pg2-back { width: 44px; height: 44px; }
+
+  .pg2__companion {
+    left: clamp(2rem, 5vw, 5rem);
+    bottom: clamp(2rem, 5vh, 4rem);
+    width: clamp(112px, 12vw, 180px);
+  }
+}
+
+/* ---------------------------------------------------------------- 12. reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html.pg2-shell .pg2-view.is-active,
+  html.pg2-shell .pg2-view.is-active[data-dir="back"] {
+    animation: pg2-view-fade 0.25s ease both;
+  }
+
+  @keyframes pg2-view-fade {
+    from { opacity: 0; }
+  }
+
+  .pg2-step { transition-duration: 0.2s; }
+
+  .pg2__scroll { scroll-behavior: auto; }
+
+  #pod,
+  .pg2__poster { transition-duration: 0.2s; }
+
+  .pg2-progress__fill { transition-duration: 0.2s; }
+
+  .opt,
+  .opt__tick,
+  .pg2-next,
+  .pg2__companion,
+  .pg2__companion img {
+    transition:
+      opacity 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+    transform: none;
+  }
+
+  .opt:active,
+  .pg2-next:active { transform: none; }
+
+  .opt[data-selected="true"] .opt__tick,
+  .pg2__companion[data-art="adapter"],
+  .pg2__companion[data-art="dock"] { transform: none; }
+}
+
+/* ---------------------------------------------------------------- 13. fallbacks */
+/* No JavaScript: pg2-shell is never added, so nothing is fixed, every screen is visible
+   and the page is an ordinary scrolling document. The radios still work, and the footer
+   total still reads a true "From" price because nothing ships preselected. */
+html:not(.pg2-shell) .pg2__stage {
+  position: relative;
+  inset: auto;
+  height: clamp(280px, 52svh, 520px);
+}
+
+html:not(.pg2-shell) .pg2__panel {
+  position: relative;
+  inset: auto;
+  display: block;
+  overflow: visible;
+  border-radius: 22px 22px 0 0;
+}
+
+html:not(.pg2-shell) .pg2__scroll { overflow: visible; }
+
+html:not(.pg2-shell) .pg2__bar,
+html:not(.pg2-shell) .pg2__companion,
+html:not(.pg2-shell) .pg2-next {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- 14. confirmation */
+/* Shown after Razorpay reports success. Deliberately calm: the transaction is over and
+   there is nothing left to decide, so nothing here competes for attention. */
+.pg2-done {
+  margin-top: 0.5rem;
+  padding: 1.15rem 1.25rem 1.3rem;
+  border-radius: var(--pg2-radius);
+  background: rgb(123 169 104 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(123 169 104 / 0.3);
+  animation: pg2-rise-in 0.5s var(--ease-out) both;
+}
+
+@keyframes pg2-rise-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+}
+
+.pg2-done__title {
+  margin: 0 0 0.45rem;
+  font-size: clamp(1.25rem, 1rem + 1.2vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.pg2-done__title:focus { outline: none; }
+.pg2-done__title:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 6px; }
+
+.pg2-done__body {
+  margin: 0 0 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.pg2-done__ref {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  margin: 0 0 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.pg2-done__reflabel {
+  flex: 1 0 100%;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.45);
+}
+
+.pg2-done__note {
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.55);
+}
+
+.pg2-done__link {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.pg2-done__link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg2-done { animation: pg2-view-fade 0.3s ease both; }
+}

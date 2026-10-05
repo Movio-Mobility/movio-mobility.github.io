@@ -1,0 +1,142 @@
+/*
+ * FAQs, on the support page.
+ *
+ * The fold, the chevrons and the particle rim are disclose.css and disclose.js, the same as
+ * Order status. This file is how the questions and answers read: a list of rows split by
+ * a hairline, each a question you can tap, and the answer in the lede's type. It also places
+ * the page's four sections, since FAQs is the one the layout is built around.
+ */
+
+.faq { max-width: 34rem; }
+
+/* Phones: Order status, Contact us, FAQs, Manuals, in that order down the page. The two
+   .store__col wrappers are plain blocks here. Folded, the headings are one list of things to
+   open, not four distant sections. */
+@media (max-width: 759px) {
+  .store--split .store-section + .store-section,
+  .store__col + .store__col { margin-top: 1.5rem; }
+}
+
+/* Tablets and up: a 2x2, Order status over Contact us on the left, FAQs over Manuals on
+   the right, tops level. Each column stacks on its own, so opening a section only moves what
+   is beneath it in its own column: FAQs pushes Manuals down, never Contact us. Aligned to the
+   top rather than stretched, so a folded column keeps its own height and the particle rim
+   does not go round empty space.
+
+   Centred on what you see, not on the boxes. The headings are left aligned and shorter than
+   their columns, and not all the same length, so two equal columns centred as a pair leave
+   the four headings off centre. Four tracks instead:
+
+     spacer | left column | gap | right headings | right extension
+      1fr        2fr               max-content          1fr
+
+   The right headings' track is exactly as wide as the longer of "FAQs" and "Manuals" (the
+   right column and its sections are subgrids, so those headings size it and nothing else
+   does). The two outer tracks are both 1fr, so always equal, which puts the run from the first
+   chevron on the left to the end of the longest heading on the right precisely in the middle,
+   at every width, with nothing measured. Opened, a right section spans its heading track and
+   the extension, so FAQs and Manuals still get a column's width to open into.
+   The gap is a track of its own rather than column-gap, which would also sit beside each
+   spacer and take that width from the columns. */
+@media (min-width: 760px) {
+  .store--split {
+    --row-gap: clamp(1.5rem, 3vw, 2.25rem);
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr) minmax(0, 2fr) clamp(1.5rem, 4vw, 3rem) max-content minmax(0, 1fr);
+    align-items: start;
+  }
+  .store--split > .store__col:first-child { grid-column: 2; }
+  .store--split > .store__col:last-child {
+    grid-column: 4 / 6;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .store--split > .store__col:last-child > .store-section {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+  .store--split > .store__col:last-child > .store-section > .disclose__head { grid-column: 1; }
+  .store--split > .store__col:last-child > .store-section > .disclose__panel { grid-column: 1 / -1; }
+  .store--split .store-section + .store-section { margin-top: var(--row-gap); }
+}
+
+/* Desktop: folded, the headings sit in the middle of the first screen.
+   A fixed offset, worked out from the height of the folded block, rather than align-content:
+   centring would re-centre on every open, and the headings would ride up by half of whatever
+   opened. With the offset, opening a section only ever grows the page downward.
+   The folded block is the left column's two headings, one above the other: two kicker lines
+   at store.css's .store-kicker size and line-height, that kicker's bottom margin, and the row
+   gap. Keep these in step with .store-kicker. The first term of the max() is store.css's own
+   top padding, so a short window still clears the top bar. */
+@media (min-width: 1025px) and (hover: hover), (min-width: 1025px) and (pointer: fine) {
+  .store--split {
+    --kicker: clamp(1.9rem, 2.2vw + 1.05rem, 3rem);
+    --folded: calc(var(--kicker) * 1.05 * 2 + clamp(1rem, 1.6vw + 0.5rem, 1.75rem) + var(--row-gap));
+    padding-top: max(
+      calc(max(1.125rem, env(safe-area-inset-top)) + 52px + clamp(2.5rem, 7vh, 5.5rem)),
+      calc((100svh - var(--folded)) / 2)
+    );
+  }
+}
+
+.faq__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.faq__item + .faq__item { border-top: 1px solid rgb(20 20 20 / 0.12); }
+
+.faq__q {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* The whole row is the target, and at least 44px of it. A question can run to two lines, so
+   the chevron sits on the first line's centre rather than on the middle of the pair. */
+.faq__q .disclose__toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6em;
+  width: 100%;
+  margin: 0;
+  padding: 0.7rem 0;
+  border-radius: 12px;
+  text-align: left;
+}
+.faq__q .disclose__chevron {
+  width: 0.8em;
+  height: 0.8em;
+  margin-top: calc((1.35em - 0.8em) / 2);
+  stroke-width: 2.2; /* the island's icon weight at this size */
+}
+
+/* ---------------------------------------------------------------- answers */
+.faq__a {
+  max-width: 42ch;
+  padding-bottom: 1.1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.62);
+  text-wrap: pretty;
+}
+.faq__a p,
+.faq__a ul,
+.faq__a ol { margin: 0 0 0.75rem; }
+.faq__a > :last-child { margin-bottom: 0; }
+.faq__a ul,
+.faq__a ol { padding-left: 1.2rem; }
+/* A list inside the question list would otherwise get the browser's second level circles. */
+.faq__a ul { list-style: disc; }
+.faq__a li + li { margin-top: 0.35rem; }
+.faq__a li::marker { color: rgb(20 20 20 / 0.35); }
+.faq__a strong {
+  font-weight: 600;
+  color: rgb(20 20 20 / 0.78);
+}

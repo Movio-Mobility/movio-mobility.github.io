@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Store | GridXenergy</title>
+  <meta name="description" content="Shop GRID batteries and accessories.">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/store.css">
+  <link rel="stylesheet" href="assets/contact.css">
+  <link rel="stylesheet" href="assets/order-sheet.css">
+  <link rel="stylesheet" href="assets/footer.css">
+
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
+  <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GRID home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Store</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="journey.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
+              <span class="island__label">Journey</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="store">
+    <!-- Card images are trimmed web copies in productImages/store/; the source renders stay untouched. -->
+    <section class="store-section" id="products">
+      <h2 class="store-kicker" style="--i:0">Products</h2>
+      <div class="store-grid store-grid--pods">
+        <article class="store-card store-card--pod store-card--muted" style="--i:1">
+          <div class="store-card__head">
+            <h3 class="store-card__title">PowerPod Gen1</h3>
+            <p class="store-card__tag">Phased Out</p>
+          </div>
+          <div class="store-card__media">
+            <img src="assets/productImages/store/gen1.webp" alt="PowerPod Gen1" width="338" height="1000" decoding="async">
+          </div>
+          <button class="store-card__hit" type="button" aria-haspopup="dialog" aria-controls="gen1-story"
+                  aria-label="PowerPod Gen1, phased out — read the story"></button>
+        </article>
+        <article class="store-card store-card--pod" data-halo="gen2" style="--i:2">
+          <div class="store-card__head">
+            <h3 class="store-card__title">PowerPod Gen2</h3>
+          </div>
+          <div class="store-card__media">
+            <img src="assets/productImages/store/gen2.webp" alt="PowerPod Gen2" width="335" height="1000" decoding="async">
+          </div>
+          <a class="store-card__hit" href="powerpod-gen2.html"
+             aria-label="PowerPod Gen2, configure and buy"></a>
+        </article>
+      </div>
+    </section>
+
+    <section class="store-section" id="accessories">
+      <h2 class="store-kicker" style="--i:3">Accessories</h2>
+      <!-- Each card goes to its own page, the way the Gen2 card does. Ordering happens
+           there, from a Buy button that opens the shared sheet with a quantity already
+           chosen. A card is for reading about a thing, not for buying it blind. -->
+      <div class="store-grid store-grid--accessories">
+        <article class="store-card store-card--accessory" style="--i:4">
+          <div class="store-card__head">
+            <h3 class="store-card__title">Adapter</h3>
+          </div>
+          <div class="store-card__media">
+            <img src="assets/productImages/store/adapter.webp" alt="Adapter" width="818" height="679" decoding="async" loading="lazy">
+          </div>
+          <a class="store-card__hit" href="adapter.html"
+             aria-label="Portable Charging Adapter, 499 rupees"></a>
+        </article>
+        <article class="store-card store-card--accessory" style="--i:5">
+          <div class="store-card__head">
+            <h3 class="store-card__title">Vehicle Dock</h3>
+          </div>
+          <div class="store-card__media">
+            <img src="assets/productImages/store/vehicle-dock.webp" alt="Vehicle Dock" width="386" height="1030" decoding="async" loading="lazy">
+          </div>
+          <a class="store-card__hit" href="vehicle-dock.html"
+             aria-label="Vehicle Dock, 2999 rupees"></a>
+        </article>
+        <article class="store-card store-card--accessory" style="--i:6">
+          <div class="store-card__head">
+            <h3 class="store-card__title">Chargers</h3>
+          </div>
+          <!-- No render exists for the chargers yet, so the outline mark stands in. It is
+               the same one the card carried while these were still coming soon. -->
+          <div class="store-card__media store-card__media--mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5V7m6-3.5V7"/><path d="M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z"/><path d="M12 16v4.5"/></svg>
+          </div>
+          <a class="store-card__hit" href="chargers.html"
+             aria-label="Chargers, from 2199 rupees"></a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Questions: a person at GridX on WhatsApp. The button asks what it is about first
+         (the sheet below), then opens WhatsApp with the message already written. Without
+         JavaScript it is a plain link to WhatsApp with the general message. -->
+    <section class="store-section store-ask" id="questions">
+      <h2 class="store-kicker" style="--i:7">Questions?</h2>
+      <div class="ask-card" style="--i:8">
+        <p class="ask-card__line">Fitment, specs, range, anything. A real person at GridX will answer and clear your doubts.</p>
+        <a class="contact__btn ask-card__btn" href="https://wa.me/919220199098?text=Hey%2C%20I%20was%20checking%20out%20the%20GridX%20store%20and%20have%20a%20few%20doubts."
+           target="_blank" rel="noopener" aria-haspopup="dialog" aria-controls="ask-sheet">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+          <span>Text GridX on WhatsApp</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- What the question is about. Each topic is a real link to WhatsApp; store.js writes the
+         message into it, so one template covers them all. -->
+    <dialog class="story ask-sheet" id="ask-sheet" aria-labelledby="ask-sheet-title">
+      <div class="story__grabber" aria-hidden="true"></div>
+      <button class="story__close" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+      <div class="story__scroll">
+        <h2 class="ask-sheet__title" id="ask-sheet-title">What's it about?</h2>
+        <p class="ask-sheet__line">Pick one and we'll start the message for you.</p>
+        <ul class="ask-topics">
+          <li><a class="ask-topic" href="https://wa.me/919220199098" target="_blank" rel="noopener" data-topic="fitment"><span>Fitment</span><svg class="ask-topic__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 7 5 5-5 5"/></svg></a></li>
+          <li><a class="ask-topic" href="https://wa.me/919220199098" target="_blank" rel="noopener" data-topic="PowerPod specifications"><span>PowerPod specifications</span><svg class="ask-topic__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 7 5 5-5 5"/></svg></a></li>
+          <li><a class="ask-topic" href="https://wa.me/919220199098" target="_blank" rel="noopener" data-topic="accessories"><span>Accessories</span><svg class="ask-topic__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 7 5 5-5 5"/></svg></a></li>
+          <li><a class="ask-topic" href="https://wa.me/919220199098" target="_blank" rel="noopener" data-topic="range"><span>Range</span><svg class="ask-topic__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 7 5 5-5 5"/></svg></a></li>
+          <li><a class="ask-topic" href="https://wa.me/919220199098" target="_blank" rel="noopener" data-topic=""><span>Something else</span><svg class="ask-topic__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 7 5 5-5 5"/></svg></a></li>
+        </ul>
+        <p class="ask-sheet__note">A real person replies, Monday to Friday, 11&nbsp;AM to 6&nbsp;PM.</p>
+      </div>
+    </dialog>
+
+    <!-- Gen1's farewell. Opened by the Gen1 card; the particle field gathers into its panel. -->
+    <dialog class="story" id="gen1-story" aria-labelledby="gen1-story-title">
+      <div class="story__grabber" aria-hidden="true"></div>
+      <button class="story__close" type="button" aria-label="Close" autofocus>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+      <div class="story__scroll">
+        <h2 class="story__headline" id="gen1-story-title">
+          <span class="story__line"><span class="story__word" style="--i:0">Our</span> <span class="story__word" style="--i:1">first.</span></span>
+          <span class="story__line"><span class="story__word" style="--i:2">Always</span> <span class="story__word" style="--i:3">our</span> <span class="story__word" style="--i:4">favourite</span> <span class="story__word" style="--i:5">story.</span></span>
+        </h2>
+        <p class="story__lead">Before there was Gen2, there was this.</p>
+        <p>PowerPod Gen1 went out into the world with our very first customers, people who believed in us before there was much to believe in. Together, they rode thousands of kilometres on it, and every kilometre taught us something.</p>
+        <p>Gen1 did exactly what it set out to do. It proved the idea worked. Now it steps aside, proudly, for what it made possible.</p>
+        <p>To everyone who rode it first: thank you. You're the reason there's a next.</p>
+        <p class="story__cta">For everyone joining in, Meet the <a class="story__link" href="powerpod-gen2.html">PowerPod Gen2</a></p>
+      </div>
+    </dialog>
+
+    <!-- The accessories order sheet is not here: assets/order-sheet.js builds it and
+         appends it, so the four pages that can order share one copy rather than four.
+         See the note at the top of that file. -->
+  </main>
+
+  <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
+       the dark. Copied into every page the way the island nav is: the address and the sitemap
+       belong in the HTML, not in a script. The only per-page difference is aria-current. -->
+  <footer class="credits">
+    <div class="credits__stage">
+      <h2 class="credits__line">
+        <span class="credits__seg">
+          <span class="w" style="--i:0">Designed</span>
+          <span class="w" style="--i:1">and</span>
+          <span class="w" style="--i:2">Developed</span>
+        </span>
+        <span class="credits__seg">
+          <span class="w" style="--i:3">in-house</span>
+          <span class="w" style="--i:4">at</span>
+        </span>
+        <span class="credits__seg credits__seg--name">
+          <span class="w" style="--i:5">GridXenergy</span>
+        </span>
+      </h2>
+
+      <div class="credits__colophon">
+        <div class="credits__cols">
+          <div class="credits__col">
+            <h3 class="credits__label">Pages</h3>
+            <ul class="credits__list credits__list--pages">
+              <li><a class="credits__link" href="index.html">Home</a></li>
+              <li><a class="credits__link" href="store.html" aria-current="page">Store</a></li>
+              <li><a class="credits__link" href="dealers.html">Dealers</a></li>
+              <li><a class="credits__link" href="support.html">Support</a></li>
+              <li><a class="credits__link" href="journey.html">Journey</a></li>
+              <li><a class="credits__link" href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+
+          <div class="credits__col">
+            <h3 class="credits__label">Connect</h3>
+            <ul class="credits__list credits__list--social">
+              <li>
+                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span class="credits__social-label">WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://instagram.com/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><path d="M16.9 7.1h.01"/></svg>
+                  <span class="credits__social-label">Instagram</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://youtube.com/@gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10.2 9.6 5.4 2.9-5.4 2.9z"/></svg>
+                  <span class="credits__social-label">YouTube</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://linkedin.com/company/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 7.9h.01"/><path d="M8 10.6v5.8"/><path d="M11.7 16.4v-5.8"/><path d="M11.7 13.1a2.35 2.35 0 0 1 4.7 0v3.3"/></svg>
+                  <span class="credits__social-label">LinkedIn</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="credits__col credits__col--mark">
+            <h3 class="credits__label">Address</h3>
+            <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
+            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+          </div>
+        </div>
+
+        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
+             is finished and the pages can drop in behind them. -->
+        <div class="credits__legal">
+          <a href="terms.html">Terms &amp; Conditions</a>
+          <a href="privacy.html">Privacy Policy</a>
+          <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Order matters. gridx-api.js first: order-sheet.js and analytics.js both reach Paddock
+       through it. catalogue.js and sheet.js before order-sheet.js, which reads the prices
+       from one and takes its behaviour from the other. Razorpay's own script is deferred,
+       since nothing needs it until Pay is pressed. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/gstin.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/catalogue.js"></script>
+  <script src="assets/sheet.js"></script>
+  <script src="assets/store.js"></script>
+  <script src="assets/order-sheet.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/footer.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

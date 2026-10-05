@@ -1,16 +1,9 @@
-# Dependencies
-functions/node_modules/
-
-# Firebase local files
-.firebase/
-firebase-debug.log
-firebase-debug.*.log
-ui-debug.log
-
-# OS files
+# Tooling
+node_modules/
+dist/
 .DS_Store
-Thumbs.db
 
-# Environment / secrets
-.env
-.env.*
+# Source renders and CAD exports. No page references these (the site uses the web/
+# and store/ WebP exports), and the Gen2 renders alone are ~200 MB. They stay on disk.
+assets/productImages/**/*.png
+assets/productImages/**/*.PNG
