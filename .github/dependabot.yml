@@ -1,0 +1,13 @@
+# Weekly pull requests for the pinned GitHub Actions (.github/workflows/pages.yml) and the
+# build tools in package.json. Nothing merges by itself: each one is reviewed first.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

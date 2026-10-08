@@ -7,23 +7,27 @@
   <meta name="description" content="The story of GridX: from a college robotics club in 2018 to the energy storage we build today.">
   <meta name="theme-color" content="#c4c4c2">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/tape.css">
   <link rel="stylesheet" href="assets/journey.css">
   <link rel="stylesheet" href="assets/footer.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
 
   <header class="topbar">
     <div class="brand-lockup">
-      <a class="brand" href="index.html" aria-label="GRID home">
+      <a class="brand" href="index.html" aria-label="GridX home">
         <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
         <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
       </a>
@@ -58,7 +62,9 @@
               <span class="island__label">Support</span>
             </a>
           </li>
-          <li>
+          <!-- The fifth slot is the page's own. Journey is reached from the footer, not the
+               nav, so it joins the island only while it is open (see topbar.js). -->
+          <li class="island__context">
             <a class="island__link" href="journey.html" aria-current="page">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
               <span class="island__label">Journey</span>
@@ -73,7 +79,7 @@
     </div>
   </header>
 
-  <main class="journey">
+  <main class="journey tape">
     <!-- The tape. journey.js measures, paints and drives everything in here; without it the
          section is hidden and the panels below simply read top to bottom. -->
     <div class="tl-head">
@@ -112,7 +118,7 @@
           <div class="strip" role="group" aria-label="Combat robotics geeks: 4 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2018-robotics-1-1400.webp" style="--ar:1.777"><img src="assets/journey/photos/2018-robotics-1-700.webp" srcset="assets/journey/photos/2018-robotics-1-700.webp 700w, assets/journey/photos/2018-robotics-1-1400.webp 1280w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="394" alt="Hriteek and Shivanshu with their combat robot, Vulcan, at Autodesk University" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2018-robotics-2-1400.webp" style="--ar:1.502"><img src="assets/journey/photos/2018-robotics-2-700.webp" srcset="assets/journey/photos/2018-robotics-2-700.webp 700w, assets/journey/photos/2018-robotics-2-1400.webp 1280w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="466" alt="An arm wrestle at a robotics event" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2018-robotics-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2018-robotics-3-700.webp" srcset="assets/journey/photos/2018-robotics-3-700.webp 700w, assets/journey/photos/2018-robotics-3-1400.webp 1200w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="Working on a combat robot" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2018-robotics-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2018-robotics-3-700.webp" srcset="assets/journey/photos/2018-robotics-3-700.webp 700w, assets/journey/photos/2018-robotics-3-1400.webp 1200w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="Working on a combat robot" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2018-robotics-4-1400.webp" style="--ar:1.423"><img src="assets/journey/photos/2018-robotics-4-700.webp" srcset="assets/journey/photos/2018-robotics-4-700.webp 700w, assets/journey/photos/2018-robotics-4-1400.webp 854w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="492" alt="The VIT robotics team with the Indian flag" loading="lazy" decoding="async"></a>
           </div>
         </div>
@@ -149,7 +155,7 @@
         <h3 class="chapter__title">Movio and micro-mobility</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Movio and micro-mobility: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2021-movio-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2021-movio-1-700.webp" srcset="assets/journey/photos/2021-movio-1-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="A Movio electric scooter at night" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2021-movio-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2021-movio-1-700.webp" srcset="assets/journey/photos/2021-movio-1-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="A Movio electric scooter at night" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2021-movio-2-1400.webp" style="--ar:1.777"><img src="assets/journey/photos/2021-movio-2-700.webp" srcset="assets/journey/photos/2021-movio-2-700.webp 700w, assets/journey/photos/2021-movio-2-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="394" alt="A Movio electric bicycle with its battery pack" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2021-movio-3-1400.webp" style="--ar:1.777"><img src="assets/journey/photos/2021-movio-3-700.webp" srcset="assets/journey/photos/2021-movio-3-700.webp 700w, assets/journey/photos/2021-movio-3-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="394" alt="A Movio electric bicycle with a rear-mounted battery" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2021-movio-4-1400.webp" style="--ar:1.628"><img src="assets/journey/photos/2021-movio-4-700.webp" srcset="assets/journey/photos/2021-movio-4-700.webp 700w, assets/journey/photos/2021-movio-4-1400.webp 1170w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="430" alt="Renders of a Movio scooter and bicycle" loading="lazy" decoding="async"></a>
@@ -175,7 +181,7 @@
         <h3 class="chapter__title">The coder arrives</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="The coder arrives: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2022-vishrut-1-1400.webp" style="--ar:0.970"><img src="assets/journey/photos/2022-vishrut-1-700.webp" srcset="assets/journey/photos/2022-vishrut-1-700.webp 582w" sizes="(min-width: 960px) 620px, 86vw" width="582" height="600" alt="Vishrut at his desk" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2022-vishrut-1-1400.webp" style="--ar:0.970"><img src="assets/journey/photos/2022-vishrut-1-700.webp" srcset="assets/journey/photos/2022-vishrut-1-700.webp 582w" sizes="(min-width: 960px) 350px, 262px" width="582" height="600" alt="Vishrut at his desk" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2022-vishrut-2-1400.webp" style="--ar:2.167"><img src="assets/journey/photos/2022-vishrut-2-700.webp" srcset="assets/journey/photos/2022-vishrut-2-700.webp 700w, assets/journey/photos/2022-vishrut-2-1400.webp 1304w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="323" alt="Vishrut at IISc Bangalore" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2022-vishrut-3-1400.webp" style="--ar:1.777"><img src="assets/journey/photos/2022-vishrut-3-700.webp" srcset="assets/journey/photos/2022-vishrut-3-700.webp 700w, assets/journey/photos/2022-vishrut-3-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="394" alt="Vishrut and Shivanshu on a rooftop" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2022-vishrut-4-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2022-vishrut-4-700.webp" srcset="assets/journey/photos/2022-vishrut-4-700.webp 700w, assets/journey/photos/2022-vishrut-4-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="Two of the founders above a city at night" loading="lazy" decoding="async"></a>
@@ -192,7 +198,7 @@
         <h3 class="chapter__title">Government grant</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Government grant: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2022-grant-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2022-grant-1-700.webp" srcset="assets/journey/photos/2022-grant-1-700.webp 700w, assets/journey/photos/2022-grant-1-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="At the incubator&#x27;s entrance" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2022-grant-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2022-grant-1-700.webp" srcset="assets/journey/photos/2022-grant-1-700.webp 700w, assets/journey/photos/2022-grant-1-1400.webp 1400w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="At the incubator&#x27;s entrance" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2022-grant-2-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2022-grant-2-700.webp" srcset="assets/journey/photos/2022-grant-2-700.webp 700w, assets/journey/photos/2022-grant-2-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="The founders on the lawns of IIT Roorkee" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2022-grant-3-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2022-grant-3-700.webp" srcset="assets/journey/photos/2022-grant-3-700.webp 700w, assets/journey/photos/2022-grant-3-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="At the IIT Roorkee sign" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2022-grant-4-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2022-grant-4-700.webp" srcset="assets/journey/photos/2022-grant-4-700.webp 700w, assets/journey/photos/2022-grant-4-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="The team during the IIT Roorkee incubation" loading="lazy" decoding="async"></a>
@@ -240,7 +246,7 @@
           <div class="strip" role="group" aria-label="Team building: 4 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2023-team-1-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2023-team-1-700.webp" srcset="assets/journey/photos/2023-team-1-700.webp 700w, assets/journey/photos/2023-team-1-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="The early team at an event" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2023-team-2-1400.webp" style="--ar:1.326"><img src="assets/journey/photos/2023-team-2-700.webp" srcset="assets/journey/photos/2023-team-2-700.webp 700w, assets/journey/photos/2023-team-2-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="528" alt="The team together in Gurgaon" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-team-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-team-3-700.webp" srcset="assets/journey/photos/2023-team-3-700.webp 700w, assets/journey/photos/2023-team-3-1400.webp 1200w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="Engineers at work in the office" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-team-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-team-3-700.webp" srcset="assets/journey/photos/2023-team-3-700.webp 700w, assets/journey/photos/2023-team-3-1400.webp 1200w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="Engineers at work in the office" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2023-team-4-1400.webp" style="--ar:1.336"><img src="assets/journey/photos/2023-team-4-700.webp" srcset="assets/journey/photos/2023-team-4-700.webp 700w, assets/journey/photos/2023-team-4-1400.webp 1160w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="524" alt="The team at an Electrifying India&#x27;s Mobility expo" loading="lazy" decoding="async"></a>
           </div>
         </div>
@@ -252,10 +258,10 @@
         <h3 class="chapter__title">Prototyping</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Prototyping: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2023-prototypes-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-prototypes-1-700.webp" srcset="assets/journey/photos/2023-prototypes-1-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="An early swap hub prototype" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-prototypes-2-1400.webp" style="--ar:0.638"><img src="assets/journey/photos/2023-prototypes-2-700.webp" srcset="assets/journey/photos/2023-prototypes-2-700.webp 383w" sizes="(min-width: 960px) 620px, 86vw" width="383" height="600" alt="Testing a battery pack prototype" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-prototypes-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-prototypes-3-700.webp" srcset="assets/journey/photos/2023-prototypes-3-700.webp 700w, assets/journey/photos/2023-prototypes-3-1400.webp 1201w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="Test riding a prototype e-bike in the office" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-prototypes-4-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-prototypes-4-700.webp" srcset="assets/journey/photos/2023-prototypes-4-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="Cells laid out for a battery pack" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-prototypes-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-prototypes-1-700.webp" srcset="assets/journey/photos/2023-prototypes-1-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="An early swap hub prototype" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-prototypes-2-1400.webp" style="--ar:0.638"><img src="assets/journey/photos/2023-prototypes-2-700.webp" srcset="assets/journey/photos/2023-prototypes-2-700.webp 383w" sizes="(min-width: 960px) 230px, 173px" width="383" height="600" alt="Testing a battery pack prototype" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-prototypes-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-prototypes-3-700.webp" srcset="assets/journey/photos/2023-prototypes-3-700.webp 700w, assets/journey/photos/2023-prototypes-3-1400.webp 1201w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="Test riding a prototype e-bike in the office" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-prototypes-4-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-prototypes-4-700.webp" srcset="assets/journey/photos/2023-prototypes-4-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="Cells laid out for a battery pack" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -266,10 +272,10 @@
         <h3 class="chapter__title">MVP</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="MVP: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2023-mvp-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-mvp-1-700.webp" srcset="assets/journey/photos/2023-mvp-1-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="The team with the first Movio swap hub" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-mvp-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-mvp-1-700.webp" srcset="assets/journey/photos/2023-mvp-1-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="The team with the first Movio swap hub" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2023-mvp-2-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2023-mvp-2-700.webp" srcset="assets/journey/photos/2023-mvp-2-700.webp 700w, assets/journey/photos/2023-mvp-2-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="A rider with an MVP e-bike" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2023-mvp-3-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2023-mvp-3-700.webp" srcset="assets/journey/photos/2023-mvp-3-700.webp 700w, assets/journey/photos/2023-mvp-3-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="The MVP swap hub and e-bike" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-mvp-4-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-mvp-4-700.webp" srcset="assets/journey/photos/2023-mvp-4-700.webp 700w, assets/journey/photos/2023-mvp-4-1400.webp 1200w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="A delivery rider swapping at night" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-mvp-4-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-mvp-4-700.webp" srcset="assets/journey/photos/2023-mvp-4-700.webp 700w, assets/journey/photos/2023-mvp-4-1400.webp 1200w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="A delivery rider swapping at night" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -280,9 +286,9 @@
         <h3 class="chapter__title">GridXenergy</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="GridXenergy: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2023-rebrand-1-1400.webp" style="--ar:1.003"><img src="assets/journey/photos/2023-rebrand-1-700.webp" srcset="assets/journey/photos/2023-rebrand-1-700.webp 700w, assets/journey/photos/2023-rebrand-1-1400.webp 804w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="698" alt="An early GridX mark" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-rebrand-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-rebrand-2-700.webp" srcset="assets/journey/photos/2023-rebrand-2-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="GridX battery packs" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2023-rebrand-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-rebrand-3-700.webp" srcset="assets/journey/photos/2023-rebrand-3-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="Two of the founders with GridX packs" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-rebrand-1-1400.webp" style="--ar:1.003"><img src="assets/journey/photos/2023-rebrand-1-700.webp" srcset="assets/journey/photos/2023-rebrand-1-700.webp 700w, assets/journey/photos/2023-rebrand-1-1400.webp 804w" sizes="(min-width: 960px) 362px, 271px" width="700" height="698" alt="An early GridX mark" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-rebrand-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-rebrand-2-700.webp" srcset="assets/journey/photos/2023-rebrand-2-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="GridX battery packs" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2023-rebrand-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2023-rebrand-3-700.webp" srcset="assets/journey/photos/2023-rebrand-3-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="Two of the founders with GridX packs" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2023-rebrand-4-1400.webp" style="--ar:2.167"><img src="assets/journey/photos/2023-rebrand-4-700.webp" srcset="assets/journey/photos/2023-rebrand-4-700.webp 700w, assets/journey/photos/2023-rebrand-4-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="323" alt="The GridX wordmark" loading="lazy" decoding="async"></a>
           </div>
         </div>
@@ -304,8 +310,8 @@
           <div class="strip" role="group" aria-label="Product showcasing: 4 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2024-showcase-1-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2024-showcase-1-700.webp" srcset="assets/journey/photos/2024-showcase-1-700.webp 700w, assets/journey/photos/2024-showcase-1-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="The GridX stall at an expo" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2024-showcase-2-1400.webp" style="--ar:1.346"><img src="assets/journey/photos/2024-showcase-2-700.webp" srcset="assets/journey/photos/2024-showcase-2-700.webp 700w, assets/journey/photos/2024-showcase-2-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="520" alt="A GridX swap station prototype" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2024-showcase-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2024-showcase-3-700.webp" srcset="assets/journey/photos/2024-showcase-3-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="600" alt="The GridX stall with a PowerPod on display" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2024-showcase-4-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2024-showcase-4-700.webp" srcset="assets/journey/photos/2024-showcase-4-700.webp 700w, assets/journey/photos/2024-showcase-4-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="Presenting to a college auditorium" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2024-showcase-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2024-showcase-3-700.webp" srcset="assets/journey/photos/2024-showcase-3-700.webp 450w" sizes="(min-width: 960px) 270px, 203px" width="450" height="600" alt="The GridX stall with a PowerPod on display" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2024-showcase-4-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2024-showcase-4-700.webp" srcset="assets/journey/photos/2024-showcase-4-700.webp 700w, assets/journey/photos/2024-showcase-4-1400.webp 1400w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="Presenting to a college auditorium" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -316,7 +322,7 @@
         <h3 class="chapter__title">SUN Mobility</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="SUN Mobility: 2 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2024-sun-1-1400.webp" style="--ar:0.683"><img src="assets/journey/photos/2024-sun-1-700.webp" srcset="assets/journey/photos/2024-sun-1-700.webp 410w" sizes="(min-width: 960px) 620px, 86vw" width="410" height="600" alt="SUN Mobility&#x27;s reception" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2024-sun-1-1400.webp" style="--ar:0.683"><img src="assets/journey/photos/2024-sun-1-700.webp" srcset="assets/journey/photos/2024-sun-1-700.webp 410w" sizes="(min-width: 960px) 246px, 185px" width="410" height="600" alt="SUN Mobility&#x27;s reception" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2024-sun-2-1400.webp" style="--ar:1.768"><img src="assets/journey/photos/2024-sun-2-700.webp" srcset="assets/journey/photos/2024-sun-2-700.webp 700w, assets/journey/photos/2024-sun-2-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="396" alt="The team at SUN Mobility" loading="lazy" decoding="async"></a>
           </div>
         </div>
@@ -378,8 +384,8 @@
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Out of the garage: 3 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2025-garage-1-1400.webp" style="--ar:1.897"><img src="assets/journey/photos/2025-garage-1-700.webp" srcset="assets/journey/photos/2025-garage-1-700.webp 700w, assets/journey/photos/2025-garage-1-1400.webp 1280w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="369" alt="The four founders in the new Okhla office" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2025-garage-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2025-garage-2-700.webp" srcset="assets/journey/photos/2025-garage-2-700.webp 480w" sizes="(min-width: 960px) 620px, 86vw" width="480" height="640" alt="Late work at the new office" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2025-garage-3-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2025-garage-3-700.webp" srcset="assets/journey/photos/2025-garage-3-700.webp 360w" sizes="(min-width: 960px) 620px, 86vw" width="360" height="640" alt="Engineers testing hardware on the bench" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-garage-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2025-garage-2-700.webp" srcset="assets/journey/photos/2025-garage-2-700.webp 480w" sizes="(min-width: 960px) 270px, 203px" width="480" height="640" alt="Late work at the new office" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-garage-3-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2025-garage-3-700.webp" srcset="assets/journey/photos/2025-garage-3-700.webp 360w" sizes="(min-width: 960px) 203px, 152px" width="360" height="640" alt="Engineers testing hardware on the bench" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -401,9 +407,9 @@
         <h3 class="chapter__title">Gen2 begins</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Gen2 begins: 3 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2025-gen2-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2025-gen2-1-700.webp" srcset="assets/journey/photos/2025-gen2-1-700.webp 480w" sizes="(min-width: 960px) 620px, 86vw" width="480" height="640" alt="GridX&#x27;s 100 A symmetric connector" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2025-gen2-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2025-gen2-2-700.webp" srcset="assets/journey/photos/2025-gen2-2-700.webp 576w" sizes="(min-width: 960px) 620px, 86vw" width="576" height="768" alt="Inside a PowerPod: cells, BMS and wiring" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2025-gen2-3-1400.webp" style="--ar:0.442"><img src="assets/journey/photos/2025-gen2-3-700.webp" srcset="assets/journey/photos/2025-gen2-3-700.webp 424w" sizes="(min-width: 960px) 620px, 86vw" width="424" height="960" alt="A thermal camera view of a cell under test" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-gen2-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2025-gen2-1-700.webp" srcset="assets/journey/photos/2025-gen2-1-700.webp 480w" sizes="(min-width: 960px) 270px, 203px" width="480" height="640" alt="GridX&#x27;s 100 A symmetric connector" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-gen2-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2025-gen2-2-700.webp" srcset="assets/journey/photos/2025-gen2-2-700.webp 576w" sizes="(min-width: 960px) 270px, 203px" width="576" height="768" alt="Inside a PowerPod: cells, BMS and wiring" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-gen2-3-1400.webp" style="--ar:0.442"><img src="assets/journey/photos/2025-gen2-3-700.webp" srcset="assets/journey/photos/2025-gen2-3-700.webp 424w" sizes="(min-width: 960px) 160px, 120px" width="424" height="960" alt="A thermal camera view of a cell under test" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -415,9 +421,9 @@
         <h3 class="chapter__title">Software, rebuilt</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Software, rebuilt: 3 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2025-software-1-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2025-software-1-700.webp" srcset="assets/journey/photos/2025-software-1-700.webp 432w" sizes="(min-width: 960px) 620px, 86vw" width="432" height="768" alt="Rebuilding the backend" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2025-software-2-1400.webp" style="--ar:0.426"><img src="assets/journey/photos/2025-software-2-700.webp" srcset="assets/journey/photos/2025-software-2-700.webp 409w" sizes="(min-width: 960px) 620px, 86vw" width="409" height="960" alt="The GridX app&#x27;s home screen" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2025-software-3-1400.webp" style="--ar:0.367"><img src="assets/journey/photos/2025-software-3-700.webp" srcset="assets/journey/photos/2025-software-3-700.webp 352w" sizes="(min-width: 960px) 620px, 86vw" width="352" height="960" alt="Ride insights in the GridX app" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-software-1-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2025-software-1-700.webp" srcset="assets/journey/photos/2025-software-1-700.webp 432w" sizes="(min-width: 960px) 203px, 152px" width="432" height="768" alt="Rebuilding the backend" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-software-2-1400.webp" style="--ar:0.426"><img src="assets/journey/photos/2025-software-2-700.webp" srcset="assets/journey/photos/2025-software-2-700.webp 409w" sizes="(min-width: 960px) 154px, 116px" width="409" height="960" alt="The GridX app&#x27;s home screen" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2025-software-3-1400.webp" style="--ar:0.367"><img src="assets/journey/photos/2025-software-3-700.webp" srcset="assets/journey/photos/2025-software-3-700.webp 352w" sizes="(min-width: 960px) 133px, 100px" width="352" height="960" alt="Ride insights in the GridX app" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -437,10 +443,10 @@
         <h3 class="chapter__title">Built to the new rules</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Built to the new rules: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2026-rules-1-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2026-rules-1-700.webp" srcset="assets/journey/photos/2026-rules-1-700.webp 432w" sizes="(min-width: 960px) 620px, 86vw" width="432" height="768" alt="Cells ready for Gen2 packs" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-rules-2-1400.webp" style="--ar:0.563"><img src="assets/journey/photos/2026-rules-2-700.webp" srcset="assets/journey/photos/2026-rules-2-700.webp 700w, assets/journey/photos/2026-rules-2-1400.webp 720w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="1244" alt="Gen2 cell modules with the new spacing" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-rules-1-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2026-rules-1-700.webp" srcset="assets/journey/photos/2026-rules-1-700.webp 432w" sizes="(min-width: 960px) 203px, 152px" width="432" height="768" alt="Cells ready for Gen2 packs" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-rules-2-1400.webp" style="--ar:0.563"><img src="assets/journey/photos/2026-rules-2-700.webp" srcset="assets/journey/photos/2026-rules-2-700.webp 700w, assets/journey/photos/2026-rules-2-1400.webp 720w" sizes="(min-width: 960px) 203px, 153px" width="700" height="1244" alt="Gen2 cell modules with the new spacing" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2026-rules-3-1400.webp" style="--ar:1.777"><img src="assets/journey/photos/2026-rules-3-700.webp" srcset="assets/journey/photos/2026-rules-3-700.webp 700w, assets/journey/photos/2026-rules-3-1400.webp 768w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="394" alt="Testing a pack module" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-rules-4-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2026-rules-4-700.webp" srcset="assets/journey/photos/2026-rules-4-700.webp 360w" sizes="(min-width: 960px) 620px, 86vw" width="360" height="640" alt="A row of PowerPods" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-rules-4-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2026-rules-4-700.webp" srcset="assets/journey/photos/2026-rules-4-700.webp 360w" sizes="(min-width: 960px) 203px, 152px" width="360" height="640" alt="A row of PowerPods" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -452,8 +458,8 @@
         <h3 class="chapter__title">Patented, and backed</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Patented, and backed: 2 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2026-backed-1-1400.webp" style="--ar:0.563"><img src="assets/journey/photos/2026-backed-1-700.webp" srcset="assets/journey/photos/2026-backed-1-700.webp 700w, assets/journey/photos/2026-backed-1-1400.webp 720w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="1244" alt="The founders marking a new chapter" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-backed-2-1400.webp" style="--ar:0.672"><img src="assets/journey/photos/2026-backed-2-700.webp" srcset="assets/journey/photos/2026-backed-2-700.webp 430w" sizes="(min-width: 960px) 620px, 86vw" width="430" height="640" alt="The GridX X, drawn on the team" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-backed-1-1400.webp" style="--ar:0.563"><img src="assets/journey/photos/2026-backed-1-700.webp" srcset="assets/journey/photos/2026-backed-1-700.webp 700w, assets/journey/photos/2026-backed-1-1400.webp 720w" sizes="(min-width: 960px) 203px, 153px" width="700" height="1244" alt="The founders marking a new chapter" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-backed-2-1400.webp" style="--ar:0.672"><img src="assets/journey/photos/2026-backed-2-700.webp" srcset="assets/journey/photos/2026-backed-2-700.webp 430w" sizes="(min-width: 960px) 242px, 182px" width="430" height="640" alt="The GridX X, drawn on the team" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -464,9 +470,9 @@
         <h3 class="chapter__title">Our own line</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Our own line: 4 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2026-line-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-line-1-700.webp" srcset="assets/journey/photos/2026-line-1-700.webp 384w" sizes="(min-width: 960px) 620px, 86vw" width="384" height="512" alt="A PowerPod taking shape on our line" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-line-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-line-2-700.webp" srcset="assets/journey/photos/2026-line-2-700.webp 384w" sizes="(min-width: 960px) 620px, 86vw" width="384" height="512" alt="Assembling cells by hand" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-line-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-line-3-700.webp" srcset="assets/journey/photos/2026-line-3-700.webp 384w" sizes="(min-width: 960px) 620px, 86vw" width="384" height="512" alt="Printing enclosures in-house" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-line-1-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-line-1-700.webp" srcset="assets/journey/photos/2026-line-1-700.webp 384w" sizes="(min-width: 960px) 270px, 203px" width="384" height="512" alt="A PowerPod taking shape on our line" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-line-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-line-2-700.webp" srcset="assets/journey/photos/2026-line-2-700.webp 384w" sizes="(min-width: 960px) 270px, 203px" width="384" height="512" alt="Assembling cells by hand" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-line-3-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-line-3-700.webp" srcset="assets/journey/photos/2026-line-3-700.webp 384w" sizes="(min-width: 960px) 270px, 203px" width="384" height="512" alt="Printing enclosures in-house" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2026-line-4-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2026-line-4-700.webp" srcset="assets/journey/photos/2026-line-4-700.webp 700w, assets/journey/photos/2026-line-4-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="Freshly built packs" loading="lazy" decoding="async"></a>
           </div>
         </div>
@@ -479,7 +485,7 @@
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="More of us: 3 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2026-team-1-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2026-team-1-700.webp" srcset="assets/journey/photos/2026-team-1-700.webp 700w, assets/journey/photos/2026-team-1-1400.webp 800w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="Team GridX with a PowerPod" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-team-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-team-2-700.webp" srcset="assets/journey/photos/2026-team-2-700.webp 480w" sizes="(min-width: 960px) 620px, 86vw" width="480" height="640" alt="Engineers sorting cells" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-team-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-team-2-700.webp" srcset="assets/journey/photos/2026-team-2-700.webp 480w" sizes="(min-width: 960px) 270px, 203px" width="480" height="640" alt="Engineers sorting cells" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2026-team-3-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2026-team-3-700.webp" srcset="assets/journey/photos/2026-team-3-700.webp 512w" sizes="(min-width: 960px) 620px, 86vw" width="512" height="384" alt="Working through a build" loading="lazy" decoding="async"></a>
           </div>
         </div>
@@ -504,9 +510,9 @@
           <div class="strip" role="group" aria-label="On the big stages: 5 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2026-stages-1-1400.webp" style="--ar:1.244"><img src="assets/journey/photos/2026-stages-1-700.webp" srcset="assets/journey/photos/2026-stages-1-700.webp 531w" sizes="(min-width: 960px) 620px, 86vw" width="531" height="427" alt="Second place at Battery 360" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2026-stages-2-1400.webp" style="--ar:1.502"><img src="assets/journey/photos/2026-stages-2-700.webp" srcset="assets/journey/photos/2026-stages-2-700.webp 700w, assets/journey/photos/2026-stages-2-1400.webp 800w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="466" alt="Pitching PowerPod at Battery 360" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-stages-3-1400.webp" style="--ar:0.761"><img src="assets/journey/photos/2026-stages-3-700.webp" srcset="assets/journey/photos/2026-stages-3-700.webp 700w, assets/journey/photos/2026-stages-3-1400.webp 897w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="920" alt="Our stand at TiEcon Chandigarh" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-stages-3-1400.webp" style="--ar:0.761"><img src="assets/journey/photos/2026-stages-3-700.webp" srcset="assets/journey/photos/2026-stages-3-700.webp 700w, assets/journey/photos/2026-stages-3-1400.webp 897w" sizes="(min-width: 960px) 274px, 206px" width="700" height="920" alt="Our stand at TiEcon Chandigarh" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2026-stages-4-1400.webp" style="--ar:1.777"><img src="assets/journey/photos/2026-stages-4-700.webp" srcset="assets/journey/photos/2026-stages-4-700.webp 700w, assets/journey/photos/2026-stages-4-1400.webp 1400w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="394" alt="The team at Battery Summit 2026" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-stages-5-1400.webp" style="--ar:0.668"><img src="assets/journey/photos/2026-stages-5-700.webp" srcset="assets/journey/photos/2026-stages-5-700.webp 308w" sizes="(min-width: 960px) 620px, 86vw" width="308" height="461" alt="PowerPod on show" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-stages-5-1400.webp" style="--ar:0.668"><img src="assets/journey/photos/2026-stages-5-700.webp" srcset="assets/journey/photos/2026-stages-5-700.webp 308w" sizes="(min-width: 960px) 241px, 181px" width="308" height="461" alt="PowerPod on show" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -517,22 +523,22 @@
         <h3 class="chapter__title">The market found us</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="The market found us: 3 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2026-market-1-1400.webp" style="--ar:0.569"><img src="assets/journey/photos/2026-market-1-700.webp" srcset="assets/journey/photos/2026-market-1-700.webp 455w" sizes="(min-width: 960px) 620px, 86vw" width="455" height="800" alt="Carrying a PowerPod" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-market-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-market-2-700.webp" srcset="assets/journey/photos/2026-market-2-700.webp 700w, assets/journey/photos/2026-market-2-1400.webp 908w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="933" alt="With one of our first dealership partners" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-market-1-1400.webp" style="--ar:0.569"><img src="assets/journey/photos/2026-market-1-700.webp" srcset="assets/journey/photos/2026-market-1-700.webp 455w" sizes="(min-width: 960px) 205px, 154px" width="455" height="800" alt="Carrying a PowerPod" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-market-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-market-2-700.webp" srcset="assets/journey/photos/2026-market-2-700.webp 700w, assets/journey/photos/2026-market-2-1400.webp 908w" sizes="(min-width: 960px) 270px, 203px" width="700" height="933" alt="With one of our first dealership partners" loading="lazy" decoding="async"></a>
             <a class="frame" href="assets/journey/photos/2026-market-3-1400.webp" style="--ar:1.500"><img src="assets/journey/photos/2026-market-3-700.webp" srcset="assets/journey/photos/2026-market-3-700.webp 576w" sizes="(min-width: 960px) 620px, 86vw" width="576" height="384" alt="PowerPods and the app on display" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
           <p>One reel travelled further than we planned: 50K+ views, 700+ riders asking where to buy, and 20+ dealerships asking to sell.</p>
-          <p>So we stopped waiting. Our first dealerships brought PowerPod into their stores.</p>
+          <p>So we stopped waiting. Our first dealerships brought PowerPod into their stores. <a class="chapter__link" href="dealers.html">Find one near you</a>.</p>
         </div>
       </article>
       <article class="chapter">
         <h3 class="chapter__title">Own it, or just use it</h3>
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Own it, or just use it: 2 photos" tabindex="0">
-            <a class="frame" href="assets/journey/photos/2026-choice-1-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2026-choice-1-700.webp" srcset="assets/journey/photos/2026-choice-1-700.webp 450w" sizes="(min-width: 960px) 620px, 86vw" width="450" height="800" alt="A rider with his scooter" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-choice-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-choice-2-700.webp" srcset="assets/journey/photos/2026-choice-2-700.webp 480w" sizes="(min-width: 960px) 620px, 86vw" width="480" height="640" alt="PowerPod at a dealership" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-choice-1-1400.webp" style="--ar:0.562"><img src="assets/journey/photos/2026-choice-1-700.webp" srcset="assets/journey/photos/2026-choice-1-700.webp 450w" sizes="(min-width: 960px) 203px, 152px" width="450" height="800" alt="A rider with his scooter" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-choice-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-choice-2-700.webp" srcset="assets/journey/photos/2026-choice-2-700.webp 480w" sizes="(min-width: 960px) 270px, 203px" width="480" height="640" alt="PowerPod at a dealership" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -545,7 +551,7 @@
         <div class="chapter__media">
           <div class="strip" role="group" aria-label="Built beyond our walls: 2 photos" tabindex="0">
             <a class="frame" href="assets/journey/photos/2026-beyond-1-1400.webp" style="--ar:1.333"><img src="assets/journey/photos/2026-beyond-1-700.webp" srcset="assets/journey/photos/2026-beyond-1-700.webp 700w, assets/journey/photos/2026-beyond-1-1400.webp 768w" sizes="(min-width: 960px) 620px, 86vw" width="700" height="525" alt="A PowerPod built at Stefen Electric" loading="lazy" decoding="async"></a>
-            <a class="frame" href="assets/journey/photos/2026-beyond-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-beyond-2-700.webp" srcset="assets/journey/photos/2026-beyond-2-700.webp 480w" sizes="(min-width: 960px) 620px, 86vw" width="480" height="640" alt="PowerPods, ready to go" loading="lazy" decoding="async"></a>
+            <a class="frame" href="assets/journey/photos/2026-beyond-2-1400.webp" style="--ar:0.750"><img src="assets/journey/photos/2026-beyond-2-700.webp" srcset="assets/journey/photos/2026-beyond-2-700.webp 480w" sizes="(min-width: 960px) 270px, 203px" width="480" height="640" alt="PowerPods, ready to go" loading="lazy" decoding="async"></a>
           </div>
         </div>
         <div class="chapter__text">
@@ -604,11 +610,12 @@
         <h3 class="chapter__title">Backed by</h3>
         <div class="backers">
           <div class="backers__group">
-            <h4 class="backers__label">Schemes</h4>
-            <ul class="marks" aria-label="Schemes">
-            <li><img src="assets/journey/backers/meity-startup.webp" width="145" height="120" alt="MeitY Startup Hub" loading="lazy" decoding="async"></li>
-            <li><img src="assets/journey/backers/nidhi-eir.webp" width="237" height="120" alt="NIDHI Entrepreneur-in-Residence" loading="lazy" decoding="async"></li>
-            <li><img src="assets/journey/backers/nidhi-prayas.webp" width="276" height="120" alt="DST NIDHI PRAYAS" loading="lazy" decoding="async"></li>
+            <h4 class="backers__label">Partners</h4>
+            <ul class="marks" aria-label="Partners">
+            <li><img src="assets/journey/backers/ministry-power.webp" width="244" height="120" alt="Ministry of Power, Government of India" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/ministry-coal.webp" width="244" height="120" alt="Ministry of Coal, Government of India" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/rec.webp" width="294" height="120" alt="REC Limited" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/rebalance.webp" width="408" height="120" alt="rebalance" loading="lazy" decoding="async"></li>
           </ul>
           </div>
           <div class="backers__group">
@@ -617,7 +624,16 @@
             <li><img src="assets/journey/backers/vit-vellore.webp" width="342" height="120" alt="VIT, Vellore Institute of Technology" loading="lazy" decoding="async"></li>
             <li><img src="assets/journey/backers/iiit-delhi.webp" width="372" height="120" alt="IIIT Delhi Innovation and Incubation Center" loading="lazy" decoding="async"></li>
             <li><img src="assets/journey/backers/iim-udaipur.webp" width="422" height="120" alt="IIM Udaipur Incubation Centre" loading="lazy" decoding="async"></li>
-            <li><img src="assets/journey/backers/iit-roorkee.webp" width="316" height="120" alt="TIDES Business Incubator, IIT Roorkee" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/iit-roorkee-seal.webp" width="120" height="120" alt="Indian Institute of Technology Roorkee" loading="lazy" decoding="async"></li>
+          </ul>
+          </div>
+          <div class="backers__group">
+            <h4 class="backers__label">Schemes</h4>
+            <ul class="marks" aria-label="Schemes">
+            <li><img src="assets/journey/backers/meity-startup.webp" width="145" height="120" alt="MeitY Startup Hub" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/nidhi-eir.webp" width="237" height="120" alt="NIDHI Entrepreneur-in-Residence" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/nidhi-prayas.webp" width="276" height="120" alt="DST NIDHI PRAYAS" loading="lazy" decoding="async"></li>
+            <li><img src="assets/journey/backers/powerthon.webp" width="423" height="120" alt="REC Powerthon 2.0" loading="lazy" decoding="async"></li>
           </ul>
           </div>
         </div>
@@ -724,11 +740,11 @@
           </div>
         </div>
 
-        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
-             is finished and the pages can drop in behind them. -->
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
         <div class="credits__legal">
-          <a href="terms.html">Terms &amp; Conditions</a>
-          <a href="privacy.html">Privacy Policy</a>
+          <a href="privacy_policy.html">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html">Privacy Policy</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
       </div>
@@ -737,6 +753,7 @@
 
   <script src="assets/grid-bg.js"></script>
   <script src="assets/topbar.js"></script>
+  <script src="assets/tape.js"></script>
   <script src="assets/journey.js"></script>
   <script src="assets/footer.js"></script>
   <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->

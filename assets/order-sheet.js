@@ -19,6 +19,9 @@
  *
  * The one thing this page does that powerpod-gen2.html does not: it shows the real amount
  * Razorpay will charge, gateway fee and all. See GATEWAY_FEE_RATE.
+ *
+ * Analytics (analytics.js) hears the steps of the funnel and nothing typed: the sheet opening
+ * for a SKU, the order going in (which SKUs, never who), and what Razorpay's window did.
  */
 (() => {
   'use strict';
@@ -32,6 +35,11 @@
   const SKUS = ITEMS.map((it) => it.sku);
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Through the queue gridx-api.js sets up, so nothing is lost to analytics.js arriving late.
+  const track = (name, props) => {
+    if (typeof window.gridTrack === 'function') window.gridTrack(name, props);
+  };
 
   // ---------------------------------------------------------------- the markup
   /*
@@ -157,6 +165,9 @@
           <span id="order-pay-label">Pay</span>
         </button>
         <p class="order__hint" id="order-hint" role="status" aria-live="polite"></p>
+        <!-- Google's terms for hiding the reCAPTCHA badge, which would otherwise sit on top of
+             this button on a phone: say so where the check happens. -->
+        <p class="order__legal">Protected by reCAPTCHA: Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply. Payments are processed by Razorpay.</p>
       </div>
     </form>`;
 
@@ -445,19 +456,34 @@
     // would leave a trail of pending orders behind one fumbled UPI request.
     if (created && createdFor === signature()) return Promise.resolve(created);
 
-    return window.gridxApi.postJSON('/api/public/website/orders', {
+    // A fresh reCAPTCHA token per new order: they are single use and expire in minutes.
+    const token = window.gridxApi.recaptchaToken
+      ? window.gridxApi.recaptchaToken('create_order')
+      : Promise.resolve(null);
+    return token.then((recaptchaToken) => window.gridxApi.postJSON('/api/public/website/orders', {
       kind: 'accessories',
       items: cart(),
       customer: { ...details },
-    }).then((order) => {
+      recaptcha: { token: recaptchaToken, action: 'create_order' },
+    })).then((order) => {
       created = order;
       createdFor = signature();
       return order;
     });
   }
 
+  /**
+   * The phone as Razorpay wants it, +91 and ten digits. Checkout opens with the contact
+   * locked (readonly below), so a number it could not parse would leave nothing to fix.
+   */
+  function checkoutContact(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    const ten = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits.slice(-10);
+    return ten.length === 10 ? `+91${ten}` : undefined;
+  }
+
   function openCheckout(order) {
-    return new Promise((resolve, reject) => {
+    return window.gridxApi.loadRazorpay().then(() => new Promise((resolve, reject) => {
       if (!window.Razorpay) {
         reject(new Error('The payment window could not load. Please refresh and try again.'));
         return;
@@ -469,18 +495,24 @@
         amount: order.amountPaise,
         currency: 'INR',
         name: 'GridX Energy',
-        description: 'GRID accessories',
+        description: `GridX accessories, ${order.orderNumber}`,
+        // Filed under this customer in Razorpay, which also emails them its receipt.
+        customer_id: order.customerId || undefined,
         prefill: {
           name: order.customer?.name || details.name,
           email: order.customer?.email || details.email,
-          contact: order.customer?.phone || details.phone,
+          contact: checkoutContact(order.customer?.phone || details.phone),
         },
-        notes: { gridxOrderNumber: order.orderNumber },
+        // What Paddock stored is what Razorpay records, and where its receipt goes.
+        readonly: { name: true, email: true, contact: true },
+        // No `notes` here, on purpose. Checkout notes come from the browser, so nothing
+        // trusts them; Paddock writes the order's notes itself, server side.
         theme: { color: '#141414' },
         // Presentational only. The webhook is what actually confirms the money and sends
         // the bill, so this handler never claims more than "we have it from here".
         handler() {
           settled = true;
+          track('payment_success');
           resolve(order);
         },
         modal: {
@@ -488,22 +520,28 @@
           // this would reject a promise that has already resolved.
           ondismiss() {
             if (settled) return;
+            track('payment_dismissed');
             reject(new Error('Payment was cancelled. Your order is saved, you can try again.'));
           },
         },
       });
       rzp.on('payment.failed', (response) => {
         settled = true;
+        track('payment_failed');
         reject(new Error(response?.error?.description || 'That payment did not go through. Please try again.'));
       });
       rzp.open();
-    });
+      track('payment_open');
+    }));
   }
 
   function pay() {
     for (const key of ALL_FIELDS) details[key] = fieldEls[key] ? fieldEls[key].input.value.trim() : '';
     // Uppercased here so the browser and the server normalize identically.
     if (details.gstin && window.gridGstin) details.gstin = window.gridGstin.normalize(details.gstin);
+
+    // Which SKUs, as "adapter+chg6a": never a name, a number or an address.
+    track('order_submit', { sku: cart().map((line) => line.sku).join('+'), intent: 'full', delivery: 'ship' });
 
     busy = true;
     say('Setting up your payment.');
@@ -626,11 +664,16 @@
    * @param {number} [want] quantity to set, clamped by setQty
    */
   function open(sku, returnTo, want) {
+    // Someone opening the order sheet may well pay: fetch the checkout script now, while they
+    // fill it in, rather than on the Pay press.
+    if (window.gridxApi && window.gridxApi.loadRazorpay) window.gridxApi.loadRazorpay();
+    if (window.gridxApi && window.gridxApi.loadRecaptcha) window.gridxApi.loadRecaptcha();
     if (sku && sku in qty && !paid) {
       if (Number.isFinite(want) && want > 0) setQty(sku, Math.floor(want));
       else if (qty[sku] === 0) setQty(sku, 1);
     }
     sheet.open(returnTo);
+    track('order_sheet_open', { sku: sku && sku in qty ? sku : 'none' });
 
     const row = sku && itemsEl && itemsEl.querySelector(`.order__item[data-sku="${CSS.escape(sku)}"]`);
     if (!row) return;

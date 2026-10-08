@@ -7,15 +7,37 @@
   <meta name="description" content="GridXenergy, The Future of Energy Storage">
   <meta name="theme-color" content="#c4c4c2">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio below is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
 
   <style>
+    /* DM Sans, the variable font (optical size and weight), as Google Fonts serves it: one file
+       per script range, so a page in English never downloads the extended Latin. The second
+       source is Google's copy of the same file, used only if the local one cannot load: a page
+       opened straight from disk (file://) is not allowed to read local font files. */
+    @font-face {
+      font-family: 'DM Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url("assets/fonts/dm-sans-latin-ext.woff2") format('woff2'), url("https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZ2IHTWEBlwu8Q.woff2") format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'DM Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url("assets/fonts/dm-sans-latin.woff2") format('woff2'), url("https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2") format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
     :root {
       --ink: #141414;
       --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -699,13 +721,15 @@
 
   <!-- After the inline studio styles, so the footer's night rules have the last word. -->
   <link rel="stylesheet" href="assets/footer.css">
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
   <canvas id="pod" aria-hidden="true"></canvas>
 
   <header class="topbar">
-    <a class="brand" href="index.html" aria-label="GRID home">
+    <a class="brand" href="index.html" aria-label="GridX home">
       <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
       <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
     </a>
@@ -736,12 +760,6 @@
             <a class="island__link" href="support.html">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
               <span class="island__label">Support</span>
-            </a>
-          </li>
-          <li>
-            <a class="island__link" href="journey.html">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
-              <span class="island__label">Journey</span>
             </a>
           </li>
         </ul>
@@ -899,11 +917,11 @@
           </div>
         </div>
 
-        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
-             is finished and the pages can drop in behind them. -->
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
         <div class="credits__legal">
-          <a href="terms.html">Terms &amp; Conditions</a>
-          <a href="privacy.html">Privacy Policy</a>
+          <a href="privacy_policy.html">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html">Privacy Policy</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
       </div>
@@ -928,6 +946,12 @@
    * the other pages use that one. The night grade lives in both: `uHouse` in STUDIO_FS,
    * nightGrade(), setNight(), and the five uniform sites that read N instead of S.
    * Change one, change both.
+   *
+   * Cost. The engine works out how hard to work with assets/perf.js (GridPerf), shared with the
+   * pod so the two canvases are always paced together. It draws the composite at CSS resolution
+   * (see applySize), compiles its shaders on the driver's threads, builds the road's riders only
+   * when the opening will show them, and reads no layout inside a frame. The performance
+   * pass in both copies is mirrored too: change one, change both.
    */
   (() => {
     'use strict';
@@ -936,11 +960,12 @@
     const canvas = document.getElementById('bg');
     const headline = document.querySelector('.headline');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const perf = window.GridPerf || null;
 
     const reveal = () => headline.classList.add('is-revealed');
     const fallback = (reason) => {
       if (reason) console.warn('[gridBG] using static background:', reason);
-      root.classList.remove('gl');
+      root.classList.remove('gl', 'gl-live');
       reveal();
     };
 
@@ -952,7 +977,7 @@
     const RESIDUAL_PULL = 0.12;
     const DRIFT_DENSITY = 0.07; // share of particles left drifting once the shape behind the headline scatters
     const SCROLL_FOLLOW = 0.6;  // how strongly scrolling sweeps particles (1 = locked to content at the ribbon depth)
-    const MIN_QUALITY = 0.45;
+    const MIN_QUALITY = 0.6;    // emergency shedding floor (the governor's last resort, see perf.js)
     const MAX_CANVAS_PIXELS = 3.5e6;
     const MAX_PARTICLE_PIXELS = 2.0e6;
 
@@ -1126,6 +1151,8 @@
       uniform float uPodK;         // how hard a formation holds its points: 22 lets a drawing breathe
       uniform float uPodNoise;     // how much of the drift still moves a point held in a formation
       uniform float uPodEven;      // 0 keeps the field's sparkle along a drawn line, 1 an even stroke
+      uniform float uPodSnap;      // 0 lets a held formation chase its targets, 1 puts it on them
+      uniform float uPodLetGo;     // 1 while a formation is being let go at the end of its scene
 
       ${HASH_GLSL}
       ${NOISE_GLSL}
@@ -1232,10 +1259,29 @@
         if (speed > maxSpeed) v *= maxSpeed / speed;
         p += v * dt;
 
-        // Particles carried off the top or bottom re-enter from the other side, out of view.
+        // A figure held to the pod (her hand on its grip, her body carrying it) cannot trail it
+        // by so much as a frame, however fast the page is scrolled: a particle fully in such a
+        // formation is put exactly on its target, and goes on with the speed that took it there,
+        // so it leaves the formation moving the way the drawing was.
+        float held = 0.0;
+        if (uPodSnap > 0.0005 && uPod > 0.0005) {
+          float snap = uPodSnap * w * clamp(uPod / max(uSweep + uRibbon + uPod, 1e-4), 0.0, 1.0);
+          held = snap;
+          vec3 onTarget = mix(p, podTarget(id), snap);
+          if (dt > 0.0) v = mix(v, (onTarget - aPosAge.xyz) / dt, snap);
+          speed = length(v);
+          if (speed > maxSpeed) v *= maxSpeed / speed;
+          p = onTarget;
+        }
+
+        // Particles carried off the top or bottom re-enter from the other side, out of view. Not
+        // one held to a figure that has gone out of the frame (she rides up out of the top): it
+        // stays with its drawing.
         float wrapH = max(-p.z, 0.5) * uTanHalfY * 1.3;
-        if (p.y > wrapH) p.y -= 2.0 * wrapH;
-        else if (p.y < -wrapH) p.y += 2.0 * wrapH;
+        if (held < 0.5) {
+          if (p.y > wrapH) p.y -= 2.0 * wrapH;
+          else if (p.y < -wrapH) p.y += 2.0 * wrapH;
+        }
 
         // Lifespans nearly pause while held in a formation so shapes don't pop apart.
         age += dt * (1.0 - 0.9 * w);
@@ -1244,6 +1290,10 @@
         hh = max(d, 0.5) * uTanHalfY;
         hw = hh * uAspect;
         bool outside = d < 1.0 || d > 24.0 || abs(p.x) > hw * 1.9 + 1.0 || abs(p.y) > hh * 1.9 + 1.0;
+        // Let go above or below the frame by a figure that had left it (she rides up out of the
+        // top), a particle would be drawn back in and fall across the frame into the drift: it
+        // starts again instead, out of sight, and fades up somewhere as the rest of the dust does.
+        if (uPodLetGo > 0.5 && held < 0.5 && abs(p.y) > hh * 1.1) outside = true;
         bool dead = age >= life || outside;
 
         if (dead) {
@@ -1491,16 +1541,24 @@
       void main() {
         float r = length(vUv);
 
-        // In focus: a tiny soft glow instead of a hard pixel.
-        float glow = exp(-(r * r) / (vCore * vCore));
+        // In focus: a tiny soft glow instead of a hard pixel. A fully defocused disc has none of
+        // it (mix() below would multiply it by exactly zero), so it is not worked out.
+        float glow = vDefocus < 1.0 ? exp(-(r * r) / (vCore * vCore)) : 0.0;
 
         // Defocused: aperture-shaped disc (70% circle, 30% six-blade hexagon) with a brighter rim.
-        vec2 q = mat2(0.9659, -0.2588, 0.2588, 0.9659) * vUv;
-        float sd = mix(r - vRadius, sdHexagon(q, vRadius * 0.94), 0.3);
-        float edge = 0.9 + vRadius * 0.06;
-        float disc = 1.0 - smoothstep(-edge, edge, sd);
-        float rim = smoothstep(-vRadius * 0.5, 0.0, sd) * disc;
-        float bokeh = disc * 0.78 + rim * 0.32;
+        // Skipped while a particle is fully in focus, where it would be weighted by zero.
+        float bokeh = 0.0;
+        if (vDefocus > 0.0) {
+          vec2 q = mat2(0.9659, -0.2588, 0.2588, 0.9659) * vUv;
+          float sd = mix(r - vRadius, sdHexagon(q, vRadius * 0.94), 0.3);
+          float edge = 0.9 + vRadius * 0.06;
+          // Outside the aperture a fully defocused disc adds exactly nothing: leave the pixel be
+          // rather than blend a zero into it.
+          if (vDefocus >= 1.0 && sd >= edge) discard;
+          float disc = 1.0 - smoothstep(-edge, edge, sd);
+          float rim = smoothstep(-vRadius * 0.5, 0.0, sd) * disc;
+          bokeh = disc * 0.78 + rim * 0.32;
+        }
 
         outColor = vec4(vLight * mix(glow, bokeh, vDefocus), 1.0);
       }
@@ -1519,7 +1577,7 @@
       precision highp int;
 
       uniform vec2 uRes;
-      uniform float uTime;
+      uniform vec2 uDrift;         // the lights' slow wander, worked out once a frame on the CPU
       uniform float uExposure;
       uniform float uParticleGain;
       uniform float uHouse;        // house lights over the cyclorama only: 1 = studio lit, 0 = dark stage
@@ -1541,8 +1599,7 @@
         c.y = -c.y;
         float portrait = clamp((1.0 - aspect) / 0.55, 0.0, 1.0);
 
-        vec2 drift = 0.012 * vec2(sin(uTime * 0.071) + 0.5 * sin(uTime * 0.13 + 1.7),
-                                  cos(uTime * 0.053) + 0.5 * sin(uTime * 0.097 + 0.4));
+        vec2 drift = uDrift;
         float horizon = mix(-0.12, -0.17, portrait) + drift.y * 0.5;
         float by = c.y - horizon;
         float leftEdge = -0.5 * max(aspect, 1.0);
@@ -1589,6 +1646,8 @@
     `;
 
     // ---------------------------------------------------------------- WebGL setup
+    // A software-only context (no GPU acceleration, or a blocklisted driver) would draw this a
+    // few frames a second and hold the whole page up doing it. Those machines get the CSS studio.
     const gl = canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -1596,38 +1655,53 @@
       stencil: false,
       premultipliedAlpha: false,
       preserveDrawingBuffer: false,
+      failIfMajorPerformanceCaveat: true,
     });
     if (!gl) {
-      fallback('WebGL2 unavailable');
+      fallback('WebGL2 unavailable or software-only');
       return;
     }
+    if (perf) perf.classify(gl);
 
-    function compile(type, source) {
-      const shader = gl.createShader(type);
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
-        throw new Error(gl.getShaderInfoLog(shader));
-      }
-      return shader;
-    }
+    // Shaders compile on the driver's own threads where the browser allows it: every program is
+    // started at once and only checked when it is needed, so nothing stands still waiting on the
+    // compiler. Without the extension, checking is what waits.
+    const parallel = gl.getExtension('KHR_parallel_shader_compile');
 
     function createProgram(vs, fs, varyings) {
       const program = gl.createProgram();
-      gl.attachShader(program, compile(gl.VERTEX_SHADER, vs));
-      gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fs));
+      const shaders = [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].map(([type, source]) => {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        gl.attachShader(program, shader);
+        return shader;
+      });
       if (varyings) gl.transformFeedbackVaryings(program, varyings, gl.INTERLEAVED_ATTRIBS);
       gl.linkProgram(program);
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS) && !gl.isContextLost()) {
-        throw new Error(gl.getProgramInfoLog(program));
+      return { program, shaders, uniforms: null };
+    }
+
+    // Whether the driver has finished with a program. Never waits.
+    const programDone = (p) => !!p.uniforms || !parallel
+      || !!gl.getProgramParameter(p.program, parallel.COMPLETION_STATUS_KHR);
+
+    // Checks the link and reads the uniform table. This waits for the compiler, so it is called
+    // once programDone() says so, or where waiting is the right thing to do.
+    function finishProgram(p) {
+      if (p.uniforms) return p;
+      if (!gl.getProgramParameter(p.program, gl.LINK_STATUS) && !gl.isContextLost()) {
+        throw new Error(p.shaders.map((shader) => gl.getShaderInfoLog(shader))
+          .concat(gl.getProgramInfoLog(p.program)).filter(Boolean).join('\n'));
       }
       const uniforms = {};
-      const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+      const count = gl.getProgramParameter(p.program, gl.ACTIVE_UNIFORMS);
       for (let i = 0; i < count; i++) {
-        const { name } = gl.getActiveUniform(program, i);
-        uniforms[name.replace(/\[0\]$/, '')] = gl.getUniformLocation(program, name);
+        const { name } = gl.getActiveUniform(p.program, i);
+        uniforms[name.replace(/\[0\]$/, '')] = gl.getUniformLocation(p.program, name);
       }
-      return { program, uniforms };
+      p.uniforms = uniforms;
+      return p;
     }
 
     const STRIDE = 48;       // 3 × vec4 per particle
@@ -1689,7 +1763,10 @@
       return { count, state, updateVao, drawVao, read: 0 };
     }
 
-    function createGPU(capacity) {
+    // `wait`: check the programs before returning, as the engine always used to. A page that
+    // opens on a lit studio needs its first frame straight away; the home page opens on a dark
+    // stage and lets the compiler finish in the background instead (see gpuReady()).
+    function createGPU(capacity, wait) {
       const update = createProgram(UPDATE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
       const particles = createProgram(PARTICLE_VS, PARTICLE_FS);
       const studio = createProgram(FULLSCREEN_VS, STUDIO_FS);
@@ -1703,13 +1780,9 @@
       for (let i = 0; i < capacity; i++) initial[i * 12 + 3] = 1;
       const road = createPool(capacity, initial, quad, null);
 
-      let vehicles = null;
-      let traffic = null;
-      if (roster.length) {
-        vehicles = createProgram(VEHICLE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
-        const count = roster.length * POINTS_PER_VEHICLE;
-        traffic = createPool(count, new Float32Array(count * 12), quad, buildTrafficShapes());
-      }
+      // The riders are built later, and only where the opening will show them (prepareTraffic).
+      const vehicles = null;
+      const traffic = null;
 
       const fullscreenVao = gl.createVertexArray();
       const halfFloat = !!(gl.getExtension('EXT_color_buffer_half_float') || gl.getExtension('EXT_color_buffer_float'));
@@ -1729,15 +1802,58 @@
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, podSize, podSize, 0, gl.RGBA, gl.FLOAT, new Float32Array(podSize * podSize * 4));
       gl.bindTexture(gl.TEXTURE_2D, null);
 
-      return {
+      const g = {
         update, vehicles, particles, studio,
-        road, traffic, fullscreenVao,
+        road, traffic, fullscreenVao, quad,
         feedback: gl.createTransformFeedback(),
         light: { texture: gl.createTexture(), fbo: gl.createFramebuffer(), width: 0, height: 0, halfFloat },
         detail, // canvas-resolution light for the traffic, 1×1 while unused
         podTargets,
         prewarm: true,
+        ready: false,
       };
+      if (wait) {
+        [update, particles, studio].forEach(finishProgram);
+        g.ready = true;
+      }
+      return g;
+    }
+
+    // Ready to draw once every program is compiled and checked. Never waits on the compiler.
+    function gpuReady(g) {
+      if (g.ready) return true;
+      const programs = [g.update, g.particles, g.studio];
+      if (!programs.every(programDone)) return false;
+      programs.forEach(finishProgram);
+      g.ready = true;
+      return true;
+    }
+
+    // The riders on the opening's road. Only the opening shows them, from about eleven seconds
+    // in and only to a reader who has not scrolled yet, so they are built a few seconds ahead at
+    // an idle moment rather than with everything else at load.
+    function prepareTraffic(g) {
+      if (g.vehicles || !roster.length) return;
+      g.vehicles = createProgram(VEHICLE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
+      const count = roster.length * POINTS_PER_VEHICLE;
+      g.traffic = createPool(count, new Float32Array(count * 12), g.quad, buildTrafficShapes());
+      // Without parallel compiling, checking is what waits, so do that here in idle time and not
+      // on the frame the first rider appears.
+      if (!parallel) trafficReady(g);
+    }
+
+    function trafficReady(g) {
+      if (!g.traffic) return false;
+      if (g.vehicles.uniforms) return true;
+      if (!programDone(g.vehicles)) return false;
+      try {
+        finishProgram(g.vehicles);
+        return true;
+      } catch (err) {
+        console.warn('[gridBG] riders unavailable:', err);
+        g.traffic = null; // the road plays on without them
+        return false;
+      }
     }
 
     // One transform-feedback pass over a pool: reads its current buffer, writes the other.
@@ -2044,9 +2160,13 @@
     let quality = 1;
     let resolutionScale = 1;
 
+    // The opening starts on a dark stage, so the shaders can finish compiling in the background
+    // while it does; the timeline starts when they are in. Reduced motion opens on the lit studio
+    // and waits for them, as the engine always did.
+    const waitForShaders = reduceMotion || !parallel;
     let gpu;
     try {
-      gpu = createGPU(capacity);
+      gpu = createGPU(capacity, waitForShaders);
     } catch (err) {
       fallback(err);
       return;
@@ -2056,7 +2176,7 @@
     const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
-    const S = { exposure: 0, focus: 3.0, aperture: 0.07, sweep: 0, sweepT: 0, ribbon: 0, breath: 0, density: 1, traffic: 0, pod: 0, podK: 22, podNoise: 0.3, podEven: 0, night: 0 };
+    const S = { exposure: 0, focus: 3.0, aperture: 0.07, sweep: 0, sweepT: 0, ribbon: 0, breath: 0, density: 1, traffic: 0, pod: 0, podK: 22, podNoise: 0.3, podEven: 0, podHold: 0, podSnap: 0, podLetGo: 0, night: 0 };
     roster.forEach((vehicle, i) => { S[`vehicle${i}`] = 0; });
     const tweens = [];
     const events = [];
@@ -2258,10 +2378,17 @@
 
     // How a formation holds: the scooter keeps the field's loose, hand-drawn hold; a figure that
     // moves needs a firmer one with almost none of the drift, or its outline trails and wobbles.
-    function setFormation(k, noise, even = 0) {
+    // `hold` takes the scroll's sweep off it as well, for a drawing that has to stay registered
+    // with the pod to the pixel while the page moves under it (the hand on the grip). `snap`
+    // puts a fully held formation exactly on its targets instead of on a spring behind them,
+    // and `letGo` says it is being released at the end of its scene.
+    function setFormation(k, noise, even = 0, hold = 0, snap = 0, letGo = 0) {
       S.podK = k;
       S.podNoise = noise;
       S.podEven = even;
+      S.podHold = hold;
+      S.podSnap = snap;
+      S.podLetGo = letGo;
     }
 
     function setPodTargets(xyz, vis) {
@@ -2271,8 +2398,7 @@
     }
 
     function projection() {
-      const cssW = Math.max(1, canvas.clientWidth);
-      const cssH = Math.max(1, canvas.clientHeight);
+      if (!cssW) measureCanvas();
       const aspect = (canvas.width && canvas.height) ? canvas.width / canvas.height : cssW / cssH;
       const tanHalfY = TAN_HALF_FOV / Math.min(aspect, 1);
       return { aspect, tanHalfY, depth: RIBBON_DEPTH };
@@ -2314,14 +2440,33 @@
     // ---------------------------------------------------------------- sizing & quality
     let sizeDirty = true;
 
+    // The canvas's CSS size, read once per resize rather than once per frame: reading it inside
+    // a frame forces the browser to bring style and layout up to date first, every frame.
+    let cssW = 0;
+    let cssH = 0;
+    function measureCanvas() {
+      cssW = Math.max(1, canvas.clientWidth);
+      cssH = Math.max(1, canvas.clientHeight);
+    }
+
+    // The composite is drawn at CSS resolution. Everything in it is soft: the particle light
+    // buffer below was already at CSS resolution, the cyclorama's finest feature spans about
+    // fifteen CSS pixels, and the dither is under one level of 8-bit. At the device's full
+    // density the same picture cost four times the fill on a 2x screen (nine on 3x, before the
+    // cap), for pixels the compositor would have interpolated to the same values. The one thing
+    // that needs device pixels is the road's riders, whose points are a pixel wide: while they
+    // are on screen (`dense`) the canvas goes up to full density, as it always was.
+    let dense = false;
+
     function applySize() {
       sizeDirty = false;
-      const cssW = Math.max(1, canvas.clientWidth);
-      const cssH = Math.max(1, canvas.clientHeight);
+      measureCanvas();
       const area = cssW * cssH;
+      const dpr = window.devicePixelRatio || 1;
+      const canvasCap = Math.sqrt(MAX_CANVAS_PIXELS / area);
 
-      let ratio = Math.min(window.devicePixelRatio || 1, 2) * resolutionScale;
-      ratio = Math.min(ratio, Math.sqrt(MAX_CANVAS_PIXELS / area));
+      const base = Math.min(Math.min(dpr, 1) * resolutionScale, canvasCap);
+      const ratio = dense ? Math.min(Math.min(dpr, 2) * resolutionScale, canvasCap) : base;
       const width = Math.max(1, Math.round(cssW * ratio));
       const height = Math.max(1, Math.round(cssH * ratio));
       if (canvas.width !== width || canvas.height !== height) {
@@ -2330,7 +2475,7 @@
       }
 
       // Bokeh is soft, so the light buffer stays near CSS resolution: most of the fill cost saved.
-      const lightRatio = Math.min(ratio, resolutionScale, Math.sqrt(MAX_PARTICLE_PIXELS / area));
+      const lightRatio = Math.min(base, resolutionScale, Math.sqrt(MAX_PARTICLE_PIXELS / area));
       sizeLightBuffer(gpu.light, Math.max(1, Math.round(cssW * lightRatio)), Math.max(1, Math.round(cssH * lightRatio)));
     }
 
@@ -2346,7 +2491,17 @@
       }
     }
 
-    // Frame-time governor: sheds particles and resolution on struggling devices, restores slowly.
+    // perf.js owns the frame-rate ladder for every canvas on the page; particle shedding is its
+    // last step, applied here.
+    if (perf) {
+      perf.on((p) => {
+        const q = Math.pow(0.85, p.shed);
+        if (Math.abs(Math.max(MIN_QUALITY, q) - quality) > 1e-3) setQuality(q);
+      });
+    }
+
+    // Frame-time governor, for a page without perf.js: sheds particles and resolution on
+    // struggling devices, restores slowly.
     function governor(rawDt) {
       if (rawDt <= 0 || rawDt > 0.25) return;
       perfTime += rawDt;
@@ -2382,7 +2537,18 @@
     let scrollEnergy = 0;
     let lastScrollY = window.scrollY;
     let touchY = null;
-    const pageScrolls = () => document.documentElement.scrollHeight > window.innerHeight + 1;
+    // Whether the page scrolls, kept rather than measured on every wheel and touch event.
+    let scrollsKnown = false;
+    let scrolls = true;
+    const pageScrolls = () => {
+      if (!scrollsKnown) {
+        scrolls = document.documentElement.scrollHeight > window.innerHeight + 1;
+        scrollsKnown = true;
+      }
+      return scrolls;
+    };
+    if ('ResizeObserver' in window) new ResizeObserver(() => { scrollsKnown = false; }).observe(document.documentElement);
+    window.addEventListener('resize', () => { scrollsKnown = false; });
 
     window.addEventListener('scroll', () => {
       scrollPx += window.scrollY - lastScrollY;
@@ -2419,10 +2585,11 @@
       const rawScrollVelocity = dt > 0 ? scrollPx / dt : 0;
       scrollPx = 0;
       scrollVelocity += (rawScrollVelocity - scrollVelocity) * (1 - Math.exp(-dt / 0.06));
-      const pxToWorld = (2 * RIBBON_DEPTH * tanHalfY) / Math.max(1, canvas.clientHeight);
+      const pxToWorld = (2 * RIBBON_DEPTH * tanHalfY) / cssH;
       // Scrolling sweeps the particles as it always did. The only time it eases off is while
-      // they are locked into a formation, so it can hold its shape.
-      const followScale = (reduceMotion ? 0.3 : 1) * (1 - 0.85 * S.pod);
+      // they are locked into a formation, so it can hold its shape, and it stops altogether for
+      // one that is held (setFormation).
+      const followScale = (reduceMotion ? 0.3 : 1) * (1 - 0.85 * S.pod) * (1 - S.podHold);
       const scrollFollow = Math.max(-10, Math.min(10,
         scrollVelocity * pxToWorld * SCROLL_FOLLOW * followScale));
       scrollEnergy = Math.max(Math.abs(scrollFollow), scrollEnergy * Math.exp(-dt / 2));
@@ -2454,11 +2621,13 @@
       gl.uniform1f(u.uPodK, S.podK);
       gl.uniform1f(u.uPodNoise, S.podNoise);
       gl.uniform1f(u.uPodEven, S.podEven);
+      gl.uniform1f(u.uPodSnap, S.podSnap);
+      gl.uniform1f(u.uPodLetGo, S.podLetGo);
       g.prewarm = false;
       simulate(g, g.road, count);
 
       // 1b. Traffic: only while the road scene is on (parked just before, gone once scattered).
-      const trafficOn = g.traffic && clock > TRAFFIC_START && S.traffic < 1;
+      const trafficOn = trafficWindow() && trafficReady(g);
       if (trafficOn) {
         placeTraffic();
         u = g.vehicles.uniforms;
@@ -2507,7 +2676,7 @@
         gl.bindFramebuffer(gl.FRAMEBUFFER, g.detail.fbo);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        const pixelRatio = canvas.width / Math.max(1, canvas.clientWidth);
+        const pixelRatio = canvas.width / cssW;
         gl.uniform2f(u.uRes, canvas.width, canvas.height);
         gl.uniform1f(u.uCore, 0.006);
         gl.uniform1f(u.uMinCore, 0.85 * pixelRatio);
@@ -2531,7 +2700,9 @@
       gl.uniform1i(u.uDetail, 1);
       gl.activeTexture(gl.TEXTURE0);
       gl.uniform2f(u.uRes, canvas.width, canvas.height);
-      gl.uniform1f(u.uTime, simClock);
+      gl.uniform2f(u.uDrift,
+        0.012 * (Math.sin(simClock * 0.071) + 0.5 * Math.sin(simClock * 0.13 + 1.7)),
+        0.012 * (Math.cos(simClock * 0.053) + 0.5 * Math.sin(simClock * 0.097 + 0.4)));
       gl.uniform1f(u.uExposure, S.exposure);
       gl.uniform1f(u.uParticleGain, N.gain);
       gl.uniform1f(u.uHouse, N.house);
@@ -2543,18 +2714,81 @@
 
     let rafId = 0;
     let lastNow = 0;
+    let live = false;
+    let trafficQueued = false;
 
+    // The road scene's window, the riders' and the full-density canvas's: from just before the
+    // first one is due until the road lets go (or the reader scrolls, which ends it at once).
+    const trafficWindow = () => roster.length > 0 && clock > TRAFFIC_START && S.traffic < 1;
+
+    // While the home page's pod loop is running, it draws this field itself, once a frame, after
+    // it has worked out that frame's targets (gridBG.drive). The field's own frame would come
+    // first in the same animation frame and draw targets a frame old, and a drawing held to the
+    // pod would then sit a frame behind it. So this loop stands back while it is driven, and
+    // takes over again as soon as the pod loop lets go (release), or falls silent.
+    let drivenAt = 0;
     function frame(now) {
       rafId = requestAnimationFrame(frame);
+      if (drivenAt && now - drivenAt < 250) return;
+      step(now);
+    }
+
+    function step(now) {
       if (!gpu) return;
+      // Asked every frame, drawn or not, so the governor sees the page's real frame rate.
+      const due = perf ? perf.frame(now) : true;
+      // Still compiling: the timeline waits with it, on the dark stage the opening starts from.
+      let ready = false;
+      try {
+        ready = gpuReady(gpu);
+      } catch (err) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+        gpu = null;
+        fallback(err);
+        return;
+      }
+      if (!ready) {
+        lastNow = now;
+        return;
+      }
+      if (!due) return;
+      // Under reduced motion the field moves at a third of its speed, which thirty frames a
+      // second draw exactly as well as sixty.
+      if (reduceMotion && now - lastNow < 30) return;
       const rawDt = (now - lastNow) / 1000;
       lastNow = now;
       const dt = Math.min(Math.max(rawDt, 0), 1 / 20);
       clock += dt;
-      governor(rawDt);
+      if (!perf) governor(rawDt);
       advanceTimeline();
+
+      // Build the riders a few seconds before they are due, while the opening is calm.
+      if (!trafficQueued && roster.length && !scrollDrive && clock > TRAFFIC_START - 6) {
+        trafficQueued = true;
+        const idle = perf ? perf.idle : (fn) => setTimeout(fn, 0);
+        idle(() => {
+          if (gpu && !scrollDrive && S.traffic < 1) prepareTraffic(gpu);
+        }, 2000);
+      }
+      const wantDense = trafficWindow() && !!gpu.traffic;
+      if (wantDense !== dense) {
+        dense = wantDense;
+        sizeDirty = true;
+      }
+
       if (sizeDirty) applySize();
       render(dt);
+
+      if (!live) {
+        // The canvas now covers the CSS studio behind it, so the root can stop painting it.
+        live = true;
+        root.classList.add('gl-live');
+      }
+      if (perf && perf.hudOn && frameIndex % 30 === 0) {
+        perf.report('field', `${canvas.width}x${canvas.height} light ${gpu.light.width}x${gpu.light.height}`
+          + ` particles ${capacity} q ${quality.toFixed(2)}${dense ? ' dense' : ''}`);
+      }
     }
 
     function start() {
@@ -2563,8 +2797,12 @@
     }
 
     // ---------------------------------------------------------------- lifecycle
-    if ('ResizeObserver' in window) new ResizeObserver(() => { sizeDirty = true; }).observe(canvas);
-    window.addEventListener('resize', () => { sizeDirty = true; });
+    const resized = () => {
+      sizeDirty = true;
+      cssW = 0; // measured again where it is next needed
+    };
+    if ('ResizeObserver' in window) new ResizeObserver(resized).observe(canvas);
+    window.addEventListener('resize', resized);
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
@@ -2583,7 +2821,8 @@
     });
     canvas.addEventListener('webglcontextrestored', () => {
       try {
-        gpu = createGPU(capacity);
+        gpu = createGPU(capacity, true);
+        trafficQueued = false;
         sizeDirty = true;
         if (podTargetData) uploadPodTargets(podTargetData, podTargetVis);
         if (!document.hidden) start();
@@ -2622,6 +2861,11 @@
       setPodTargets,
       setFormation,
       setNight,
+      drive(now) {
+        drivenAt = now;
+        step(now);
+      },
+      release() { drivenAt = 0; },
       projection,
       // The film's dock shot samples this profile into pod targets. Exported rather than
       // duplicated so the stroke table has exactly one home.
@@ -2636,12 +2880,16 @@
   })();
   </script>
 
-  <script src="assets/three.min.js"></script>
-  <script src="assets/powerpod-data.js"></script>
+  <!-- three.js and the model are fetched by this, after the page is up (see bootPod below). -->
+  <script src="assets/pod-assets.js"></script>
   <script>
   /*
    * PowerPod product overlay + first-page scroll sequence.
    * The studio/particles stay on #bg; this canvas is transparent and only holds the CAD model.
+   *
+   * The film runs from the first frame; the pod joins it once three.js and the model have
+   * arrived and it has been built in idle moments (bootPod, initPod). Until then captions and
+   * the field are driven from apply(), exactly as on a device that has no overlay at all.
    */
   (() => {
     'use strict';
@@ -2657,6 +2905,33 @@
     const wideNow = () => window.innerWidth >= 860;
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     const phone = coarse && Math.min(innerWidth, innerHeight) < 600;
+    const perf = window.GridPerf || null;
+
+    // Style writes only when the value changes. A film at rest, or a fade pinned at 0 or 1,
+    // rewrote the same strings every frame, and every write, even of the same value, sends the
+    // browser back through style for that element.
+    const written = new WeakMap();
+    function setStyle(el, prop, value) {
+      let w = written.get(el);
+      if (!w) written.set(el, (w = {}));
+      if (w[prop] === value) return;
+      w[prop] = value;
+      el.style[prop] = value;
+    }
+
+    // How dark the room is, as footer.js publishes it (0 lit, 1 the end of the film).
+    const nightNow = () => (window.gridNight ? window.gridNight.value : 0);
+
+    // Scroll is mapped onto the film in large-viewport heights, the unit the track itself is
+    // laid out in (vh). window.innerHeight changes as a phone's address bar slides in and out,
+    // which shifted the whole film by about a tenth of a screen, mid-scroll, each time it did.
+    const vhProbe = document.createElement('div');
+    vhProbe.setAttribute('aria-hidden', 'true');
+    vhProbe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;height:100lvh;visibility:hidden;pointer-events:none';
+    document.body.appendChild(vhProbe);
+    let filmVh = 0;
+    const measureVh = () => { filmVh = vhProbe.offsetHeight || window.innerHeight; };
+    if ('ResizeObserver' in window) new ResizeObserver(() => { measureVh(); apply(); }).observe(vhProbe);
 
     // Each caption owns a window of the track, in viewports: it fades in over `in`, holds, and
     // leaves over `out`. The camera beats below are tuned against these by hand, so a change
@@ -2716,6 +2991,7 @@
     let captionFade = 0;  // strongest caption on screen; also drives the camera's lens shift
     let deviceFade = 0;   // the app beat's phone, held separately so the pod can dip behind it
     let podLoopActive = false;
+    let wakePod = () => {}; // set once the pod is built: restarts its loop after a rest
 
     // ---------------------------------------------------------------- the reveal
     // The pod's first appearance is lit, not conjured. It is already standing in the studio,
@@ -2921,13 +3197,14 @@
 
     const liftFilm = (() => {
       // ---------------------------------------------------------------- the woman and the lift
-      // A woman, neck down, seen from her right, carrying the PowerPod by its grip in her right
-      // hand, walking into a lift. Everything is in metres, x to the right and y up from the floor,
-      // so she, the lift and the pod are drawn at true scale.
+      // A woman seen from her right, carrying the PowerPod by its grip in her right hand, walking
+      // into a lift. Everything is in metres, x to the right and y up from the floor, so she, the
+      // lift and the pod are drawn at true scale. Her hand on the grip is not drawn here: it is
+      // the same solid hand as the grip beat's (gripHand.carry), seen through the pod's camera.
       const RIG = {
         thigh: 0.44, shin: 0.405,         // hip to knee, knee to ankle: a touch long, as drawn figures are
         upper: 0.29, fore: 0.245,         // shoulder to elbow, elbow to wrist
-        hand: 0.078,                      // wrist to the top of the grip bar, level with the knuckles
+        hand: 0.0823,                     // wrist to the top of the grip bar, as gripHand.carry holds it
         podLen: 0.391, podGripDrop: 0.196, // the pod, and its centre below the top of its grip bar
       };
 
@@ -3152,7 +3429,7 @@
 
       function legContour(pose, side) {
         const H = pose.hip, K = pose.knee[side], A = pose.feet[side].ankle;
-        const L = limb(H, K, A, THIGH, SHIN, [0.06, 0.40, 0.72], [0.18, 0.42, 0.66, HEM]);
+        const L = limb(H, K, A, THIGH, SHIN, [0.06, SEAT_JOIN[1], 0.72], [0.18, 0.42, 0.66, HEM]);
         const sh = L.two, th = L.one;
         const hem = [sh(HEM, interp(SHIN.s, SHIN.f, HEM)), sh(HEM + 0.012, 0.0), sh(HEM, interp(SHIN.s, SHIN.b, HEM))];
         // Bare ankle between the cropped hem and the shoe, and the small round of the ankle bone.
@@ -3166,8 +3443,11 @@
         ];
         const fold = 0.65 * smooth(clamp01((L.bend - 0.35) / 0.55));
         const hide = (pt) => band(pt, H, K, THIGH) || band(pt, K, A, SHIN, 0, 0.995) || near(pt, K, 0.050);
+        // The near thigh's back line starts where her seat hands it over (SEAT_JOIN), so the two
+        // are one line. The far leg's runs on up under her, where her outline hides it.
+        const back = side === 'right' ? L.back.slice(1) : L.back;
         return {
-          front: spline(L.front, 10), back: spline(L.back, 10), hem: spline(hem, 6), ankleF, ankleB,
+          front: spline(L.front, 10), back: spline(back, 10), hem: spline(hem, 6), ankleF, ankleB,
           ankleBone: bone_, folds, fold, hide,
         };
       }
@@ -3192,24 +3472,41 @@
         return { outline, topline, instep, heel, hide: (pt) => inside(pt, area) };
       }
 
+      // Her torso's outline in its own frame (x forward, y up from the hip), top to bottom.
+      // The back's S: from the base of the skull down the back of the neck, out over the
+      // shoulder blade, in at the small of the back, out over the seat. The front: the throat
+      // from under the jaw, down over the collarbone into a full bust, round under it to a
+      // defined waist, the soft line of the stomach. The glow inside her reads these too.
+      const TORSO_BACK = [
+        [-0.046, 0.636], [-0.049, 0.600], [-0.056, 0.562], [-0.082, 0.512], [-0.091, 0.440],
+        [-0.078, 0.330], [-0.056, 0.215], [-0.068, 0.120], [-0.106, 0.045], [-0.121, -0.010],
+        [-0.114, -0.052],
+      ];
+      const TORSO_FRONT = [
+        [0.052, 0.578], [0.053, 0.552], [0.062, 0.528], [0.090, 0.500], [0.124, 0.462],
+        [0.154, 0.418], [0.167, 0.385], [0.160, 0.355], [0.132, 0.333], [0.104, 0.316],
+        [0.090, 0.272], [0.083, 0.205], [0.090, 0.130], [0.096, 0.065],
+      ];
+      // The seat belongs as much to the leg as to the hips: it stretches over the near thigh as
+      // that swings forward and rounds as it swings back. So the seat's last points turn with the
+      // thigh, by these shares of its swing from where it hangs standing, and the outline runs
+      // on down the thigh's own back line to where legContour takes it up: the back, the seat
+      // and the back of the thigh are one line, at one heading where they meet.
+      const SEAT_FOLLOW = [0.3, 0.6];
+      const SEAT_JOIN = [0.20, 0.40];
+      const thighAngle = (pose) => Math.atan2(pose.knee.right[1] - pose.hip[1], pose.knee.right[0] - pose.hip[0]) + pose.lean;
+      const THIGH_REST = thighAngle(walkPose(0));
       function torsoContour(pose) {
         const t = pose.torso;
         const thR = bone(pose.hip, pose.knee.right);
-        // The back's S: nape, the shoulder blade, in at the small of the back, out over the seat,
-        // which is shared with the near thigh so it follows the leg.
-        const back = [
-          t(-0.040, 0.700), t(-0.044, 0.640), t(-0.050, 0.585), t(-0.080, 0.510), t(-0.090, 0.440),
-          t(-0.078, 0.330), t(-0.056, 0.215), t(-0.068, 0.120), t(-0.106, 0.045), t(-0.121, -0.010),
-          t(-0.114, -0.052),
-        ];
-        // The front: the line of the throat, the bust, under it to a defined waist, the soft line
-        // of the stomach, into the near thigh.
-        const front = [
-          t(0.050, 0.695), t(0.056, 0.640), t(0.060, 0.580), t(0.090, 0.528), t(0.120, 0.470),
-          t(0.140, 0.412), t(0.133, 0.368), t(0.104, 0.338), t(0.090, 0.280), t(0.083, 0.205),
-          t(0.090, 0.130), t(0.096, 0.065), lerp2(t(0.090, 0.005), thR(0.06, 0.086), 0.5),
-        ];
-        const neckline = spline([t(-0.044, 0.590), t(-0.004, 0.575), t(0.036, 0.568), t(0.060, 0.578)], 6);
+        const swing = thighAngle(pose) - THIGH_REST;
+        const seat = TORSO_BACK.length - SEAT_FOLLOW.length;
+        const back = TORSO_BACK.map(([x, y], i) => (i < seat ? t(x, y)
+          : add(pose.hip, rv(sub(t(x, y), pose.hip), swing * SEAT_FOLLOW[i - seat]))));
+        for (const s of SEAT_JOIN) back.push(thR(s, interp(THIGH.s, THIGH.b, s)));
+        // The front's foot is shared with the near thigh too, so it follows the leg.
+        const front = TORSO_FRONT.map(([x, y]) => t(x, y)).concat([lerp2(t(0.090, 0.005), thR(0.06, 0.086), 0.5)]);
+        const neckline = spline([t(-0.054, 0.556), t(-0.010, 0.540), t(0.035, 0.531), t(0.063, 0.527)], 6);
         const waistband = spline([t(-0.058, 0.192), t(0.012, 0.184), t(0.083, 0.190)], 6);
         const fb = spline(front, 10), bb = spline(back, 10);
         const area = fb.concat(bb.slice().reverse());
@@ -3230,36 +3527,33 @@
         return { back: spline(back, 10), front: spline(front, 10), sleeve, hide };
       }
 
-      // The hand on the grip, drawn by the field like the rest of her, from its back: the edges
-      // of the hand running on from the wrist into the first and little fingers, single lines
-      // parting the fingers, round tips where they curl under the bar, a faint knuckle line, and
-      // the thumb round the front. The bar's top is RIG.hand below the wrist. Where the fingers
-      // cross in front of the bar the pod's own canvas opens a window shaped to them (fingerWindow
-      // in the pod block), so these particles show there exactly as her body shows elsewhere.
-      const HAND = {
-        left: [[-0.018, 0], [-0.026, -0.0267], [-0.034, -0.0497], [-0.0375, -0.0677], [-0.0365, -0.0797], [-0.0345, -0.0887], [-0.030, -0.0939]],
-        right: [[0.018, 0], [0.026, -0.0277], [0.034, -0.0507], [0.038, -0.0687], [0.037, -0.0807], [0.035, -0.0897], [0.0305, -0.0949]],
-        partings: [[-0.019, -0.0935], [-0.0005, -0.0943], [0.0185, -0.0940]],
-        tips: [[-0.030, -0.0939], [-0.019, -0.0935], [-0.0005, -0.0943], [0.0185, -0.0940], [0.0305, -0.0949]],
-        thumb: [[0.030, -0.0237], [0.040, -0.0457], [0.045, -0.0657], [0.043, -0.0752]],
-      };
-      function handStrokes(pose) {
-        const h = frame(pose.wrist, pose.sw);
-        const map = (pts) => pts.map(([x, y]) => h(x, y));
-        const tipArc = (a, b) => {
-          const m = [(a[0] + b[0]) / 2, Math.min(a[1], b[1]) - 0.0023];
-          return spline(map([a, [a[0] + (m[0] - a[0]) * 0.55, m[1] + 0.0007], m, [b[0] + (m[0] - b[0]) * 0.55, m[1] + 0.0007], b]), 4);
-        };
-        const knuckles = [];
-        for (let x = -0.034; x <= 0.035; x += 0.0025) knuckles.push([x, -0.0677 + 0.0012 * Math.cos((-x * 1000 + 27) / 18.5 * Math.PI * 2)]);
-        return {
-          left: spline(map(HAND.left), 8),
-          right: spline(map(HAND.right), 8),
-          partings: HAND.partings.map(([x, low]) => spline(map([[x, -0.0717], [x - 0.0004, -0.0807], [x - 0.0006, -0.0877], [x - 0.001, low + 0.0015]]), 4)),
-          tips: HAND.tips.slice(0, -1).map((a, i) => tipArc(a, HAND.tips[i + 1])),
-          knuckles: map(knuckles),
-          thumb: spline(map(HAND.thumb), 6),
-        };
+      // Her head in profile, facing the way she walks: the line of the face from the hairline
+      // down over the brow, the nose and the lips to the chin and under it to the throat, the
+      // jaw back to the ear, the ear, and, lightly, an eye, a brow and the line of the lips. In
+      // the torso's frame, so it rides her walk. The skull's back is not drawn (her hair covers
+      // it) but closes the outline that hides what is behind her head.
+      function headContour(pose) {
+        const t = pose.torso;
+        const face = spline([
+          t(0.074, 0.772), t(0.090, 0.752), t(0.097, 0.728), t(0.101, 0.713), t(0.096, 0.701),
+          t(0.103, 0.684), t(0.114, 0.666), t(0.122, 0.655), t(0.113, 0.647), t(0.101, 0.643),
+          t(0.103, 0.633), t(0.106, 0.626), t(0.098, 0.620), t(0.103, 0.612), t(0.096, 0.603),
+          t(0.100, 0.591), t(0.093, 0.580), t(0.072, 0.577), t(0.052, 0.580),
+        ], 8);
+        const jaw = spline([t(0.088, 0.585), t(0.055, 0.594), t(0.020, 0.606), t(-0.004, 0.622), t(-0.010, 0.638)], 8);
+        const ear = spline([t(-0.006, 0.640), t(-0.026, 0.648), t(-0.031, 0.668), t(-0.022, 0.690), t(-0.004, 0.692), t(0.003, 0.680)], 8);
+        // The eye as a profile shows it: the upper lid's arc with a flick of lash at its outer
+        // end, and a shorter lower lid.
+        const eye = spline([t(0.064, 0.694), t(0.073, 0.699), t(0.083, 0.695), t(0.088, 0.698)], 6);
+        const lid = spline([t(0.068, 0.689), t(0.078, 0.688), t(0.084, 0.691)], 4);
+        const brow = spline([t(0.060, 0.707), t(0.078, 0.713), t(0.094, 0.711)], 5);
+        const lips = spline([t(0.088, 0.621), t(0.099, 0.620)], 3);
+        const skull = spline([
+          t(-0.046, 0.636), t(-0.080, 0.650), t(-0.096, 0.690), t(-0.093, 0.742), t(-0.068, 0.788),
+          t(-0.018, 0.806), t(0.040, 0.799), t(0.074, 0.772),
+        ], 8);
+        const area = face.concat(skull);
+        return { face, jaw, ear, eye, lid, brow, lips, hide: (pt) => inside(pt, area) };
       }
 
       function farArm(pose) {
@@ -3269,28 +3563,54 @@
         return { back: spline(L.back, 8), front: spline(L.front, 8), hand };
       }
 
+      // Her hair's outer line and its inner edge, in the torso's frame, top to bottom.
+      const HAIR_OUTER = [
+        [0.072, 0.776], [0.050, 0.802], [0.000, 0.819], [-0.056, 0.810], [-0.096, 0.778],
+        [-0.115, 0.725], [-0.119, 0.660], [-0.117, 0.590], [-0.112, 0.520], [-0.106, 0.460], [-0.100, 0.410],
+      ];
+      const HAIR_EDGE = [
+        [0.068, 0.769], [0.044, 0.757], [0.016, 0.740], [-0.012, 0.724], [-0.036, 0.700],
+        [-0.050, 0.650], [-0.058, 0.600], [-0.069, 0.550], [-0.081, 0.500], [-0.085, 0.450], [-0.087, 0.400],
+      ];
       function hair(pose) {
         const t = pose.torso, s = pose.hairSway;
-        // Long hair falling from above the frame down her back: strands of different lengths, a
-        // gentle wave, the ends trailing the movement.
-        // Where the back is at height y, so the hair can lie on it rather than hang off it.
-        const backAt = (y) => interp([0.44, 0.51, 0.585, 0.64, 0.73], [-0.090, -0.080, -0.050, -0.044, -0.040], y);
-        const strand = (off, end, wave, lag) => {
-          const ys = [0.728, 0.660, 0.590, 0.520, end];
-          return spline(ys.map((y, k) => {
-            const u = k / (ys.length - 1);
-            return t(backAt(y) + off + wave * Math.sin(Math.PI * 1.6 * u) - s * lag * u * u, y);
+        // Long hair from the crown, lifted a little off the skull, tucked behind the ear and
+        // falling down her back past her shoulder blades. Its outer line, its inner edge (the
+        // temple, over and behind the ear, down the nape and onto her back) and three strands
+        // between them, the lower lengths trailing her movement.
+        const trail = (y, k = 1) => -s * k * ((0.70 - Math.min(0.70, y)) / 0.30) ** 2;
+        const outerAt = HAIR_OUTER;
+        const edgeAt = HAIR_EDGE;
+        const lay = (pts, k) => pts.map(([x, y]) => t(x + trail(y, k), y));
+        const outer = spline(lay(outerAt, 1.2), 10);
+        const edge = spline(lay(edgeAt, 1), 10);
+        // A strand runs between the two, a share of the way out from the edge, from where the
+        // hair turns down the back of the head to its own length.
+        const strand = (share, end, wave, k) => {
+          const ys = [0.745, 0.690, 0.630, 0.570, 0.510, end];
+          const xAt = (pts, y) => interp(pts.map((p) => p[1]).reverse(), pts.map((p) => p[0]).reverse(), y);
+          return spline(ys.map((y, i) => {
+            const x = xAt(edgeAt, y) + (xAt(outerAt, y) - xAt(edgeAt, y)) * share;
+            return t(x + wave * Math.sin(Math.PI * 1.5 * (i / (ys.length - 1))) + trail(y, k), y);
           }), 10);
         };
-        return [
-          strand(-0.010, 0.395, 0.004, 1.3),
-          strand(0.004, 0.415, -0.003, 1.1),
-          strand(0.018, 0.405, 0.004, 1.2),
-          strand(0.032, 0.445, -0.003, 1.0),
-          strand(0.046, 0.480, 0.003, 0.9),
-          strand(-0.002, 0.375, -0.004, 1.4),
-        ];
+        const strands = [strand(0.30, 0.425, 0.003, 1.05), strand(0.55, 0.392, -0.003, 1.15), strand(0.80, 0.440, 0.002, 1.1)];
+        const area = outer.concat(edge.slice().reverse());
+        // How much of her back shows through her hair: GHOST where the hair is full, all of it at
+        // the tips. The hair's outline fades over the last HAIR_FADE of its length, and this
+        // rises as that falls, so her back takes over the outline as the hair thins instead of
+        // both going faint together over her shoulder blade.
+        const cover = (pt) => {
+          if (!inside(pt, area)) return 0;
+          const y = rv(sub(pt, pose.hip), pose.lean)[1];
+          return GHOST + (1 - GHOST) * (1 - smooth(clamp01((y - HAIR_TIP) / (HAIR_FADE * HAIR_LEN))));
+        };
+        return { outer, edge, strands, cover, hide: (pt) => inside(pt, area) };
       }
+      // The hair outline's fade, its tips' height and its length, for cover() above.
+      const HAIR_FADE = 0.4;
+      const HAIR_TIP = HAIR_OUTER[HAIR_OUTER.length - 1][1];
+      const HAIR_LEN = spline(HAIR_OUTER, 10).reduce((l, p, i, a) => (i ? l + len(sub(p, a[i - 1])) : 0), 0);
 
       // ---------------------------------------------------------------- the lift
       // In front elevation, floor at y = 0. The opening is 1.0 wide, centred at x = 0.90, in a
@@ -3323,23 +3643,51 @@
       // The scene's strokes for a state, in a fixed order. Each: [name, polyline, density weight,
       // visibility, taper, hidden by, depth, part], where part is 'her', 'car' or 'landing' (the
       // car and she rise together), and depth > 1 sits behind her for the field's depth of field.
-      function sceneStrokes(st) {
-        const pose = walkPose(st.walk);
+      //
+      // They come in three groups that change for different reasons: she changes only with her
+      // walk, the landing with its call panel, the car with its doors and light. Everything behind
+      // her is hidden by her outline, so all three follow her pose. points() keeps each group's
+      // sampled points until one of its own inputs moves.
+      function poseParts(walk) {
+        const pose = walkPose(walk);
         const nl = legContour(pose, 'right'), fl = legContour(pose, 'left');
         const ns = shoe(pose, 'right'), fs = shoe(pose, 'left');
         const tor = torsoContour(pose), arm = armContour(pose), farm = farArm(pose);
-        const hs = hair(pose);
-        const hand = handStrokes(pose);
-        const behindNear = [nl.hide, ns.hide, tor.hide];
-        const behindHer = [nl.hide, ns.hide, fl.hide, fs.hide, tor.hide, arm.hide];
+        const hs = hair(pose), head = headContour(pose), grip = handZone(pose);
+        const behindNear = [nl.hide, ns.hide, tor.hide, grip];
+        const behindHer = [nl.hide, ns.hide, fl.hide, fs.hide, tor.hide, arm.hide, head.hide, hs.hide, grip];
+        return { pose, nl, fl, ns, fs, tor, arm, farm, hs, head, grip, behindNear, behindHer };
+      }
+
+      // Where her hand on the grip is (drawn by the pod block, as gripHand.carry): hanging from her
+      // wrist along the line of her arm, about as wide as her knuckles and as deep as the bar
+      // she has hold of. Whatever of her passes behind it shows through it, as behind the rest
+      // of her.
+      function handZone(pose) {
+        const h = frame(pose.wrist, pose.sw);
+        const zone = [h(-0.046, 0.012), h(0.046, 0.012), h(0.05, -0.06), h(0.042, -0.112), h(-0.042, -0.112), h(-0.05, -0.06)];
+        return (pt) => inside(pt, zone);
+      }
+
+      function herStrokes({ nl, fl, ns, fs, tor, arm, farm, hs, head, grip, behindNear }) {
         const FAR = 0.7;
-        const her = [
-          ['torsoBack', tor.back, 1.2, 1, [0.02, 0], [arm.hide]],
-          ['torsoFront', tor.front, 1.2, 1, [0.02, 0], [arm.hide]],
+        return [
+          ['face', head.face, 1.25, 1, [0.04, 0.02], null],
+          ['jaw', head.jaw, 0.9, 0.7, [0.1, 0.35], [hs.hide]],
+          ['ear', head.ear, 0.9, 0.8, [0.12, 0.12], null],
+          ['eye', head.eye, 0.7, 0.65, [0.15, 0.1], null],
+          ['lid', head.lid, 0.5, 0.4, [0.3, 0.3], null],
+          ['brow', head.brow, 0.6, 0.45, [0.3, 0.3], null],
+          ['lips', head.lips, 0.6, 0.55, [0.3, 0.3], null],
+          ['hairOuter', hs.outer, 1.1, 0.95, [0.03, HAIR_FADE], null],
+          ['hairEdge', hs.edge, 0.95, 0.8, [0.06, 0.45], null],
+          ...hs.strands.map((h, i) => [`hair${i}`, h, 0.8, 0.65, [0.2, 0.45], null]),
+          ['torsoBack', tor.back, 1.2, 1, [0.02, 0], [arm.hide, hs.cover, grip]],
+          ['torsoFront', tor.front, 1.2, 1, [0.02, 0], [arm.hide, grip]],
           ['neckline', tor.neckline, 0.8, 0.6, [0.15, 0.15], [arm.hide]],
-          ['waistband', tor.waistband, 0.8, 0.65, [0.08, 0.08], [arm.hide]],
-          ['nearFront', nl.front, 1.15, 1, null, null],
-          ['nearBack', nl.back, 1.15, 1, null, null],
+          ['waistband', tor.waistband, 0.8, 0.65, [0.08, 0.08], [arm.hide, grip]],
+          ['nearFront', nl.front, 1.15, 1, null, [grip]],
+          ['nearBack', nl.back, 1.15, 1, null, [grip]],
           ['nearHem', nl.hem, 0.9, 0.85, null, null],
           ['nearAnkleF', nl.ankleF, 1, 1, null, null],
           ['nearAnkleB', nl.ankleB, 1, 1, null, null],
@@ -3364,18 +3712,13 @@
           ['armBack', arm.back, 1.15, 1, [0.04, 0], null],
           ['armFront', arm.front, 1.15, 1, [0.12, 0], null],
           ['sleeve', arm.sleeve, 0.8, 0.65, [0.1, 0.1], null],
-          ['handL', hand.left, 1.25, 1, null, null],
-          ['handR', hand.right, 1.25, 1, null, null],
-          ...hand.partings.map((pl, i) => [`parting${i}`, pl, 1.1, 0.85, [0.15, 0], null]),
-          ...hand.tips.map((pl, i) => [`tip${i}`, pl, 1.2, 1, null, null]),
-          ['knuckles', hand.knuckles, 1.0, 0.45, [0.1, 0.1], null],
-          ['thumb', hand.thumb, 1.3, 0.85, [0, 0.2], null],
           ['farArmBack', farm.back, 0.7, 0.6, null, [tor.hide, arm.hide]],
           ['farArmFront', farm.front, 0.7, 0.6, null, [tor.hide, arm.hide]],
           ['farHand', farm.hand, 0.7, 0.6, null, [tor.hide, arm.hide, nl.hide]],
-          ...hs.map((h, i) => [`hair${i}`, h, 0.9, i === 4 ? 0.75 : 0.9, [0, 0.45], null]),
         ].map((s) => [...s, 1, 'her']);
+      }
 
+      function landingStrokes(st, { behindHer }) {
         const [o0, o1] = LIFT.open, F = LIFT.frame, TOP = LIFT.top;
         // The landing: floor, the frame round the opening, the sill, and the call panel.
         const landing = [
@@ -3404,7 +3747,11 @@
           ['arrow', tri(arrowC, 0.008, st.arrow === 'down' ? -1 : 1), 0.7, st.arrow ? 1 : 0, null, behindHer],
           ...'abcdefg'.split('').map((k) => [`seg${k}`, digit[k], 0.7, on.includes(k) ? 1 : 0, null, behindHer]),
         );
+        return landing.map((s) => [...s, 1, 'landing']);
+      }
 
+      function carStrokes(st, { behindHer }) {
+        const [o0, o1] = LIFT.open, TOP = LIFT.top;
         // The car: its back wall set in from the opening, the floor's perspective, a handrail. The
         // light inside comes up as the doors part.
         const ins = 0.11, back = 0.10, lit = 0.45 + 0.55 * st.light;
@@ -3433,13 +3780,14 @@
           ['glint2', glint(g2, 0.62, 0.05, 0.10), 0.4, 0.35 * onPanel(g2) * onPanel(g2 + 0.05), [0.3, 0.3], null, 1],
           ['glint3', glint(g3, 0.40, 0.08, 0.16), 0.4, 0.3 * onPanel(g3) * onPanel(g3 + 0.08), [0.3, 0.3], null, 1],
         );
+        return car.map((s) => [s[0], s[1], s[2], s[3], s[4], s[5], s[6] || 1, 'car']);
+      }
+
+      function sceneStrokes(st) {
+        const parts = poseParts(st.walk);
         return {
-          strokes: [
-            ...her,
-            ...landing.map((s) => [...s, 1, 'landing']),
-            ...car.map((s) => [s[0], s[1], s[2], s[3], s[4], s[5], s[6] || 1, 'car']),
-          ],
-          pose,
+          strokes: [...herStrokes(parts), ...landingStrokes(st, parts), ...carStrokes(st, parts)],
+          pose: parts.pose,
         };
       }
 
@@ -3450,18 +3798,23 @@
         const r = (k) => { const x = Math.sin((i + 1) * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
         return { x: LIFT.open[0] + 0.16 + r(1) * (LIFT.open[1] - LIFT.open[0] - 0.32), y: r(2), depth: 0.8 + r(3) * 0.5, s: 0.7 + r(4) * 0.6 };
       });
-      function motePoints(st) {
-        const out = [];
+      // Written as [x, y, visibility, depth] into `out` from index `at`, risen by `rise`.
+      function motePoints(st, out, at, rise) {
         const span = 1.25, y0 = 0.12;
+        let j = at;
         for (const m of moteSeed) {
           const y = (m.y + st.motes.clock * m.s / span) % 1;
           const len_ = 0.02 + 0.10 * st.motes.speed * m.s;
           const fade = smooth(clamp01(y / 0.12)) * smooth(clamp01((0.94 - y) / 0.14));
           for (let k = 0; k < STREAK; k++) {
-            out.push([m.x, y0 + y * span - (k / (STREAK - 1)) * len_, st.motes.vis * fade * (1 - k / STREAK * 0.75), m.depth]);
+            out[j] = m.x;
+            out[j + 1] = (y0 + y * span - (k / (STREAK - 1)) * len_) + rise;
+            out[j + 2] = st.motes.vis * fade * (1 - k / STREAK * 0.75);
+            out[j + 3] = m.depth;
+            j += 4;
           }
         }
-        return out;
+        return j;
       }
 
       function inside(pt, poly) {
@@ -3496,11 +3849,80 @@
         return out;
       }
 
+      // ---------------------------------------------------------------- the ghost
+      // How much of what is behind her shows through her: about the third of its brightness the
+      // grip keeps through the hand on it (GRIP_FILL in the film). An in-focus particle's light
+      // goes as the square root of its visibility, so this is lower than it looks.
+      const GHOST = 0.12;
+      // And the glow that fills her: a share of her particles kept inside her outline, each at a
+      // fixed place in her body (a limb, how far along it, how far across it), so the glow walks
+      // with her. They are set well behind her lines, where the field's depth of field opens each
+      // into a soft disc, and are faint: a haze, not a fill.
+      const HAZE_SHARE = 0.14;
+      const HAZE_DEPTH = 1.8;
+      const HAZE = [
+        ['torso', 0.34], ['thighR', 0.11], ['thighL', 0.08], ['shinR', 0.07], ['shinL', 0.05],
+        ['upper', 0.06], ['fore', 0.05], ['farArm', 0.04], ['neck', 0.03], ['head', 0.11], ['hair', 0.06],
+      ];
+      const seeded = (i, k) => {
+        const x = Math.sin((i + 1) * 12.9898 + k * 78.233) * 43758.5453;
+        return x - Math.floor(x);
+      };
+      // x at height y along a contour's control points, which run top to bottom.
+      const xAtY = (pts, y) => interp(pts.map((p) => p[1]).reverse(), pts.map((p) => p[0]).reverse(), y);
+      function glow(parts, n) {
+        const { pose } = parts;
+        const t = pose.torso;
+        const out = new Float64Array(n * 4);
+        const across = (P, s, d) => interp(P.s, P.b, s) + (interp(P.s, P.f, s) - interp(P.s, P.b, s)) * (0.12 + 0.76 * d);
+        const limbAt = (a, b, P, s, d) => bone(a, b)(s, across(P, s, d));
+        for (let i = 0; i < n; i++) {
+          let r = seeded(i, 1);
+          let region = HAZE[HAZE.length - 1][0];
+          for (const [name, w] of HAZE) { if (r < w) { region = name; break; } r -= w; }
+          const s = seeded(i, 2), d = seeded(i, 3);
+          let pt;
+          switch (region) {
+            case 'torso': {
+              const y = 0.04 + 0.5 * s;
+              const xb = xAtY(TORSO_BACK, y), xf = xAtY(TORSO_FRONT, y);
+              pt = t(xb + (xf - xb) * (0.1 + 0.8 * d), y);
+              break;
+            }
+            case 'thighR': pt = limbAt(pose.hip, pose.knee.right, THIGH, s, d); break;
+            case 'thighL': pt = limbAt(pose.hip, pose.knee.left, THIGH, s, d); break;
+            case 'shinR': pt = limbAt(pose.knee.right, pose.feet.right.ankle, SHIN, s * 0.9, d); break;
+            case 'shinL': pt = limbAt(pose.knee.left, pose.feet.left.ankle, SHIN, s * 0.9, d); break;
+            case 'upper': pt = limbAt(pose.shoulder, pose.elbow, UPPER, 0.1 + 0.9 * s, d); break;
+            case 'fore': pt = limbAt(pose.elbow, pose.wrist, FORE, s, d); break;
+            case 'farArm': pt = s < 0.5 ? limbAt(pose.lshoulder, pose.lelbow, UPPER, s * 2, d) : limbAt(pose.lelbow, pose.lwrist, FORE, s * 2 - 1, d); break;
+            case 'neck': pt = t(-0.04 + 0.085 * d, 0.53 + 0.07 * s); break;
+            case 'head': {
+              const a = s * Math.PI * 2, k = Math.sqrt(d) * 0.92;
+              pt = t(0.008 + 0.084 * k * Math.cos(a), 0.69 + 0.1 * k * Math.sin(a));
+              break;
+            }
+            default: {
+              const y = 0.43 + 0.33 * s;
+              const xe = xAtY(HAIR_EDGE, y), xo = xAtY(HAIR_OUTER, y);
+              pt = t(xe + (xo - xe) * (0.15 + 0.7 * d), y);
+            }
+          }
+          out[i * 4] = pt[0];
+          out[i * 4 + 1] = pt[1];
+          out[i * 4 + 2] = 0.45 + 0.25 * seeded(i, 4);
+          out[i * 4 + 3] = HAZE_DEPTH;
+        }
+        return out;
+      }
+
       // How many particles each stroke gets, fixed once from a reference state so a particle stays
-      // on the same spot of the same stroke all the way through. The motes take a fixed share.
+      // on the same spot of the same stroke all the way through. The motes and the glow take
+      // fixed shares; allocation().haze is the glow's.
       const REF = { walk: 0, doors: 1, light: 1, ding: 1, arrow: 'up', digit: 'G', motes: { clock: 0, speed: 0, vis: 0 }, rise: 0 };
       function allocation(count) {
         const motes = MOTES * STREAK;
+        const haze = Math.round(count * HAZE_SHARE);
         const { strokes } = sceneStrokes(REF);
         // A device drawing few particles spends more of them on her and fewer on the lift's
         // detail, so her outline stays a line rather than a scatter of dots.
@@ -3511,26 +3933,25 @@
           return l * w * (part === 'her' ? 1 : detail);
         });
         const total = lens.reduce((a, b) => a + b, 0);
-        const budget = Math.max(0, count - motes);
+        const budget = Math.max(0, count - motes - haze);
         const raw = lens.map((l) => (l / total) * budget);
         const n = raw.map(Math.floor);
         const left = budget - n.reduce((a, b) => a + b, 0);
         raw.map((r, i) => [r - n[i], i]).sort((a, b) => b[0] - a[0]).slice(0, left).forEach(([, i]) => n[i]++);
+        n.haze = haze;
         return n;
       }
 
-      // The scene for a state as points [x, y, visibility, depth], in a fixed order: the strokes
-      // first, then the motes. The car and she rise together by st.rise; the landing stays.
-      function points(st, alloc) {
-        const { strokes, pose } = sceneStrokes(st);
+      // One group's strokes sampled into points, before any rise: [x, y, visibility, depth] per
+      // point, flat. `first` is the group's first stroke in the allocation.
+      function sample(strokes, alloc, first) {
         const out = [];
-        strokes.forEach(([, pl, , vis, taper, hiders, depth, part], si) => {
-          const k = alloc[si];
+        strokes.forEach(([, pl, , vis, taper, hiders, depth], si) => {
+          const k = alloc[first + si];
           if (!k) return;
           const fr = [];
           for (let i = 0; i < k; i++) fr.push((i + 0.5) / k);
           const pts = along(pl, fr);
-          const dy = part === 'landing' ? 0 : st.rise;
           pts.forEach((pt, i) => {
             let v = vis;
             if (taper) {
@@ -3538,15 +3959,97 @@
               if (taper[0]) v *= smooth(clamp01(f / taper[0]));
               if (taper[1]) v *= smooth(clamp01((1 - f) / taper[1]));
             }
-            if (hiders && v > 0) for (const h of hiders) if (h(pt)) { v = 0; break; }
-            out.push([pt[0], pt[1] + dy, v, depth]);
+            // She is a ghost: whatever passes behind her shows faintly through rather than
+            // stopping at her outline (the lift, her far limbs behind her near ones). A hider
+            // says whether it covers a point, or (her hair) how much of it still shows.
+            if (hiders && v > 0) {
+              for (const h of hiders) {
+                const c = h(pt);
+                if (c) { v *= c === true ? GHOST : c; break; }
+              }
+            }
+            out.push(pt[0], pt[1], v, depth);
           });
         });
-        for (const m of motePoints(st)) out.push([m[0], m[1] + st.rise, m[2], m[3]]);
-        return { points: out, pose };
+        return Float64Array.from(out);
       }
 
-      return { RIG, LIFT, pose: walkPose, points, allocation };
+      // Building the drawing is the costly part of this scene: hundreds of small arrays, and
+      // every point behind her tested against her outline. Each group is kept until one of its
+      // own inputs changes, so scrolling rebuilds only what moved, and parked on the ride, where
+      // only the motes move, nothing is rebuilt at all. The arithmetic is the same as building it
+      // fresh every time; only the repeats are gone.
+      const kept = { alloc: null, walk: NaN, parts: null, her: null, haze: null, landingKey: '', landing: null, carKey: '', car: null, out: null };
+
+      // The scene for a state as points [x, y, visibility, depth], flat, in a fixed order: the
+      // strokes first, then the motes. The car and she rise together by st.rise; the landing
+      // stays. The buffer is reused from call to call; `count` is how many points it holds.
+      function points(st, alloc) {
+        if (kept.alloc !== alloc) {
+          Object.assign(kept, { alloc, walk: NaN, her: null, landing: null, car: null });
+          // Every state has the same strokes, so the groups' places in the allocation are fixed.
+          const refParts = poseParts(REF.walk);
+          kept.firstLanding = herStrokes(refParts).length;
+          kept.firstCar = kept.firstLanding + landingStrokes(REF, refParts).length;
+        }
+        if (st.walk !== kept.walk) {
+          kept.walk = st.walk;
+          kept.parts = poseParts(st.walk);
+          kept.her = kept.landing = kept.car = null;
+        }
+        const parts = kept.parts;
+        if (!kept.her) {
+          kept.her = sample(herStrokes(parts), alloc, 0);
+          kept.haze = glow(parts, alloc.haze || 0);
+        }
+        const landingKey = `${st.digit}|${st.arrow}|${st.ding}`;
+        if (!kept.landing || landingKey !== kept.landingKey) {
+          kept.landingKey = landingKey;
+          kept.landing = sample(landingStrokes(st, parts), alloc, kept.firstLanding);
+        }
+        const carKey = `${st.doors}|${st.light}`;
+        if (!kept.car || carKey !== kept.carKey) {
+          kept.carKey = carKey;
+          kept.car = sample(carStrokes(st, parts), alloc, kept.firstCar);
+        }
+
+        const total = kept.her.length + kept.landing.length + kept.car.length + MOTES * STREAK * 4 + kept.haze.length;
+        if (!kept.out || kept.out.length !== total) kept.out = new Float64Array(total);
+        const out = kept.out;
+        let j = 0;
+        // Her strokes, then the landing (which stays put), then the car: the order they are drawn in.
+        for (const [group, dy] of [[kept.her, st.rise], [kept.landing, 0], [kept.car, st.rise]]) {
+          for (let i = 0; i < group.length; i += 4) {
+            out[j] = group[i];
+            out[j + 1] = group[i + 1] + dy;
+            out[j + 2] = group[i + 2];
+            out[j + 3] = group[i + 3];
+            j += 4;
+          }
+        }
+        j = motePoints(st, out, j, st.rise);
+        // Then the glow inside her, which rises with her.
+        const haze = kept.haze;
+        for (let i = 0; i < haze.length; i += 4, j += 4) {
+          out[j] = haze[i];
+          out[j + 1] = haze[i + 1] + st.rise;
+          out[j + 2] = haze[i + 2];
+          out[j + 3] = haze[i + 3];
+        }
+        return { points: out, count: total / 4, pose: parts.pose };
+      }
+
+      // Her strokes at a walk, as [name, line, points], the points sampled as points() samples
+      // them, `per` to a metre: for tools/check/lift.mjs, which checks her outline holds together.
+      function her(walk, per) {
+        return herStrokes(poseParts(walk)).map((s) => {
+          let l = 0;
+          for (let i = 1; i < s[1].length; i++) l += len(sub(s[1][i], s[1][i - 1]));
+          return [s[0], s[1], sample([s], [Math.ceil(l * per)], 0)];
+        });
+      }
+
+      return { RIG, LIFT, pose: walkPose, points, allocation, her };
     })();
 
     // ---------------------------------------------------------------- into the lift
@@ -3563,7 +4066,7 @@
     //   7  the ride      the floors count up faster and faster, motes stream up, light runs down the pod
     //   8  up and away   the car, with her and the pod, lifts out of the top of the frame
     const LIFTCUT = {
-      transfer: [5.45, 5.95],
+      transfer: [5.45, 5.90],
       gather: [5.70, 5.95],
       count: [5.95, 6.28],
       ding: [6.26, 6.40],
@@ -3572,18 +4075,25 @@
       close: [6.95, 7.10],
       ride: [7.18, 7.50],
       rise: [7.45, 7.72],
-      release: [7.55, 7.90],
+      // The field lets the scene go once the car has carried her out of the top of the frame,
+      // not on the way: until then the pod is in her hand and her drawing is held to it.
+      release: [7.68, 7.92],
     };
     const inCut = (t, r) => remap01(t, r[0], r[1]);
     // How firmly the field holds her and the lift, and how little drift is left in the hold.
     // Even held firmly, a particle chasing a moving target trails it by a fixed time, (damping +
     // drag) / stiffness for the field's spring. liftTargets() sends each point that far ahead
-    // along its own motion, so the particles arrive where her pose actually is: the pod, the
-    // window for her fingers, and everything she hides are all worked out from that same pose,
-    // and so they line up with what is drawn instead of running ahead of it.
+    // along its own motion, so the particles arrive where her pose actually is: the pod, her
+    // hand on it, and everything she hides are all worked out from that same pose, and so they
+    // line up with what is drawn instead of running ahead of it.
     const LIFT_K = 150;
     const LIFT_NOISE = 0.05;
     const trailOf = (k) => (1.8 * Math.sqrt(k) + 0.15) / k;
+    // Once a drawing that holds the pod is fully gathered (her in the lift, the hand on the
+    // grip), the field puts its particles exactly on their targets rather than on a spring
+    // behind them (setFormation's snap), so the drawing and the pod move as one however fast the
+    // page is scrolled. The targets are then sent as they are, with no lead.
+    const firmAt = (held) => smoother(remap01(held, 0.85, 1));
 
     // The lift and her are in for the whole cut; the pod is in her hand from the hand-over until
     // the car has taken it up. Under reduced motion none of this plays and the beat stays a plain
@@ -3596,6 +4106,14 @@
     // drifts back down into view; it comes back, faint, behind the app's phone.
     const podHandAt = (t) => (reduceMotion ? 0
       : smoother(inCut(t, LIFTCUT.transfer)) * (1 - smoother(remap01(t, LIFTCUT.rise[1], LIFTCUT.rise[1] + 0.14))));
+
+    // Her hand on the grip (gripHand.carry, drawn by the pod block): it forms round the grip as
+    // the pod comes into it at the end of the hand-over, its fingers closing over a moment, and
+    // goes when she does. Under reduced motion, and without the pod, there is nothing to hold.
+    const carryAt = (t) => (reduceMotion || !podLoopActive ? 0
+      : smoother(remap01(t, 5.86, 5.97)) * (1 - smoother(inCut(t, LIFTCUT.release))));
+    const carryWrapAt = (t) => remap01(t, 5.88, 6.00);
+    const carryOn = (t) => carryAt(t) > 0;
 
     // The motes and the light passing over the pod run on real time once the ride is under way,
     // so they keep flowing if the reader pauses; how fast is set by how far through the ride the
@@ -3633,13 +4151,15 @@
         arrow,
         digit,
         motes: { clock: rideClock, speed: rideSpeed(t), vis: motesIn * (1 - smoother(inCut(t, LIFTCUT.release))) },
-        // The car accelerates away: slow off the mark, gone by the end.
-        rise: 1.7 * Math.pow(inCut(t, LIFTCUT.rise), 2.2),
+        // The car accelerates away: slow off the mark, gone by the end. Far enough that she is
+        // clear of the top of the frame, which takes in her head, before the pod leaves her hand.
+        rise: 2.1 * Math.pow(inCut(t, LIFTCUT.rise), 2.2),
       };
     }
 
-    // The camera on the scene, in metres. The frame crops just above her neck. A slow push-in on
-    // the wide shot and another through the ride; a truck to the right that follows her walk a
+    // The camera on the scene, in metres. The frame takes her in from her feet to just above her
+    // head, with the floor where it always was. A slow push-in on the wide shot and another
+    // through the ride; a truck to the right that follows her walk a
     // moment late and settles a moment after. Wide screens hold the whole landing left of the
     // caption; a phone holds less and trucks further, from her to the car.
     function liftView(aspect, t) {
@@ -3649,14 +4169,14 @@
         + 0.06 * smoother(inCut(t, LIFTCUT.ride));
       const follow = smoother(remap01(t, LIFTCUT.walk[0] + 0.05, LIFTCUT.walk[1] + 0.10));
       return {
-        s: push / (wide ? 1.95 : 2.8),
+        s: push / (wide ? 2.3 : 3.3),
         a,
         midX: wide ? mix(0.60, 0.80, follow) : mix(0.12, 0.86, follow),
         shiftX: wide ? -0.26 : 0,
         top: wide ? 1.0 : 0.86,
       };
     }
-    const LIFT_CROP = 1.53;
+    const LIFT_CROP = 1.80;
     const liftToNdc = (x, y, v) => [(x - v.midX) * 2 * v.s / v.a + v.shiftX, v.top - 2 * v.s * (LIFT_CROP - y)];
 
     // The pod's long side as a share of the viewport height, at the scene's scale right now.
@@ -3666,7 +4186,14 @@
     // it, the w channel carrying how visible each is, and the interior set a little deeper so the
     // field's depth of field softens it behind her. The stride spreads every prefix of the buffer
     // over the whole drawing, as the scooter's does.
+    //
+    // A share of the slots is kept for her hand on the grip, which the pod block draws through
+    // its own camera (drawHand) and writes into this same buffer: the stride spreads those slots
+    // through every prefix too. While the pod block is not drawing the hand they wait, unseen,
+    // at her wrist. `liftPending` says the buffer has changed and the pod block has to send it.
+    const HAND_SHARE = 0.16;
     let liftBuf = null;
+    let liftPending = false;
     function liftTargets(t) {
       const bg = window.gridBG;
       if (!bg || !bg.projection) return null;
@@ -3676,15 +4203,19 @@
         const gcd = (a, b) => (b ? gcd(b, a % b) : a);
         let stride = Math.max(1, Math.round(count * 0.6180339887));
         while (gcd(stride, count) !== 1) stride++;
+        const nScene = count - Math.round(count * HAND_SHARE);
+        const handSlots = [];
+        for (let i = 0; i < count; i++) if ((i * stride) % count >= nScene) handSlots.push(i);
         liftBuf = {
-          count, stride, alloc: liftFilm.allocation(count),
+          count, stride, nScene, handSlots, alloc: liftFilm.allocation(nScene),
           xyz: new Float32Array(count * 3), vis: new Float32Array(count),
           // Where each point was last time, its smoothed velocity, and when, for the lead.
           was: new Float32Array(count * 3), vel: new Float32Array(count * 3), at: 0,
         };
       }
-      const { stride, alloc, xyz, vis, was, vel } = liftBuf;
-      const { points } = liftFilm.points(liftState(t), alloc);
+      const { stride, alloc, vis, nScene } = liftBuf;
+      const st = liftState(t);
+      const { points, count: n, pose } = liftFilm.points(st, alloc);
       const halfH = proj.depth * proj.tanHalfY;
       const v = liftView(proj.aspect, t);
       const now = performance.now();
@@ -3692,33 +4223,55 @@
       liftBuf.at = now;
       // The lead only makes sense frame to frame; after a pause, a resize or the first upload the
       // points start from where they are.
-      const lead = dt > 0 && dt < 0.1 ? trailOf(mix(22, LIFT_K, liftFadeAt(t))) : 0;
+      const lead = dt > 0 && dt < 0.1 ? trailOf(mix(22, LIFT_K, liftFadeAt(t))) * (1 - firmAt(liftFadeAt(t))) : 0;
       const limit = 0.35 * halfH;   // no lead larger than this, whatever a jump in the targets says
+      const handHeld = carryOn(t);
+      const wristAt = liftToNdc(pose.wrist[0], pose.wrist[1] + st.rise, v);
       for (let i = 0; i < count; i++) {
-        const p = points[(i * stride) % points.length];
-        const [nx, ny] = liftToNdc(p[0], p[1], v);
-        const d = p[3] || 1;
+        const m = (i * stride) % count;
+        if (m >= nScene) {
+          // Her hand's slot: the pod block's while it draws the hand, otherwise parked at her wrist.
+          if (!handHeld) {
+            ahead(liftBuf, i * 3, wristAt[0] * halfH * proj.aspect, wristAt[1] * halfH, -proj.depth, dt, 0, limit);
+            vis[i] = 0;
+          }
+          continue;
+        }
+        const k = (m % n) * 4;
+        // liftToNdc() written out: this runs for every particle on every frame the scene moves,
+        // and each call made a fresh array.
+        const nx = (points[k] - v.midX) * 2 * v.s / v.a + v.shiftX;
+        const ny = v.top - 2 * v.s * (LIFT_CROP - points[k + 1]);
+        const d = points[k + 3] || 1;
         const x = nx * halfH * proj.aspect * d;
         const y = ny * halfH * d;
         const z = -proj.depth * d;
-        const j = i * 3;
-        if (lead) {
-          for (let c = 0; c < 3; c++) {
-            const now_ = c === 0 ? x : c === 1 ? y : z;
-            vel[j + c] += ((now_ - was[j + c]) / dt - vel[j + c]) * 0.5;
-          }
-        } else {
-          vel[j] = vel[j + 1] = vel[j + 2] = 0;
-        }
-        was[j] = x;
-        was[j + 1] = y;
-        was[j + 2] = z;
-        xyz[j] = x + Math.max(-limit, Math.min(limit, vel[j] * lead));
-        xyz[j + 1] = y + Math.max(-limit, Math.min(limit, vel[j + 1] * lead));
-        xyz[j + 2] = z + Math.max(-limit, Math.min(limit, vel[j + 2] * lead));
-        vis[i] = p[2];
+        ahead(liftBuf, i * 3, x, y, z, dt, lead, limit);
+        vis[i] = points[k + 2];
       }
-      return { xyz, vis };
+      return { xyz: liftBuf.xyz, vis };
+    }
+
+    // Sends target j (x, y, z) `lead` seconds ahead along its own motion, measured from where it
+    // was on the last upload `dt` seconds ago and smoothed, so the particle chasing it arrives
+    // where the drawing actually is (see trailOf). No lead larger than `limit`, whatever a jump in
+    // the targets says. The buffer carries `was`, `vel` and the `xyz` it writes.
+    function ahead(buf, j, x, y, z, dt, lead, limit) {
+      const { was, vel, xyz } = buf;
+      if (lead) {
+        for (let c = 0; c < 3; c++) {
+          const now_ = c === 0 ? x : c === 1 ? y : z;
+          vel[j + c] += ((now_ - was[j + c]) / dt - vel[j + c]) * 0.5;
+        }
+      } else {
+        vel[j] = vel[j + 1] = vel[j + 2] = 0;
+      }
+      was[j] = x;
+      was[j + 1] = y;
+      was[j + 2] = z;
+      xyz[j] = x + Math.max(-limit, Math.min(limit, vel[j] * lead));
+      xyz[j + 1] = y + Math.max(-limit, Math.min(limit, vel[j + 1] * lead));
+      xyz[j + 2] = z + Math.max(-limit, Math.min(limit, vel[j + 2] * lead));
     }
 
     // Where the pod hangs at t: its centre below the grip bar in her fingers along the line of her
@@ -3743,11 +4296,977 @@
       return right;
     }
 
-    // The field gathers into two drawings in turn: the scooter for the dock, then the lift and
-    // her. Each is uploaded on its way in, while the field is fully released, so nothing visibly
-    // jumps. The lift is rewritten whenever anything in it moves (the camera, the doors, her, the
-    // motes) and left alone when nothing does. `null` means nothing is uploaded yet, or a resize
-    // threw it away.
+    const gripHand = (() => {
+      // ---------------------------------------------------------------- the grip, as measured
+      // Millimetres, in a frame laid on the grip bar: q runs along the bar (+q is screen left in
+      // the grip shot), p across it toward that shot's camera, u up the pod. Pod-local is
+      // (u, (q + p)/√2, (p - q)/√2), the frame the pod block's window for the hand is set in.
+      //
+      // The bar's cross-section, off the model at a run of places along it (tools/check/hand.mjs
+      // measures it again and fails if the two part by more than a quarter of a millimetre): the
+      // half-width at each height, bottom to top. It is constant along the straight middle and
+      // starts to flare past |q| = 26 as it sweeps down into the corner feet, which only the
+      // little finger's edge and the thumb come near.
+      const BAR = [
+        [0, [[184.92, 0], [185.14, 1.97], [185.46, 3.81], [186.0, 5.13], [186.86, 6.83], [187.82, 8.28], [188.79, 8.95], [189.75, 9.46], [190.82, 9.94], [191.79, 10.35], [192.65, 10.49], [193.5, 10.45], [194.15, 10.24], [194.68, 9.92], [195.11, 9.37], [195.43, 8.64], [195.63, 7.85]]],
+        [22, [[184.92, 0], [185.14, 1.92], [185.46, 3.74], [186.0, 5.03], [186.86, 6.91], [187.83, 8.25], [188.79, 9.01], [189.76, 9.64], [190.84, 10.1], [191.8, 10.48], [192.66, 10.5], [193.52, 10.31], [194.17, 10.16], [194.71, 9.89], [195.14, 9.09], [195.46, 8.35], [195.65, 7.9]]],
+        [26, [[184.93, 0], [185.14, 2.54], [185.47, 3.9], [186.0, 5.68], [186.86, 7.32], [187.82, 8.4], [188.79, 9.11], [189.75, 9.66], [190.83, 10.24], [191.79, 10.68], [192.65, 10.72], [193.51, 10.51], [194.15, 10.29], [194.69, 10.02], [195.12, 9.21], [195.44, 8.43], [195.63, 7.97]]],
+        [30, [[184.63, 0], [184.85, 2.52], [185.18, 4.0], [185.73, 5.5], [186.61, 7.15], [187.6, 8.41], [188.59, 9.34], [189.58, 10.07], [190.67, 10.65], [191.66, 11.06], [192.54, 11.12], [193.42, 10.82], [194.08, 10.56], [194.63, 10.24], [195.07, 9.45], [195.4, 8.64], [195.59, 8.11]]],
+        [34, [[184.57, 0], [184.79, 2.44], [185.11, 4.08], [185.65, 5.82], [186.52, 7.59], [187.49, 8.94], [188.47, 9.96], [189.44, 10.76], [190.53, 11.49], [191.5, 11.8], [192.37, 11.87], [193.23, 11.5], [193.88, 11.06], [194.42, 10.59], [194.86, 9.84], [195.18, 8.96], [195.38, 3.43]]],
+        [38, [[184.36, 0], [184.58, 1.69], [184.9, 4.35], [185.43, 5.96], [186.29, 8.15], [187.25, 9.61], [188.21, 10.85], [189.17, 11.74], [190.24, 12.52], [191.21, 12.83], [192.06, 12.65], [192.92, 11.97], [193.56, 11.46], [194.1, 10.9], [194.52, 9.76], [194.84, 8.9], [195.04, 2.12]]],
+        [42, [[183.82, 0.03], [184.03, 0.57], [184.35, 4.03], [184.88, 6.61], [185.73, 8.93], [186.69, 10.9], [187.64, 12.12], [188.6, 13.12], [189.66, 14.0], [190.61, 14.16], [191.46, 13.66], [192.31, 12.74], [192.95, 11.84], [193.48, 11.12], [193.9, 10.01], [194.22, 6.4], [194.41, 1.19]]],
+      ];
+
+      // The section at q as a convex polygon in (p, u), anticlockwise: up the near side, across
+      // the top, down the far side. Kept per q, since the fingers only ever ask about a few.
+      const sections = new Map();
+      function section(q) {
+        const key = Math.round(Math.min(42, Math.abs(q)) * 4) / 4;
+        let poly = sections.get(key);
+        if (poly) return poly;
+        let i = 0;
+        while (i < BAR.length - 2 && key > BAR[i + 1][0]) i++;
+        const [q0, a] = BAR[i];
+        const [q1, b] = BAR[i + 1];
+        const k = Math.min(1, Math.max(0, (key - q0) / (q1 - q0)));
+        const side = a.map(([u, w], j) => [w + (b[j][1] - w) * k, u + (b[j][0] - u) * k]);
+        poly = Float64Array.from(side.concat(side.slice(1).reverse().map(([p, u]) => [-p, u])).flat());
+        sections.set(key, poly);
+        return poly;
+      }
+
+      // Signed distance from a point to a convex polygon (flat x, u pairs): negative inside.
+      function polyDist(px, pu, poly) {
+        let best = Infinity;
+        let inside = true;
+        const n = poly.length;
+        for (let i = 0; i < n; i += 2) {
+          const ax = poly[i], au = poly[i + 1];
+          const j = (i + 2) % n;
+          const ex = poly[j] - ax, eu = poly[j + 1] - au;
+          if (ex * (pu - au) - eu * (px - ax) < 0) inside = false;
+          let s = ((px - ax) * ex + (pu - au) * eu) / (ex * ex + eu * eu || 1);
+          s = s < 0 ? 0 : s > 1 ? 1 : s;
+          const dx = px - ax - ex * s, du = pu - au - eu * s;
+          const d2 = dx * dx + du * du;
+          if (d2 < best) best = d2;
+        }
+        return inside ? -Math.sqrt(best) : Math.sqrt(best);
+      }
+
+      // How far a round, tapered segment lying in the plane q clears the bar, in mm: negative
+      // where it cuts in. For a convex section the nearest approach of a segment is at one of its
+      // ends or across from one of the section's corners, so this is exact rather than sampled.
+      // The bar flares a little toward its ends, so the finger's sides are also tested against
+      // the section where they actually are, at the radius the finger has there.
+      //
+      // Under the bar is the cap's dished floor, which a fingertip curling under must not go
+      // through either: flat at 162.6 across the middle and rising toward the rim. The dish is
+      // square to the cap, whose sides run diagonally in this frame, so how far out a point is
+      // goes by the larger of its two cap coordinates.
+      const floorAt = (q, p) => {
+        const x = Math.max(Math.abs(q + p), Math.abs(p - q)) * Math.SQRT1_2 - 30;
+        return 162.6 + 0.39 * 0.5 * (x + Math.sqrt(x * x + 16));
+      };
+      const SIDES = [0, 0.6, -0.6, 0.9, -0.9];
+      // Every section fits in this box, so a bone wholly to one side of it, by more than its
+      // radius, cannot touch the bar and is not measured against it.
+      const BOX = [-14.3, 183.7, 14.3, 195.8];
+      function clearance(q, a, b, ra, rb) {
+        let worst = Infinity;
+        const ex = b[0] - a[0], eu = b[1] - a[1];
+        const l2 = ex * ex + eu * eu;
+        for (let k = 0; k <= 8; k++) {
+          const s = k / 8;
+          const gap = a[1] + eu * s - floorAt(q, a[0] + ex * s) - (ra + (rb - ra) * s);
+          if (gap < worst) worst = gap;
+        }
+        const r = Math.max(ra, rb);
+        if ((a[0] < BOX[0] - r && b[0] < BOX[0] - r) || (a[0] > BOX[2] + r && b[0] > BOX[2] + r)
+          || (a[1] < BOX[1] - r && b[1] < BOX[1] - r) || (a[1] > BOX[3] + r && b[1] > BOX[3] + r)) {
+          return Math.min(worst, 1);
+        }
+        for (const f of SIDES) {
+          const poly = section(q + f * r);
+          const shrink = Math.sqrt(1 - f * f);
+          const da = polyDist(a[0], a[1], poly);
+          const db = polyDist(b[0], b[1], poly);
+          if (da < 0 || db < 0) return Math.min(da, db) - r;
+          worst = Math.min(worst, da - ra * shrink, db - rb * shrink);
+          if (l2 < 1e-9) continue;
+          const n = poly.length;
+          for (let i = 0; i < n; i += 2) {
+            const vx = poly[i], vu = poly[i + 1];
+            let s = ((vx - a[0]) * ex + (vu - a[1]) * eu) / l2;
+            s = s < 0 ? 0 : s > 1 ? 1 : s;
+            const dx = vx - a[0] - ex * s, du = vu - a[1] - eu * s;
+            const gap = Math.sqrt(dx * dx + du * du) - (ra + (rb - ra) * s) * shrink;
+            if (gap < worst) worst = gap;
+            // The axis itself crossing an edge, with both ends outside.
+            const j = (i + 2) % n;
+            const wx = poly[j], wu = poly[j + 1];
+            const d1 = ex * (vu - a[1]) - eu * (vx - a[0]);
+            const d2 = ex * (wu - a[1]) - eu * (wx - a[0]);
+            if (d1 * d2 < 0) {
+              const fx = wx - vx, fu = wu - vu;
+              if ((fx * (a[1] - vu) - fu * (a[0] - vx)) * (fx * (b[1] - vu) - fu * (b[0] - vx)) < 0) return -r;
+            }
+          }
+        }
+        return worst;
+      }
+
+      // ---------------------------------------------------------------- the hand
+      // A right hand on the bar, built from tapered round bones and the spheres at their joints,
+      // which is what a drawn hand is anyway: every line in the drawing is the edge of one of
+      // those, so the field's outline and the window the pod opens for it come off the same few
+      // numbers. How it holds the bar is a rig (see the grips below).
+      function unit3(v) {
+        const l = Math.hypot(v[0], v[1], v[2]) || 1;
+        return [v[0] / l, v[1] / l, v[2] / l];
+      }
+      const smooth = (t) => t * t * (3 - 2 * t);
+      const clamp01 = (t) => Math.min(1, Math.max(0, t));
+      const dir2 = (a) => [Math.cos(a), Math.sin(a)];
+
+      // How far a joint turns toward `to`: all the way, or as far as it can before the bone it
+      // drives (or the sphere at that bone's end) meets the bar or the floor, found to well
+      // under a micron. The search runs back from `to` toward the open angle, so it lands on the
+      // most closed angle that is clear, and on contact when the target is past it. A finger
+      // already pressed into the bar even fully open (the short little finger as the hand
+      // settles) is lifted back past open until it clears.
+      function curl(from, to, place) {
+        if (place(to) >= 0) return to;
+        const end = Math.min(from, to) - 0.6;
+        let blocked = to;
+        for (let k = 1; k <= 16; k++) {
+          const a = to + (end - to) * (k / 16);
+          if (place(a) >= 0) {
+            let free = a;
+            for (let i = 0; i < 20; i++) {
+              const m = (free + blocked) / 2;
+              if (place(m) >= 0) free = m; else blocked = m;
+            }
+            return free;
+          }
+          blocked = a;
+        }
+        return end;
+      }
+
+      // A finger's (or the thumb's) joints at their targets, each stopped by the bar.
+      function chain(q, base, heading, len, r, open, to) {
+        const pts = [base];
+        for (let j = 0; j < len.length; j++) {
+          const from = pts[j];
+          const place = (a) => {
+            const d = dir2(heading - a);
+            const end = [from[0] + d[0] * len[j], from[1] + d[1] * len[j]];
+            return Math.min(clearance(q, from, end, r[j], r[j + 1]), clearance(q, end, end, r[j + 1], r[j + 1]));
+          };
+          heading -= curl(open[j], to[j], place);
+          const d = dir2(heading);
+          pts.push([from[0] + d[0] * len[j], from[1] + d[1] * len[j]]);
+        }
+        return pts;
+      }
+
+      const deg = (list) => list.map((d) => d * Math.PI / 180);
+
+      // ---------------------------------------------------------------- the grips
+      // The rig is a configuration, so one hand can hold the bar two ways. Each gives:
+      //   FINGERS  index to little: the plane each lies in, the knuckle's place along the palm
+      //            and below its line (the knuckles arch, and the little one sits low), the three
+      //            bone lengths, and the radius at the knuckle, the two joints and the tip
+      //   KNUCKLE  a knuckle's sphere against the finger's radius there: the bumps
+      //   PALM     its length to the wrist, where the wrist sits across it, how far the bones
+      //            draw together toward it, and their radii at either end
+      //   THUMB    its plane, its knuckle's place behind and below the middle knuckle, the base
+      //            of its metacarpal at the heel of the hand, two bones and its four radii
+      //   ARM      its radius at the wrist and further up, and the way it runs
+      //   HELD     the held pose: where the middle knuckle sits and how the palm lies; ψ is the
+      //            palm's direction from wrist to knuckles in (p, u)
+      //   SETTLE   how far back up the arm, and how much tipped, the hand starts its last move
+      //            onto the bar, which it makes while the fingers close
+      //   OPEN, SHUT, LEAD   the joint angles open and as far as each may close, and each
+      //            joint's start and length in the wrap. Flexion turns a finger clockwise in
+      //            (p, u): toward the camera, down the bar's face, back under it. The first is
+      //            from the palm's line, and negative is a finger lifted back from it.
+      //   T_OPEN, T_SHUT     the same for the thumb, which flexes the same way, toward the palm
+      //   REF_EYE  where the camera that sees it stands, for sharing out the particles
+      //   TURN     (optional) a second hold the hand rolls into once it has the bar, with its
+      //            own pose, angles, arm and eye: pose()'s `turn` runs from one to the other
+      //
+      // REACH: a right hand, palm down, reaching from behind the pod (the -p side) and curling
+      // over the bar toward the camera and back under it, the thumb pressing the far face. The
+      // middle finger's first bone rests along the top of the bar and the rest find their own
+      // way round it. The grip beat ("Made to be lifted.").
+      //
+      // Then it lifts, the way a hand takes up a handle it has grabbed from behind: it rolls
+      // forward round the bar until the forearm stands straight up over it (TURN). The back of
+      // the hand comes round to the camera with the knuckles along the bar's near edge, and the
+      // fingers hook down its near face, under it and up the far side.
+      const REACH = {
+        FINGERS: [
+          { q: -26.0, along: 2.0, drop: 1.0, len: [40, 23, 19], r: [9.3, 8.6, 7.6, 6.7] },
+          { q: -8.5, along: 0.0, drop: 0.0, len: [44, 27, 20], r: [9.5, 8.8, 7.8, 6.8] },
+          { q: 9.0, along: 1.0, drop: 1.0, len: [41, 26, 19], r: [9.1, 8.4, 7.4, 6.5] },
+          { q: 25.0, along: 2.0, drop: 3.5, len: [33, 19, 17], r: [8.2, 7.5, 6.6, 5.8] },
+        ],
+        KNUCKLE: 1.12,
+        PALM: { len: 66, wristQ: -1.5, narrow: 0.36, rKnuckle: 10.0, rWrist: 13.5 },
+        THUMB: { q: -38, along: -27, drop: 12, base: [-21, -54, 10], len: [31, 24], r: [12.0, 10.4, 9.4, 8.3] },
+        ARM: { r: [27.5, 32], dir: unit3([0.12, -0.6, 0.79]) },
+        HELD: { p: -27.5, u: 206.4, psi: -18 * Math.PI / 180 },
+        SETTLE: { back: 12, tilt: 0.10 },
+        OPEN: deg([-24, 8, 4]),
+        SHUT: deg([12, 115, 125]),
+        LEAD: [[0, 0.65], [0.3, 0.65], [0, 0.55]],
+        T_OPEN: deg([4, 46]),
+        T_SHUT: deg([7, 22]),
+        REF_EYE: [-340, 793, 766],
+        TURN: {
+          // Where the roll ends: the middle knuckle over the bar's near edge, the palm hanging
+          // straight down from the wrist.
+          HELD: { p: 22, u: 220, psi: -90 * Math.PI / 180 },
+          // The palm turns about the bar's middle, so the hand rolls round the bar instead of
+          // sliding over it, and rides this far clear of it halfway through.
+          PIVOT: [0, 190],
+          RISE: 6,
+          OPEN: deg([0, 90, 0]),
+          SHUT: deg([40, 115, 110]),
+          T_OPEN: deg([14, 62]),
+          T_SHUT: deg([14, 42]),
+          // The thumb lets go of the far face while the palm turns over it, and takes hold again
+          // over the top: this much of the way open, halfway through.
+          THUMB_LET: 0.8,
+          // The forearm stands up over the bar, leaning back a little toward whoever is lifting,
+          // which also keeps it from pointing straight at the lens as the camera climbs over the
+          // top. It slims a little toward the wrist.
+          ARM: [0, -0.45, 1],
+          ARM_R: [21, 29],
+          // A wrist is flatter than the round arm drawn here. Seen across the back of the hand,
+          // as it is once the hand is upright and the camera has climbed over it, the arm's round
+          // end would stand proud of the hand and draw a ring across it. So, coming in as the hand
+          // rolls, the arm starts set back toward the palm, `back` mm past the point where its
+          // round is flush with the back of the hand, and its round end is `shrink` mm smaller.
+          WRIST: { back: 5, shrink: 7 },
+          // Knuckles stand out in a closed fist: their bumps grow this much as the hook closes.
+          KNUCKLE: 1.18,
+          // Where the camera is as the hook closes (t 2.95, on a desktop).
+          REF_EYE: [-62, 328, 775],
+        },
+      };
+
+      // CARRY: the same hand carrying the pod hanging at her side, as she does in the lift
+      // ("It comes with you."). A hook: the palm hangs straight down on the near side with its
+      // back to the camera, the fingers run down the bar's near face, under it and up the far
+      // side, and the thumb curls over the top. The arm runs straight up the pod's axis, which
+      // the film rolls to lie along her forearm, and is only a stub fading into the forearm she
+      // is drawn with; its wrist lands RIG.hand above the top of the bar, where hers is.
+      const CARRY = {
+        FINGERS: REACH.FINGERS,
+        KNUCKLE: 1.12,
+        PALM: { len: 60, wristQ: -1.5, narrow: 0.3, rKnuckle: 10.0, rWrist: 12.0 },
+        THUMB: { q: -38, along: -30, drop: 13, base: [-20, -48, 9], len: [31, 24], r: [11.5, 10.2, 9.2, 8.1] },
+        ARM: { r: [18, 19], dir: [0, 0, 1], fade: 1 },
+        HELD: { p: 20, u: 218, psi: -90 * Math.PI / 180 },
+        SETTLE: { back: 12, tilt: 0, dir: [0, 1, 0] },
+        OPEN: deg([0, 90, 0]),
+        SHUT: deg([40, 115, 110]),
+        LEAD: [[0.5, 0.5], [0.5, 0.5], [0.55, 0.45]],
+        T_OPEN: deg([14, 62]),
+        T_SHUT: deg([14, 42]),
+        REF_EYE: [0, 1000, 460],
+      };
+
+      // ---------------------------------------------------------------- the outline
+      const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+      const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+      const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+      const norm = (a) => Math.hypot(a[0], a[1], a[2]);
+      // Two unit vectors square to `n` and to each other.
+      function basis(n) {
+        const h = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+        const e1 = unit3(cross(n, h));
+        return [e1, cross(n, e1)];
+      }
+
+      // The solid laid out flat for the tests below, which run a few thousand times a frame:
+      // spheres as (centre, radius), bones as (start, unit axis, length, radii, bounding radius).
+      function prepare(S) {
+        if (S.prep) return S.prep;
+        const sp = new Float64Array(S.spheres.length * 4);
+        S.spheres.forEach((s, i) => sp.set([s.c[0], s.c[1], s.c[2], s.r], i * 4));
+        const cn = new Float64Array(S.cones.length * 10);
+        S.cones.forEach((c, i) => {
+          const ab = sub(c.b, c.a);
+          const L = norm(ab) || 1e-6;
+          cn.set([c.a[0], c.a[1], c.a[2], ab[0] / L, ab[1] / L, ab[2] / L, L, c.ra, c.rb, L / 2 + Math.max(c.ra, c.rb)], i * 10);
+        });
+        S.byTag = {};
+        for (const c of S.cones) S.byTag[c.tag] = c;
+        for (const s of S.spheres) S.byTag[s.tag] = s;
+        S.prep = { sp, cn };
+        return S.prep;
+      }
+
+      // Whether the solid hides a point from the eye. A line of sight is hidden where it passes
+      // into a bone or a joint by more than a quarter of a millimetre and enters it at least half
+      // a millimetre in front of the point. A line of sight to an edge only grazes the bone the
+      // edge belongs to, which is what keeps every outline from hiding itself.
+      const GRAZE = 0.25;
+      const AHEAD = 0.5;
+      function hidden(px, py, pz, eye, prep) {
+        const ex = eye[0], ey = eye[1], ez = eye[2];
+        let dx = px - ex, dy = py - ey, dz = pz - ez;
+        const tP = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        dx /= tP; dy /= tP; dz /= tP;
+        const sp = prep.sp;
+        for (let i = 0; i < sp.length; i += 4) {
+          const ox = sp[i] - ex, oy = sp[i + 1] - ey, oz = sp[i + 2] - ez, r = sp[i + 3];
+          const tc = ox * dx + oy * dy + oz * dz;
+          if (tc < 0) continue;
+          const d2 = ox * ox + oy * oy + oz * oz - tc * tc;
+          const reach = r - GRAZE;
+          if (d2 >= reach * reach) continue;
+          if (tc - Math.sqrt(r * r - d2) < tP - AHEAD) return true;
+        }
+        const cn = prep.cn;
+        for (let i = 0; i < cn.length; i += 10) {
+          const ax = cn[i], ay = cn[i + 1], az = cn[i + 2];
+          const tx = cn[i + 3], ty = cn[i + 4], tz = cn[i + 5], L = cn[i + 6];
+          const mx = ax + tx * L * 0.5 - ex, my = ay + ty * L * 0.5 - ey, mz = az + tz * L * 0.5 - ez;
+          const tm = mx * dx + my * dy + mz * dz;
+          const bound = cn[i + 9];
+          if (mx * mx + my * my + mz * mz - tm * tm > bound * bound) continue;
+          // Nearest approach of the line of sight to the bone's axis.
+          const wx = ex - ax, wy = ey - ay, wz = ez - az;
+          const b = dx * tx + dy * ty + dz * tz;
+          const den = 1 - b * b;
+          let s = den > 1e-9 ? ((wx * tx + wy * ty + wz * tz) - b * (wx * dx + wy * dy + wz * dz)) / den : 0;
+          // Past either end, the line of sight is nearest the end itself, and every bone's ends
+          // are joints with spheres of their own: those are tested above, so this bone is done.
+          if (s < 0 || s > L) continue;
+          const qx = ax + tx * s, qy = ay + ty * s, qz = az + tz * s;
+          const along = (qx - ex) * dx + (qy - ey) * dy + (qz - ez) * dz;
+          if (along < 0) continue;
+          const nx = ex + dx * along - qx, ny = ey + dy * along - qy, nz = ez + dz * along - qz;
+          const dist2 = nx * nx + ny * ny + nz * nz;
+          const r = cn[i + 7] + (cn[i + 8] - cn[i + 7]) * (s / L);
+          const reach = r - GRAZE;
+          if (dist2 >= reach * reach) continue;
+          const sinG = Math.max(0.25, Math.sqrt(den > 0 ? den : 0));
+          if (along - Math.sqrt(r * r - dist2) / sinG < tP - AHEAD) return true;
+        }
+        return false;
+      }
+
+      // The two lines along which a cone meets its tangent planes through the eye: its edges as
+      // drawn. Solved on the cone itself, taper included, so they lie exactly on the window's
+      // silhouette. Null where the cone is seen end on and has no sides.
+      function coneEdges(c, eye) {
+        const ab = sub(c.b, c.a);
+        const L = norm(ab) || 1e-6;
+        const t = [ab[0] / L, ab[1] / L, ab[2] / L];
+        const [e1, e2] = basis(t);
+        const w = sub(c.a, eye);
+        const w1 = dot(w, e1), w2 = dot(w, e2);
+        const R = Math.hypot(w1, w2);
+        const K = -c.ra + ((c.rb - c.ra) / L) * dot(t, w);
+        if (R < 1e-6 || Math.abs(K / R) > 1) return null;
+        const phi = Math.atan2(w2, w1);
+        const spread = Math.acos(K / R);
+        return [phi - spread, phi + spread].map((th) => {
+          const ca = Math.cos(th), sa = Math.sin(th);
+          const rho = [e1[0] * ca + e2[0] * sa, e1[1] * ca + e2[1] * sa, e1[2] * ca + e2[2] * sa];
+          return [
+            c.a[0] + rho[0] * c.ra, c.a[1] + rho[1] * c.ra, c.a[2] + rho[2] * c.ra,
+            c.b[0] + rho[0] * c.rb, c.b[1] + rho[1] * c.rb, c.b[2] + rho[2] * c.rb,
+          ];
+        });
+      }
+
+      // A sphere's outline seen from the eye: the circle where the cone of sight touches it.
+      function sphereRim(s, eye) {
+        const toEye = sub(eye, s.c);
+        const D = norm(toEye);
+        const n = [toEye[0] / D, toEye[1] / D, toEye[2] / D];
+        const k = (s.r * s.r) / D;
+        const r = s.r * Math.sqrt(Math.max(0, 1 - (s.r * s.r) / (D * D)));
+        const [e1, e2] = basis(n);
+        return [s.c[0] + n[0] * k, s.c[1] + n[1] * k, s.c[2] + n[2] * k, r, ...e1, ...e2];
+      }
+
+      // ---------------------------------------------------------------- strokes
+      // Every line the field draws, in a fixed order. Each is a function of a parameter from 0
+      // to 1 that runs along it at an even pace, so a particle given a fraction of a stroke keeps
+      // to the same spot on it from frame to frame. A stroke is an 'edge' (a bone's side), a
+      // 'rim' (a joint's outline) or a 'mark' (a line on the skin: a nail, a crease), and `share`
+      // scales its claim on the particles before the visibility weighting in allocation().
+      const PLAN = [];
+      const FINGER_COUNT = 4;   // every grip's rig has the same bones, so one plan draws either
+      Array.from({ length: FINGER_COUNT }, (_, i) => i).forEach((i) => {
+        for (const bone of ['prox', 'mid', 'dist']) {
+          PLAN.push({ kind: 'edge', of: `${bone}${i}`, side: 0, share: 1.1 });
+          PLAN.push({ kind: 'edge', of: `${bone}${i}`, side: 1, share: 1.1 });
+        }
+        PLAN.push({ kind: 'rim', of: `knuckle${i}`, share: 1 });
+        PLAN.push({ kind: 'rim', of: `pip${i}`, share: 1 });
+        PLAN.push({ kind: 'rim', of: `dip${i}`, share: 1 });
+        PLAN.push({ kind: 'rim', of: `tip${i}`, share: 1.1 });
+        PLAN.push({ kind: 'edge', of: `meta${i}`, side: 0, share: 0.9 });
+        PLAN.push({ kind: 'edge', of: `meta${i}`, side: 1, share: 0.9 });
+        // The heel of the hand, at the wrist, is rounder than the back of the hand tapering away
+        // from it. Seen across the back of the hand, as it is once the hand has rolled upright and
+        // the camera has climbed over it, its round would draw arcs over the hand: it goes as the
+        // hand rolls (`upright`), and gives its particles to the lines that show then.
+        PLAN.push({ kind: 'rim', of: `heel${i}`, share: 0.8, upright: 0 });
+        PLAN.push({ kind: 'mark', of: `nail${i}`, bone: `dist${i}`, share: 0.45, vis: 0.6 });
+        PLAN.push({ kind: 'mark', of: `crease${i}`, bone: `mid${i}`, share: 0.3, vis: 0.4 });
+      });
+      for (const bone of ['tmeta', 'tprox', 'tdist']) {
+        PLAN.push({ kind: 'edge', of: bone, side: 0, share: 1 });
+        PLAN.push({ kind: 'edge', of: bone, side: 1, share: 1 });
+      }
+      for (const j of ['tbase', 'tmcp', 'tip_', 'ttip']) PLAN.push({ kind: 'rim', of: j, share: 1 });
+      PLAN.push({ kind: 'mark', of: 'tnail', bone: 'tdist', share: 0.45, vis: 0.6 });
+      PLAN.push({ kind: 'rim', of: 'wrist', share: 0.8 });
+      PLAN.push({ kind: 'edge', of: 'arm', side: 0, share: 0.16 });
+      PLAN.push({ kind: 'edge', of: 'arm', side: 1, share: 0.16 });
+      // The knuckles, as a grip tightens: a short arc over the back of each knuckle and of each
+      // finger's middle joint, where the bone stands out under the skin. Last in the plan, so a
+      // hand that never clenches keeps every other stroke where it was.
+      for (let i = 0; i < FINGER_COUNT; i++) {
+        PLAN.push({ kind: 'mark', of: `kcap${i}`, joint: `knuckle${i}`, bones: [`meta${i}`, `prox${i}`], share: 0.9, vis: 0.65, clench: true });
+        PLAN.push({ kind: 'mark', of: `pcap${i}`, joint: `pip${i}`, bones: [`prox${i}`, `mid${i}`], share: 0.4, vis: 0.5, clench: true });
+      }
+
+      // A point on a bone's skin at `s` along it and `ang` round from the middle of its back.
+      // Every bone lies in a plane of constant q, so q is its side-to-side and its back is the
+      // remaining direction, which points away from the palm. Marks sit a tenth of a millimetre
+      // proud, so they never hide in their own bone.
+      function skin(c, s, ang, out) {
+        const ab = sub(c.b, c.a);
+        const L = norm(ab);
+        const tx = ab[0] / L, ty = ab[1] / L, tz = ab[2] / L;
+        // back = side × t, with side = (1, 0, 0)
+        const bx = 0, by = -tz, bz = ty;
+        const r = c.ra + (c.rb - c.ra) * s + 0.1;
+        const ca = Math.cos(ang), sa = Math.sin(ang);
+        out[0] = c.a[0] + tx * L * s + (bx * ca + sa) * r;
+        out[1] = c.a[1] + ty * L * s + by * ca * r;
+        out[2] = c.a[2] + tz * L * s + bz * ca * r;
+      }
+
+      // The nail: a rounded plate on the back of the last bone, from a third of the way along
+      // out to its end and round. The crease: two short lines across the back of the middle
+      // bone's root, where the skin folds over the joint as the finger closes.
+      function markAt(st, S, u, out) {
+        if (st.joint) {
+          // Across the back of the joint, square to the finger: on its sphere, a little proud,
+          // from one side of the finger's back to the other.
+          const j = S.byTag[st.joint];
+          const back = [0, 0, 0];
+          for (const tag of st.bones) {
+            const c = S.byTag[tag];
+            const ab = sub(c.b, c.a);
+            const L = norm(ab);
+            back[1] -= ab[2] / L;
+            back[2] += ab[1] / L;
+          }
+          const bl = Math.hypot(back[1], back[2]) || 1;
+          const a = (u - 0.5) * 1.7;
+          const r = j.r + 0.3;
+          out[0] = j.c[0] + Math.sin(a) * r;
+          out[1] = j.c[1] + (back[1] / bl) * Math.cos(a) * r;
+          out[2] = j.c[2] + (back[2] / bl) * Math.cos(a) * r;
+          return;
+        }
+        const c = S.byTag[st.bone];
+        if (st.of.startsWith('crease')) {
+          const k = u * 2;
+          skin(c, k < 1 ? 0.07 : 0.14, ((k < 1 ? k : k - 1) - 0.5) * 0.9, out);
+          return;
+        }
+        const half = 0.62;
+        const k = u * 3;
+        if (k < 1) skin(c, 0.32 + 0.6 * k, -half, out);
+        else if (k < 2) { const a = Math.PI * (k - 1); skin(c, 0.92 + 0.07 * Math.sin(a), -half * Math.cos(a), out); }
+        else skin(c, 0.92 - 0.6 * (k - 2), half, out);
+      }
+
+      // The point at `u` along stroke k into `out`; false where the stroke is not there (a bone
+      // seen end on). `frame` holds this frame's edges and rims, worked out once each.
+      function strokePoint(k, u, S, frame, out) {
+        const st = PLAN[k];
+        if (st.kind === 'mark') {
+          markAt(st, S, u, out);
+          return true;
+        }
+        if (st.kind === 'edge') {
+          const e = frame.edges[k];
+          if (!e) return false;
+          const l = e[st.side];
+          out[0] = l[0] + (l[3] - l[0]) * u;
+          out[1] = l[1] + (l[4] - l[1]) * u;
+          out[2] = l[2] + (l[5] - l[2]) * u;
+          return true;
+        }
+        const m = frame.rims[k];
+        const a = u * Math.PI * 2;
+        const ca = Math.cos(a) * m[3], sa = Math.sin(a) * m[3];
+        out[0] = m[0] + m[4] * ca + m[7] * sa;
+        out[1] = m[1] + m[5] * ca + m[8] * sa;
+        out[2] = m[2] + m[6] * ca + m[9] * sa;
+        return true;
+      }
+
+      function frameOf(S, eye) {
+        const edges = [];
+        const rims = [];
+        PLAN.forEach((st, k) => {
+          if (st.kind === 'edge') edges[k] = coneEdges(S.byTag[st.of], eye);
+          else if (st.kind === 'rim') rims[k] = sphereRim(S.byTag[st.of], eye);
+        });
+        return { edges, rims };
+      }
+
+      // Whether stroke k shows at a point: in front of everything else, and for a mark, on skin
+      // that faces the eye.
+      const PT = new Float64Array(3);
+      function seen(k, S, eye, prep) {
+        const st = PLAN[k];
+        if (st.kind === 'mark') {
+          let n;
+          if (st.joint) {
+            const c = S.byTag[st.joint].c;
+            n = [PT[0] - c[0], PT[1] - c[1], PT[2] - c[2]];
+          } else {
+            const c = S.byTag[st.bone];
+            const ab = sub(c.b, c.a);
+            const L = norm(ab);
+            const rel = [PT[0] - c.a[0], PT[1] - c.a[1], PT[2] - c.a[2]];
+            const axial = dot(rel, ab) / L;
+            n = [rel[0] - (ab[0] / L) * axial, rel[1] - (ab[1] / L) * axial, rel[2] - (ab[2] / L) * axial];
+          }
+          const v = [eye[0] - PT[0], eye[1] - PT[1], eye[2] - PT[2]];
+          if (dot(n, v) <= 0.15 * norm(n) * norm(v)) return false;
+        }
+        return !hidden(PT[0], PT[1], PT[2], eye, prep);
+      }
+
+      // Each stroke sampled for visibility, and where along it the outline is cut by something
+      // in front, found to a hundred-and-twenty-eighth of the sample spacing.
+      const SAMPLES = { edge: 10, rim: 20, mark: 12 };
+      function visibility(S, eye, frame, prep) {
+        return PLAN.map((st, k) => {
+          const n = SAMPLES[st.kind];
+          const vis = new Uint8Array(n + 1);
+          const test = (u) => (strokePoint(k, u, S, frame, PT) && seen(k, S, eye, prep) ? 1 : 0);
+          for (let i = 0; i <= n; i++) vis[i] = test(i / n);
+          const cuts = new Float64Array(n).fill(-1);
+          for (let i = 0; i < n; i++) {
+            if (vis[i] === vis[i + 1]) continue;
+            let lo = i / n, hi = (i + 1) / n;
+            for (let it = 0; it < 7; it++) {
+              const m = (lo + hi) / 2;
+              if (test(m) === vis[i]) lo = m; else hi = m;
+            }
+            cuts[i] = (lo + hi) / 2;
+          }
+          return { n, vis, cuts };
+        });
+      }
+
+      function visAt(line, u) {
+        const i = Math.min(line.n - 1, Math.floor(u * line.n));
+        const a = line.vis[i];
+        return a === line.vis[i + 1] ? a : (u < line.cuts[i] ? a : line.vis[i + 1]);
+      }
+
+      // ---------------------------------------------------------------- particles
+      // The arm thins out along its length, so the eye stays on the hand: reaching in, from full
+      // at the wrist to a quarter by the frame's edge; carried, out altogether over the stub that
+      // meets her drawn forearm (ARM.fade). The pod block's window fades it the same way.
+      const ARM_FADE = 0.75;
+
+      // A stable random number per particle, for the dissolve.
+      const hash = (i, k) => {
+        const x = Math.sin((i + 1) * 12.9898 + k * 78.233) * 43758.5453;
+        return x - Math.floor(x);
+      };
+
+      // ---------------------------------------------------------------- the window's mesh
+      // The same cones and spheres as triangles, for the pod block's window. The topology never
+      // changes, so the index is built once and the positions and normals are rewritten in place.
+      const CONE_SEG = 32;
+      const ARM_SEG = 48;
+      const LAT = 12;
+      const LON = 24;
+      function meshLayout(S) {
+        let verts = 0;
+        const index = [];
+        for (const c of S.cones) {
+          const seg = c.tag === 'arm' ? ARM_SEG : CONE_SEG;
+          for (let i = 0; i < seg; i++) {
+            const a = verts + i, b = verts + (i + 1) % seg, c2 = verts + seg + i, d = verts + seg + (i + 1) % seg;
+            index.push(a, b, c2, b, d, c2);
+          }
+          verts += seg * 2;
+        }
+        for (let s = 0; s < S.spheres.length; s++) {
+          for (let la = 0; la < LAT; la++) {
+            for (let lo = 0; lo < LON; lo++) {
+              const a = verts + la * (LON + 1) + lo, b = a + 1, c2 = a + LON + 1, d = c2 + 1;
+              index.push(a, c2, b, b, c2, d);
+            }
+          }
+          verts += (LAT + 1) * (LON + 1);
+        }
+        return { verts, index };
+      }
+
+      function meshFill(S, pos, nor) {
+        let o = 0;
+        const put = (p, n) => {
+          pos[o] = p[0]; pos[o + 1] = p[1]; pos[o + 2] = p[2];
+          nor[o] = n[0]; nor[o + 1] = n[1]; nor[o + 2] = n[2];
+          o += 3;
+        };
+        for (const c of S.cones) {
+          const seg = c.tag === 'arm' ? ARM_SEG : CONE_SEG;
+          const ab = sub(c.b, c.a);
+          const L = norm(ab) || 1e-6;
+          const t = [ab[0] / L, ab[1] / L, ab[2] / L];
+          const [e1, e2] = basis(t);
+          const slope = (c.rb - c.ra) / L;
+          for (const [end, r] of [[c.a, c.ra], [c.b, c.rb]]) {
+            for (let i = 0; i < seg; i++) {
+              const a = (i / seg) * Math.PI * 2;
+              const rho = [e1[0] * Math.cos(a) + e2[0] * Math.sin(a), e1[1] * Math.cos(a) + e2[1] * Math.sin(a), e1[2] * Math.cos(a) + e2[2] * Math.sin(a)];
+              const n = unit3([rho[0] - t[0] * slope, rho[1] - t[1] * slope, rho[2] - t[2] * slope]);
+              put([end[0] + rho[0] * r, end[1] + rho[1] * r, end[2] + rho[2] * r], n);
+            }
+          }
+        }
+        for (const s of S.spheres) {
+          for (let la = 0; la <= LAT; la++) {
+            const th = (la / LAT) * Math.PI;
+            for (let lo = 0; lo <= LON; lo++) {
+              const ph = (lo / LON) * Math.PI * 2;
+              const n = [Math.sin(th) * Math.cos(ph), Math.sin(th) * Math.sin(ph), Math.cos(th)];
+              put([s.c[0] + n[0] * s.r, s.c[1] + n[1] * s.r, s.c[2] + n[2] * s.r], n);
+            }
+          }
+        }
+        return o / 3;
+      }
+
+      // ---------------------------------------------------------------- a hand
+      // One grip's hand: its pose, its solid, and its drawing. The geometry and the drawing are
+      // shared; only the rig differs.
+      function makeHand(cfg) {
+        const { FINGERS, KNUCKLE, PALM, THUMB, ARM, HELD, SETTLE, OPEN, SHUT, LEAD, T_OPEN, T_SHUT, REF_EYE, TURN } = cfg;
+        const armFade = ARM.fade === undefined ? ARM_FADE : ARM.fade;
+        const mixA = (a, b, k) => a.map((v, j) => v + (b[j] - v) * k);
+
+        // The roll into TURN's hold, k of the way (eased): the middle knuckle is carried round the
+        // bar's middle as the palm turns, drawn onto the hold's own place by the end and lifted
+        // clear of the bar in between, and the arm swings from its own line to TURN's.
+        const ROLL = TURN ? TURN.HELD.psi - HELD.psi : 0;
+        const pivoted = (a) => {
+          if (!TURN) return [HELD.p, HELD.u];
+          const [cp, cu] = TURN.PIVOT;
+          const rp = HELD.p - cp, ru = HELD.u - cu;
+          return [cp + rp * Math.cos(a) - ru * Math.sin(a), cu + rp * Math.sin(a) + ru * Math.cos(a)];
+        };
+        const rollEnd = pivoted(ROLL);
+        const rolled = (turn) => (TURN ? smooth(clamp01(turn)) : 0);
+        function heldAt(k) {
+          if (!k) return { p: HELD.p, u: HELD.u, psi: HELD.psi, arm: ARM.dir, armR: ARM.r };
+          const [p, u] = pivoted(ROLL * k);
+          return {
+            p: p + (TURN.HELD.p - rollEnd[0]) * k,
+            u: u + (TURN.HELD.u - rollEnd[1]) * k + TURN.RISE * Math.sin(Math.PI * k),
+            psi: HELD.psi + ROLL * k,
+            arm: unit3(mixA(ARM.dir, TURN.ARM, k)),
+            armR: mixA(ARM.r, TURN.ARM_R, k),
+          };
+        }
+
+        // The pose at `wrap` (0 open, 1 closed round the bar), slid `lift` mm back up the arm and
+        // `turn` of the way into TURN's hold. How far out of frame the hand starts depends on the
+        // screen, so the pod block works out `lift`; at 0 the hand is at the bar.
+        let posed = null;
+        function pose(wrap, lift, turn = 0) {
+          if (posed && posed.wrap === wrap && posed.lift === lift && posed.turn === turn) return posed;
+          posed = solvePose(wrap, lift, turn);
+          return posed;
+        }
+        // The palm at a wrap, a lift and a turn: where it has slid to, how it lies, and a point on
+        // it `along` its line from the middle knuckle and `drop` below it, in the plane q. It
+        // settles the last stretch onto the bar, tipping down a little, while the fingers close.
+        function palm(wrap, lift, turn = 0) {
+          const H = heldAt(rolled(turn));
+          const settle = 1 - smooth(clamp01(wrap / 0.6));
+          const arm = H.arm;
+          let off;
+          if (SETTLE.dir) {
+            // Settling along its own line: the carry comes onto the bar from in front of it.
+            const d = SETTLE.dir, k = SETTLE.back * settle;
+            off = [arm[0] * lift + d[0] * k, arm[1] * lift + d[1] * k, arm[2] * lift + d[2] * k];
+          } else {
+            const back = lift + SETTLE.back * settle;
+            off = [arm[0] * back, arm[1] * back, arm[2] * back];
+          }
+          const psi = H.psi + SETTLE.tilt * settle;
+          const al = dir2(psi);
+          const up = [-al[1], al[0]];
+          const at = (q, along, drop) => [
+            q + off[0],
+            H.p + al[0] * along - up[0] * drop + off[1],
+            H.u + al[1] * along - up[1] * drop + off[2],
+          ];
+          return { off, psi, at, arm, armR: H.armR };
+        }
+        const wristAt = (wrap, lift, turn = 0) => palm(wrap, lift, turn).at(PALM.wristQ, -PALM.len, 3);
+
+        function solvePose(wrap, lift, turn) {
+          const k = rolled(turn);
+          const { off, psi, at: onPalm, arm, armR } = palm(wrap, lift, turn);
+          const open = k ? mixA(OPEN, TURN.OPEN, k) : OPEN;
+          const shut = k ? mixA(SHUT, TURN.SHUT, k) : SHUT;
+          const fingers = FINGERS.map((f, i) => {
+            // Index first, little last. In each finger the first and last joints lead and the
+            // middle one follows: the fingertip hooks before the finger drops, so it swings in
+            // under the bar instead of down into the cap's floor, which a straight finger falling
+            // round the bar would reach long before it got underneath.
+            const w = clamp01((wrap - 0.06 * i) / 0.76);
+            const to = open.map((o, j) => o + (shut[j] - o) * smooth(clamp01((w - LEAD[j][0]) / LEAD[j][1])));
+            const kn = onPalm(f.q, f.along, f.drop);
+            const pts = chain(kn[0], [kn[1], kn[2]], psi, f.len, f.r, open, to);
+            return { q: kn[0], pts: pts.map(([p, u]) => [kn[0], p, u]), r: f.r };
+          });
+          const wrist = wristAt(wrap, lift, turn);
+          const tk = onPalm(THUMB.q, THUMB.along, THUMB.drop);
+          const tw = clamp01((wrap - 0.1) / 0.8);
+          const tOpen = k ? mixA(T_OPEN, TURN.T_OPEN, k) : T_OPEN;
+          const tShut = k ? mixA(T_SHUT, TURN.T_SHUT, k) : T_SHUT;
+          // In the roll the thumb lets go of the far face while the palm turns over it.
+          const hold = k ? 1 - TURN.THUMB_LET * Math.sin(Math.PI * k) : 1;
+          const tTo = tOpen.map((o, j) => o + (tShut[j] - o) * smooth(clamp01((tw - 0.2 * j) / 0.7)) * hold);
+          const tPts = chain(tk[0], [tk[1], tk[2]], psi, THUMB.len, THUMB.r.slice(1), tOpen, tTo);
+          const tb = onPalm(THUMB.base[0], THUMB.base[1], THUMB.base[2]);
+          // Where the arm starts, and how round its end is (TURN.WRIST).
+          const flush = k ? k * (Math.max(0, armR[0] - PALM.rWrist) + TURN.WRIST.back) : 0;
+          const base = [wrist[0], wrist[1] + flush * Math.sin(psi), wrist[2] - flush * Math.cos(psi)];
+          const wristR = armR[0] - (k ? k * TURN.WRIST.shrink : 0);
+          return {
+            wrap, lift, turn, roll: k, fingers, wrist, base, wristR, off, arm, armR,
+            // The knuckles' bumps, growing as the hook closes at the end of the roll.
+            knuckle: TURN ? KNUCKLE + (TURN.KNUCKLE - KNUCKLE) * smooth(clamp01((turn - 0.6) / 0.4)) : KNUCKLE,
+            thumb: { base: tb, pts: tPts.map(([p, u]) => [tk[0], p, u]) },
+          };
+        }
+
+        // ---------------------------------------------------------------- the solid
+        // The pose as cones (a tapered bone, from a to b) and spheres (the joints, the knuckles,
+        // the tips and the heel of the hand). The arm runs `armLen` up from the wrist, which the
+        // pod block sets so it always leaves the top of the frame.
+        function solid(P, armLen) {
+          const cones = [];
+          const spheres = [];
+          const cone = (a, b, ra, rb, tag) => cones.push({ a, b, ra, rb, tag });
+          const sphere = (c, r, tag) => spheres.push({ c, r, tag });
+          P.fingers.forEach((f, i) => {
+            const [m, j1, j2, tip] = f.pts;
+            const w = [PALM.wristQ + (f.q - PALM.wristQ) * PALM.narrow + P.off[0], P.wrist[1], P.wrist[2]];
+            cone(w, m, PALM.rWrist, PALM.rKnuckle, `meta${i}`);
+            sphere(w, PALM.rWrist, `heel${i}`);
+            sphere(m, f.r[0] * P.knuckle, `knuckle${i}`);
+            cone(m, j1, f.r[0], f.r[1], `prox${i}`);
+            sphere(j1, f.r[1], `pip${i}`);
+            cone(j1, j2, f.r[1], f.r[2], `mid${i}`);
+            sphere(j2, f.r[2], `dip${i}`);
+            cone(j2, tip, f.r[2], f.r[3], `dist${i}`);
+            sphere(tip, f.r[3], `tip${i}`);
+          });
+          const [tm, tj, tt] = P.thumb.pts;
+          const r = THUMB.r;
+          cone(P.thumb.base, tm, r[0], r[1], 'tmeta');
+          sphere(P.thumb.base, r[0], 'tbase');
+          sphere(tm, r[1], 'tmcp');
+          cone(tm, tj, r[1], r[2], 'tprox');
+          sphere(tj, r[2], 'tip_');
+          cone(tj, tt, r[2], r[3], 'tdist');
+          sphere(tt, r[3], 'ttip');
+          // The wrist is round where the arm leaves the hand, so the arm's outline runs on into
+          // the hand's instead of stopping at the end of a tube. (Upright, the arm starts set back
+          // inside the hand, with a smaller round: TURN.WRIST.)
+          const [r0, r1] = P.armR;
+          const b = P.base;
+          sphere(b, P.wristR, 'wrist');
+          const a = P.arm;
+          const end = [b[0] + a[0] * armLen, b[1] + a[1] * armLen, b[2] + a[2] * armLen];
+          cone(b, end, r0, r0 + (r1 - r0) * Math.min(1, armLen / 260), 'arm');
+          return { cones, spheres, arm: a, roll: P.roll };
+        }
+
+        // How many particles each stroke gets, fixed once from the held pose seen from the grip
+        // shot (and, for a hand that rolls into a second hold, that one as well, seen from where
+        // it is seen), so a particle keeps to the same spot of the same stroke all the way
+        // through. A stroke's claim is its length weighted toward what is visible from there: a
+        // joint's rim is mostly inside the bones it joins, and spending on what never shows only
+        // thins the lines that do. A device drawing few particles also spends less on the arm and
+        // the marks. The knuckles show only in the second hold's clench, and a hand without one
+        // gives them nothing; the heel's rounds show only in the first.
+        function allocation(count) {
+          const holds = [[pose(1, 0), REF_EYE]];
+          if (TURN) holds.push([pose(1, 0, 1), TURN.REF_EYE]);
+          const few = count < 3000;
+          const lens = PLAN.map(() => 0);
+          for (const [P, eye] of holds) {
+            const S = solid(P, 220);
+            const prep = prepare(S);
+            const frame = frameOf(S, eye);
+            const lines = visibility(S, eye, frame, prep);
+            PLAN.forEach((st, k) => {
+              if ((st.clench && !P.turn) || (st.upright === 0 && P.turn)) return;
+              let l = 0;
+              let shown = 0;
+              let px = NaN, py = 0, pz = 0;
+              for (let i = 0; i <= 32; i++) {
+                if (!strokePoint(k, i / 32, S, frame, PT)) { px = NaN; continue; }
+                if (!Number.isNaN(px)) {
+                  const seg = Math.hypot(PT[0] - px, PT[1] - py, PT[2] - pz);
+                  l += seg;
+                  shown += seg * visAt(lines[k], (i - 0.5) / 32);
+                }
+                px = PT[0]; py = PT[1]; pz = PT[2];
+              }
+              const thin = few && (st.kind === 'mark' || st.of === 'arm') ? 0.6 : 1;
+              lens[k] += ((0.35 * l + 0.65 * shown) * st.share * thin) / holds.length;
+            });
+          }
+          const total = lens.reduce((a, b) => a + b, 0);
+          const raw = lens.map((l) => (l / total) * count);
+          const n = raw.map(Math.floor);
+          const left = count - n.reduce((a, b) => a + b, 0);
+          raw.map((r, i) => [r - n[i], i]).sort((a, b) => b[0] - a[0]).slice(0, left).forEach(([, i]) => n[i]++);
+          return n;
+        }
+
+        // The drawing as [q, p, u, visibility] per particle, flat, in the allocation's order, into
+        // `out`. `dissolve` (0 to 1) blows it apart: each particle drifts off on its own heading
+        // and rises up the arm's line, and goes out on its own threshold, so the hand comes apart
+        // as dust rather than fading as a sheet. `clench` (0 to 1) brings up the knuckles.
+        function points(S, eye, alloc, dissolve, out, clench = 0) {
+          const prep = prepare(S);
+          const frame = frameOf(S, eye);
+          const lines = visibility(S, eye, frame, prep);
+          const d = dissolve;
+          const drift = d * d;
+          const A = S.arm;
+          let j = 0;
+          let p = 0;
+          for (let k = 0; k < PLAN.length; k++) {
+            const st = PLAN[k];
+            const m = alloc[k];
+            const line = lines[k];
+            const markVis = (st.vis === undefined ? 1 : st.vis) * (st.clench ? clench : 1)
+              * (st.upright === undefined ? 1 : 1 + (st.upright - 1) * S.roll);
+            for (let i = 0; i < m; i++, p++, j += 4) {
+              const u = (i + 0.5) / m;
+              let v = 0;
+              if (strokePoint(k, u, S, frame, PT)) v = visAt(line, u) * markVis * (st.of === 'arm' ? 1 - armFade * smooth(clamp01(u)) : 1);
+              else if (j >= 4) { PT[0] = out[j - 4]; PT[1] = out[j - 3]; PT[2] = out[j - 2]; }
+              let x = PT[0], y = PT[1], z = PT[2];
+              if (d > 0) {
+                v *= 1 - smooth(clamp01((d - hash(p, 1) * 0.6) / 0.35));
+                const a = hash(p, 2) * Math.PI * 2;
+                const spread = 18 + 34 * hash(p, 3);
+                const h = hash(p, 4) * 2 - 1;
+                const ring = Math.sqrt(1 - h * h) * spread;
+                x += drift * (Math.cos(a) * ring + A[0] * 30);
+                y += drift * (Math.sin(a) * ring + A[1] * 30);
+                z += drift * (h * spread + 26 + A[2] * 30);
+              }
+              out[j] = x;
+              out[j + 1] = y;
+              out[j + 2] = z;
+              out[j + 3] = v;
+            }
+          }
+          return p;
+        }
+
+        return {
+          pose, solid, allocation, points, ARM, THUMB, REF_EYE, armFade,
+          tips: (P) => P.fingers.map((f) => f.pts[3]).concat([P.thumb.pts[2]]),
+        };
+      }
+
+      return {
+        BAR, section, clearance, ARM_FADE, meshLayout, meshFill,
+        reach: makeHand(REACH),
+        carry: makeHand(CARRY),
+      };
+    })();
+
+    // ---------------------------------------------------------------- a hand on the grip
+    // "Made to be lifted." A hand reaches down into the frame from above and behind the pod, the
+    // field drawing it as it comes, and closes round the grip bar: over the top toward the
+    // camera, down the near face and back under. Then it takes the weight: it rolls forward
+    // round the bar until its forearm stands straight up over it, tightens until the knuckles
+    // show, and lifts the pod. It lets go as dust before the overhead beat, and the pod sinks
+    // back to where that shot looks for it.
+    // The camera is rising toward that beat the whole time, so the hand is a solid in the grip's
+    // own frame (gripHand above) and is seen through the pod's camera on every frame it is drawn;
+    // the field's outline and the window the pod opens for it come off the same solid, which is
+    // what keeps the two registered to the pixel. Positions on the track, in viewports.
+    const HAND = {
+      enter: [2.20, 2.55],      // slides in down its own arm from above the frame
+      gather: [2.24, 2.48],     // the field draws it on the way
+      wrap: [2.45, 2.76],       // the fingers close round the bar
+      turn: [2.78, 2.95],       // it rolls forward round the bar into a lifting hold, forearm upright
+      clench: [2.90, 3.00],     // and tightens: the knuckles come up
+      pick: [2.93, 3.07],       // and lifts the pod
+      dissolve: [3.06, 3.28],   // it comes apart as dust while the caption leaves
+      release: [3.26, 3.38],    // and the field lets go of it, before "Now look straight down." at 3.40
+      settle: [3.26, 3.55],     // the pod sinks back by the overhead beat, which frames it at rest
+    };
+    // How far the hand lifts the pod, in millimetres, and how far up it is at t. Seen from above
+    // as this shot is, it comes up toward the lens as much as up the frame.
+    const PICK = 50;
+    const pickAt = (t) => (reduceMotion || !podLoopActive ? 0
+      : smoother(inCut(t, HAND.pick)) * (1 - smoother(inCut(t, HAND.settle))));
+    // How much of the pod the hand hides: most, so it reads as a hand in front of the grip, with
+    // the grip still showing faintly through it.
+    const GRIP_FILL = 0.7;
+    // How strongly the field draws it, on a desktop. The hand is a small drawing for the whole
+    // field's worth of particles, about three times as many to a line as her figure gets in the
+    // lift, so each is turned down to give it the same weight of line. (An in-focus particle's
+    // light goes as the square root of this, so it is lower than it looks.) Fewer particles to
+    // a pixel of line, as on a phone, turn it back up: see drawHand().
+    const GRIP_INK = 0.15;
+    const GRIP_INK_AT = 4700;   // particles × mm per CSS pixel at the grip, on a 1440 × 900 desktop
+    // The field's gather. A hand with nothing to hold is never drawn: under reduced motion, and
+    // until the pod is up, the beat stays a product shot.
+    const handFadeAt = (t) => (reduceMotion || !podLoopActive ? 0
+      : smoother(inCut(t, HAND.gather)) * (1 - smoother(inCut(t, HAND.release))));
+    // The pod's window: in a moment after the first particles arrive, out as the hand breaks up.
+    const handWindowAt = (t) => (reduceMotion || !podLoopActive ? 0
+      : smoother(remap01(t, HAND.gather[0] + 0.06, HAND.gather[1] + 0.04))
+        * (1 - smoother(remap01(t, HAND.dissolve[0], HAND.dissolve[0] + 0.2))));
+    const handOn = (t) => handFadeAt(t) > 0 || handWindowAt(t) > 0;
+
+    // The field gathers into two drawings in turn here: the scooter for the dock, then the lift
+    // and her. (The hand on the grip comes before both, uploaded by the pod block, which owns the
+    // camera it is seen through.) Each is uploaded on its way in, while the field is fully
+    // released, so nothing visibly jumps. The lift is rewritten whenever anything in it moves
+    // (the camera, the doors, her, the motes) and left alone when nothing does. `null` means
+    // nothing is uploaded yet, or a resize threw it away.
     let targetShape = null;
     let drawnLift = '';
     function ensureShape(t) {
@@ -3764,7 +5283,10 @@
         if (targetShape === 'lift' && key === drawnLift) return;
         const next = liftTargets(t);
         if (!next) return;
-        window.gridBG.setPodTargets(next.xyz, next.vis);
+        // With the pod up, her hand is drawn into the same buffer after the camera has moved, so
+        // the pod block sends it, once a frame, whole. Without it, the scene goes up from here.
+        if (podLoopActive) liftPending = true;
+        else window.gridBG.setPodTargets(next.xyz, next.vis);
         targetShape = 'lift';
         drawnLift = key;
       }
@@ -3774,7 +5296,7 @@
     // release range gathers the field with the tuning that is already there. 1 is fully
     // released, 0.58 fully gathered.
     function podParam(t) {
-      return mix(1, 0.58, Math.max(dockFadeAt(t), liftFadeAt(t)));
+      return mix(1, 0.58, Math.max(dockFadeAt(t), liftFadeAt(t), handFadeAt(t)));
     }
 
     function driveField(t) {
@@ -3787,8 +5309,13 @@
       ensureShape(t);
       window.gridBG.setPod(podParam(t));
       if (window.gridBG.setFormation) {
-        const held = liftFadeAt(t);
-        window.gridBG.setFormation(mix(22, LIFT_K, held), mix(0.3, LIFT_NOISE, held), 0.85 * held);
+        // The hand holds as firmly as she does, and is also kept off the scroll's sweep: it has
+        // to sit on the grip to the pixel while the page moves.
+        const hand = handFadeAt(t);
+        const held = Math.max(liftFadeAt(t), hand);
+        // Being let go at the end of its scene, rather than still gathering at the start.
+        const letGo = (t > LIFTCUT.walk[1] && liftFadeAt(t) < 1) || (t > HAND.wrap[1] && hand < 1) ? 1 : 0;
+        window.gridBG.setFormation(mix(22, LIFT_K, held), mix(0.3, LIFT_NOISE, held), 0.85 * held, hand, firmAt(held), letGo);
       }
     }
 
@@ -3815,8 +5342,8 @@
               // state set, so a caption that is already in still makes its entrance.
               el.classList.add('is-staged', 'is-settling');
               el.classList.remove('is-in', 'is-after');
-              el.style.opacity = '';
-              el.style.transform = '';
+              setStyle(el, 'opacity', '');
+              setStyle(el, 'transform', '');
               void el.offsetWidth;
               el.classList.remove('is-settling');
             }
@@ -3830,8 +5357,8 @@
           stage[i] = null;
           el.classList.remove('is-staged', 'is-in', 'is-after');
         }
-        el.style.opacity = String(o);
-        el.style.transform = `translateY(${(1 - o) * 14}px)`;
+        setStyle(el, 'opacity', String(o));
+        setStyle(el, 'transform', `translateY(${(1 - o) * 14}px)`);
       }
       // Still the scrubbed fade, so the pod's dodge to the left stays tied to the scroll.
       captionFade = strongest;
@@ -3841,34 +5368,72 @@
       // leaves once instead of blinking out on the boundary between the two.
       deviceFade = fadeAt(DEVICE, t);
       if (deviceEl) {
-        deviceEl.style.opacity = String(deviceFade);
+        setStyle(deviceEl, 'opacity', String(deviceFade));
         const rise = reduceMotion ? 0 : (1 - deviceFade) * 22;
-        deviceEl.style.transform = wideNow()
+        setStyle(deviceEl, 'transform', wide
           ? `translate(-50%, calc(-50% + ${rise}px))`
-          : `translate(-50%, ${rise}px)`;
+          : `translate(-50%, ${rise}px)`);
         // The second screen cross-fades over the first between the app beats.
-        if (shotEls[1]) shotEls[1].style.opacity = String(smoother(remap01(t, SHOT_SWAP[0], SHOT_SWAP[1])));
+        if (shotEls[1]) setStyle(shotEls[1], 'opacity', String(smoother(remap01(t, SHOT_SWAP[0], SHOT_SWAP[1]))));
       }
 
       // An invisible link is still tabbable, so it leaves the tab order while the beat is off
       // screen. aria-hidden and inert would also take the warranty copy out of the reading
       // order, which is why this is a tabindex and not either of those.
       if (ctaEl) {
-        if (fadeAt(CAPTIONS[CAPTIONS.length - 1], t) > 0.5) ctaEl.removeAttribute('tabindex');
-        else ctaEl.setAttribute('tabindex', '-1');
+        const reachable = fadeAt(CAPTIONS[CAPTIONS.length - 1], t) > 0.5;
+        if (reachable !== ctaReachable) {
+          ctaReachable = reachable;
+          if (reachable) ctaEl.removeAttribute('tabindex');
+          else ctaEl.setAttribute('tabindex', '-1');
+        }
       }
     }
+    let ctaReachable = null;
 
-    if (podCanvas && window.THREE && typeof GEO !== 'undefined') {
+    // ---------------------------------------------------------------- loading the pod
+    // three.js, the model and its logo download at low priority while the opening plays
+    // (assets/pod-assets.js). The pod is then put together a slice at a time in idle moments
+    // once the headline has landed, or straight away if the reader is already scrolling toward
+    // it, so building it never stops the opening. It used to be 1.7 MB of script the page had
+    // to stop and run before anything below it, the nav and footer included, could start.
+    const slice = () => {
+      if (!perf) return new Promise((resolve) => setTimeout(resolve, 0));
+      return filmTarget > 0.02 ? perf.nextTask() : perf.nextIdle(400);
+    };
+    function bootPod() {
+      const assets = window.GridPodAssets.load();
+      const go = new Promise((resolve) => {
+        if (!headline || reduceMotion || headline.classList.contains('is-revealed') || filmTarget > 0.02) {
+          resolve();
+          return;
+        }
+        const done = () => {
+          observer.disconnect();
+          window.removeEventListener('scroll', onScroll);
+          resolve();
+        };
+        const observer = new MutationObserver(() => { if (headline.classList.contains('is-revealed')) done(); });
+        observer.observe(headline, { attributes: true, attributeFilter: ['class'] });
+        const onScroll = () => done();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        setTimeout(done, 4000); // whatever happens to the opening, do not wait on it forever
+      });
+      Promise.all([assets, go])
+        .then(([a]) => initPod(a))
+        .catch((err) => console.warn('[gridPod] 3D overlay unavailable:', err));
+    }
+
+    async function initPod({ THREE, model, logoUrl }) {
       try {
-        const THREE = window.THREE;
-
         const renderer = new THREE.WebGLRenderer({
           canvas: podCanvas,
           antialias: !phone,
           alpha: true,
           powerPreference: phone ? 'low-power' : 'high-performance',
           premultipliedAlpha: true,
+          // As for the field's canvas: a software-only context would be a slideshow (see #bg).
+          failIfMajorPerformanceCaveat: true,
         });
         // A starting value only. resize() runs before the first frame and sets the real one,
         // which is this capped by buffer area as well (see podPixelRatio).
@@ -3938,9 +5503,23 @@
           P(1300, 700, 20, 0, 120, -820, 0xffffff, 1.2);     // back wall
           return s;
         }
-        const pm = new THREE.PMREMGenerator(renderer);
-        pm.compileEquirectangularShader();
-        scene.environment = pm.fromScene(studio(), 0.035).texture;
+        // The environment map is all that is kept: the generator's own targets and shaders, and
+        // the room it photographed, are handed back. (It no longer compiles the equirectangular
+        // shader either, which is for a different kind of source and was never used.)
+        function environment() {
+          const pm = new THREE.PMREMGenerator(renderer);
+          const room = studio();
+          const texture = pm.fromScene(room, 0.035).texture;
+          pm.dispose();
+          room.traverse((o) => {
+            if (o.geometry) o.geometry.dispose();
+            if (o.material) o.material.dispose();
+          });
+          return texture;
+        }
+        await slice();
+        scene.environment = environment();
+        await slice();
 
         function grain(size, amt) {
           const c = document.createElement('canvas');
@@ -3959,43 +5538,6 @@
           return t;
         }
         const GRAIN = grain(256, 86);
-
-        function decode(o) {
-          const vb = atob(o.v);
-          const pos = new Float32Array(o.nv * 3);
-          for (let i = 0; i < o.nv * 3; i++) {
-            const k = i * 2;
-            const q = vb.charCodeAt(k) | (vb.charCodeAt(k + 1) << 8);
-            pos[i] = o.lo[i % 3] + q * o.sc[i % 3];
-          }
-          const nb = atob(o.n);
-          const nor = new Float32Array(o.nv * 3);
-          for (let i = 0; i < o.nv * 3; i++) {
-            let c = nb.charCodeAt(i);
-            if (c > 127) c -= 256;
-            nor[i] = c / 127;
-          }
-          const fb = atob(o.f);
-          const idx = new Uint16Array(o.nf * 3);
-          for (let i = 0; i < o.nf * 3; i++) {
-            const k = i * 2;
-            idx[i] = fb.charCodeAt(k) | (fb.charCodeAt(k + 1) << 8);
-          }
-          const g = new THREE.BufferGeometry();
-          g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-          g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
-          const uv = new Float32Array(o.nv * 2);
-          for (let i = 0; i < o.nv; i++) {
-            uv[i * 2] = pos[i * 3] * 0.01;
-            uv[i * 2 + 1] = pos[i * 3 + 1] * 0.01;
-          }
-          g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
-          g.setIndex(new THREE.BufferAttribute(idx, 1));
-          g.addGroup(0, o.split * 3, 0);
-          g.addGroup(o.split * 3, (o.nf - o.split) * 3, 1);
-          g.computeBoundingBox();
-          return g;
-        }
 
         // The caps: moulded black with a soft satin coat, not a lacquer.
         const pc = new THREE.MeshPhysicalMaterial({
@@ -4032,15 +5574,18 @@
 
         const pod = new THREE.Group();
         scene.add(pod);
-        const mesh = new THREE.Mesh(decode(GEO), [pc, alu]);
+        // The mesh, from the binary model: identical to what decode() built from the old base64.
+        const mesh = new THREE.Mesh(window.GridPodAssets.geometry(THREE, model), [pc, alu]);
         pod.add(mesh);
         pod.rotation.z = Math.PI / 2;
         const bb = mesh.geometry.boundingBox;
         const HALF = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y, bb.max.z - bb.min.z) / 2;
         const BASE = bb.min.x;
 
-        if (typeof LOGO !== 'undefined') {
-          new THREE.TextureLoader().load(LOGO, (t) => {
+        // The decals arrive with their texture. warm() waits for them, briefly, so their program
+        // is built with the others rather than on the frame they first appear.
+        const logoReady = new Promise((resolveLogo) => {
+          new THREE.TextureLoader().load(logoUrl, (t) => {
             t.encoding = THREE.sRGBEncoding;
             t.anisotropy = 8;
             const LEN = 258, WID = LEN / 8, FACE = 66.11, LIFT = 0.4, SHIFT = -20, ALONG = -4;
@@ -4062,8 +5607,10 @@
                 .addScaledVector(ey, SHIFT).addScaledVector(ex, ALONG);
               pod.add(m);
             });
-          });
-        }
+            resolveLogo();
+          }, undefined, () => resolveLogo());
+        });
+        await slice();
 
         (function connector() {
           const brass = new THREE.MeshPhysicalMaterial({
@@ -4165,50 +5712,263 @@
           pod.add(m);
         }());
 
-        // ---------------------------------------------------------------- her fingers on the grip
-        // Her hand is drawn by the field like the rest of her (handStrokes in the lift scene), but
-        // the field's canvas is behind this one, so where her fingers cross in front of the grip
-        // bar the pod would cover them. A window shaped to those fingers sits just in front of
-        // the bar and clears the pod's pixels there, letting the particle fingers show through:
-        // her hand reads as solid in front of the bar the same way her body does in front of the
-        // lift. It hangs off the pod, so it follows its place, roll and size exactly.
-        //
-        // Pod-local millimetres: x runs up the pod. The bar runs corner to corner across the cap
-        // along q = (0, 1, -1)/√2, and p = (0, 1, 1)/√2 points out of her side toward the lift
-        // camera. Its top is at x = 195.7, RIG.hand below her wrist, and +q is screen left.
-        const fingerWindow = (() => {
-          const wristX = 195.7 + liftFilm.RIG.hand * 1000;
-          const inset = 0.0012;
-          // The fingers' outline in the hand's own frame (metres, x forward, y up from the wrist),
-          // from the knuckle line on the little-finger side, down and round the tips, and up the
-          // first-finger side.
-          const outline = [
-            [-0.0375 + inset, -0.0677], [-0.0365 + inset, -0.0797], [-0.0345 + inset, -0.0887], [-0.030 + inset, -0.0939 + inset],
-            [-0.0245, -0.0958 + inset], [-0.019, -0.0935 + inset], [-0.0098, -0.0966 + inset], [-0.0005, -0.0943 + inset],
-            [0.009, -0.0963 + inset], [0.0185, -0.0940 + inset], [0.0245, -0.0972 + inset], [0.0305 - inset, -0.0949 + inset],
-            [0.035 - inset, -0.0897], [0.037 - inset, -0.0807], [0.038 - inset, -0.0687],
-          ];
-          const P = 15;   // just proud of the bar's outer face, which is at p = 9.5
-          const pts = outline.map(([x, y]) => new THREE.Vector2(-x * 1000, wristX + y * 1000));
-          const tris = THREE.ShapeUtils.triangulateShape(pts, []);
-          const pos = [];
-          for (const v of pts) pos.push(v.y, (v.x + P) * Math.SQRT1_2, (P - v.x) * Math.SQRT1_2);
+        // ---------------------------------------------------------------- the hand on the grip
+        // The field draws the hand (gripHand), but the field's canvas is behind this one, so
+        // wherever the hand passes in front of the pod the pod would cover it. This window is the
+        // hand itself, the same bones and joints in the grip's frame, and clears the pod's pixels
+        // where the hand is in front of them by GRIP_FILL, leaving the grip faintly visible
+        // through it. It is depth tested against the pod, so it opens only where the hand really
+        // is in front: fingertips tucked under the bar stay behind it. The stencil clears each
+        // pixel once, since where two fingers overlap a second clear would darken the fill into
+        // patches. And it is pushed out along its normals by about a pixel, so the particles on
+        // its edge show whole rather than half under the pod.
+        const S2 = Math.SQRT1_2;
+        const handWindow = (() => {
+          const solid = gripHand.reach.solid(gripHand.reach.pose(1, 0), 220);
+          const layout = gripHand.meshLayout(solid);
           const geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-          geo.setIndex(tris.flat());
-          // Clears what is under it by its opacity: the colour and alpha already there are scaled
-          // by (1 - opacity), so at 1 the pod is simply not drawn behind her fingers.
-          const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
-            transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
+          const position = new THREE.BufferAttribute(new Float32Array(layout.verts * 3), 3);
+          const normal = new THREE.BufferAttribute(new Float32Array(layout.verts * 3), 3);
+          position.setUsage(THREE.DynamicDrawUsage);
+          normal.setUsage(THREE.DynamicDrawUsage);
+          gripHand.meshFill(solid, position.array, normal.array);
+          geo.setAttribute('position', position);
+          geo.setAttribute('normal', normal);
+          geo.setIndex(layout.index);
+          // The arm fades along its length as its drawing does (gripHand's armFade): `uArm` is
+          // the wrist and the arm's length, `uArmDir` its direction, both in the grip's frame,
+          // and `uArmFade` how much of it goes.
+          const mesh = new THREE.Mesh(geo, new THREE.ShaderMaterial({
+            uniforms: {
+              uOpacity: { value: 0 }, uInflate: { value: 0 },
+              uArm: { value: new THREE.Vector4(0, 0, 0, 1) }, uArmDir: { value: new THREE.Vector3(...gripHand.reach.ARM.dir) },
+              uArmFade: { value: gripHand.ARM_FADE },
+            },
+            vertexShader: `uniform float uInflate;
+              varying vec3 vGrip;
+              void main() {
+                vGrip = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * uInflate, 1.0);
+              }`,
+            fragmentShader: `uniform float uOpacity;
+              uniform vec4 uArm;
+              uniform vec3 uArmDir;
+              uniform float uArmFade;
+              varying vec3 vGrip;
+              void main() {
+                float up = clamp(dot(vGrip - uArm.xyz, uArmDir) / uArm.w, 0.0, 1.0);
+                gl_FragColor = vec4(0.0, 0.0, 0.0, uOpacity * (1.0 - uArmFade * up * up * (3.0 - 2.0 * up)));
+              }`,
+            transparent: true, depthWrite: false, side: THREE.DoubleSide,
             blending: THREE.CustomBlending,
             blendSrc: THREE.ZeroFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
             blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+            stencilWrite: true, stencilRef: 1,
+            stencilFunc: THREE.NotEqualStencilFunc, stencilZPass: THREE.ReplaceStencilOp,
           }));
-          mesh.renderOrder = 10;
+          // The grip's frame (q, p, u) into the pod's: x = u, y = (q + p)/√2, z = (p - q)/√2.
+          mesh.matrixAutoUpdate = false;
+          mesh.matrix.set(0, 0, 1, 0, S2, S2, 0, 0, -S2, S2, 0, 0, 0, 0, 0, 1);
+          mesh.renderOrder = 12;
           mesh.frustumCulled = false;
           pod.add(mesh);
           return mesh;
         })();
+
+        // The grip's frame seen through the camera place() has just set: the matrix taking it to
+        // clip space, the camera's place in it, and what a CSS pixel measures at the grip.
+        const gripToClip = new THREE.Matrix4();
+        const gripToWorld = new THREE.Matrix4();
+        const worldToGrip = new THREE.Matrix4();
+        const gripEye = new THREE.Vector3();
+        function gripView() {
+          camera.updateMatrixWorld();
+          camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+          pod.updateMatrixWorld();
+          gripToWorld.multiplyMatrices(pod.matrixWorld, handWindow.matrix);
+          gripToClip.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse).multiply(gripToWorld);
+          worldToGrip.copy(gripToWorld).invert();
+          gripEye.copy(camera.position).applyMatrix4(worldToGrip);
+          const e = gripToClip.elements;
+          const eye = [gripEye.x, gripEye.y, gripEye.z];
+          const reach = Math.hypot(eye[0], eye[1], eye[2] - 190);
+          return { e, eye, mmPerPx: (2 * reach * Math.tan(Math.PI * 14 / 180)) / podH };
+        }
+
+        // The grip beat's hand at t: how far up its arm it still is, how closed, how far gone,
+        // and how long its arm has to be to leave the frame. Both lengths are worked out on the
+        // frame, against this camera, so the hand comes in from just beyond the top edge and its
+        // arm runs off it on every screen. Away from the bar the open hand touches nothing and
+        // slides as one piece, so its fingertips are found once and only moved.
+        const openTips = gripHand.reach.tips(gripHand.reach.pose(0, 0));
+        const ARM_STEP = 16;
+        function reachState(t) {
+          const view = gripView();
+          const e = view.e;
+          const w = (q, p, u) => e[3] * q + e[7] * p + e[11] * u + e[15];
+          const ndcX = (q, p, u) => (e[0] * q + e[4] * p + e[8] * u + e[12]) / w(q, p, u);
+          const ndcY = (q, p, u) => (e[1] * q + e[5] * p + e[9] * u + e[13]) / w(q, p, u);
+          const A = gripHand.reach.ARM.dir;
+          let lo = 0;
+          let hi = 900;
+          for (let i = 0; i < 20; i++) {
+            const m = (lo + hi) / 2;
+            if (openTips.every(([q, p, u]) => ndcY(q + A[0] * m, p + A[1] * m, u + A[2] * m) > 1.06)) hi = m;
+            else lo = m;
+          }
+          const lift = hi * (1 - smoother(inCut(t, HAND.enter)));
+          const wrap = inCut(t, HAND.wrap);
+          const turn = inCut(t, HAND.turn);
+          const clench = smoother(inCut(t, HAND.clench));
+          const dissolve = inCut(t, HAND.dissolve);
+          // Where the arm starts at this lift and turn (the pose slides it with the hand), then
+          // the arm, on the line it has turned to, out past the top or the side of the frame. Its
+          // length is rounded up to a step, so the window's mesh is rebuilt when the hand moves
+          // rather than on every frame the camera does: always long enough, and drawn and cut
+          // alike.
+          const P = gripHand.reach.pose(wrap, lift, turn);
+          const base = P.base;
+          const B = P.arm;
+          let a = 40;
+          let b = 1400;
+          for (let i = 0; i < 18; i++) {
+            const m = (a + b) / 2;
+            const q = base[0] + B[0] * m, p = base[1] + B[1] * m, u = base[2] + B[2] * m;
+            if (ndcY(q, p, u) > 1.15 || Math.abs(ndcX(q, p, u)) > 1.15) b = m; else a = m;
+          }
+          const poseKey = `r${wrap.toFixed(5)}|${lift.toFixed(3)}|${turn.toFixed(5)}`;
+          return {
+            ...view, hand: gripHand.reach, wrap, lift, turn, clench, dissolve, armLen: Math.ceil(b / ARM_STEP) * ARM_STEP,
+            presence: handFadeAt(t), window: handWindowAt(t),
+            poseKey, key: `${poseKey}|${clench.toFixed(4)}|${dissolve.toFixed(5)}`,
+          };
+        }
+
+        // Her hand in the lift at t: closing on the grip as the pod comes into it, then held. Its
+        // arm is a stub that fades into the forearm she is drawn with.
+        const CARRY_ARM = 42;
+        // Her hand is small on screen, a few pixels to a finger, so it is drawn in full ink and
+        // with a lighter fill than the grip beat's: more of the grip shows through it, and the
+        // outline of her fingers reads against that rather than against a pale patch.
+        const CARRY_INK = 1;
+        const CARRY_FILL = 0.45;
+        function carryState(t) {
+          const wrap = carryWrapAt(t);
+          return {
+            ...gripView(), hand: gripHand.carry, wrap, lift: 0, turn: 0, clench: 0, dissolve: 0, armLen: CARRY_ARM,
+            presence: carryAt(t), window: carryAt(t),
+            poseKey: `c${wrap.toFixed(5)}`, key: `c${wrap.toFixed(5)}`,
+          };
+        }
+
+        // Builds a hand for a state: the window's mesh when the pose has moved, and the field's
+        // targets, each point taken through the same camera into the field's world (as
+        // liftTargets() maps hers). This loop draws the field itself, after these are in
+        // (gridBG.drive), so the field reads them in the frame they are made. While the hand is
+        // still gathering the points are sent ahead along their motion to cover the spring's
+        // trail; once it holds the pod the field puts them exactly where they are sent (firmAt),
+        // and at rest there is no lead either.
+        //
+        // The grip beat's hand has the whole field to itself and is uploaded here. Hers shares
+        // the field with the rest of her and the lift: it writes only the slots liftTargets()
+        // keeps for it, and the lift's buffer goes up once, whole, from the loop.
+        let handBuf = null;
+        let handMesh = '';
+        let carryAt_ = 0;
+        function drawHand(st, t, resting) {
+          const bg = window.gridBG;
+          if (!bg || !bg.setPodTargets || !bg.projection) return;
+          const H = st.hand;
+          const P = H.pose(st.wrap, st.lift, st.turn);
+          const S = H.solid(P, st.armLen);
+          // Rebuilt only when the solid itself has moved: not as it comes apart, or tightens.
+          const meshKey = `${st.poseKey}|${st.armLen.toFixed(2)}`;
+          if (meshKey !== handMesh) {
+            handMesh = meshKey;
+            const g = handWindow.geometry;
+            gripHand.meshFill(S, g.attributes.position.array, g.attributes.normal.array);
+            g.attributes.position.needsUpdate = true;
+            g.attributes.normal.needsUpdate = true;
+          }
+          const u = handWindow.material.uniforms;
+          u.uInflate.value = 0.9 * st.mmPerPx;
+          u.uArm.value.set(P.base[0], P.base[1], P.base[2], st.armLen);
+          u.uArmDir.value.set(...S.arm);
+          u.uArmFade.value = H.armFade;
+          if (st.presence <= 0) return;
+
+          const proj = bg.projection();
+          const halfH = proj.depth * proj.tanHalfY;
+          const limit = 0.35 * halfH;
+          const now = performance.now();
+          const carried = H === gripHand.carry;
+          // Where the points go: the whole field for the grip beat, her hand's slots for the lift.
+          let buf, slots, n;
+          if (carried) {
+            if (!liftBuf || !liftBuf.handSlots) return;
+            buf = liftBuf;
+            slots = liftBuf.handSlots;
+            n = slots.length;
+            if (!liftBuf.handAlloc || liftBuf.handAlloc.n !== n) {
+              liftBuf.handAlloc = Object.assign(H.allocation(n), { n });
+              liftBuf.handPts = new Float64Array(n * 4);
+            }
+          } else {
+            const count = bg.capacity || 8000;
+            if (!handBuf || handBuf.count !== count) {
+              const gcd = (x, y) => (y ? gcd(y, x % y) : x);
+              let stride = Math.max(1, Math.round(count * 0.6180339887));
+              while (gcd(stride, count) !== 1) stride++;
+              handBuf = {
+                count, stride, alloc: H.allocation(count), pts: new Float64Array(count * 4),
+                xyz: new Float32Array(count * 3), vis: new Float32Array(count),
+                was: new Float32Array(count * 3), vel: new Float32Array(count * 3), at: 0,
+              };
+            }
+            buf = handBuf;
+            n = handBuf.count;
+          }
+          const pts = carried ? liftBuf.handPts : handBuf.pts;
+          H.points(S, st.eye, carried ? liftBuf.handAlloc : handBuf.alloc, st.dissolve, pts, st.clench);
+          const last = carried ? carryAt_ : handBuf.at;
+          const dt = last ? (now - last) / 1000 : 0;
+          if (carried) carryAt_ = now; else handBuf.at = now;
+          const held = carried ? liftFadeAt(t) : handFadeAt(t);
+          const lead = !resting && dt > 0 && dt < 0.1 ? trailOf(mix(22, LIFT_K, held)) * (1 - firmAt(held)) : 0;
+          // A line's weight goes with how many particles land on each pixel of it, as the square
+          // root of their ink: hold it where the desktop has it, as far as full ink allows.
+          // Her hand is drawn with the same weight of line as the rest of her.
+          const ink = carried ? CARRY_INK : Math.min(1, Math.max(0.12, GRIP_INK * (GRIP_INK_AT / (n * st.mmPerPx)) ** 2));
+          // As it comes apart each particle also makes for a place of its own anywhere in the
+          // frame, so that by the time the field lets go of them the few that stay lit are
+          // already scattered like the rest of the room's dust, not gathered where a hand was.
+          const spread = smoother(st.dissolve);
+          const e = st.e;
+          for (let i = 0; i < n; i++) {
+            // The grip beat spreads its points over the field by a stride, as the other drawings
+            // do; her hand's slots are already spread by liftTargets().
+            const k = (carried ? i : (i * handBuf.stride) % n) * 4;
+            const slot = carried ? slots[i] : i;
+            const q = pts[k], p = pts[k + 1], u_ = pts[k + 2];
+            const w = e[3] * q + e[7] * p + e[11] * u_ + e[15];
+            let nx = (e[0] * q + e[4] * p + e[8] * u_ + e[12]) / w;
+            let ny = (e[1] * q + e[5] * p + e[9] * u_ + e[13]) / w;
+            if (spread > 0) {
+              const hx = Math.sin((slot + 1) * 12.9898) * 43758.5453;
+              const hy = Math.sin((slot + 1) * 78.233) * 43758.5453;
+              nx += ((hx - Math.floor(hx)) * 2.2 - 1.1 - nx) * spread;
+              ny += ((hy - Math.floor(hy)) * 2.2 - 1.1 - ny) * spread;
+            }
+            ahead(buf, slot * 3, nx * halfH * proj.aspect, ny * halfH, -proj.depth, dt, lead, limit);
+            buf.vis[slot] = pts[k + 3] * ink;
+          }
+          if (carried) {
+            liftPending = true;
+          } else {
+            bg.setPodTargets(handBuf.xyz, handBuf.vis);
+            targetShape = 'hand';
+          }
+        }
 
         // Lights aimed to agree with the backdrop: key from the upper left, the horizon band
         // filling from the right, a cool low front fill, and a bounce off the bright floor.
@@ -4280,12 +6040,14 @@
           { at: 4.80, az: 0, el: 0.04, frame: dockFrame(1.78), target: 0, dock: true },
           // Held until the pod leaves the boot, so it does not turn while it is docked.
           { at: 5.45, az: 0, el: 0.04, frame: dockFrame(1.78), target: 0, dock: true },
-          // Into the lift: level, and turned so the grip bar lies across the frame the way it lies
-          // in her hand, which also shows the logo face at 45 degrees. While the pod is in her
-          // hand its size follows the scene's own push-ins (see place()); `frame` here is only
-          // where the hand-over starts from, and resize() rewrites it.
-          { at: 5.95, az: -Math.PI / 4, el: 0.06, frame: liftFrame(1.78, 5.95), target: 0, lift: true },
-          { at: 7.45, az: -Math.PI / 4, el: 0.06, frame: liftFrame(1.78, 7.45), target: 0, lift: true },
+          // Into the lift: turned so the grip bar lies across the frame the way it lies in her hand,
+          // which also shows the logo face at 45 degrees, and looking down a little, as anyone
+          // standing would at a pod carried at the hip. Level, the cap's near wall would hide her
+          // fingers where they wrap the bar inside its dish. While the pod is in her hand its
+          // size follows the scene's own push-ins (see place()); `frame` here is only where the
+          // hand-over starts from, and resize() rewrites it.
+          { at: 5.95, az: -Math.PI / 4, el: 0.26, frame: liftFrame(1.78, 5.95), target: 0, lift: true },
+          { at: 7.45, az: -Math.PI / 4, el: 0.26, frame: liftFrame(1.78, 7.45), target: 0, lift: true },
           // The app, twice. The pod steps back and aside, small, while the phone takes the
           // frame, and holds the same pose across both beats: moving the camera between them
           // would pull the eye off the screen that is meant to be read. On a phone it goes
@@ -4354,6 +6116,11 @@
           // In her hand the pod is part of the drawn scene, so it grows with the scene's push-ins.
           const inHand = podHandAt(filmT);
           if (inHand > 0.001) shot = { ...shot, frame: mix(shot.frame, liftFrame(camera.aspect, filmT), inHand) };
+          // Lifted by the hand on the grip: the camera and what it looks at drop together, which
+          // is the pod rising (the lights are directional and the fog goes by distance, so
+          // nothing else can tell the two apart), with the hand in the pod's frame going with it.
+          const picked = pickAt(filmT);
+          if (picked > 0) shot = { ...shot, target: shot.target - PICK * picked };
           // How far the shot has tipped toward straight down. Two things follow from it, and
           // both are the same physical fact: past about 57 degrees you are looking at the cap
           // rather than at the side of the pod, and world up has nearly lined up with the view
@@ -4366,6 +6133,10 @@
           const el = clamp(shot.el + driftEl * (1 - 0.85 * tip), -1.5, 1.5);
           const az = shot.az + driftAz * (1 - 0.85 * tip);
           const dist = frameDist(shot.frame);
+          // The far plane stays where it always was unless the camera has stood back beyond it,
+          // as it does for the small pod in her hand on a phone: then it moves out with it.
+          const far = Math.max(6000, dist + 500);
+          if (camera.far !== far) camera.far = far;
           camera.position.set(
             dist * Math.cos(el) * Math.sin(az),
             shot.target + dist * Math.sin(el),
@@ -4385,8 +6156,8 @@
           // One screen-space nudge, in fractions of the canvas, that two things write into:
           // the caption dodge and the dock placement. A positive offset moves the pod left and
           // up, which is the convention the caption dodge was already written against.
-          const w = Math.max(1, podCanvas.clientWidth);
-          const h = Math.max(1, podCanvas.clientHeight);
+          const w = podW;
+          const h = podH;
           const wide = w >= 860;
           // Where the pod is: docked in the scooter's boot, or in her hand. The two hand over to
           // each other as she takes it.
@@ -4449,20 +6220,58 @@
         // set high enough that every ordinary laptop size still renders at the full device pixel
         // ratio and only a genuinely large window gives anything up.
         const MAX_POD_PIXELS = 8.0e6;
+        // The governor's pod steps (assets/perf.js): a little under the device's full density
+        // while the device is struggling with the pod on screen, back up as soon as it is not.
+        // The first entry is the density the pod is drawn at whenever it can be.
+        const POD_STEPS = phone ? [1.5, 1.25] : [2, 1.75, 1.5];
         const podPixelRatio = (w, h) => Math.min(
           window.devicePixelRatio || 1,
-          phone ? 1.5 : 2,
+          POD_STEPS[Math.min(POD_STEPS.length - 1, perf ? perf.podLevel : 0)],
           Math.sqrt(MAX_POD_PIXELS / Math.max(1, w * h)),
         );
+        if (perf) {
+          // Only the steps that are actually below this screen's density are worth offering.
+          const full = Math.min(window.devicePixelRatio || 1, POD_STEPS[0]);
+          perf.registerPod(POD_STEPS.filter((r) => r < full).length);
+          let level = perf.podLevel;
+          perf.on((p) => {
+            if (p.podLevel === level) return;
+            level = p.podLevel;
+            podSizeDirty = true;
+            start();
+          });
+        }
+
+        // The canvas's CSS size and density as last applied. Read here once per resize rather
+        // than inside every frame: place() runs every frame, after the captions have written
+        // their styles, so reading layout there forced a style and layout pass each time.
+        let podW = 1;
+        let podH = 1;
+        let podRatio = 0;
+        let podSizeDirty = false;
+        // A resize only matters if it changed what this canvas draws. Most do not: the canvas
+        // is 100lvh, so a phone's address bar coming and going (which fires resize on every
+        // scroll that shows or hides it) leaves it exactly as it was, and used to re-map the lift
+        // and re-lay the captions anyway.
+        function checkSize() {
+          podSizeDirty = false;
+          const w = Math.max(1, podCanvas.clientWidth);
+          const h = Math.max(1, podCanvas.clientHeight);
+          if (w !== podW || h !== podH || podPixelRatio(w, h) !== podRatio) resize();
+        }
 
         function resize() {
           const w = Math.max(1, podCanvas.clientWidth);
           const h = Math.max(1, podCanvas.clientHeight);
+          podW = w;
+          podH = h;
+          podRatio = podPixelRatio(w, h);
           camera.aspect = w / h;
           camera.clearViewOffset();
           camera.updateProjectionMatrix();
-          renderer.setPixelRatio(podPixelRatio(w, h));
+          renderer.setPixelRatio(podRatio);
           renderer.setSize(w, h, false);
+          if (perf && perf.hudOn) perf.report('pod', `${podCanvas.width}x${podCanvas.height} at ${podRatio.toFixed(2)}x`);
           // The dock and lift beats are framed by their drawings, and the drawings follow the
           // aspect, so the pod's size for those beats is recomputed here rather than written
           // into BEATS. Under reduced motion there is no drawing and they are product shots.
@@ -4485,10 +6294,20 @@
           // dock shot would otherwise snap it back to the old one.
           targetShape = null;
           ensureShape(filmT);
-          layoutCaptions();
+          layoutCaptionsSoon();
           // setSize has just handed the context a new buffer, so there is no last frame left to
           // keep: the next one has to be drawn whatever the change test would have said.
           drawnAt = null;
+        }
+
+        // The pod's first layout can arrive while the reader is already on a caption (a slow
+        // connection, and they scrolled ahead of it): moving that caption under them would be a
+        // jump, so its place is settled the next time no caption is up. Once the film is running,
+        // a resize lays the captions out at once, as it always has.
+        let captionsPending = false;
+        function layoutCaptionsSoon() {
+          if (podLoopActive || captionFade < 0.01) layoutCaptions();
+          else captionsPending = true;
         }
 
         // ---------------------------------------------------------------- caption placement
@@ -4516,7 +6335,7 @@
         // The pod's right edge on screen at film position t, with the caption dodge at `fade`.
         // Borrows the live camera the way warm() does and leaves it to the caller to put back.
         function podRightAt(t, fade) {
-          const width = podCanvas.clientWidth;
+          const width = podW;
           const heldT = filmT;
           const heldFade = captionFade;
           filmT = t;
@@ -4646,7 +6465,7 @@
           place(shotAt(filmT), 0, 0);
           drawnAt = null;
         }
-        if (document.fonts) document.fonts.ready.then(layoutCaptions);
+        if (document.fonts) document.fonts.ready.then(layoutCaptionsSoon);
 
         // ---------------------------------------------------------------- drawing on demand
         // Parked on a beat, the only thing still moving is the handheld drift below, and its
@@ -4713,7 +6532,8 @@
           || Math.abs(a.haze - b.haze) > 1 / 512
           || Math.abs(a.exposure - b.exposure) > 1 / 512
           || Math.abs(a.sweep - b.sweep) > 1 / 512
-          || Math.abs(a.hand - b.hand) > 1 / 512;
+          || Math.abs(a.grip - b.grip) > 1 / 512
+          || a.gripKey !== b.gripKey;
 
         function wouldDiffer(fade, look) {
           projectProbes(probeNow);
@@ -4727,72 +6547,116 @@
           return behind > 0 && probePrev !== null && maxDelta(probeNow, probePrev) < REST_PX;
         }
 
-        // Once the footer's blackout has finished, footer.css has already taken this canvas out
-        // behind filter: opacity(1 - night). Drawing it after that is a full pod render a frame
-        // with nothing on screen to show for it. Read from the inline style footer.js writes, so
-        // asking costs no layout.
-        const root = document.documentElement;
-        function blackedOut() {
-          const n = parseFloat(root.style.getPropertyValue('--night'));
-          return n >= 0.995;
-        }
+        // Once the footer's blackout has finished the pod's opacity is down to nothing (it is
+        // multiplied by 1 - night below). Drawing it after that is a full pod render a frame with
+        // nothing on screen to show for it.
+        const blackedOut = () => nightNow() >= 0.995;
 
         // ---------------------------------------------------------------- the warm-up
         // The first real render is where the driver builds a pipeline state for every material in
         // here and where three.js pushes the mesh and its textures to the GPU. Measured at about
-        // 35ms, and it used to land on the exact scroll frame that reveals the pod, which is the
-        // stutter. Do it while the reader is still on the hero instead, into a one pixel scissor
-        // so none of it pays for a screenful of fill. The canvas sits at opacity 0 until
-        // podFadeAt lifts it, so nothing of this is ever visible.
-        let warmed = false;
-        function warm() {
-          if (warmed) return;
-          warmed = true;
-
+        // 35ms here and far longer on a phone, and it used to land on the exact scroll frame that
+        // reveals the pod, which is the stutter. It is done before the pod is shown instead, and
+        // a part of the pod at a time (the body, the connector, each decal, the display, the
+        // window for the hand), one idle slice each, so no single pause is long enough to
+        // see. The last step draws into a one pixel scissor so none of it pays for a screenful
+        // of fill; the canvas sits at opacity 0 until podFadeAt lifts it.
+        async function warm() {
+          await Promise.race([logoReady, new Promise((resolve) => setTimeout(resolve, 1500))]);
+          const held = filmT;
+          const parts = pod.children;
           try {
-            const held = filmT;
+            for (const part of parts.slice()) {
+              place(shotAt(1.0), 0, 0);
+              pod.children = [part];
+              renderer.compile(scene, camera);
+              pod.children = parts;
+              await slice();
+            }
             place(shotAt(1.0), 0, 0);
-            renderer.compile(scene, camera);
             renderer.setScissorTest(true);
             renderer.setScissor(0, 0, 1, 1);
             renderer.render(scene, camera);
             renderer.setScissorTest(false);
             renderer.clear();        // leave the canvas as untouched as it was found
-            drawnAt = null;          // that was a one pixel stub, not a frame of the film
-            place(shotAt(held), 0, 0);
           } catch (err) {
             console.warn('[gridPod] render warm-up skipped:', err);
+          } finally {
+            pod.children = parts;
+            drawnAt = null;          // that was a one pixel stub, not a frame of the film
+            place(shotAt(held), 0, 0);
           }
         }
 
+        // Built after the reader had already scrolled to it (a slow connection): the pod comes up
+        // through the reveal over a moment rather than appearing mid-shot. Built in time, as it
+        // almost always is, this stays at 1 and changes nothing.
+        let readyAt = 0;
+        let late = false;
+        const readiness = (now) => (late ? smoother(clamp((now - readyAt) / 700, 0, 1)) : 1);
+
+        // The field is drawn from here while this loop runs, once a frame and after the frame's
+        // targets have gone up, so that it shows the same moment as the pod (see drive() in the
+        // field). When this loop rests, or loses its context, the field goes back to its own.
+        const drawField = (now) => { if (window.gridBG && window.gridBG.drive) window.gridBG.drive(now); };
+        const letFieldGo = () => { if (window.gridBG && window.gridBG.release) window.gridBG.release(); };
+
+        // The lift's buffer, her and her hand together, sent once a frame when either changed.
+        function sendLift() {
+          if (!liftPending || !liftBuf || !window.gridBG) return;
+          liftPending = false;
+          window.gridBG.setPodTargets(liftBuf.xyz, liftBuf.vis);
+        }
+
+        let handResting = true;
         function loop(now) {
           rafId = requestAnimationFrame(loop);
+          // Paced with the field by the governor: both canvases draw on the same frames.
+          if (perf && !perf.frame(now)) return;
           const dt = Math.min(0.05, Math.max(0, (now - lastNow) / 1000));
           lastNow = now;
+          if (podSizeDirty) checkSize();
           // Critically damped follow: the camera glides instead of twitching with the trackpad.
           filmT += (filmTarget - filmT) * (1 - Math.exp(-dt * (reduceMotion ? 30 : 9)));
+          // Within a thousandth of a pixel of where the scroll wants it, it is there. Without
+          // this the follow never quite arrives, and a page at rest went on producing new
+          // values, and style writes, every frame.
+          if (Math.abs(filmTarget - filmT) < 1e-4) filmT = filmTarget;
 
           applyCaptions(filmT);
           driveField(filmT);
+          if (captionsPending && captionFade < 0.01) {
+            captionsPending = false;
+            layoutCaptions();
+          }
 
-          podFade = podFadeAt(filmT) * podDipAt(filmT);
-          const opacity = String(podFade);
+          podFade = podFadeAt(filmT) * podDipAt(filmT) * readiness(now);
+          // The room's night is in the same opacity (footer.css used to apply it as a filter).
+          const opacity = String(podFade * (1 - nightNow()));
           if (opacity !== lastOpacity) {
             podCanvas.style.opacity = opacity;
             lastOpacity = opacity;
           }
-          if (podFade < 0.002) return;
-          if (blackedOut()) return;
+          if (podFade < 0.002 || blackedOut()) {
+            sendLift();
+            drawField(now);
+            // Nothing of the pod is on screen and the film is not moving: rest until it does
+            // (scroll, resize and the governor all wake it).
+            if (filmT === filmTarget && readiness(now) === 1) {
+              cancelAnimationFrame(rafId);
+              rafId = 0;
+              letFieldGo();
+            }
+            return;
+          }
 
           // A hair of handheld drift, so the shot breathes when the scrolling stops.
           const driftAz = reduceMotion ? 0 : Math.sin(now * 0.00017) * 0.004;
           const driftEl = reduceMotion ? 0 : Math.cos(now * 0.00013) * 0.003;
           const look = revealAt(filmT);
-          // In the lift: the window for her fingers is open while she is there, the light inside lifts the pod
-          // a touch as the doors part, and on the ride bands of light run down it as the floors go
-          // by, quicker as the car gathers speed.
+          // In the lift: the light inside lifts the pod a touch as the doors part, and on the ride
+          // bands of light run down it as the floors go by, quicker as the car gathers speed.
           const inHand = podHandAt(filmT);
-          look.hand = Math.min(liftFadeAt(filmT), inHand);
           look.exposure *= 1 + 0.04 * smoother(remap01(filmT, LIFTCUT.open[0], LIFTCUT.open[0] + 0.2)) * inHand;
           const riding = rideSpeed(filmT) * inHand;
           if (riding > 0.001) {
@@ -4801,34 +6665,66 @@
           }
           haze = look.haze;
           place(shotAt(filmT), driftAz, driftEl);
-          const differs = wouldDiffer(podFade, look);
+          // A hand on the grip, reaching for it in the grip beat or hers carrying it in the lift:
+          // its window's strength, and where it is, which can change with the camera standing
+          // still (as it nearly is while the reaching hand comes in).
+          const grip = handOn(filmT) ? reachState(filmT) : carryOn(filmT) ? carryState(filmT) : null;
+          look.grip = grip ? (grip.hand === gripHand.carry ? CARRY_FILL : GRIP_FILL) * grip.window : 0;
+          look.gripKey = grip ? grip.key : '';
+          // Coming to rest is drawn too, with the hand, so its particles get their final, exact
+          // targets rather than ones sent ahead of a motion that has stopped.
+          const resting = filmT === filmTarget;
+          const settled = grip !== null && resting !== handResting;
+          handResting = resting;
+          const differs = wouldDiffer(podFade, look) || settled;
           if (!probePrev) probePrev = new Float64Array(probeNow.length);
           probePrev.set(probeNow);
-          if (!differs) return;
+          if (!differs) {
+            sendLift();
+            drawField(now);
+            return;
+          }
           renderer.toneMappingExposure = look.exposure;
           passLight(look.sweep, look.sweepGain === undefined ? 1 : look.sweepGain);
-          fingerWindow.material.opacity = look.hand;
+          if (grip) drawHand(grip, filmT, resting);
+          sendLift();
+          drawField(now);
+          handWindow.material.uniforms.uOpacity.value = look.grip;
+          // At opacity 0 it scales what is under it by exactly 1: skip the draw.
+          handWindow.visible = look.grip > 0;
           renderer.render(scene, camera);
+          if (perf) perf.podDrawn(now);
           if (!drawnAt) drawnAt = new Float64Array(probeNow.length);
           drawnAt.set(probeNow);
           drawnFade = podFade;
           drawnLook = look;
         }
 
-        function start() {
-          if (!rafId) {
-            lastNow = performance.now();
-            rafId = requestAnimationFrame(loop);
-          }
+        // For tools/check/hand.mjs, only with ?check in the address: the hand's window, and a way
+        // to have the next frame drawn. The check opens the window over the whole hand (no depth
+        // test) to measure the drawing against it, so a finger rightly hidden behind the bar is
+        // not mistaken for an outline out of step with its window.
+        if (/[?&]check(&|$)/.test(location.search)) {
+          window.__gripCheck = { window: handWindow, redraw: () => { drawnAt = null; } };
         }
 
-        podLoopActive = true;
-        window.addEventListener('resize', resize);
-        if ('ResizeObserver' in window) new ResizeObserver(resize).observe(podCanvas);
+        function start() {
+          if (rafId || !podLoopActive || document.hidden || lost) return;
+          lastNow = performance.now();
+          rafId = requestAnimationFrame(loop);
+        }
+
+        const requestSize = () => {
+          podSizeDirty = true;
+          start();
+        };
+        window.addEventListener('resize', requestSize);
+        if ('ResizeObserver' in window) new ResizeObserver(requestSize).observe(podCanvas);
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
             cancelAnimationFrame(rafId);
             rafId = 0;
+            letFieldGo();
           } else {
             // A backgrounded tab can have its drawing buffer dropped, so come back by drawing
             // rather than by trusting whatever is still on the canvas.
@@ -4836,33 +6732,69 @@
             start();
           }
         });
+
+        // iOS takes contexts back under memory pressure. three.js rebuilds its own state when
+        // the context returns; the environment map was rendered, not uploaded, so it is made
+        // again, and the loop waits out the gap rather than drawing into nothing.
+        let lost = false;
+        podCanvas.addEventListener('webglcontextlost', () => {
+          lost = true;
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+          letFieldGo();
+        });
+        podCanvas.addEventListener('webglcontextrestored', () => {
+          lost = false;
+          try {
+            scene.environment = environment();
+          } catch (err) {
+            console.warn('[gridPod] environment not rebuilt:', err);
+          }
+          drawnAt = null;
+          start();
+        });
+
         resize();
+        await slice();
+        await warm();
+        // Start where the reader is, not from the top: until now apply() has been driving the
+        // captions and the field from the scroll directly.
+        filmT = filmTarget;
+        late = podFadeAt(filmT) * podDipAt(filmT) > 0.002;
+        readyAt = performance.now();
+        podLoopActive = true;
+        wakePod = start;
         start();
-        // At the first idle moment, never competing with first paint. A page that never goes
-        // idle simply pays the old price on the reveal frame, which is where it used to be.
-        if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 2000 });
-        else setTimeout(warm, 600);
       } catch (err) {
         console.warn('[gridPod] 3D overlay unavailable:', err);
       }
     }
 
     // Film position in viewports: 0 is the hero, 1 is the reveal, and the track runs to TRACK.
+    let leaving = null;
     function apply() {
-      const raw = Math.max(0, window.scrollY / Math.max(1, window.innerHeight));
-      if (headline) headline.classList.toggle('is-leaving', raw > 0.02);
+      if (!filmVh) measureVh();
+      const raw = Math.max(0, window.scrollY / Math.max(1, filmVh));
+      const isLeaving = raw > 0.02;
+      if (headline && isLeaving !== leaving) {
+        leaving = isLeaving;
+        headline.classList.toggle('is-leaving', isLeaving);
+      }
       filmTarget = raw;
       // Without the 3D overlay there is no render loop, so the captions and the particle field
       // are driven from here instead. The dock shot still plays; only the pod in it is missing.
       if (!podLoopActive) {
         applyCaptions(raw);
         driveField(raw);
+      } else {
+        wakePod();
       }
     }
 
     window.addEventListener('scroll', apply, { passive: true });
-    window.addEventListener('resize', apply);
+    window.addEventListener('resize', () => { measureVh(); apply(); });
     apply();
+    if (podCanvas && window.GridPodAssets) bootPod();
   })();
   </script>
 

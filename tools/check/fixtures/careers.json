@@ -1,0 +1,384 @@
+{
+  "version": "c-fixture1",
+  "applicationsPaused": false,
+  "org": {
+    "careersEmail": "careers@gridxenergy.in",
+    "defaultLocation": "Okhla, New Delhi"
+  },
+  "domains": [
+    {
+      "key": "electronics",
+      "label": "Electronics",
+      "icon": "cpu",
+      "blurb": "Battery management, power stages and the boards that hold them.",
+      "order": 1,
+      "openCount": 2
+    },
+    {
+      "key": "software",
+      "label": "Software",
+      "icon": "code-xml",
+      "blurb": "The apps, the cloud and the firmware tooling behind every pack.",
+      "order": 2,
+      "openCount": 2
+    },
+    {
+      "key": "operations",
+      "label": "Operations",
+      "icon": "wrench",
+      "blurb": "Swap stations, service and the field team that keeps riders moving.",
+      "order": 3,
+      "openCount": 1
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job-firmware-01",
+      "slug": "embedded-firmware-engineer",
+      "previousSlugs": [
+        "firmware-engineer"
+      ],
+      "title": "Embedded Firmware Engineer",
+      "domain": "electronics",
+      "teamName": "Battery systems",
+      "location": "Okhla, New Delhi",
+      "employmentType": "full-time",
+      "workMode": "onsite",
+      "experience": {
+        "min": 2,
+        "max": 5
+      },
+      "openings": 2,
+      "compensation": null,
+      "summary": "Write the firmware that decides how every GridX pack charges, balances and protects itself.",
+      "description": "You will own the battery management firmware across our packs, from bring-up on new boards to field updates.",
+      "aboutTeamAndRole": "A small team that designs the hardware and the software as one.",
+      "responsibilities": [
+        "Bring up new BMS boards",
+        "Write and test cell balancing and protection logic",
+        "Ship over the air updates safely"
+      ],
+      "experienceAndQualifications": [
+        "Two or more years of embedded C",
+        "Comfort with a scope and a logic analyser"
+      ],
+      "mustHaveCompetencies": [
+        "Embedded C",
+        "CAN or UART protocols"
+      ],
+      "niceToHave": [
+        "Experience with lithium-ion packs"
+      ],
+      "screeningQuestions": [
+        {
+          "id": "q1",
+          "label": "Have you shipped firmware on an STM32 or a similar microcontroller?",
+          "type": "yes_no",
+          "options": [],
+          "required": true,
+          "maxLength": 0,
+          "help": ""
+        },
+        {
+          "id": "q2",
+          "label": "Which cell chemistries have you worked with?",
+          "type": "single_select",
+          "options": [
+            "NMC",
+            "LFP",
+            "LTO",
+            "None yet"
+          ],
+          "required": true,
+          "maxLength": 0,
+          "help": ""
+        },
+        {
+          "id": "q3",
+          "label": "A link to firmware you are proud of",
+          "type": "url",
+          "options": [],
+          "required": false,
+          "maxLength": 300,
+          "help": "GitHub, GitLab or a write-up."
+        }
+      ],
+      "resumeRequired": true,
+      "featured": true,
+      "sortOrder": 0,
+      "publishedAt": "2026-09-20T05:30:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "closesAt": null,
+      "publicVersion": 7,
+      "ogImage": "https://paddockgridx.app/api/public/website/careers/og/embedded-firmware-engineer.jpg?v=7"
+    },
+    {
+      "id": "job-power-intern-02",
+      "slug": "power-electronics-intern",
+      "previousSlugs": [],
+      "title": "Power Electronics Intern",
+      "domain": "electronics",
+      "teamName": "Chargers",
+      "location": "Okhla, New Delhi",
+      "employmentType": "internship",
+      "workMode": "onsite",
+      "experience": {
+        "min": 0,
+        "max": 1
+      },
+      "openings": 1,
+      "compensation": null,
+      "summary": "Six months on the charger bench, from simulation to a working prototype.",
+      "description": "Help design and test the next generation of GridX chargers.",
+      "aboutTeamAndRole": "You will work alongside the people who designed the 6A and 10A chargers.",
+      "responsibilities": [
+        "Simulate converter topologies",
+        "Build and test prototypes"
+      ],
+      "experienceAndQualifications": [
+        "Studying electrical or electronics engineering"
+      ],
+      "mustHaveCompetencies": [
+        "Circuit fundamentals"
+      ],
+      "niceToHave": [
+        "LTspice or PLECS"
+      ],
+      "screeningQuestions": [
+        {
+          "id": "q1",
+          "label": "Which semester are you in?",
+          "type": "short_text",
+          "options": [],
+          "required": true,
+          "maxLength": 60,
+          "help": ""
+        },
+        {
+          "id": "q2",
+          "label": "How many months can you commit?",
+          "type": "number",
+          "options": [],
+          "required": true,
+          "maxLength": 0,
+          "help": "Six or more is ideal."
+        }
+      ],
+      "resumeRequired": true,
+      "featured": false,
+      "sortOrder": 1,
+      "publishedAt": "2026-09-25T05:30:00.000Z",
+      "updatedAt": "2026-09-25T05:30:00.000Z",
+      "closesAt": "2026-11-30T18:29:59.000Z",
+      "publicVersion": 2,
+      "ogImage": "https://paddockgridx.app/api/public/website/careers/og/power-electronics-intern.jpg?v=2"
+    },
+    {
+      "id": "job-fullstack-03",
+      "slug": "full-stack-developer",
+      "previousSlugs": [],
+      "title": "Full Stack Developer",
+      "domain": "software",
+      "teamName": "Platform",
+      "location": "Okhla, New Delhi",
+      "employmentType": "full-time",
+      "workMode": "hybrid",
+      "experience": {
+        "min": 1,
+        "max": 4
+      },
+      "openings": 1,
+      "compensation": {
+        "currency": "INR",
+        "min": 1200000,
+        "max": 1800000,
+        "period": "year",
+        "shown": true
+      },
+      "summary": "Build Paddock, the system that runs GridX's stations, orders and website.",
+      "description": "Work across the staff app, the public API and the website.",
+      "aboutTeamAndRole": "A product team that ships every week.",
+      "responsibilities": [
+        "Ship features end to end",
+        "Keep the public API fast and safe"
+      ],
+      "experienceAndQualifications": [
+        "A year or more of production JavaScript"
+      ],
+      "mustHaveCompetencies": [
+        "Node.js",
+        "React"
+      ],
+      "niceToHave": [
+        "Firestore",
+        "Redis"
+      ],
+      "screeningQuestions": [
+        {
+          "id": "q1",
+          "label": "Which of these have you used in production?",
+          "type": "multi_select",
+          "options": [
+            "Node.js",
+            "React",
+            "Firestore",
+            "Redis"
+          ],
+          "required": true,
+          "maxLength": 0,
+          "help": ""
+        },
+        {
+          "id": "q2",
+          "label": "Tell us about something you built that people still use.",
+          "type": "long_text",
+          "options": [],
+          "required": false,
+          "maxLength": 800,
+          "help": ""
+        }
+      ],
+      "resumeRequired": true,
+      "featured": false,
+      "sortOrder": 0,
+      "publishedAt": "2026-09-28T05:30:00.000Z",
+      "updatedAt": "2026-10-02T05:30:00.000Z",
+      "closesAt": null,
+      "publicVersion": 3,
+      "ogImage": "https://paddockgridx.app/api/public/website/careers/og/full-stack-developer.jpg?v=3"
+    },
+    {
+      "id": "job-mobile-04",
+      "slug": "mobile-app-developer",
+      "previousSlugs": [],
+      "title": "Mobile App Developer",
+      "domain": "software",
+      "teamName": "Rider app",
+      "location": "Remote, India",
+      "employmentType": "contract",
+      "workMode": "remote",
+      "experience": {
+        "min": 2,
+        "max": 6
+      },
+      "openings": 1,
+      "compensation": null,
+      "summary": "Make the rider app the fastest way to find a charged pack.",
+      "description": "Own features in the rider app from design review to release.",
+      "aboutTeamAndRole": "You will work with the station and platform teams.",
+      "responsibilities": [
+        "Build features in the rider app"
+      ],
+      "experienceAndQualifications": [
+        "Two or more years of mobile development"
+      ],
+      "mustHaveCompetencies": [
+        "React Native or Flutter"
+      ],
+      "niceToHave": [],
+      "screeningQuestions": [],
+      "resumeRequired": true,
+      "featured": false,
+      "sortOrder": 1,
+      "publishedAt": "2026-10-03T05:30:00.000Z",
+      "updatedAt": "2026-10-03T05:30:00.000Z",
+      "closesAt": null,
+      "publicVersion": 1,
+      "ogImage": "https://paddockgridx.app/api/public/website/careers/og/mobile-app-developer.jpg?v=1"
+    },
+    {
+      "id": "job-technician-05",
+      "slug": "swap-station-technician",
+      "previousSlugs": [],
+      "title": "Swap Station Technician",
+      "domain": "operations",
+      "teamName": "Field operations",
+      "location": "Gurugram",
+      "employmentType": "full-time",
+      "workMode": "onsite",
+      "experience": {
+        "min": 0,
+        "max": 3
+      },
+      "openings": 3,
+      "compensation": null,
+      "summary": "Keep our swap stations charged, clean and running for riders across the city.",
+      "description": "Daily rounds of the stations in your zone, first line repairs, and a calm word for riders.",
+      "aboutTeamAndRole": "The team riders meet in person.",
+      "responsibilities": [
+        "Run daily station checks",
+        "Swap and log faulty packs"
+      ],
+      "experienceAndQualifications": [
+        "ITI or diploma in electrical work, or equivalent experience"
+      ],
+      "mustHaveCompetencies": [
+        "Basic electrical safety"
+      ],
+      "niceToHave": [
+        "Two-wheeler licence"
+      ],
+      "screeningQuestions": [
+        {
+          "id": "q1",
+          "label": "Do you hold a two-wheeler driving licence?",
+          "type": "yes_no",
+          "options": [],
+          "required": true,
+          "maxLength": 0,
+          "help": ""
+        }
+      ],
+      "resumeRequired": false,
+      "featured": false,
+      "sortOrder": 0,
+      "publishedAt": "2026-10-05T05:30:00.000Z",
+      "updatedAt": "2026-10-05T05:30:00.000Z",
+      "closesAt": null,
+      "publicVersion": 1,
+      "ogImage": "https://paddockgridx.app/api/public/website/careers/og/swap-station-technician.jpg?v=1"
+    }
+  ],
+  "recentlyClosed": [
+    {
+      "id": "job-test-eng-00",
+      "slug": "battery-test-engineer",
+      "previousSlugs": [
+        "battery-tester"
+      ],
+      "title": "Battery Test Engineer",
+      "domain": "electronics",
+      "state": "closed",
+      "since": "2026-09-30T12:00:00.000Z"
+    }
+  ],
+  "openApplication": {
+    "enabled": true
+  },
+  "apply": {
+    "maxResumeBytes": 10485760,
+    "accept": [
+      ".pdf",
+      ".doc",
+      ".docx"
+    ],
+    "recaptchaAction": "careers_apply",
+    "recaptchaActionOpen": "careers_open_application",
+    "consent": {
+      "version": "2026-10",
+      "text": "I agree that GridX may keep my application to consider me for this role.",
+      "talentPoolText": "Also keep my details for twelve months and tell me about other roles that fit.",
+      "privacyUrl": "https://gridxenergy.in/privacy_policy.html"
+    },
+    "howHeard": [
+      "LinkedIn",
+      "Instagram",
+      "A friend or colleague",
+      "College or university",
+      "Job board",
+      "GridX website",
+      "Event",
+      "Other"
+    ]
+  }
+}

@@ -18,6 +18,14 @@
  *
  * window.gridDisclose.open(el) opens one from outside, for a page that knows why the reader
  * came (track.js does, for an order placed in this tab).
+ *
+ * A sheet outranks all of it. While one is up (the contact form) it drives the field itself
+ * (sheet.js, its halo option), so this stands down, writing nothing, until the sheet has let
+ * the field go, and then eases the rim back in on whatever is open.
+ *
+ * Opening a question that carries data-faq-id says so: a gridx:disclose event on the
+ * document, { id }, which analytics.js counts. The id is the question's own stable slug,
+ * never anything the reader typed.
  */
 (() => {
   'use strict';
@@ -44,6 +52,7 @@
   function settle(d) {
     window.clearTimeout(settleTimers.get(d));
     if (isOpen(d)) d.classList.add('is-settled');
+    wakeField(); // the rim relaxes once a panel has finished opening
   }
 
   function setOpen(d, want) {
@@ -59,6 +68,9 @@
     if (want) settleTimers.set(d, window.setTimeout(() => settle(d), 1200));
     current = d;
     wakeField();
+    if (want && d.dataset.faqId) {
+      document.dispatchEvent(new CustomEvent('gridx:disclose', { detail: { id: d.dataset.faqId } }));
+    }
   }
 
   // ---------------------------------------------------------------- the field
@@ -67,10 +79,17 @@
   let held = false;
   let fieldId = 0;
   let fieldLast = 0;
+  let lastNight = -1;
 
   const grow = (r, pad) => ({
     left: r.left - pad, top: r.top - pad, width: r.width + pad * 2, height: r.height + pad * 2,
   });
+
+  // A sheet is up, or its rim is still fading out after it: the field is the sheet's.
+  const sheetHasField = () => {
+    const s = window.gridSheet;
+    return Boolean(s && (s.openElement() || (typeof s.holdsField === 'function' && s.holdsField())));
+  };
 
   // A section is rounded as far out as the screen allows; on a phone that is not far, so the
   // rim keeps EDGE clear of the sides rather than running down them. A nested item is hugged
@@ -111,6 +130,17 @@
       return;
     }
 
+    // Standing down for a sheet. Nothing is written, not even setHalo(null), which would wipe
+    // the sheet's own rim; the sheet already owns the field. Coming back starts from nothing,
+    // so the rim eases in again rather than snapping to where it was.
+    if (sheetHasField()) {
+      held = false;
+      placed = false;
+      halo.weight = 0;
+      fieldId = 0;
+      return;
+    }
+
     // Nothing to aim at: stay where it is and fade.
     const t = aim() || {
       rect: halo, radius: halo.radius, fill: halo.fill, grip: halo.grip, weight: 0,
@@ -129,8 +159,8 @@
     placed = true;
     halo.weight += (t.weight - halo.weight) * kSlow;
 
-    // Read from the inline style footer.js writes, so asking costs no layout.
-    const night = parseFloat(root.style.getPropertyValue('--night')) || 0;
+    // The value footer.js publishes, so asking costs no layout.
+    const night = window.gridNight ? window.gridNight.value : 0;
     const lit = Math.max(0, 1 - night / HANDOVER);
     const shown = halo.weight * lit;
 
@@ -147,6 +177,22 @@
       return;
     }
 
+    // At rest once the rim has arrived (within a hundredth of a pixel) and nothing is moving
+    // it: no press, no panel still opening, the room's light steady. It lands exactly and the
+    // loop stops, rather than reading a rect and re-sending the same halo every frame for as
+    // long as a section stays open. Scrolling, a resize, a press or focus wakes it again.
+    const r = t.rect;
+    const settled = !pressed && night === lastNight
+      && Math.abs(r.left - halo.left) < 0.01 && Math.abs(r.top - halo.top) < 0.01
+      && Math.abs(r.width - halo.width) < 0.01 && Math.abs(r.height - halo.height) < 0.01
+      && Math.abs(t.radius - halo.radius) < 0.01 && Math.abs(t.fill - halo.fill) < 1e-4
+      && Math.abs(t.grip - halo.grip) < 1e-4 && Math.abs(t.weight - halo.weight) < 1e-4;
+    lastNight = night;
+    if (settled) {
+      Object.assign(halo, { left: r.left, top: r.top, width: r.width, height: r.height,
+        radius: t.radius, fill: t.fill, grip: t.grip, weight: t.weight });
+    }
+
     held = true;
     api.setHalo({
       rect: { left: halo.left, top: halo.top, width: halo.width, height: halo.height },
@@ -154,14 +200,14 @@
       depth: api.projection().depth,
       fill: halo.fill,
       grip: halo.grip,
-      weight: shown,
+      weight: halo.weight * lit,
     });
-    fieldId = window.requestAnimationFrame(fieldFrame);
+    fieldId = settled ? 0 : window.requestAnimationFrame(fieldFrame);
   }
 
   function wakeField() {
     // setHalo already declines under reduced motion, so there is nothing to run for.
-    if (reduceMotion || fieldId) return;
+    if (reduceMotion || fieldId || sheetHasField()) return;
     fieldLast = performance.now();
     fieldId = window.requestAnimationFrame(fieldFrame);
   }
@@ -176,7 +222,10 @@
   };
   const release = (delay) => {
     window.clearTimeout(relax);
-    relax = window.setTimeout(() => { pressed = null; }, delay);
+    relax = window.setTimeout(() => {
+      pressed = null;
+      wakeField();
+    }, delay);
   };
 
   function pressable(el) {
@@ -212,11 +261,20 @@
   document.addEventListener('focusin', onFocus);
   document.addEventListener('focusout', onFocus);
 
+  // The rim sits on something on the page, so scrolling and resizing move it. Only worth a
+  // frame while something is open (or was just closed and is fading).
+  const follow = () => { if (current) wakeField(); };
+  window.addEventListener('scroll', follow, { passive: true });
+  window.addEventListener('resize', follow);
+
   // Back up out of the footer's dark: the rim comes back with the lights. Watched on the class
   // rather than on scroll, because the night eases out after the last scroll event.
   new MutationObserver(() => {
     if (!root.classList.contains('is-night') && document.querySelector('.disclose.is-open')) wakeField();
   }).observe(root, { attributes: true, attributeFilter: ['class'] });
+
+  // A sheet has let the field go: take it back for whatever is open.
+  document.addEventListener('gridx:sheet-field', () => { if (current) wakeField(); });
 
   window.gridDisclose = { open: (el) => setOpen(el, true) };
 

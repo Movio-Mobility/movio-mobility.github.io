@@ -4,25 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Careers | GridXenergy</title>
-  <meta name="description" content="Work at GridXenergy.">
+  <meta name="description" content="Open roles at GridX. Help build the batteries and swap network that keep India's electric two-wheelers moving.">
   <meta name="theme-color" content="#c4c4c2">
+  <link rel="canonical" href="https://gridxenergy.in/careers.html">
+  <!-- The build puts the page's share card here (tools/careers.mjs). -->
+  <!-- careers:og -->
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
+  <!-- The teams run on the journey's timeline tape (tape.*). A role opens in the shared sheet
+       (sheet.css), laid out the way its own page is (role.css), and applying is the shared
+       application sheet (fields.css, apply-sheet.css). careers.css last of the page's own. -->
+  <link rel="stylesheet" href="assets/tape.css">
+  <link rel="stylesheet" href="assets/sheet.css">
+  <link rel="stylesheet" href="assets/fields.css">
+  <link rel="stylesheet" href="assets/apply-sheet.css">
+  <link rel="stylesheet" href="assets/role.css">
+  <link rel="stylesheet" href="assets/careers.css">
   <link rel="stylesheet" href="assets/footer.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
 
   <header class="topbar">
     <div class="brand-lockup">
-      <a class="brand" href="index.html" aria-label="GRID home">
+      <a class="brand" href="index.html" aria-label="GridX home">
         <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
         <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
       </a>
@@ -57,15 +72,16 @@
               <span class="island__label">Support</span>
             </a>
           </li>
-          <li>
-            <a class="island__link" href="journey.html">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
-              <span class="island__label">Journey</span>
+          <!-- The fifth slot is the page's own. Careers is reached from the footer, not the
+               nav, so it joins the island only while it is open (see topbar.js). -->
+          <li class="island__context">
+            <a class="island__link" href="careers.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></svg>
+              <span class="island__label">Careers</span>
             </a>
           </li>
         </ul>
-        <!-- Collapsed state: just the current page's icon. Careers is not in the nav — it is
-             reached from the footer — so it carries its own glyph and marks nothing current. -->
+        <!-- Collapsed state: just the current page's icon, the same glyph as its own tab. -->
         <div class="island__compact" aria-hidden="true">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></svg>
         </div>
@@ -73,7 +89,61 @@
     </div>
   </header>
 
-  <main class="hero"></main>
+  <main class="careers tape">
+    <!-- The teams, on the journey's timeline tape. careers.js builds a stop for every team with
+         an open role (and one for open applications), from the careers document Paddock
+         publishes, and keeps it in step with Paddock while the page is open. Without
+         JavaScript the tape is hidden and the list the build wrote (.cr-static) reads instead. -->
+    <div class="tl-head">
+      <!-- An open team's mark and name, each flown up from its label on the tape. -->
+      <p class="tl-title" aria-hidden="true"><span class="cr-title__icon"></span><span class="cr-title__name"></span></p>
+      <p class="tl-theme" aria-hidden="true"></p>
+    </div>
+
+    <!-- The overview: above the horizon while no team is open. -->
+    <div class="cr-intro">
+      <p class="cr-intro__kicker" data-intro-kicker>We're hiring</p>
+      <h2 class="cr-intro__title" data-intro-title>Build the energy India rides on.</h2>
+      <p class="cr-intro__count" data-intro-count></p>
+      <p class="cr-intro__status" data-intro-status role="status" hidden></p>
+    </div>
+
+    <div class="tl-bar">
+      <div class="tl-bar__inner">
+        <canvas class="tl-bar__ticks" aria-hidden="true"></canvas>
+        <span class="tl-bar__glint-track" aria-hidden="true"><span class="tl-bar__glint"></span></span>
+        <!-- Stand-ins while the first list of roles is on its way. -->
+        <div class="cr-skel" aria-hidden="true">
+          <span class="cr-skel__line"></span>
+          <span class="cr-skel__stop cr-skel__stop--near" style="--i:0"></span>
+          <span class="cr-skel__stop" style="--i:1"></span>
+          <span class="cr-skel__stop" style="--i:2"></span>
+        </div>
+        <div class="tl-bar__labels" role="tablist" aria-label="Teams">
+          <!-- careers.js renders one label per team: its mark above the line, its name below. -->
+        </div>
+        <span class="tl-bar__needle" aria-hidden="true"></span>
+      </div>
+      <button class="tl-close" type="button" aria-label="Back to all teams">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+
+    <div class="tl-peek">
+      <button class="tl-peek__open" type="button">
+        <span class="tl-peek__text"></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 7 5 5-5 5"/></svg>
+      </button>
+      <p class="tl-hint">Drag the timeline <span aria-hidden="true">&middot;</span> Tap a team</p>
+    </div>
+
+    <!-- Below the horizon when there is no tape to show: no open roles, or no list at all. -->
+    <div class="cr-notice" data-notice hidden></div>
+
+    <div class="tl-panels">
+      <!-- careers:list -->
+    </div>
+  </main>
 
   <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
        the dark. Copied into every page the way the island nav is: the address and the sitemap
@@ -146,22 +216,40 @@
           </div>
         </div>
 
-        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
-             is finished and the pages can drop in behind them. -->
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
         <div class="credits__legal">
-          <a href="terms.html">Terms &amp; Conditions</a>
-          <a href="privacy.html">Privacy Policy</a>
+          <a href="privacy_policy.html">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html">Privacy Policy</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
       </div>
     </div>
   </footer>
 
+  <!-- The careers document as the build saw it, so the teams are there at first paint
+       (careers-data.js reads it, then asks Paddock for the latest). -->
+  <!-- careers:data -->
+
+  <!-- Order matters. gridx-api.js first (everything reaches Paddock through it); sheet.js,
+       keyboard.js, the icons and the careers data before the apply sheet, which uses all four;
+       the tape before careers.js, which drives it; footer.js after, as on the journey.
+         careers-icons.js  window.gridIcons, the pinned team marks
+         careers-data.js   window.gridCareers, the careers document kept fresh
+         apply-sheet.js    window.gridApply.open({ job } | { open: true })
+         careers.js        the teams on the tape, a role in its sheet, the deep links -->
   <script src="assets/grid-bg.js"></script>
   <script src="assets/topbar.js"></script>
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/sheet.js"></script>
+  <script src="assets/keyboard.js"></script>
+  <script src="assets/careers-icons.js"></script>
+  <script src="assets/careers-data.js"></script>
+  <script src="assets/apply-sheet.js"></script>
+  <script src="assets/tape.js"></script>
+  <script src="assets/careers.js"></script>
   <script src="assets/footer.js"></script>
   <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
-  <script src="assets/gridx-api.js"></script>
   <script src="assets/analytics.js" defer></script>
 </body>
 </html>

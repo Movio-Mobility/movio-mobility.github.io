@@ -4,9 +4,8 @@
  * Someone reaching this page is usually anxious about a parcel, so the whole design brief
  * is: two fields, one button, and an answer in place without the page moving under them.
  *
- * The form fields are .field, which order-sheet.css already carries, and the fold is
- * disclose.css, so this file is only the fields' curve and the result: a headline, a
- * timeline and the courier.
+ * The form fields are .field, from fields.css, and the fold is disclose.css, so this file
+ * is only the fields' curve and the result: a headline, a timeline and the courier.
  */
 
 .track {
@@ -281,9 +280,134 @@
   color: rgb(20 20 20 / 0.55);
 }
 
+/* The way into the contact form: a sentence's link, drawn as .story__link draws one, with the
+   44px floor kept by padding that does not move the line. */
+.track__help-link {
+  display: inline;
+  margin: -0.7rem -0.25rem;
+  padding: 0.7rem 0.25rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: text-decoration-thickness 0.2s ease;
+}
+
+.track__help-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+@media (hover: hover) {
+  .track__help-link:hover { text-decoration-thickness: 2.5px; }
+}
+
+/* ---------------------------------------------------------------- collect from */
+/*
+ * Where a dealership order is waiting. Set into the card as a lighter panel, the manual rows'
+ * white wash and hairline, so it reads as the one thing on the card to act on: who, where,
+ * when they are open, and two pills to call or get there.
+ */
+.track__collect {
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.42);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+/* contact.css's column label, the footer's, at home in a card. */
+.track__collect-label {
+  margin: 0 0 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.track__collect-name {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.track__collect-text {
+  margin: 0.25rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.66);
+  text-wrap: pretty;
+}
+
+.track__collect-note {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* Side by side when both fit, each its own width; full width, stacked, in a narrow card. */
+.track__collect-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.track__action {
+  display: inline-flex;
+  flex: 1 1 10rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.16);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s var(--ease-out), transform 0.4s var(--spring);
+}
+
+.track__action svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.track__action:active { transform: scale(0.985); background: rgb(255 255 255 / 0.85); }
+.track__action:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+@media (hover: hover) {
+  .track__action:hover { background: rgb(255 255 255 / 0.85); }
+}
+
 /* ---------------------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
   .track__go { transition: opacity 0.2s ease; }
   .track__go:active { transform: none; }
+  .track__action { transition: background-color 0.2s ease; }
+  .track__action:active { transform: none; }
 }

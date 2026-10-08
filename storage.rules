@@ -1,0 +1,15 @@
+rules_version = '2';
+
+// Storage rules for the `websitegridx` bucket. The only copy: the old site's
+// storage.rules was retired with it (Paddock docs/careers-cutover.md, phase 2).
+//
+// Nothing here is open to a client. Resumes are uploaded by Paddock's public API
+// and dealer photos are written by Paddock, both with the Admin SDK, which these
+// rules do not bind. Deploy with:  firebase deploy --only storage
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

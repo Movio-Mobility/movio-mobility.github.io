@@ -7,9 +7,10 @@
   <meta name="description" content="Configure your PowerPod Gen2: charger, portable adapter and vehicle dock.">
   <meta name="theme-color" content="#c4c4c2">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/powerpod-gen2.css">
 
@@ -23,13 +24,15 @@
     document.documentElement.classList.add('pg2-shell', 'island-click-only', 'is-compact');
   </script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
 
   <header class="topbar">
     <div class="brand-lockup">
-      <a class="brand" href="index.html" aria-label="GRID home">
+      <a class="brand" href="index.html" aria-label="GridX home">
         <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
         <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
       </a>
@@ -64,12 +67,6 @@
               <span class="island__label">Support</span>
             </a>
           </li>
-          <li>
-            <a class="island__link" href="journey.html">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
-              <span class="island__label">Journey</span>
-            </a>
-          </li>
         </ul>
         <!-- Collapsed state: this page lives under Store, so it keeps the Store icon. -->
         <div class="island__compact" aria-hidden="true">
@@ -83,14 +80,26 @@
     <!-- The stage paints no background of its own, so the particle field on #bg shows through it.
          It is also inert: powerpod-gen2.js stops wheel and touch events here from reaching the
          particle engine, so nothing on the left responds to a scroll gesture.
-         The poster is the loading state, the no-WebGL state and the no-JS state, all in 12.5 KB. -->
-    <div class="pg2__stage" id="pg2-stage">
+         The poster is the loading state, the no-WebGL state and the no-JS state, all in 12.5 KB.
+         data-scene says what the stage is showing: the pod on the configure stage, and a drawing
+         the particle field gathers into on the other two, a profile while details are filled in
+         and a rupee at payment. The 3D pod stops drawing while it is not the scene. -->
+    <div class="pg2__stage" id="pg2-stage" data-scene="pod">
       <canvas id="pod" aria-hidden="true"></canvas>
       <img class="pg2__poster" id="pg2-poster" src="assets/productImages/store/gen2.webp"
            alt="PowerPod Gen2" width="335" height="1000" fetchpriority="high" decoding="async">
       <figure class="pg2__companion" id="pg2-companion" data-art="idle" aria-hidden="true">
         <img id="pg2-companion-img" src="assets/productImages/store/adapter.webp" alt="" width="818" height="679" decoding="async">
       </figure>
+      <!-- Stand-ins for the particle drawings, for a device without the WebGL field or one that
+           asks for reduced motion. Still line art, faded in, nothing moving. -->
+      <svg class="pg2__glyph" data-glyph="profile" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="21"/><circle cx="24" cy="19" r="6.5"/>
+        <path d="M11.6 37.6c2.7-5.3 7.2-8.2 12.4-8.2s9.7 2.9 12.4 8.2"/>
+      </svg>
+      <svg class="pg2__glyph" data-glyph="rupee" viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M15 10h18M15 17h18M20 10a7 7 0 0 1 0 14h-5l15 14"/>
+      </svg>
     </div>
 
     <div class="pg2__panel" id="pg2-panel">
@@ -309,7 +318,7 @@
                 <label class="opt" data-group="dock" data-value="yes" data-selected="false">
                   <input class="opt__input pg2-sr" type="radio" name="dock" value="yes">
                   <span class="opt__art">
-                    <img src="assets/productImages/store/vehicle-dock.webp" alt="" width="611" height="1002" decoding="async" loading="lazy">
+                    <img src="assets/productImages/store/vehicle-dock.webp" alt="" width="386" height="1030" decoding="async" loading="lazy">
                   </span>
                   <span class="opt__body">
                     <span class="opt__title">Add Vehicle Dock</span>
@@ -339,7 +348,7 @@
               <ul class="review" id="pg2-review"></ul>
 
               <p class="review__note">GridX-Pro Pack: Free for your first year. ₹999/year after that.</p>
-              <p class="review__note" id="pg2-dealer" hidden>Your two wheeler is chosen and priced with you at the dealership.</p>
+              <p class="review__note" id="pg2-dealer" hidden>Your two wheeler is chosen and priced with you at the dealership. <a href="dealers.html">Find a dealer</a> near you.</p>
             </article>
 
           </section>
@@ -352,7 +361,7 @@
 
             <div class="field">
               <label class="field__label" for="f-name">Full name</label>
-              <input class="field__input" id="f-name" name="name" type="text"
+              <input class="field__input" id="f-name" name="name" enterkeyhint="next" type="text"
                      autocomplete="name" autocapitalize="words" spellcheck="false"
                      aria-describedby="e-name">
               <p class="field__err" id="e-name"></p>
@@ -360,7 +369,7 @@
 
             <div class="field">
               <label class="field__label" for="f-phone">Phone number</label>
-              <input class="field__input" id="f-phone" name="phone" type="tel"
+              <input class="field__input" id="f-phone" name="phone" enterkeyhint="next" type="tel"
                      inputmode="tel" autocomplete="tel" placeholder="10 digit mobile number"
                      aria-describedby="e-phone">
               <p class="field__err" id="e-phone"></p>
@@ -368,7 +377,7 @@
 
             <div class="field">
               <label class="field__label" for="f-email">Email</label>
-              <input class="field__input" id="f-email" name="email" type="email"
+              <input class="field__input" id="f-email" name="email" enterkeyhint="next" type="email"
                      inputmode="email" autocomplete="email" spellcheck="false"
                      aria-describedby="e-email">
               <p class="field__err" id="e-email"></p>
@@ -377,7 +386,7 @@
             <div class="field-row">
               <div class="field">
                 <label class="field__label" for="f-city">City</label>
-                <input class="field__input" id="f-city" name="city" type="text"
+                <input class="field__input" id="f-city" name="city" enterkeyhint="next" type="text"
                        autocomplete="address-level2" autocapitalize="words"
                        aria-describedby="e-city">
                 <p class="field__err" id="e-city"></p>
@@ -385,7 +394,7 @@
 
               <div class="field">
                 <label class="field__label" for="f-pin">Pincode</label>
-                <input class="field__input" id="f-pin" name="pincode" type="text"
+                <input class="field__input" id="f-pin" name="pincode" enterkeyhint="next" type="text"
                        inputmode="numeric" autocomplete="postal-code" maxlength="6"
                        aria-describedby="e-pin">
                 <p class="field__err" id="e-pin"></p>
@@ -401,7 +410,7 @@
                    so a tight cap would silently clip the check digit off the end before any
                    script could strip the whitespace. The script strips it, then the length
                    is checked against 15. -->
-              <input class="field__input" id="f-gstin" name="gstin" type="text"
+              <input class="field__input" id="f-gstin" name="gstin" enterkeyhint="go" type="text"
                      inputmode="text" autocomplete="off" spellcheck="false"
                      maxlength="18" placeholder="22AAAAA0000A1Z5"
                      aria-describedby="e-gstin h-gstin">
@@ -411,35 +420,36 @@
           </section>
 
           <!-- ------------------------------------------------ 8. Payment -->
-          <section class="pg2-view" id="view-payment" data-stage="3" data-group="pay">
-            <h2 class="pg2-step__title" tabindex="-1">How would you like to pay?</h2>
-            <p class="pg2-step__sub">Reserve yours now, or settle it in full today.</p>
+          <!-- One way to pay: a reservation. Two beats, the offer and then the full bill, and the
+               bill is the last thing on screen before Razorpay's window opens. Paddock sets the
+               amount and the platform fee; every figure marked data-money is filled in by the
+               script from one constant, and from Paddock's own quote once it has one. -->
+          <section class="pg2-view" id="view-payment" data-stage="3">
+            <div class="pg2-pay" id="pg2-pay-reserve">
+              <h2 class="pg2-step__title" tabindex="-1">Reserve your PowerPod Gen2.</h2>
+              <p class="pg2-step__sub">Hold yours today. The rest is paid when your PowerPod is ready for you.</p>
 
-            <fieldset class="pg2-step__options">
-              <legend class="pg2-sr">Choose how to pay</legend>
-
-              <label class="opt opt--plain" data-group="pay" data-value="reserve" data-selected="false">
-                <input class="opt__input pg2-sr" type="radio" name="pay" value="reserve">
+              <!-- An action, not a choice: there is only one way to pay, so it is a button that
+                   leads to the bill rather than a radio with nothing beside it. -->
+              <button class="opt opt--plain opt--go" id="pg2-reserve" type="button">
                 <span class="opt__body">
                   <span class="opt__title">Reserve Now</span>
-                  <span class="opt__lede">Hold yours with a token amount.</span>
-                  <span class="opt__detail">₹499 today, fully redeemable against your purchase at the dealership.</span>
+                  <span class="opt__lede">Hold yours for <span data-money="reserve">₹500</span>.</span>
+                  <span class="opt__detail">Deducted from your PowerPod amount when you make the final payment. A small platform fee applies.</span>
                 </span>
-                <span class="opt__price">₹499</span>
-                <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
-              </label>
+                <span class="opt__price" data-money="reserve">₹500</span>
+                <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m10 6 6 6-6 6"/></svg></span>
+              </button>
+            </div>
 
-              <label class="opt opt--plain" data-group="pay" data-value="full" data-selected="false">
-                <input class="opt__input pg2-sr" type="radio" name="pay" value="full">
-                <span class="opt__body">
-                  <span class="opt__title">Pay Entirely</span>
-                  <span class="opt__lede">Settle it in one go.</span>
-                  <span class="opt__detail">Pay the full amount now and collect your PowerPod at the dealership.</span>
-                </span>
-                <span class="opt__price" id="pg2-pay-full">₹27,198</span>
-                <span class="opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
-              </label>
-            </fieldset>
+            <div class="pg2-pay" id="pg2-pay-review" hidden>
+              <h2 class="pg2-step__title" tabindex="-1">Review and pay.</h2>
+              <p class="pg2-step__sub">Everything you are paying for, before the payment window opens.</p>
+              <div class="bill" id="pg2-bill"></div>
+              <!-- Google's terms for hiding the reCAPTCHA badge, which would otherwise sit on top
+                   of the Pay button on a phone: say so where the check happens. -->
+              <p class="bill__legal">Protected by reCAPTCHA: Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply. Payments are processed by Razorpay.</p>
+            </div>
 
             <p class="pg2-status" id="pg2-status" role="status" aria-live="polite"></p>
 
@@ -475,7 +485,7 @@
             <span class="pg2-foot__label" id="pg2-total-label">From</span>
             <span class="pg2-foot__amount" id="pg2-total">₹27,198</span>
           </p>
-          <p class="pg2-foot__tax">(inclusive of all taxes)</p>
+          <p class="pg2-foot__tax" id="pg2-foot-tax">(inclusive of all taxes)</p>
         </div>
         <button class="pg2-next" id="pg2-next" type="button" aria-disabled="false" aria-describedby="pg2-hint">
           <span id="pg2-next-label">Continue</span>
@@ -491,12 +501,17 @@
     </div>
   </main>
 
-  <!-- three.min.js, powerpod-data.js and powerpod-3d.js are loaded on idle by the page
-       script, so the configurator is usable long before 1.8 MB of 3D arrives. -->
+  <!-- three.js, the model and powerpod-3d.js are loaded on idle by the page script
+       (through pod-assets.js), so the configurator is usable long before the 3D arrives.
+       Razorpay's script is fetched on first use of the configurator (gridx-api.js).
+       catalogue.js lends the page its money arithmetic: the gateway fee and the rounding Paddock
+       uses, so the bill prints what Razorpay will ask for. -->
   <script src="assets/gridx-api.js"></script>
+  <script src="assets/catalogue.js"></script>
   <script src="assets/gstin.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
   <script src="assets/grid-bg.js"></script>
+  <script src="assets/pod-assets.js"></script>
+  <script src="assets/keyboard.js"></script>
   <script src="assets/powerpod-gen2.js"></script>
   <script src="assets/topbar.js"></script>
   <script src="assets/analytics.js" defer></script>

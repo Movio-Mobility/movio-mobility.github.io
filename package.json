@@ -1,0 +1,33 @@
+{
+  "name": "gridx-website",
+  "private": true,
+  "description": "GridX website. Static pages; the build only minifies, versions and prunes for deploy.",
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "build": "node tools/build.mjs",
+    "model": "node tools/build-model.mjs",
+    "check": "node tools/check/model.mjs && node tools/check/analytics.mjs && node tools/check/smoke.mjs && node tools/check/sweep.mjs && node tools/check/support.mjs",
+    "check:analytics": "node tools/check/analytics.mjs",
+    "check:support": "node tools/check/support.mjs",
+    "check:dealers": "node tools/check/hours-unit.mjs && node tools/check/dealers-unit.mjs && node tools/check/dealers.mjs",
+    "check:careers": "node tools/check/careers.mjs",
+    "check:careers-build": "node tools/check/careers-build.mjs",
+    "check:careers-page": "node tools/check/careers-page.mjs",
+    "icons": "node tools/source/icons.mjs",
+    "check:lift": "node tools/check/lift.mjs",
+    "check:hand": "node tools/check/hand.mjs --browser",
+    "perf": "node tools/perf/run.mjs",
+    "reel": "node tools/perf/reel.mjs",
+    "design-kit": "node tools/design-kit/kit.mjs",
+    "mock": "node tools/check/paddock-mock.mjs",
+    "copy": "node tools/check/copy.mjs",
+    "check:tape": "node tools/check/tape-parity.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "puppeteer-core": "^24.0.0"
+  }
+}

@@ -18,6 +18,14 @@
  * Nothing is stored. The reference is offered back from sessionStorage if the order was
  * placed in this tab, which is same-tab only and never reaches a URL.
  *
+ * An order waiting at a dealership says where: the server sends collectFrom (the counter's
+ * name, address, hours and phone, or null), and this shows it with a Call link and, when the
+ * map link is one of Google Maps' own, Directions. "Something not right?" opens the contact
+ * form (support-form.js) on the order, with the reference already in it.
+ *
+ * Each lookup is counted (analytics.js, track_lookup) as found, not found or an error, and
+ * nothing else: never the reference or the number.
+ *
  * The form folds away under its heading until it is asked for: that, and the particle field
  * that follows it, is assets/disclose.js.
  */
@@ -35,6 +43,11 @@
 
   /** The key order-sheet.js writes on a successful payment, in this tab only. */
   const LAST_REF = 'gridx.lastOrder';
+
+  // Through the queue gridx-api.js sets up, so it is never lost to analytics.js arriving late.
+  const count = (result) => {
+    if (typeof window.gridTrack === 'function') window.gridTrack('track_lookup', { result });
+  };
 
   // ---------------------------------------------------------------- validation
   // Deliberately loose on the reference: the server is the only thing that can say whether
@@ -164,6 +177,81 @@
     return b;
   }
 
+  // Constants, never anything from the response.
+  const CALL_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.3c.5 0 .9.3 1 .8l.7 3.1c.1.4 0 .8-.3 1.1L8.8 10a11.5 11.5 0 0 0 5.2 5.2l1.5-1.5c.3-.3.7-.4 1.1-.3l3.1.7c.5.1.8.5.8 1v2.3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/></svg>';
+  const DIRECTIONS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11.3 19.2 4.8l-6.5 14.7-1.7-6.5z"/></svg>';
+
+  /**
+   * A map link, but only one that opens Google Maps itself, over https. The URL is typed by a
+   * member of staff, so anything else (another site, a javascript: link) is simply not shown.
+   */
+  function mapsLink(raw) {
+    let url;
+    try {
+      url = new URL(String(raw || ''));
+    } catch {
+      return '';
+    }
+    if (url.protocol !== 'https:' || url.username || url.password) return '';
+    const host = url.hostname.toLowerCase();
+    const ok = host === 'maps.google.com' || host === 'maps.app.goo.gl'
+      || ((host === 'google.com' || host === 'www.google.com') && /^\/maps(\/|$)/.test(url.pathname));
+    return ok ? url.href : '';
+  }
+
+  /** Where a dealership order is waiting, and the two ways to get there. */
+  function collectBlock(from) {
+    if (!from || typeof from !== 'object' || !from.name) return null;
+    const box = el('section', 'track__collect');
+    box.setAttribute('aria-label', 'Collect from');
+    box.append(el('h4', 'track__collect-label', 'Collect from'));
+    box.append(el('p', 'track__collect-name', from.name));
+    if (from.address) box.append(el('p', 'track__collect-text', from.address));
+    if (from.hoursNote) box.append(el('p', 'track__collect-note', from.hoursNote));
+
+    const actions = el('div', 'track__collect-actions');
+    const phone = from.phone && typeof from.phone === 'object' ? from.phone : null;
+    const e164 = phone && typeof phone.e164 === 'string' ? phone.e164.replace(/[^\d+]/g, '') : '';
+    if (/^\+\d{8,15}$/.test(e164)) {
+      // The number is the link's label and nowhere else on the card. data-topic tells the
+      // analytics tap apart from a call to GridX itself.
+      const call = el('a', 'track__action');
+      call.href = `tel:${e164}`;
+      call.dataset.topic = 'dealer';
+      call.setAttribute('aria-label', `Call ${from.name}, ${phone.display || e164}`);
+      call.innerHTML = CALL_ICON;
+      call.append(el('span', null, phone.display || e164));
+      actions.append(call);
+    }
+    const map = mapsLink(from.mapsUrl);
+    if (map) {
+      const go = el('a', 'track__action');
+      go.href = map;
+      go.target = '_blank';
+      go.rel = 'noopener noreferrer';
+      go.setAttribute('aria-label', `Directions to ${from.name}, opens Google Maps`);
+      go.innerHTML = DIRECTIONS_ICON;
+      go.append(el('span', null, 'Directions'));
+      actions.append(go);
+    }
+    if (actions.childElementCount) box.append(actions);
+    return box;
+  }
+
+  /** "Something not right?", opening the contact form on this order (support-form.js). */
+  function helpLine(reference) {
+    const line = el('p', 'track__help', 'Something not right? ');
+    const ask = el('button', 'track__help-link', 'Tell us about it');
+    ask.type = 'button';
+    ask.dataset.supportOpen = 'message';
+    ask.dataset.topic = 'order';
+    if (reference) ask.dataset.orderRef = reference;
+    ask.setAttribute('aria-haspopup', 'dialog');
+    ask.setAttribute('aria-controls', 'support-sheet');
+    line.append(ask);
+    return line;
+  }
+
   function paint(order) {
     result.textContent = '';
 
@@ -184,6 +272,10 @@
 
     const delivery = deliveryLine(order);
     if (delivery) result.append(el('p', 'track__delivery', delivery));
+
+    // Where to go, above the timeline: it is what someone with a ready order needs next.
+    const collect = collectBlock(order.collectFrom);
+    if (collect) result.append(collect);
 
     const list = el('ol', 'track__steps');
     for (const step of order.steps || []) {
@@ -207,8 +299,7 @@
     }
     result.append(list);
 
-    result.append(el('p', 'track__help',
-      'Something not right? Message us on WhatsApp and quote your reference.'));
+    result.append(helpLine(order.reference));
 
     result.hidden = false;
     // Move focus to the answer, so a screen reader lands on it rather than being left on
@@ -248,8 +339,11 @@
       .then((res) => {
         say('');
         paint(res.order);
+        count('found');
       })
       .catch((err) => {
+        // A 404 is the server's "no such order with that number"; anything else went wrong.
+        count(err.status === 404 ? 'not_found' : 'error');
         // Two failures never reached the server, so err.message is the browser's own
         // wording rather than ours. A 20s timeout aborts the fetch (gridx-api.js) and reads
         // as "The user aborted a request", which sounds like the customer did something;

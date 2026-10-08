@@ -1,0 +1,1080 @@
+/*
+ * Careers: the teams the tape opens.
+ *
+ * The tape itself (the title, the theme line, the bar and its needle, the peek and the hint,
+ * the panels and "Continue to") is tape.css, which loads first. This file sizes the tape for
+ * careers, whose labels are a team's mark above the line and its name below it, and styles
+ * what the teams open: the overview above the horizon, the role cards, the open application,
+ * and a role's own sheet (the shared .story shell, laid out as the role pages are in
+ * role.css). careers.js (through tape.js) moves elements between the overview and an open
+ * team with FLIP, so this file only has to describe where they rest.
+ *
+ * The cards take the journey's white tile (its backers) rather than a blur each: a team can
+ * hold many roles, and one backdrop blur per card is what slows a budget phone's scrolling.
+ *
+ * Mobile first: phone values are the base, and 760px and 960px widen them. Without
+ * JavaScript the tape is hidden and the build's plain list of roles (.cr-static) reads instead.
+ */
+
+.careers {
+  /* The tape's box: taller than the journey's, since a label hangs both sides of the line.
+     tape.js reads --hairline, and the labels scale about it, so it is also where they swell
+     from. Above it: the mark, its gap, and room for the lens (1.34). Below: the name. */
+  --bar-h: 104px;
+  --hairline: 58px;
+  --stop-icon: 22px;
+  --stop-name: 14px;
+  --stop-gap-above: 15px;
+  --stop-gap-below: 13px;
+  --title-size: clamp(2.6rem, 12.4vw, 5.75rem);
+  --title-icon: clamp(46px, 11.5vw, 60px);
+  --card-radius: 20px;
+  transition: opacity 0.6s var(--ease-out);
+}
+
+/* Several parts below set display, which would beat the UA's [hidden]. */
+.careers [hidden],
+.story--role [hidden] { display: none !important; }
+
+/* A sheet up (a role, or the application over it): the page recedes, the field does not.
+   cr-sheet-open is careers.js's own, so the page stays back while the application sheet,
+   closing over a role's sheet, takes story-open with it. */
+html.story-open .careers,
+html.cr-sheet-open .careers,
+html.cr-sheet-open .topbar { opacity: 0.18; }
+
+/* ---------------------------------------------------------------- the labels */
+/* A team: its mark above the hairline, its name below, one button. The box is the tape's full
+   height and scales about the hairline, so the lens swells the mark up and the name down,
+   both away from the line, and the dot between them stays put. */
+.tl-stop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-rows: var(--hairline) auto;
+  justify-items: center;
+  height: var(--bar-h);
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 18px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  transform-origin: 50% var(--hairline);
+  opacity: 0;
+  will-change: transform, opacity;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-stop__icon {
+  align-self: end;
+  display: block;
+  width: var(--stop-icon);
+  height: var(--stop-icon);
+  margin-bottom: var(--stop-gap-above);
+}
+.tl-stop__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.tl-stop__name {
+  align-self: start;
+  display: block;
+  margin-top: var(--stop-gap-below);
+  font-size: var(--stop-name);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.tl-stop:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+/* The needle, shortened above the line so it never reaches the mark of the team under it:
+   12px up (the mark's gap is 15px, 20 at full swell), the same 8px down as the journey's. */
+.careers .tl-bar__needle {
+  top: calc(var(--hairline) - 12px);
+  height: 20px;
+  transform-origin: 50% 12px;
+}
+.careers .tl-bar__needle::after { top: 9px; }
+
+/* The peek clears the names hanging under the line. */
+.careers .tl-peek { top: calc(var(--horizon-y) + var(--bar-h) - var(--hairline) + 0.4rem); }
+
+@media (min-width: 1025px) and (hover: hover) {
+  /* Level with the line, where the labels' centre of gravity is. */
+  .careers .tl-close { top: calc(var(--topbar-h) + var(--hairline) - 20px); }
+}
+
+/* ---------------------------------------------------------------- the title */
+/* The open team's mark over its name, each flown up from its label. The line the name sits in
+   is always 1.25em of the title size, however long the name (careers.js shrinks a long one to
+   fit the width), so nothing below ever moves when it changes. */
+.careers .tl-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.55rem, 1.4vw, 0.95rem);
+  font-size: var(--title-size);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-variant-numeric: normal;
+}
+.cr-title__icon,
+.cr-title__name {
+  display: grid;
+  place-items: center;
+  max-width: 100%;
+}
+.cr-title__icon {
+  width: var(--title-icon);
+  height: var(--title-icon);
+}
+.cr-title__name { height: 1.25em; }
+.cr-face {
+  grid-area: 1 / 1;
+  will-change: transform;
+}
+.cr-face--icon,
+.cr-face--icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cr-face--name {
+  line-height: 1.25;
+  white-space: nowrap;
+  /* Tracking pulls the last letter's advance in; give it back so the name centres. */
+  margin-right: -0.045em;
+}
+/* In flight, the title travels over the tape: a name rising from under the line crosses it
+   rather than being cut by the needle. Only then, so the pinned tape still covers the title
+   as the page scrolls. */
+.careers.is-flying .tl-head {
+  position: relative;
+  z-index: 6;
+}
+/* Only while a face rolls over: a soft window, as the journey's odometer has, so the old name
+   fades out past the top and the new one in from below. Side padding cancelled by negative
+   margins widens the clip without moving a thing. */
+.cr-title__icon.is-rolling,
+.cr-title__name.is-rolling {
+  overflow: hidden;
+  padding: 0 0.14em;
+  margin: 0 -0.14em;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 9%, #000 91%, transparent);
+}
+
+/* ---------------------------------------------------------------- the overview */
+/* Above the horizon while no team is open: who is hiring, and how much is open. It steps
+   aside as a label flies up into the title, and comes back as the title flies home. */
+.cr-intro {
+  position: absolute;
+  z-index: 3;
+  top: var(--topbar-h);
+  left: var(--gutter-l);
+  right: var(--gutter-r);
+  height: max(7rem, calc(var(--horizon-y) - var(--hairline) - var(--topbar-h)));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.75rem;
+  text-align: center;
+  pointer-events: none;
+  /* Back once the title has nearly reached the tape again, so the two never cross. */
+  transition: opacity 0.6s var(--ease-out) 0.5s, transform 0.8s var(--ease-out) 0.5s, visibility 0s linear 0.5s;
+  animation: cr-rise 0.9s var(--ease-out) 0.1s backwards;
+}
+.careers.is-open .cr-intro {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, -10px, 0);
+  transition: opacity 0.22s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+}
+.cr-intro__kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.cr-intro__title {
+  max-width: 13ch;
+  margin: 0.6rem 0 0;
+  font-size: clamp(2.05rem, 8.6vw, 4.1rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.cr-intro__count {
+  min-height: 1.4em;
+  margin: 0.85rem 0 0;
+  font-size: clamp(0.98rem, 0.35vw + 0.9rem, 1.2rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink-quiet);
+  font-variant-numeric: tabular-nums;
+}
+/* Waiting for the first list: a soft bar where the count will be. */
+.careers.is-loading .cr-intro__count::before {
+  content: "";
+  display: block;
+  width: 12.5em;
+  height: 0.9em;
+  margin: 0.25em auto 0;
+  border-radius: 999px;
+  background: rgb(20 20 20 / 0.08);
+  animation: cr-shimmer 1.4s ease-in-out infinite alternate;
+}
+.cr-intro__status {
+  max-width: 34rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ink-quiet);
+  text-wrap: balance;
+  pointer-events: auto;
+}
+/* A short or wide screen keeps only the count above the tape. */
+@media (max-height: 560px) {
+  .cr-intro__kicker,
+  .cr-intro__title { display: none; }
+}
+
+/* ---------------------------------------------------------------- loading */
+/* Stand-in labels where the real ones will be: the line, a mark and a name either side of it,
+   the middle one at the lens's swell. careers.js places the horizon first, so nothing moves
+   when the tape takes over; they fade as it draws itself. */
+.cr-skel {
+  --skel-gap: 132px;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
+}
+.careers.is-loading .cr-skel { opacity: 1; }
+.careers.is-failed .cr-skel { opacity: 0.45; }
+.careers.is-ready .cr-skel { display: none; }
+/* From the first stop on, as the tape's own line runs (the first team arrives centred). */
+.cr-skel__line {
+  position: absolute;
+  left: calc(50% - var(--skel-gap) / 2);
+  right: 0;
+  top: var(--hairline);
+  height: 1px;
+  background: linear-gradient(90deg, rgb(20 20 20 / 0), rgb(20 20 20 / 0.2) 3rem);
+}
+.cr-skel__stop {
+  position: absolute;
+  top: 0;
+  left: calc(50% + var(--i) * var(--skel-gap));
+  width: 0;
+  height: var(--bar-h);
+  animation: cr-shimmer 1.4s ease-in-out infinite alternate;
+  animation-delay: calc((var(--i) + 1) * 0.18s);
+}
+.cr-skel__stop--near { transform: scale(1.34); transform-origin: 0 var(--hairline); }
+.careers.is-failed .cr-skel__stop { display: none; }
+.cr-skel__stop::before,
+.cr-skel__stop::after {
+  content: "";
+  position: absolute;
+  background: rgb(20 20 20 / 0.09);
+}
+/* The mark */
+.cr-skel__stop::before {
+  left: calc(var(--stop-icon) / -2);
+  top: calc(var(--hairline) - var(--stop-gap-above) - var(--stop-icon));
+  width: var(--stop-icon);
+  height: var(--stop-icon);
+  border-radius: 7px;
+}
+/* The name */
+.cr-skel__stop::after {
+  left: -2.4rem;
+  top: calc(var(--hairline) + var(--stop-gap-below) + 0.15rem);
+  width: 4.8rem;
+  height: 0.75rem;
+  border-radius: 999px;
+}
+@keyframes cr-shimmer {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------- no tape: none open, or no list */
+.careers.is-empty .tl-bar,
+.careers.is-empty .tl-peek {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+.cr-notice {
+  position: absolute;
+  z-index: 4;
+  top: calc(var(--horizon-y) + var(--bar-h) - var(--hairline) + 0.4rem);
+  left: var(--gutter-l);
+  right: var(--gutter-r);
+  display: grid;
+  justify-items: center;
+  gap: 0.95rem;
+  text-align: center;
+  animation: cr-rise 0.8s var(--ease-out) backwards;
+}
+/* With no tape, it takes the tape's place on the horizon. */
+.careers.is-empty .cr-notice { top: calc(var(--horizon-y) - var(--hairline) + 0.5rem); }
+.cr-notice__title {
+  margin: 0;
+  font-size: clamp(1.1rem, 0.5vw + 1rem, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cr-notice__title + .cr-notice__text { margin-top: -0.55rem; }
+.cr-notice__text {
+  max-width: 34rem;
+  margin: 0;
+  font-size: clamp(1rem, 0.35vw + 0.92rem, 1.15rem);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--ink-soft);
+  text-wrap: balance;
+}
+.cr-notice__mail {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-quiet);
+}
+
+/* ---------------------------------------------------------------- buttons and links */
+/* The site's black pill (the store's, the order sheet's Pay, the role page's Apply). */
+.cr-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  margin: 0;
+  padding: 0.8rem 1.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 12px 32px -14px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  transition: transform 0.4s var(--spring), opacity 0.28s var(--ease-out);
+}
+.cr-pill:active { transform: scale(0.985); }
+.cr-pill:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.cr-pill[aria-disabled="true"] { opacity: 0.32; box-shadow: none; cursor: default; }
+.cr-pill[aria-disabled="true"]:active { transform: none; }
+
+.cr-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  margin: 0;
+  padding: 0 1.3rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.42);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 0 0 1px rgb(20 20 20 / 0.1);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s var(--ease-out), transform 0.4s var(--spring);
+}
+.cr-ghost:active { transform: scale(0.985); }
+.cr-ghost:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.cr-ghost[aria-disabled="true"] { opacity: 0.5; cursor: default; }
+
+.cr-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.cr-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 3px; }
+.cr-notice__mail a,
+.cr-open__mail a,
+.rs__note a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .cr-ghost:hover { background: rgb(255 255 255 / 0.66); }
+}
+
+/* ---------------------------------------------------------------- a team's panel */
+/* The team's name belongs to the panel for anyone reading without the tape; with it, the big
+   title is the visible heading and this stays for assistive tech. */
+.cr-panel__heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cr-panel__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 2.25rem);
+  padding-top: clamp(1.75rem, 6vw, 3.25rem);
+}
+/* The team's line about itself, as the journey's lead chapters read. */
+.cr-panel__blurb {
+  max-width: 28ch;
+  margin: 0;
+  font-size: clamp(1.3rem, 1vw + 1.05rem, 1.75rem);
+  font-weight: 500;
+  line-height: 1.34;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.cr-panel--bare .cr-panel__lead { display: none; }
+
+/* Applications paused: said once, quietly, where the team is introduced. */
+.cr-paused {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: 30rem;
+  margin: 1.1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.36);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+}
+.cr-panel__blurb[hidden] + .cr-paused { margin-top: 0; }
+.cr-paused__icon {
+  flex: none;
+  margin-top: 0.1rem;
+  color: rgb(20 20 20 / 0.55);
+}
+.cr-paused__icon svg { display: block; }
+.cr-paused__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.72);
+}
+
+/* ---------------------------------------------------------------- the role cards */
+.cr-roles {
+  position: relative; /* the leavers fade where they stood (careers.js) */
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cr-role { min-width: 0; }
+
+.cr-card {
+  position: relative;
+  display: grid;
+  gap: 0.55rem;
+  padding: clamp(1.15rem, 4.8vw, 1.55rem) clamp(1.15rem, 4.8vw, 1.65rem) clamp(1.2rem, 4.8vw, 1.5rem);
+  border-radius: var(--card-radius);
+  background:
+    radial-gradient(120% 80% at 10% 0%, rgb(255 255 255 / 0.32), rgb(255 255 255 / 0) 62%),
+    linear-gradient(160deg, rgb(255 255 255 / 0.46), rgb(255 255 255 / 0.3) 55%, rgb(255 255 255 / 0.38));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.62),
+    inset 0 0 0 1px rgb(255 255 255 / 0.36),
+    inset 0 -1px 0 rgb(20 20 20 / 0.04),
+    0 18px 34px -26px rgb(20 20 20 / 0.42);
+  transition: transform 0.55s var(--spring), box-shadow 0.55s var(--ease-out);
+}
+.cr-card__eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.5);
+}
+.cr-card__team { min-width: 0; }
+/* The store's tag, for a role Paddock features. */
+.cr-card__tag {
+  flex: none;
+  margin-left: auto;
+  padding: 0.34em 0.62em;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: rgb(20 20 20 / 0.62);
+  background: rgb(20 20 20 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.4);
+}
+.cr-card__title {
+  margin: 0;
+  font-size: clamp(1.25rem, 0.6vw + 1.08rem, 1.6rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+/* The title is the card's link, and its hit area is the whole card. */
+.cr-card__hit {
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.cr-card__hit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+.cr-card__hit:focus-visible { outline: none; }
+.cr-card:has(.cr-card__hit:focus-visible) { outline: 2px solid var(--ink); outline-offset: 3px; }
+.cr-card__summary {
+  max-width: 54ch;
+  margin: 0;
+  font-size: 0.97rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.68);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.cr-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0.3rem 0 0;
+  padding: 0 2.9rem 0 0;
+  list-style: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgb(20 20 20 / 0.66);
+}
+.cr-card__fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+.cr-card__fact .cr-icon { display: inline-grid; color: rgb(20 20 20 / 0.48); }
+.cr-card__fact svg { display: block; }
+.cr-card__go {
+  position: absolute;
+  right: clamp(0.9rem, 3.6vw, 1.2rem);
+  bottom: clamp(0.9rem, 3.6vw, 1.15rem);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.55);
+  box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.08);
+  color: var(--ink);
+  transition: transform 0.45s var(--spring), background-color 0.25s ease, color 0.25s ease;
+}
+.cr-card__go svg { display: block; }
+.cr-card:active { transform: scale(0.99); }
+@media (hover: hover) {
+  .cr-card:hover {
+    transform: translate3d(0, -3px, 0);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.66),
+      inset 0 0 0 1px rgb(255 255 255 / 0.42),
+      inset 0 -1px 0 rgb(20 20 20 / 0.04),
+      0 26px 40px -26px rgb(20 20 20 / 0.5);
+  }
+  .cr-card:hover .cr-card__go {
+    background: var(--ink);
+    color: #fff;
+    transform: translate3d(2px, 0, 0);
+  }
+}
+
+/* ---------------------------------------------------------------- the way on */
+.cr-next .cr-next__mark {
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin: 0.45rem 0 0.15rem;
+  color: var(--ink);
+}
+.cr-next .cr-next__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cr-next .tl-next__year {
+  font-size: clamp(2.4rem, 10.5vw, 4.6rem);
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------------- the open application */
+.cr-open {
+  display: grid;
+  justify-items: start;
+  gap: 1.15rem;
+  max-width: 40rem;
+  margin: clamp(1.75rem, 6vw, 3.25rem) auto 0;
+  padding: clamp(1.4rem, 6vw, 2.4rem);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 80% at 10% 0%, rgb(255 255 255 / 0.32), rgb(255 255 255 / 0) 62%),
+    linear-gradient(160deg, rgb(255 255 255 / 0.46), rgb(255 255 255 / 0.3) 55%, rgb(255 255 255 / 0.38));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.62),
+    inset 0 0 0 1px rgb(255 255 255 / 0.36),
+    0 22px 40px -28px rgb(20 20 20 / 0.45);
+}
+.cr-open__lead {
+  margin: 0;
+  font-size: clamp(1.25rem, 1vw + 1rem, 1.6rem);
+  font-weight: 500;
+  line-height: 1.36;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+.cr-open__points {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.cr-open__points li {
+  position: relative;
+  padding-left: 2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.72);
+}
+.cr-open__points li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  top: 0.1rem;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.6);
+}
+.cr-paused--open { margin: 0; }
+.cr-open__mail {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.55);
+}
+
+/* ---------------------------------------------------------------- wider screens */
+@media (min-width: 760px) {
+  /* One line above the tape, so the sky keeps its air. */
+  .cr-intro__title {
+    max-width: none;
+    font-size: clamp(2.6rem, 3.3vw + 1rem, 3.75rem);
+  }
+  .careers {
+    --bar-h: 112px;
+    --hairline: 62px;
+    --stop-icon: 24px;
+    --stop-name: 16px;
+    --stop-gap-above: 16px;
+    --stop-gap-below: 14px;
+    --card-radius: 22px;
+  }
+  .cr-skel { --skel-gap: clamp(150px, 15vw, 220px); }
+}
+
+@media (min-width: 960px) {
+  /* The team's line on one side, held while its roles scroll by on the other. */
+  .cr-panel__body {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(2rem, 4.5vw, 4.5rem);
+    align-items: start;
+  }
+  .cr-panel__lead {
+    position: sticky;
+    top: calc(var(--topbar-h) + var(--bar-h) + 2.5rem);
+  }
+  .cr-panel--bare .cr-panel__body {
+    grid-template-columns: minmax(0, 46rem);
+    justify-content: center;
+  }
+  .cr-roles { gap: 0.9rem; }
+  .cr-card { padding: 1.6rem 1.75rem 1.55rem; }
+}
+
+/* ---------------------------------------------------------------- a role, in its sheet */
+/* The shared sheet (sheet.css), as tall as the application's, laid out the way the role's
+   own page is (role.css): eyebrow, title, summary, the fact pills, the sections. Its foot is
+   the application sheet's: frosted, with the black pill. */
+.story--role {
+  --hair: rgb(20 20 20 / 0.12);
+  max-height: min(92svh, 860px);
+}
+.story--role .story__scroll { padding-bottom: 1.75rem; }
+.rs__view { min-height: 6rem; }
+
+.story--role .rs__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.1rem;
+  max-width: none;
+  margin: 0 3rem 0.6rem 0; /* clear of the close button */
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.5);
+}
+.rs__mark { display: inline-grid; color: rgb(20 20 20 / 0.62); }
+.rs__mark svg { display: block; width: 18px; height: 18px; }
+
+.rs__title {
+  max-width: calc(100% - 2.5rem);
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.rs__title:focus { outline: none; }
+.rs__title:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4px; }
+
+.story--role .rs__summary {
+  max-width: 46ch;
+  margin: 0 0 1.15rem;
+  font-size: clamp(1.02rem, 0.3vw + 0.97rem, 1.15rem);
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.76);
+  text-wrap: pretty;
+}
+.rs__summary strong { font-weight: 600; color: var(--ink); }
+.story--role .rs__facts { margin: 0 0 1.5rem; }
+
+.rs__notice {
+  margin: 0 0 1.5rem;
+  padding: 0.95rem 1.1rem 1rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.5);
+  box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.08);
+}
+.story--role .rs__notice-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.story--role .rs__notice-text {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.66);
+}
+
+/* The sections, as the role page sets them; sheet.css's story copy is put back. */
+.rs__body {
+  padding-top: 1.5rem;
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+}
+.story--role .role__section p {
+  max-width: 62ch;
+  margin: 0 0 0.9em;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgb(20 20 20 / 0.74);
+}
+.story--role .role__section p:last-child { margin-bottom: 0; }
+.story--role .role__h2 { font-size: clamp(1.1rem, 0.4vw + 1rem, 1.28rem); }
+.story--role .role__fact,
+.story--role .role__skills li { background: rgb(255 255 255 / 0.48); }
+.story--role .rs__meta { margin-top: 1.75rem; }
+.story--role .rs__note {
+  max-width: none;
+  margin: 1.25rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.55);
+}
+
+/* A notice's two long buttons, one above the other on a phone. */
+@media (max-width: 559px) {
+  .story--role:not([data-mode="role"]) .apply__bar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+/* Closed: what is still open in the team, as rows that open in this same sheet. */
+.rs__sub {
+  margin: 1.5rem 0 0.7rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+.rs__others {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 0.32);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.3);
+  overflow: hidden;
+}
+.rs__others li + li { border-top: 1px solid rgb(20 20 20 / 0.07); }
+.rs__other {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.15rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.9rem 1rem 0.9rem 1.1rem;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease;
+}
+.rs__other-title {
+  grid-column: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+.rs__other-facts {
+  grid-column: 1;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: rgb(20 20 20 / 0.55);
+}
+.rs__other-go {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  color: rgb(20 20 20 / 0.5);
+  transition: transform 0.4s var(--spring);
+}
+.rs__other-go svg { display: block; }
+.rs__other:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 18px; }
+.rs__other:active { background: rgb(255 255 255 / 0.35); }
+@media (hover: hover) {
+  .rs__other:hover { background: rgb(255 255 255 / 0.28); }
+  .rs__other:hover .rs__other-go { transform: translate3d(3px, 0, 0); color: var(--ink); }
+}
+
+/* Waiting for Paddock: a role the build did not know of, being looked up. */
+.rs__skel {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+.rs__skel span {
+  display: block;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: rgb(20 20 20 / 0.08);
+  animation: cr-shimmer 1.4s ease-in-out infinite alternate;
+}
+.rs__skel span:nth-child(1) { width: 72%; }
+.rs__skel span:nth-child(2) { width: 88%; animation-delay: 0.15s; }
+.rs__skel span:nth-child(3) { width: 64%; animation-delay: 0.3s; }
+.rs__skel span:nth-child(4) { width: 40%; animation-delay: 0.45s; }
+
+.rs__secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+.rs__secondary-icon { display: inline-grid; }
+.rs__secondary-icon svg { display: block; }
+.story--role .rs__hint {
+  max-width: none;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: center;
+  color: rgb(20 20 20 / 0.55);
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- arrival */
+@keyframes cr-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+/* ---------------------------------------------------------------- without JavaScript */
+/* The intro reads first, then the build's list of roles, each a link to its own page. */
+html:not(.js) .cr-intro {
+  position: static;
+  height: auto;
+  padding: calc(var(--topbar-h) + 2.5rem) var(--gutter-r) 0 var(--gutter-l);
+  animation: none;
+}
+html:not(.js) .cr-intro__count,
+html:not(.js) .cr-intro__status,
+html:not(.js) .cr-notice,
+html:not(.js) .cr-skel { display: none; }
+html:not(.js) .careers .tl-panels { padding-top: 2.5rem; }
+.js .cr-static { display: none; }
+
+.cr-static {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+.cr-static__title {
+  margin: 0 0 1.75rem;
+  font-size: clamp(1.6rem, 1.6vw + 1.2rem, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.cr-static__team + .cr-static__team { margin-top: 2.5rem; }
+.cr-static__name {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.cr-static__blurb {
+  margin: 0.4rem 0 0;
+  color: var(--ink-quiet);
+  line-height: 1.5;
+}
+.cr-static__roles {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cr-static__roles li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.42);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5);
+}
+.cr-static__role {
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.cr-static__facts {
+  font-size: 0.85rem;
+  color: var(--ink-quiet);
+}
+.cr-static__text {
+  margin: 2.5rem 0 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.cr-static__text a { color: var(--ink); }
+
+/* ---------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .careers { transition: opacity 0.2s ease; }
+  .cr-intro,
+  .cr-notice {
+    animation: cr-fade 0.4s ease backwards;
+    transform: none !important;
+    transition: opacity 0.3s ease, visibility 0s;
+  }
+  .cr-skel__stop,
+  .rs__skel span,
+  .careers.is-loading .cr-intro__count::before { animation: none; }
+  .cr-card,
+  .cr-card__go,
+  .rs__other-go,
+  .cr-pill,
+  .cr-ghost { transition: background-color 0.2s ease, color 0.2s ease; }
+  .cr-card:hover,
+  .cr-card:active,
+  .cr-card:hover .cr-card__go,
+  .rs__other:hover .rs__other-go,
+  .cr-pill:active,
+  .cr-ghost:active { transform: none; }
+}
+@keyframes cr-fade {
+  from { opacity: 0; }
+}

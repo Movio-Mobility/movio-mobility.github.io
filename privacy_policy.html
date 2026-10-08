@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Privacy Policy | GridXenergy</title>
+  <meta name="description" content="GridXenergy privacy policy: how GridX collects, uses, and protects your data for PowerPod, battery swap, and energy services.">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/store.css">
+  <link rel="stylesheet" href="assets/sheet.css">
+  <link rel="stylesheet" href="assets/legal.css">
+  <link rel="stylesheet" href="assets/footer.css">
+
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
+  <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GridX home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Legal</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <!-- The fifth slot is the page's own. Like Careers, this page is reached from the
+               footer, not the nav, so it joins the island only while it is open (see topbar.js). -->
+          <li class="island__context">
+            <a class="island__link" href="privacy_policy.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H7.5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V7z"/><path d="M14 3.5V7h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+              <span class="island__label">Legal</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon, the same glyph as its own tab. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M14 3.5H7.5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V7z"/><path d="M14 3.5V7h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- The Terms and Conditions and the Customer Privacy Policy, one document, word for word as
+       it stood on the old site's privacy_policy.html. The file name is kept because other sites
+       link to it; both footer links come here. Only the setting has changed: the old page's
+       <br> runs are paragraphs, its bullets are lists, and its headings are in sentence case.
+       Typos are the original's; correct them here only with the legal text signed off. -->
+  <main class="store legal">
+    <article class="legal__layout">
+      <h2 class="store-kicker legal__title" style="--i:0">Movio Terms and Conditions and Customer Privacy Policy</h2>
+
+      <nav class="legal__index" aria-label="Sections" style="--i:2">
+        <ol>
+          <li><a href="#objective"><span class="legal__n">I.</span><span>Objective and applicability</span></a></li>
+          <li><a href="#information-collected"><span class="legal__n">II.</span><span>Information collected</span></a></li>
+          <li><a href="#manner-of-collection"><span class="legal__n">III.</span><span>Manner of collection</span></a></li>
+          <li><a href="#use"><span class="legal__n">IV.</span><span>Use of your information</span></a></li>
+          <li><a href="#disclosure"><span class="legal__n">V.</span><span>Disclosure of your information</span></a></li>
+          <li><a href="#security"><span class="legal__n">VI.</span><span>Data security</span></a></li>
+          <li><a href="#access"><span class="legal__n">VII.</span><span>Accessing and updating</span></a></li>
+          <li><a href="#age"><span class="legal__n">VIII.</span><span>Age restrictions</span></a></li>
+          <li><a href="#liability"><span class="legal__n">IX.</span><span>Limitation of liability</span></a></li>
+          <li><a href="#amendments"><span class="legal__n">X.</span><span>Amendments</span></a></li>
+          <li><a href="#governing-law"><span class="legal__n">XI.</span><span>Governing law</span></a></li>
+          <li><a href="#terms-of-use"><span class="legal__n">XII.</span><span>Terms of Use</span></a></li>
+          <li><a href="#contacts"><span class="legal__n">XIII.</span><span>Data protection contacts</span></a></li>
+          <li><a href="#job-applicants"><span class="legal__n">XIV.</span><span>Job applicants</span></a></li>
+          <li><a href="#support-requests"><span class="legal__n">XV.</span><span>Support requests</span></a></li>
+          <li><a href="#website-analytics"><span class="legal__n">XVI.</span><span>Website analytics</span></a></li>
+          <li><a href="#near-me"><span class="legal__n">XVII.</span><span>Finding a dealer near you</span></a></li>
+        </ol>
+      </nav>
+
+      <div class="legal__body" style="--i:1">
+        <section class="legal__section" id="objective">
+          <h3><span class="legal__n">I.</span><span>Objective and applicability of the policy</span></h3>
+          <p>This Customer Privacy Policy (hereinafter referred to as the "Privacy Policy") governs the collection, use, disclosure, transfer or otherwise processing of personal data or sensitive personal data by MOVIO TECHNOLOGIES PRIVATE LIMITED (the "Company" or "us" or" "our").</p>
+          <p>When you enter into an agreement with us to use the Customer application or browse, visit or access the Movio Mobility website [www.gridxenergy.in] and any other website published by the Company, or avail energy services using the Company's smart batteries and battery swap stations ("Movio Mobility entities"), we may collect some personal information from you.</p>
+          <p>By clicking [I accept/I agree] you are agreeing to the terms of this Privacy Policy, you acknowledge that you have read and understood the Privacy Policy and that you provide consent for the collection, processing, storage, use, disclosure, transfer and otherwise handling of your personal and sensitive personal data in accordance with the terms contained below.</p>
+          <p>Please note that you have the option to not provide your sensitive personal data to us, however, we will not be able to provide you with access to the Movio Mobility Application in case you elect to do so.</p>
+          <p>The terms "You" or "Your" or "User" or "Customer" refer to drivers or vehicle owners or fleet owners that are onboarded as customers and any other such individual or legal entity who accesses or uses services offered by Movio.</p>
+          <p>This Privacy Policy describes the types of information the Company may collect from you or that you may provide in relation to the use or access of any Movio entities and the manner in which such information is collected, used, processed, disclosed and maintained.</p>
+          <p>This Privacy Policy shall apply to all information you provide or have previously provided on the Movio Application and all information that the Company collects or has previously collected on the Movio Applications such as user information and any information you upload, or have uploaded, or exchange, or have exchanged, with the Company and other users of Movio Applications and any information submitted by you to the Company.</p>
+          <p>This Privacy Policy does not apply to, nor does the Company take any responsibility for, any information that is collected by any third party either using the Movio Applications, or through any links on the Movio Applications, or through any advertisements on the Movio Applications.</p>
+          <p>Any personal information collected in accordance with this Privacy Policy will be collected and retained by the Company and by the Company's dedicated cloud server or such other service provider as may be used by the Company from time to time.</p>
+        </section>
+
+        <section class="legal__section" id="information-collected">
+          <h3><span class="legal__n">II.</span><span>Type of information collected</span></h3>
+          <p>We collect following information from you:</p>
+
+          <h4>i. Personally Identifiable Information</h4>
+          <ul class="legal__points">
+            <li>
+              <p><strong>Onboarding and Account Creation Information:</strong> When you are onboarded, we may collect your name, home address, address proof documents, mobile number, email address and the MOVIO TECHNOLOGIES PRIVATE LIMITED agreement document signed by you to create your user account with us;</p>
+            </li>
+            <li>
+              <p><strong>Vehicle Information:</strong> We may collect information about your vehicle, such as vehicle registration number, vehicle category and type, vehicle VIN number, master dock ID, driver DL number, vehicle make and manufacturing details, vehicle zone, and vehicle TC to connect the Movio Applications and to enable you to access our services at the swapping stations;</p>
+            </li>
+            <li>
+              <p><strong>Geo-location Information:</strong> The Movio Applications connect to the battery-pack based on the bluetooth function available; therefore, we will collect your geo-location data from your device with your permission along with networkbased location information to connect the Movio Application to your vehicle. When the vehicle is in use, we may collect location data necessary for the purpose of displaying the nearest swapping stations;</p>
+            </li>
+            <li>
+              <p><strong>Identity Verification Information:</strong> We may also collect Know Your Customer (KYC) and identity related information such as Aadhaar Card details, PAN card details and cancelled cheque for identity verification purposes.</p>
+              <p>Please note, you are required to provide your Aadhaar number for the use of the Movio Applications and the submission of your Aadhaar number is notvoluntary and is required</p>
+            </li>
+          </ul>
+
+          <h4>ii. Sensitive Personal Information</h4>
+          <ul class="legal__points">
+            <li>
+              <p><strong>Password Information:</strong> When you are onboarded, we may require you to create an account to access the Movio Applications and accordingly we may collect your password and related information;</p>
+            </li>
+            <li>
+              <p><strong>Payment Information:</strong> When you are onboarded and subsequently to enable you to engage in transactions at the swapping station, we will need to collect the financial information you provide for this purpose including your credit card number, your debit card number, your bank account number, bank IFSC code, your UPI handle, payment wallet information and net-banking details. The information we collect would depend on the payment method that you use.</p>
+              <p>We may pass this information on to our third-party payment services vendors, or these entities may also directly collect this information from you; and</p>
+            </li>
+          </ul>
+
+          <h4>iii. Non-Personal Information</h4>
+          <p>information that cannot be used to identify you such as the webpages that you have viewed and your usage patterns.</p>
+
+          <h4>iv. Device Information</h4>
+          <ul class="legal__points">
+            <li>
+              <p><strong>Movio Applications Information:</strong> The Company may directly or through its third-party vendors collect user information about how you are accessing and using the Movio Applications, which will include administrative and support communications with us and information about the purchases made through the Movio Applications.</p>
+              <p>We may access certain aspects of your device to enable you to use the Movio Applications.</p>
+              <p>For instance, we may access the camera so that you can upload a photo for verification purposes, we may access your device's storage so that you can store your KYC documents and upload them to Movio Applications, and we may access the list of contacts on your phone to autofill certain details on Movio Applications; and</p>
+            </li>
+            <li>
+              <p><strong>Device and Log Information:</strong> We may collect information about the device you are using to access the Movio Applications, including information which is automatically collected about the device from which Movio Applications is used such as device ID, information about your SIM card, operating system, device settings and log data. We may also collect network information about your device and information which is collected from the Company's smart batteries and quick interchange stations.</p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="legal__section" id="manner-of-collection">
+          <h3><span class="legal__n">III.</span><span>Manner of collection of the information</span></h3>
+          <p>In the use of Movio Applications, as you navigate through the Movio Applications, the Company may collect different types of information as detailed above.</p>
+          <p>You understand that the information collected by the Company, may be collected directly or through tracking of your usage of the Movio Applications.</p>
+          <p>The usage details may include IP addresses, details of your computer/phone, browser, location, payment information, battery swap data, energy consumption data, connections, any information that the Company may collect through the use of cookies and other tracking technologies. The collection of data may in most cases be automatic.</p>
+          <p>"Cookies" are files that would be placed in your system's hard drive and are intended to improve your user experience, by enabling the Company to track your usage and preference.</p>
+          <p>These cookies may track your usage of Movio Applications, advertisements and links that you visit and other user data. Most cookies the Company uses are limited to a session, which mean they will be automatically deleted when your session closes. You may decline these cookies by changing your browser settings, if permitted, however, please note that this may impact certain features of the Movio Application or your user experience in using other Movio Applications.</p>
+          <p>Advertisements on Movio Applications may be posted by third-party advertisers, and such third parties may use cookies and other automatic tracking technologies to collect information about you, including but not limited to web behavioural information and patterns.</p>
+          <p>The Company does not control nor takes any responsibility for such third parties, their collection and use of information or their tracking technologies or how they may be used.</p>
+          <p>You may also provide information to be published or displayed or posted on Movio Applications or transmitted to other users of Movio Applications or third parties.Any such information is posted or transmitted to others at your own risk.</p>
+          <p>Please be aware that the Company cannot control the actions of other users of Movio Applications with whom you may choose to share information with.</p>
+          <p>We will not retain any sensitive personal data for longer than is required for the purpose for which such data was collected, or may lawfully be used, or is otherwise required under any other law for the time being in force. We may retain anonymized data for as long as is required.</p>
+        </section>
+
+        <section class="legal__section" id="use">
+          <h3><span class="legal__n">IV.</span><span>Use of your information</span></h3>
+          <p>The information that we collect on Movio Applications will be used for the following purposes:</p>
+
+          <h4>i. Administration Purposes</h4>
+          <p>The Company will access and use your data as reasonably necessary and in accordance with your instructions to:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">(a)</span><span>provide, maintain and improve the Movio Application and to provide you with energy services, our products and features;</span></li>
+            <li><span class="legal__n">(b)</span><span>prevent or address service, security, technical issues, or at your request in connection with support matters;</span></li>
+            <li><span class="legal__n">(c)</span><span>act in a manner required by law,</span></li>
+            <li><span class="legal__n">(d)</span><span>act in the manner expressly permitted in writing by you;</span></li>
+            <li><span class="legal__n">(e)</span><span>provide our services and Movio Application facilities to you;</span></li>
+            <li><span class="legal__n">(f)</span><span>carry out transactions;</span></li>
+            <li><span class="legal__n">(g)</span><span>carry out identity/KYC authentication;</span></li>
+            <li><span class="legal__n">(h)</span><span>monitor customer attendance and vehicle location; and</span></li>
+            <li><span class="legal__n">(i)</span><span>carry out consumer lead generation;</span></li>
+          </ol>
+
+          <h4>ii. To improve the Customer Application and other Services</h4>
+          <p>We carry out research and analyze trends to better understand how Users are using Movio Applications and improve them. We may use your information to expand and improve our services and business and to develop internal and external analyses;</p>
+
+          <h4>iii. To communicate with you by</h4>
+          <ul class="legal__points">
+            <li>
+              <p><strong>Responding to your requests:</strong> If you contact us with a problem or question, we will use your information to respond.</p>
+            </li>
+            <li>
+              <p><strong>Sending emails and notifications:</strong> By accepting the terms of this Privacy Policy you give us the permission to send you Movio Application notifications and administrative emails and messages including text messages.</p>
+              <p>We may also contact you to inform you about changes in Movio Applications, their offerings, and important Movio Application related notices, such as security and fraud notices.</p>
+              <p>These emails and notifications are considered part of Movio Applications and you may not opt-out of them. In addition, we sometimes send emails about new product features or other news about the Company.</p>
+              <p>You can opt out of these at any time; and</p>
+            </li>
+            <li>
+              <p>Other purposes you consent to, are notified of, or are disclosed when you provide personal information.</p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="legal__section" id="disclosure">
+          <h3><span class="legal__n">V.</span><span>Disclosure of your information</span></h3>
+          <p>You hereby acknowledge and agree that we may disclose or transfer the information you provide to us under the following circumstances, to the entities/individuals identified below:</p>
+          <ol class="legal__list legal__list--wide">
+            <li>
+              <span class="legal__n">i.</span>
+              <p>Your information including any user information will be made available to other users of Movio Applications to enable the Company to</p>
+              <ol class="legal__list">
+                <li><span class="legal__n">(a)</span><span>provide you with Movio services;</span></li>
+                <li><span class="legal__n">(b)</span><span>carry out advertising;</span></li>
+                <li><span class="legal__n">(c)</span><span>for the purpose of business transactions;</span></li>
+                <li><span class="legal__n">(d)</span><span>communicate with you and provide you with notifications related to the service;</span></li>
+              </ol>
+            </li>
+            <li>
+              <span class="legal__n">ii.</span>
+              <p>The information you provide on the Movio Applications may be disclosed by the Company to the other users on Movio Applications, the Company's agents, employees, third party advertisers, subsidiaries and affiliates, or to other third-party service providers of the Company who require the information for the purposes of using, operating and maintaining Movio Applications. We may further share your information with our verified Partners as required to support and facilitate business transactions. This includes the sharing of your information with an original equipment manufacturers associated with the dealership; and</p>
+            </li>
+            <li>
+              <span class="legal__n">iii.</span>
+              <p>The Company will comply with requests and directions of all governmental, law enforcement or regulatory authorities, which it believes in good faith to be in accordance with any applicable law. Such compliance may include providing user information, personally identifiable information, or any other information to such agency or authority.</p>
+              <p>By providing any information on Movio Applications, you consent to the Company providing such information to any governmental, law enforcement or regulatory authorities who exercise jurisdiction over the Company and Movio Applications.</p>
+            </li>
+            <li>
+              <span class="legal__n">iv.</span>
+              <p>When you reserve or buy a product on gridxenergy.in, your name, phone number, email address, city, PIN code and, if you provide one, your GSTIN are shared with our payment gateway, Razorpay Software Private Limited, so that it can process your payment, record it against you and email you a receipt for it. Your card, UPI, net banking or wallet details are collected by Razorpay directly; they do not pass through, and are not stored by, our website.</p>
+              <p>To protect our ordering pages from automated abuse, they use Google reCAPTCHA Enterprise, which receives information about your device and how the page is used. Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply to it.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="security">
+          <h3><span class="legal__n">VI.</span><span>Data security</span></h3>
+          <p>The information that you provide, subject to disclosure in accordance with this Privacy Policy shall be maintained in a safe and secure manner. We have adopted the necessary security standard to protect the confidentiality and security of your information.</p>
+          <p>As a user of Movio Applications, you have the responsibility to ensure data security. You should use Movio Applications in a responsible manner. Do not share your username/identification number or password with any person.</p>
+          <p>You are solely responsible for all acts done under the username/identification number you are registered under.</p>
+          <p>Given the nature of internet transactions, the Company does not take any responsibility for the transmission of information including user information to Movio Applications.</p>
+          <p>Any transmission of information on the internet is done at your risk. The Company does not take any responsibility for you or any third party circumventing the privacy settings or security measures contained on Movio Applications. While the Company will use all reasonable efforts to ensure that your user information and other information submitted by you is safe and secure, it offers no representation, warranties or other assurances that the security measures are adequate, safe, fool proof or impenetrable.</p>
+        </section>
+
+        <section class="legal__section" id="access">
+          <h3><span class="legal__n">VII.</span><span>Accessing and updating your information</span></h3>
+          <p>You may access, change, alter of otherwise modify, update the information provided by you. You will also have the option of withdrawing consent previously provided to the Company at any time by accessing Movio Applications using your registered username/identification number and accessing your user account, or by reaching out to our official email-ID at</p>
+          <!-- Put together by the script below rather than written out, as on the old page, so the
+               address is not lifted off the HTML by anything harvesting email addresses. -->
+          <p><span id="legal-mail">info [at] gridxenergy [dot] in</span></p>
+          <script>(function () { var a = 'info', b = 'gridxenergy', c = '.in', m = a + '@' + b + c, el = document.getElementById('legal-mail'), link = document.createElement('a'); link.className = 'story__link'; link.href = 'mailto:' + m; link.textContent = m; el.replaceWith(link); })();</script>
+          <p>You may also change and/or delete any of the information you have submitted. However, exercising this option will hamper the Company's ability to provide you with any or all of the features of Movio Applications. However, please note that the Company reserves the rights to save any usage information and you are not entitled to seek the deletion of the same.</p>
+          <p>The Company at its sole discretion may permit or deny the change of any information, if it believes the same is required for compliance with applicable laws.</p>
+        </section>
+
+        <section class="legal__section" id="age">
+          <h3><span class="legal__n">VIII.</span><span>Age restrictions</span></h3>
+          <p>The Movio Applications is only intended for users who are of 18 years of age or older and otherwise competent to enter into binding contracts. If you are not of the requisite age or otherwise unable to enter into binding contracts, you are not to provide any user information or other information. If it comes to the Company's attention that any information pertains to an individual under the age of 18 years or otherwise not eligible to enter into binding contracts, such information will be deleted without notice to you.</p>
+        </section>
+
+        <section class="legal__section" id="liability">
+          <h3><span class="legal__n">IX.</span><span>Limitation of liability</span></h3>
+          <p>The aggregate liability of the Company to You or anyone, whether in contract, tort, negligence or otherwise, howsoever arising, whether in connection with this Privacy Policy or your access and use of the Movio Applications and its contents and functionalities shall not exceed Rs. 1000/- (INR Rupees One Thousand only). In no event shall the Company be liable for any loss of profits (anticipated or real), loss of business, loss of reputation, loss of data, loss of goodwill, any business interruption or any direct, indirect, special, incidental, consequential, punitive, tort or other damages, however caused, whether or not it has been advised of the possibility of such damages.</p>
+        </section>
+
+        <section class="legal__section" id="amendments">
+          <h3><span class="legal__n">X.</span><span>Amendments to the Privacy Policy</span></h3>
+          <p>This Privacy Policy is subject to change at the Company's sole discretion. Any changes to this Privacy Policy will be notified to you and your consent will be obtained for material updates to this Privacy Policy, if required under law.</p>
+        </section>
+
+        <section class="legal__section" id="governing-law">
+          <h3><span class="legal__n">XI.</span><span>Governing law</span></h3>
+          <p>The Privacy Policy is governed by the laws of India (without regard to its conflict of laws principles). You irrevocably consent to the exclusive jurisdiction of the competent courts located at Bangalore, Karnataka, India for all disputes arising out of or relating to the Terms of Use. Subject to the foregoing, all disputes arising out of or in connection with this Terms of Use shall be settled in accordance with the rules of Arbitration and Conciliation Act, 1996. The parties shall mutually appoint a sole arbitrator to conduct the arbitration proceedings. The seat and venue of arbitration shall be Gurugram and the language for arbitration shall be English.</p>
+        </section>
+
+        <section class="legal__section" id="terms-of-use">
+          <h3><span class="legal__n">XII.</span><span>Terms of Use</span></h3>
+          <p>This Privacy Policy shall form a part of the Terms of Use, which can be found at [https://gridxenergy.in/privacy-policy].</p>
+        </section>
+
+        <section class="legal__section" id="contacts">
+          <h3><span class="legal__n">XIII.</span><span>Data protection contacts</span></h3>
+          <p>If you have any questions, comments, complaints or suggestions in relation to this Privacy Policy, or any other concerns about the way in which we process information about you, please contact us at <a href="mailto:info@gridxenergy.in">info@gridxenergy.in</a>.</p>
+          <p>We shall endeavour to address all requests/complaints within thirty (30) days from the date of such a request/complaint being made.</p>
+        </section>
+
+        <!-- Sections XIV to XVII cover the new website's careers, support and analytics
+             features; the forms link to these anchors. Signed off for launch on 2026-10-08. -->
+        <section class="legal__section" id="job-applicants">
+          <h3><span class="legal__n">XIV.</span><span>Job applicants</span></h3>
+          <p>When you apply for a role at GridX, or send us an open application, we collect what you give us in the form: your name, email address, phone number, city, the links you share, your resume, your answers to the role's questions, what you wrote about why you want to join, when you could start and how you heard about us. While we consider your application we add our own notes, interview feedback and the emails we exchange with you.</p>
+          <p>We use this only to consider you for the role you applied for, to contact you about it and to arrange interviews. If you choose to join our talent pool, we may also contact you about other roles that fit, for twelve (12) months from your application.</p>
+          <p>Your application is seen by the people at GridX who are hiring for the role and by those who interview you. Our email, calendar and storage providers process it on our behalf. We do not sell it, and we do not share it with other employers.</p>
+          <p>We keep an application for twelve (12) months after we decide on it, or until the end of the talent pool period if that is later, and then delete it, together with your resume. If you join GridX, your application becomes part of your employment records.</p>
+          <p>You may ask for a copy of your application, ask us to correct it, or ask us to delete it at any time by writing to careers@gridxenergy.in. We will do so within thirty (30) days.</p>
+        </section>
+
+        <section class="legal__section" id="support-requests">
+          <h3><span class="legal__n">XV.</span><span>Support requests</span></h3>
+          <p>When you ask us to call you back or write to us from the website, we collect your name, phone number, the email address if you give one, the order reference if you give one, your message and the time that suits you. We record our replies and calls with you against your request.</p>
+          <p>We use this only to answer you. We confirm your request on WhatsApp from our business number, and we may reply on WhatsApp, by phone or by email. The form is protected by Google reCAPTCHA Enterprise, in the same way as our ordering pages.</p>
+          <p>We keep a support request for twenty-four (24) months after it is closed, and then delete it. You may ask us to delete it sooner by writing to info@gridxenergy.in.</p>
+        </section>
+
+        <section class="legal__section" id="website-analytics">
+          <h3><span class="legal__n">XVI.</span><span>Website analytics</span></h3>
+          <p>Our website does not use cookies. To understand how it is used, it counts the pages viewed, the site or campaign a visit came from, the type and screen size of the device in broad bands, the browser's language, the approximate region and city (worked out by our cloud provider from the connection, without our storing the address), and taps on buttons such as Call, WhatsApp and Directions.</p>
+          <p>To count a visit once rather than once per page, your browser holds a random number for as long as the tab is open. Our servers keep it for thirty (30) minutes and do not store it with our counts. It is not linked to you, and nothing we record identifies you.</p>
+        </section>
+
+        <section class="legal__section" id="near-me">
+          <h3><span class="legal__n">XVII.</span><span>Finding a dealer near you</span></h3>
+          <p>If you choose "Near me" on the dealers page, your browser asks for your permission to use your location. It is used on your device only, to sort dealers by distance, and is never sent to us.</p>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
+       the dark. Copied into every page the way the island nav is: the address and the sitemap
+       belong in the HTML, not in a script. The only per-page difference is aria-current. -->
+  <footer class="credits">
+    <div class="credits__stage">
+      <h2 class="credits__line">
+        <span class="credits__seg">
+          <span class="w" style="--i:0">Designed</span>
+          <span class="w" style="--i:1">and</span>
+          <span class="w" style="--i:2">Developed</span>
+        </span>
+        <span class="credits__seg">
+          <span class="w" style="--i:3">in-house</span>
+          <span class="w" style="--i:4">at</span>
+        </span>
+        <span class="credits__seg credits__seg--name">
+          <span class="w" style="--i:5">GridXenergy</span>
+        </span>
+      </h2>
+
+      <div class="credits__colophon">
+        <div class="credits__cols">
+          <div class="credits__col">
+            <h3 class="credits__label">Pages</h3>
+            <ul class="credits__list credits__list--pages">
+              <li><a class="credits__link" href="index.html">Home</a></li>
+              <li><a class="credits__link" href="store.html">Store</a></li>
+              <li><a class="credits__link" href="dealers.html">Dealers</a></li>
+              <li><a class="credits__link" href="support.html">Support</a></li>
+              <li><a class="credits__link" href="journey.html">Journey</a></li>
+              <li><a class="credits__link" href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+
+          <div class="credits__col">
+            <h3 class="credits__label">Connect</h3>
+            <ul class="credits__list credits__list--social">
+              <li>
+                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span class="credits__social-label">WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://instagram.com/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><path d="M16.9 7.1h.01"/></svg>
+                  <span class="credits__social-label">Instagram</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://youtube.com/@gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10.2 9.6 5.4 2.9-5.4 2.9z"/></svg>
+                  <span class="credits__social-label">YouTube</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://linkedin.com/company/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 7.9h.01"/><path d="M8 10.6v5.8"/><path d="M11.7 16.4v-5.8"/><path d="M11.7 13.1a2.35 2.35 0 0 1 4.7 0v3.3"/></svg>
+                  <span class="credits__social-label">LinkedIn</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="credits__col credits__col--mark">
+            <h3 class="credits__label">Address</h3>
+            <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
+            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+          </div>
+        </div>
+
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
+        <div class="credits__legal">
+          <a href="privacy_policy.html" aria-current="page">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html" aria-current="page">Privacy Policy</a>
+          <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/footer.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

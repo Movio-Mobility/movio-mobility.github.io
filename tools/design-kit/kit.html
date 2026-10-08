@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GridX design kit: render page</title>
+<!--
+  Drawn by tools/design-kit/kit.mjs in headless Chrome, never opened by hand. Each builder puts
+  one element in #stage for a screenshot (or returns a canvas as a data URL). The CSS mirrors
+  the site so the pictures match it: the island from assets/site.css (256-467), the glass card
+  from assets/store.css (72-95), buttons from contact.css / powerpod-gen2.css / journey.css,
+  and the timeline from assets/tape.js paint() and placeLabels().
+-->
+<style>
+  @font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 400 700;
+    src: url("/assets/fonts/dm-sans-latin.woff2") format('woff2');
+  }
+  :root { --ink: #141414; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; }
+  body {
+    font-family: "DM Sans", sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  #stage { position: absolute; top: 0; left: 0; }
+  .shot { display: inline-block; padding: var(--pad, 32px); }
+
+  /* ------------------------------------------------------------ island */
+  .island {
+    --h: 44px;
+    --icon: 18px;
+    --compact-icon: 20px;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    height: var(--h);
+    border-radius: 999px;
+    background: #000;
+    color: #fff;
+    box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    overflow: hidden;
+  }
+  .island.tablet { --h: 52px; --icon: 20px; --compact-icon: 22px; }
+  .island.phone { --h: 56px; --icon: 20px; --compact-icon: 22px; }
+  .island__thumb {
+    position: absolute;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.14);
+  }
+  .island__list {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+    margin: 0;
+    padding: 0 4px;
+    list-style: none;
+  }
+  .island.tablet .island__list { padding: 0 5px; }
+  .island__link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 36px;
+    padding: 0 0.875rem 0 0.75rem;
+    border-radius: 999px;
+    color: rgb(255 255 255 / 0.6);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+  .island.tablet .island__link { height: 42px; }
+  .island.phone .island__link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 52px;
+    height: 48px;
+    padding: 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0;
+  }
+  .island__link.is-current { color: #fff; }
+  .island svg {
+    flex: none;
+    width: var(--icon);
+    height: var(--icon);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .island__context { display: flex; align-items: center; }
+  .island__context::before {
+    content: "";
+    flex: none;
+    width: 1px;
+    height: 18px;
+    margin: 0 6px 0 0;
+    border-radius: 1px;
+    background: rgb(255 255 255 / 0.16);
+  }
+  .island.tablet .island__context::before { height: 20px; }
+  .island.phone .island__context::before { height: 24px; }
+  .island.compact { width: var(--h); }
+  .island__compact { position: absolute; inset: 0; display: grid; place-items: center; }
+  .island__compact svg { width: var(--compact-icon); height: var(--compact-icon); }
+
+  /* ------------------------------------------------------------ glass card */
+  .card {
+    display: block;
+    border-radius: var(--radius, 24px);
+    background:
+      radial-gradient(120% 70% at 12% 0%, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 60%),
+      linear-gradient(160deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.07) 48%, rgb(255 255 255 / 0.12));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      inset 0 0 0 1px rgb(255 255 255 / 0.2),
+      inset 0 -1px 0 rgb(20 20 20 / 0.05),
+      0 16px 36px -22px rgb(20 20 20 / 0.3);
+  }
+
+  /* ------------------------------------------------------------ buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .btn--black {
+    height: 50px;
+    padding: 0 1.5rem;
+    background: #000;
+    color: #fff;
+    box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
+  .btn--ink {
+    height: 50px;
+    padding: 0 1.5rem;
+    background: #141414;
+    color: #fff;
+    box-shadow: 0 14px 30px -18px rgb(20 20 20 / 0.8);
+  }
+  .btn--glass {
+    height: 44px;
+    padding: 0 1.1rem;
+    background: rgb(255 255 255 / 0.22);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+    color: rgb(20 20 20 / 0.78);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .btn--dark {
+    height: 40px;
+    padding: 0 0.75rem 0 1rem;
+    background: rgb(255 255 255 / 0.16);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  /* ------------------------------------------------------------ tokens sheet */
+  .sheet {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    padding: 88px 104px;
+    background-size: cover;
+    overflow: hidden;
+  }
+  .sheet__eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgb(20 20 20 / 0.4);
+  }
+  .sheet__title { margin: 0; font-size: 56px; font-weight: 500; line-height: 1; letter-spacing: -0.03em; }
+  .sheet__grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 72px; margin-top: 56px; }
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 16px; }
+  .swatch__chip {
+    height: 76px;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.08), 0 12px 24px -20px rgb(20 20 20 / 0.5);
+  }
+  .swatch__name { margin: 10px 0 2px; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .swatch__hex { font-size: 13px; font-weight: 500; color: rgb(20 20 20 / 0.52); font-variant-numeric: tabular-nums; }
+  .type > div { margin-bottom: 26px; }
+  .type__meta { margin-top: 6px; font-size: 13px; font-weight: 500; color: rgb(20 20 20 / 0.52); }
+  .parts { display: flex; align-items: center; gap: 22px; margin-top: 40px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+(() => {
+  'use strict';
+  const stage = document.getElementById('stage');
+
+  // The island's icons, exactly as the pages carry them (index.html, journey.html, careers.html).
+  const ICONS = {
+    home: '<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>',
+    store: '<path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+    dealers: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+    support: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/>',
+    journey: '<circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/>',
+    careers: '<circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/>',
+  };
+  const LABELS = { home: 'Home', store: 'Store', dealers: 'Dealers', support: 'Support', journey: 'Journey', careers: 'Careers' };
+  const svg = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
+
+  function shot(html, pad) {
+    stage.innerHTML = `<div class="shot" style="--pad:${pad}px">${html}</div>`;
+    return stage.firstElementChild;
+  }
+
+  // The nav pill. size: desktop | tablet | phone; active: one of the tab keys; context: a fifth
+  // tab after a hairline (journey, careers); compact: the collapsed circle; blank: a capsule of
+  // `width` with nothing inside.
+  function pillHTML({ size = 'desktop', active = 'home', context = null, compact = false, blank = false, width = 240 }) {
+    if (blank) return `<nav class="island ${size}" style="width:${width}px"></nav>`;
+    if (compact) return `<nav class="island ${size} compact"><div class="island__compact">${svg(active)}</div></nav>`;
+    const tab = (key) => `<a class="island__link${key === active ? ' is-current' : ''}">${svg(key)}<span>${LABELS[key]}</span></a>`;
+    let items = ['home', 'store', 'dealers', 'support'].map((key) => `<li>${tab(key)}</li>`).join('');
+    if (context) items += `<li class="island__context">${tab(context)}</li>`;
+    return `<nav class="island ${size}"><div class="island__thumb"></div><ul class="island__list">${items}</ul></nav>`;
+  }
+
+  // The thumb sits on the current tab, as topbar.js measures it there.
+  function placeThumb(root) {
+    for (const nav of root.querySelectorAll('.island')) {
+      const current = nav.querySelector('.island__link.is-current');
+      const thumb = nav.querySelector('.island__thumb');
+      if (!thumb || !current) continue;
+      const a = nav.getBoundingClientRect();
+      const b = current.getBoundingClientRect();
+      Object.assign(thumb.style, {
+        left: `${b.left - a.left}px`, top: `${b.top - a.top}px`, width: `${b.width}px`, height: `${b.height}px`,
+      });
+    }
+  }
+
+  // The nav pill. size: desktop | tablet | phone; active: one of the tab keys; context: a fifth
+  // tab after a hairline (journey, careers); compact: the collapsed circle; blank: a capsule of
+  // `width` with nothing inside.
+  function pill(opts) {
+    const el = shot(pillHTML(opts), 32);
+    placeThumb(el);
+    return el;
+  }
+
+  function card({ width, height, radius }) {
+    return shot(`<div class="card" style="width:${width}px;height:${height}px;--radius:${radius}px"></div>`, 40);
+  }
+
+  function button({ style, width, label = '', icon = false }) {
+    const arrow = icon ? '<svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>' : '';
+    const w = width ? `width:${width}px;` : '';
+    return shot(`<span class="btn btn--${style}" style="${w}">${label}${arrow}</span>`, 32);
+  }
+
+  // ---------------------------------------------------------------- timeline
+  // tape.js paint() + placeLabels() at rest, on a transparent canvas: the hairline with its
+  // fading trails, one dot per year, the labels above, and the needle on the active year. The
+  // outer 13% at each end fades out as the tape's mask does. Desktop metrics (journey.css at
+  // >= 760px): an 84px tape, the hairline at 60px, 17px labels.
+  function timeline({ width, years, active = null, all = false, captions = false, tone = 'ink', scale = 1, needleOnly = false }) {
+    const ink = tone === 'white' ? '255, 255, 255' : '20, 20, 20';
+    const hairline = 60;
+    const height = needleOnly ? 48 : captions ? 148 : 96;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+
+    const drawNeedle = (x, y0) => {
+      ctx.fillStyle = `rgb(${ink})`;
+      roundRect(ctx, x - 1, y0 - 24, 2, 32, 1);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y0 + 0.5, 3.5 + 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y0 + 0.5, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgb(${ink})`;
+      ctx.fill();
+    };
+
+    if (needleOnly) {
+      drawNeedle(width / 2, 30);
+      return canvas.toDataURL('image/png');
+    }
+
+    const n = years.length;
+    const s = Math.min((width * 0.74) / n, 460);
+    const xAt = (t) => width / 2 + (t - n / 2) * s;
+    const y0 = hairline;
+
+    // Everything but the needle goes through the tape's edge mask.
+    const tape = document.createElement('canvas');
+    tape.width = canvas.width;
+    tape.height = canvas.height;
+    const t = tape.getContext('2d');
+    t.scale(scale, scale);
+
+    t.strokeStyle = `rgba(${ink}, 0.26)`;
+    t.lineWidth = 1;
+    t.beginPath();
+    t.moveTo(xAt(0), y0 + 0.5);
+    t.lineTo(xAt(n), y0 + 0.5);
+    t.stroke();
+    for (const [x0, dir] of [[xAt(0), -1], [xAt(n), 1]]) {
+      const x1 = x0 + dir * 0.9 * s;
+      const g = t.createLinearGradient(x0, 0, x1, 0);
+      g.addColorStop(0, `rgba(${ink}, 0.26)`);
+      g.addColorStop(1, `rgba(${ink}, 0)`);
+      t.strokeStyle = g;
+      t.beginPath();
+      t.moveTo(x0, y0 + 0.5);
+      t.lineTo(x1, y0 + 0.5);
+      t.stroke();
+    }
+
+    years.forEach((year, i) => {
+      const x = xAt(i + 0.5);
+      const near = i === active ? 1 : 0;
+      if (near) {
+        const glow = t.createRadialGradient(x, y0, 0, x, y0, 14);
+        glow.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+        glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        t.fillStyle = glow;
+        t.beginPath();
+        t.arc(x, y0, 14, 0, Math.PI * 2);
+        t.fill();
+      }
+      const a = all ? 1 : 0.45 + 0.55 * near;
+      t.fillStyle = `rgba(${ink}, ${a})`;
+      t.beginPath();
+      t.arc(x, y0 + 0.5, 2.5 + 1.2 * near, 0, Math.PI * 2);
+      t.fill();
+
+      if (!year.label) return;
+      // The label's box: 11px 12px padding around a 17px line; it swells about its centre.
+      const g = all || active === null ? (all ? 1 : 0) : Math.exp(-(((i - active) / 0.6) ** 2));
+      const labelScale = all ? 1 : 1 + 0.34 * g;
+      const alpha = all ? 1 : 0.4 + 0.6 * g;
+      t.save();
+      t.translate(x, 19.5);
+      t.scale(labelScale, labelScale);
+      t.font = '600 17px "DM Sans"';
+      t.letterSpacing = '-0.17px';
+      t.fontVariantNumeric = 'tabular-nums';
+      t.textAlign = 'center';
+      t.textBaseline = 'middle';
+      t.fillStyle = `rgba(${ink}, ${alpha})`;
+      t.fillText(year.label, 0, 1);
+      t.restore();
+
+      if (captions && year.theme) {
+        const strong = all || i === active;
+        t.font = '500 14px "DM Sans"';
+        t.letterSpacing = '-0.14px';
+        t.textAlign = 'center';
+        t.textBaseline = 'alphabetic';
+        t.fillStyle = `rgba(${ink}, ${strong ? 0.78 : 0.52})`;
+        wrap(t, year.theme, s - 22).forEach((line, k) => t.fillText(line, x, y0 + 34 + k * 19));
+      }
+    });
+
+    t.globalCompositeOperation = 'destination-in';
+    const mask = t.createLinearGradient(0, 0, width, 0);
+    mask.addColorStop(0, 'rgba(0,0,0,0)');
+    mask.addColorStop(0.13, 'rgba(0,0,0,1)');
+    mask.addColorStop(0.87, 'rgba(0,0,0,1)');
+    mask.addColorStop(1, 'rgba(0,0,0,0)');
+    t.fillStyle = mask;
+    t.fillRect(0, 0, width, height);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(tape, 0, 0);
+    ctx.scale(scale, scale);
+    if (active !== null && !all) drawNeedle(xAt(active + 0.5), y0);
+    return canvas.toDataURL('image/png');
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+  }
+
+  function wrap(ctx, text, max) {
+    const words = text.split(' ');
+    const lines = [];
+    let line = '';
+    for (const word of words) {
+      const next = line ? `${line} ${word}` : word;
+      if (ctx.measureText(next).width > max && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = next;
+      }
+    }
+    if (line) lines.push(line);
+    return lines.slice(0, 3);
+  }
+
+  // ---------------------------------------------------------------- tokens sheet
+  function tokens({ background, swatches }) {
+    const chips = swatches.map((s) => `
+      <div class="swatch">
+        <div class="swatch__chip" style="background:${s.css}"></div>
+        <div class="swatch__name">${s.name}</div>
+        <div class="swatch__hex">${s.hex}</div>
+      </div>`).join('');
+    const html = `
+      <div class="sheet" style="background-image:url(${background})">
+        <p class="sheet__eyebrow">GridX design system</p>
+        <h1 class="sheet__title">Colour, type and parts</h1>
+        <div class="sheet__grid">
+          <div>
+            <p class="sheet__eyebrow">Colour</p>
+            <div class="swatches">${chips}</div>
+          </div>
+          <div class="type">
+            <p class="sheet__eyebrow">Type: DM Sans</p>
+            <div>
+              <div style="font-size:64px;font-weight:500;line-height:1.02;letter-spacing:-0.03em">The only battery</div>
+              <div class="type__meta">Headline · 500 · tracking -0.03em · line height 1.02</div>
+            </div>
+            <div>
+              <div style="font-size:88px;font-weight:600;line-height:1;letter-spacing:-0.065em;font-variant-numeric:tabular-nums">2026</div>
+              <div class="type__meta">Year title · 600 · tracking -0.065em · tabular figures</div>
+            </div>
+            <div>
+              <div style="font-size:36px;font-weight:600;line-height:1.05;letter-spacing:-0.03em">Section heading</div>
+              <div class="type__meta">Heading · 600 · tracking -0.03em</div>
+            </div>
+            <div>
+              <div style="font-size:20px;font-weight:500;line-height:1.5;letter-spacing:-0.01em;color:rgb(20 20 20 / 0.78);max-width:560px">Body copy sits in ink at 78%, with quieter lines at 52%. Keep it short and calm.</div>
+              <div class="type__meta">Body · 500 · tracking -0.01em · line height 1.5</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;color:rgb(20 20 20 / 0.4)">Eyebrow label</div>
+              <div class="type__meta">Eyebrow · 500 · 0.72rem · tracking 0.09em · uppercase · ink 40%</div>
+            </div>
+          </div>
+        </div>
+        <div class="parts">
+          ${pillHTML({})}
+          <span class="btn btn--black">Get in touch</span>
+          <span class="btn btn--ink">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></span>
+          <span class="btn btn--glass">Back to all years</span>
+        </div>
+      </div>`;
+    stage.innerHTML = html;
+    placeThumb(stage);
+    return stage.firstElementChild;
+  }
+
+  window.kit = { pill, card, button, timeline, tokens, ready: document.fonts.ready.then(() => true) };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,530 @@
+/*
+ * The timeline tape (tape.js), shared by the pages that tell something in order.
+ *
+ * Two states, one class. Without .is-open the page is the overview: the tape lies on the
+ * studio's horizon band (tape.js measures it into --horizon-y) with a peek of the centred
+ * stop beneath it. With .is-open the tape compacts, pins under the top bar, and the chosen
+ * stop's panel flows down the page beneath a big title. tape.js moves elements between the
+ * two layouts with FLIP, so this file only has to describe where they rest.
+ *
+ * It all hangs off the class `tape` on the page's main element. The page's own stylesheet
+ * loads after this one and sizes the tape for itself (journey.css: a taller bar and larger
+ * labels from 760px). Without JavaScript the tape is hidden and every panel simply reads top
+ * to bottom.
+ */
+
+.tape {
+  --gutter-l: max(1rem, env(safe-area-inset-left));
+  --gutter-r: max(1rem, env(safe-area-inset-right));
+  --topbar-h: calc(max(1.125rem, env(safe-area-inset-top)) + 44px);
+  /* The tape's box. tape.js reads --hairline: keep the two in step. */
+  --bar-h: 78px;
+  --hairline: 56px;
+  --horizon-y: 40vh;
+  --ink-soft: rgb(20 20 20 / 0.78);
+  --ink-quiet: rgb(20 20 20 / 0.52);
+  --ink-faint: rgb(20 20 20 / 0.4);
+  position: relative;
+  z-index: 2;
+  /* Labels travel well past both edges. Clip, not hidden: no scroll container, so the tape
+     can still stick. */
+  overflow-x: clip;
+}
+
+.js .tape {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* ---------------------------------------------------------------- head: the big title */
+.tl-head {
+  padding: calc(var(--topbar-h) + clamp(1rem, 4.5vh, 3.25rem)) var(--gutter-r) 0 var(--gutter-l);
+  text-align: center;
+  pointer-events: none;
+}
+html:not(.js) .tl-head,
+html:not(.js) .tl-bar,
+html:not(.js) .tl-peek { display: none; }
+
+.tl-title {
+  margin: 0;
+  font-size: clamp(5.25rem, 27vw, 10.5rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1;
+  letter-spacing: -0.065em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  opacity: 0;
+}
+
+/* Always one line tall, text or not: the open transition measures the layout with this line
+   in place, so it must never grow later and shove the tape down. */
+.tl-theme {
+  min-height: 1.4em;
+  margin: 0.55rem 0 0;
+  font-size: clamp(0.98rem, 0.35vw + 0.9rem, 1.2rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink-quiet);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition: opacity 0.3s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+.tape.is-open .tl-title { opacity: 1; }
+/* It arrives once the title is most of the way home. */
+.tape.is-open .tl-theme.is-shown {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--ease-out) 0.35s, transform 0.8s var(--ease-out) 0.35s;
+}
+
+/* ---------------------------------------------------------------- the tape */
+.tl-bar {
+  position: absolute;
+  top: calc(var(--horizon-y) - var(--hairline));
+  left: 0;
+  right: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.tl-bar__inner {
+  position: relative;
+  height: var(--bar-h);
+  overflow: hidden; /* off-screen labels must not widen the page */
+  pointer-events: auto;
+  touch-action: pan-y; /* sideways is ours, vertical still scrolls the page */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+  will-change: transform;
+}
+.tape.is-dragging .tl-bar__inner { cursor: grabbing; }
+
+/* The tape runs on past both edges of the screen. */
+.tl-bar__ticks,
+.tl-bar__labels,
+.tl-bar__glint-track {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
+}
+
+.tl-bar__ticks {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tl-bar__labels {
+  position: absolute;
+  inset: 0;
+}
+
+.tl-year {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-year > span { display: block; }
+.tl-year:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+/* The needle: fixed at the centre of the screen while the tape travels beneath it. */
+.tl-bar__needle {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--hairline) - 24px);
+  width: 2px;
+  height: 32px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--ink);
+  transform-origin: 50% 24px;
+  transition: transform var(--morph) var(--spring), opacity 0.6s ease;
+  pointer-events: none;
+}
+.tl-bar__needle::after {
+  content: "";
+  position: absolute;
+  left: -2.5px;
+  top: 21px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.28);
+}
+.tape.is-open .tl-bar__needle { transform: scaleY(0.72); }
+.tape:not(.is-ready) .tl-bar__needle { opacity: 0; }
+
+/* A soft light runs along the hairline when a mouse moves over the tape, in the direction it
+   moves (tape.js starts each sweep). Compositor only: no repaint. */
+.tl-bar__glint-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--hairline) - 2px);
+  height: 5px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.tl-bar__glint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.4) 45%, rgb(255 255 255 / 0));
+  opacity: 0;
+  transform: translate3d(-100%, 0, 0);
+}
+.tl-bar__glint.is-sweeping-right { animation: tl-glint-right 1.5s var(--ease-gentle) both; }
+.tl-bar__glint.is-sweeping-left { animation: tl-glint-left 1.5s var(--ease-gentle) both; }
+@keyframes tl-glint-right {
+  0% { transform: translate3d(-100%, 0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(340%, 0, 0); opacity: 0; }
+}
+@keyframes tl-glint-left {
+  0% { transform: translate3d(340%, 0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(-100%, 0, 0); opacity: 0; }
+}
+
+/* Back to all years, only while a year is open. On desktop it sits at the tape's right end,
+   where the open tape fades out early to make room; wherever the island has moved to the
+   bottom of the screen it takes the empty end of the top bar instead. */
+.tl-close {
+  position: absolute;
+  right: var(--gutter-r);
+  top: calc(var(--topbar-h) + 3px);
+  z-index: 1;
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  /* No backdrop blur: it would start sampling the WebGL canvas the moment the button fades
+     in, mid-flight, and that first readback costs a visible frame. */
+  background: rgb(236 236 234 / 0.62);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 0 0 1px rgb(255 255 255 / 0.28),
+    0 8px 20px -12px rgb(20 20 20 / 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.85);
+  transition: opacity 0.25s ease, transform 0.5s var(--spring), visibility 0s linear 0.25s;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.tl-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.tape.is-open .tl-close {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.35s ease 0.35s, transform 0.6s var(--spring) 0.3s, visibility 0s;
+}
+@media (hover: hover) {
+  .tl-close:hover { background: rgb(244 244 242 / 0.82); }
+}
+
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .tl-close {
+    position: fixed;
+    top: calc(max(1.125rem, env(safe-area-inset-top)) + 2px);
+  }
+}
+@media (min-width: 1025px) and (hover: hover) {
+  .tape.is-open .tl-bar__ticks,
+  .tape.is-open .tl-bar__labels {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 calc(100% - 220px), transparent calc(100% - 84px));
+    mask-image: linear-gradient(90deg, transparent, #000 13%, #000 calc(100% - 220px), transparent calc(100% - 84px));
+  }
+}
+
+/* Open: the tape pins under the top bar. Its box starts at the top of the screen, so the glass
+   band behind it also sits behind the logo; the negative margin keeps it snug under the title
+   until it pins. */
+.tape.is-open .tl-bar {
+  position: sticky;
+  top: 0;
+  margin-top: calc(-1 * var(--topbar-h) + 0.5rem);
+  padding-top: var(--topbar-h);
+}
+.tl-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -22px;
+  background: linear-gradient(180deg, rgb(204 204 202 / 0.7), rgb(210 210 208 / 0.46));
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.05);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 24px), transparent);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.tape.is-open .tl-bar.is-stuck::before { opacity: 1; }
+/* The first frame any backdrop blur draws over the WebGL canvas pays a one-off setup cost,
+   long enough to drop frames. tape.js turns the band on, all but invisibly, for a moment
+   during the film's opening still beat, so that cost is paid while nothing is moving. */
+.tape.is-warming .tl-bar::before {
+  opacity: 0.02;
+  transition: none;
+}
+
+/* ---------------------------------------------------------------- peek */
+.tl-peek {
+  position: absolute;
+  top: calc(var(--horizon-y) + 34px);
+  left: var(--gutter-l);
+  right: var(--gutter-r);
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  text-align: center;
+  transition: opacity 0.45s ease, transform 0.6s var(--ease-out), visibility 0s;
+}
+/* Hidden from the first paint until tape.js has set it up, then while the tape travels. */
+.js .tape:not(.is-ready) .tl-peek {
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+}
+.tape.is-open .tl-peek,
+.tape.is-filming .tl-peek {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 8px, 0);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.tl-peek__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  max-width: min(34rem, 100%);
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: clamp(1rem, 0.35vw + 0.92rem, 1.15rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-peek__open svg {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.4s var(--spring);
+}
+.tl-peek__open:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .tl-peek__open:hover { color: var(--ink); background: rgb(255 255 255 / 0.22); }
+  .tl-peek__open:hover svg { transform: translate3d(3px, 0, 0); }
+}
+.tl-peek__open:active { background: rgb(255 255 255 / 0.3); }
+
+.tl-peek__text {
+  transition: opacity 0.3s ease, transform 0.45s var(--ease-out), filter 0.3s ease;
+}
+.tl-peek__text.is-swapping {
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+  filter: blur(3px);
+  transition-duration: 0.15s;
+}
+
+.tl-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.tl-hint.is-shown { opacity: 1; }
+
+/* ---------------------------------------------------------------- panels */
+.tl-panels {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding:
+    0
+    var(--gutter-r)
+    calc(max(3rem, env(safe-area-inset-bottom)) + 96px)
+    var(--gutter-l);
+}
+html:not(.js) .tl-panels { padding-top: calc(var(--topbar-h) + 2rem); }
+
+.js .tl-panel { display: none; }
+.js .tl-panel.is-active { display: block; }
+html:not(.js) .tl-panel + .tl-panel { margin-top: 5rem; }
+
+/* The year heading belongs to the panel for anyone reading without the tape. With it, the
+   big title above is the visible heading and this stays for assistive tech. */
+.tl-panel__year {
+  margin: 0;
+  font-size: clamp(3.5rem, 16vw, 7rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+.tl-panel__theme {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink-quiet);
+}
+.js .tl-panel__year {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Continue to the next year. */
+.tl-next {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: clamp(4.5rem, 14vw, 8rem) auto 0;
+  padding: 1.25rem 2rem 1.5rem;
+  border-radius: 28px;
+  color: var(--ink);
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease;
+}
+.tl-next__kicker {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.tl-next__year {
+  font-size: clamp(3.25rem, 15vw, 6rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.6s var(--spring);
+}
+.tl-next__title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink-quiet);
+}
+.tl-next:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .tl-next:hover { background: rgb(255 255 255 / 0.18); }
+  .tl-next:hover .tl-next__year { transform: translate3d(0, -3px, 0); }
+}
+.tl-next:active { background: rgb(255 255 255 / 0.26); }
+
+/* ---------------------------------------------------------------- arrivals */
+/* For what a page marks with data-arrive (the panels' contents, tape.js arrive()): it rises in
+   as it reaches the screen, and slides out sideways when its stop is left. The journey's own
+   chapters (journey.css) move exactly the same way. */
+.js [data-arrive] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 0.8s var(--ease-out),
+    transform 0.95s var(--ease-out),
+    background-color 0.3s ease;
+  transition-delay: var(--delay, 0ms), var(--delay, 0ms), 0ms;
+}
+.js [data-arrive].is-in {
+  opacity: 1;
+  transform: none;
+}
+.js [data-arrive].is-leaving {
+  opacity: 0;
+  transform: translate3d(var(--leave-x, 0px), 0, 0);
+  transition-duration: 0.22s, 0.26s, 0s;
+  transition-timing-function: ease-in, ease-in, ease;
+  transition-delay: 0ms;
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .tl-theme,
+  .tl-peek,
+  .tl-peek__text {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 0.3s ease;
+  }
+  .tl-bar__glint { animation: none !important; }
+  .tl-next__year,
+  .tl-peek__open svg { transition: opacity 0.3s ease; transform: none !important; }
+  .js [data-arrive] {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 0.3s ease;
+  }
+}

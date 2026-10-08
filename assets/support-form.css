@@ -1,0 +1,414 @@
+/*
+ * The contact form on the support page: "Request a callback" and "Write to us".
+ *
+ * The shell is the story sheet's (assets/sheet.css): the glass, the backdrop, the grabber, the
+ * close button and the slide. The fields, chips and the consent box are assets/fields.css,
+ * linked before this file. What is here is only what is particular to this sheet: its type,
+ * the order of things, the foot, the confirmation and the hidden field for scripts. It is built
+ * the way the accessories order sheet is (order-sheet.css), so the two read as one family.
+ *
+ * Also here, because only this page uses them: the quiet pills in the Contact us section.
+ *
+ * Mobile first. Phone values are the base and 760px widens them, as in store.css.
+ */
+
+/* Rules below set display, and an author display beats the UA's [hidden]. */
+.story--support [hidden] { display: none !important; }
+
+.story--support {
+  --hair: rgb(20 20 20 / 0.12);
+  --bad: #b3261e;
+  /* A form: tall enough that it never reads as a scroll trap. */
+  max-height: min(92svh, 860px);
+}
+
+/* .story[open] is the flex column; the form has to be one too, so the foot stays put under
+   the fields instead of scrolling away with them. */
+.support {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The foot carries the bottom safe area, so the scroller gives it back. */
+.story--support .story__scroll { padding-bottom: 1.5rem; }
+
+/*
+ * sheet.css draws every paragraph in a sheet's scroller as story prose (.story__scroll p: the
+ * reading size, a paragraph's margin, 42ch). A form's small print is not prose, so this sheet
+ * puts its own back to what fields.css draws, at a specificity that wins.
+ */
+.story--support :is(.field__hint, .field__err) {
+  max-width: none;
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+.story--support .field__hint { line-height: 1.45; color: rgb(20 20 20 / 0.5); }
+.story--support .field__err { color: var(--bad); }
+.story--support .field__count {
+  max-width: none;
+  margin: 0.35rem 0 0 auto;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.42);
+}
+.story--support .field__count.is-near { color: rgb(20 20 20 / 0.66); }
+.story--support .field__count.is-over { color: var(--bad); }
+
+/* ---------------------------------------------------------------- the top */
+
+.support__headline {
+  margin: 0 0 0.45rem;
+  padding-right: 3rem; /* clear of the close button */
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.story--support .support__lede {
+  max-width: none;
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.6);
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------------- the form */
+
+/* A little more air between the questions than between a label and its box. */
+.support__ask > .choices,
+.support__ask > .field { margin-bottom: 1.15rem; }
+
+/* How we get back to them: the two chips as one segmented control, each half the width. */
+.support__kind .choices__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.support__kind .choice,
+.support__kind .choice__label {
+  width: 100%;
+  justify-content: center;
+}
+
+.support__kind .choice__label svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The four times as a tidy two by two on a phone, where four in a row do not fit and three
+   and one would leave "Any time" on its own; one row from 760px. */
+.support__times .choices__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.support__times .choice,
+.support__times .choice__label {
+  width: 100%;
+  justify-content: center;
+}
+
+/* The reference and the preferred time come and go with the topic and the kind. They arrive
+   with a short fade rather than a jump; nothing is measured, so nothing below them slides. */
+.support__reveal:not([hidden]) { animation: support-in 0.35s var(--ease-out); }
+
+@keyframes support-in {
+  from { opacity: 0; }
+}
+
+.story--support textarea.field__input { min-height: 8.5rem; }
+
+/* The consent row sits a beat apart from the questions, as the small print it is. */
+.support__consent { margin-top: 0.4rem; }
+.support__consent + .field__err { margin-top: -0.2rem; }
+
+/* A field for scripts, never for people: out of sight, out of the tab order (tabindex in the
+   markup) and out of the accessibility tree (aria-hidden), but still a real input a bot fills. */
+.support__trap {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- the foot */
+/* order-sheet.css's foot: what happens next on the left where the total sits there, and the
+   button on the right. */
+
+.support__foot {
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem 1rem;
+  padding: 0.85rem var(--sheet-pad);
+  padding-bottom: max(0.95rem, env(safe-area-inset-bottom));
+  background: rgb(255 255 255 / 0.55);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+  box-shadow: 0 -12px 24px -24px rgb(20 20 20 / 0.5);
+}
+
+.support__promise {
+  grid-column: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.support__promise-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.support__promise-value {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.support__send {
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(9rem, 100%);
+  min-height: 50px;
+  padding: 0.8rem 1.5rem;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 14px 30px -18px rgb(20 20 20 / 0.8);
+  transition:
+    transform 0.4s var(--spring),
+    opacity 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out);
+}
+
+.support__send:active { transform: scale(0.985); }
+.support__send:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* Resting, not disabled, as on the order sheet: a press says what is missing. */
+.support__send[aria-disabled="true"] { opacity: 0.32; box-shadow: none; cursor: default; }
+.support__send[aria-disabled="true"]:active { transform: none; }
+.support__send[aria-busy="true"] { opacity: 0.6; cursor: progress; }
+
+/* Once sent there is nothing to promise and one thing to do. */
+.support__finish {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+}
+
+.support__hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.5);
+}
+.support__hint:empty { display: none; }
+.support__hint.is-bad { color: var(--bad); }
+
+/* reCAPTCHA's attribution, standing in for its badge (hidden in site.css). */
+.support__legal {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.support__legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------------------------------------------------------------- sent */
+
+.support__done { padding-top: 0.25rem; }
+
+/* A quiet tick: the chosen chip's ink rim, not a badge. */
+.support__done-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.55);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+  color: var(--ink);
+}
+
+.support__done-mark svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Focused when it appears, so a screen reader announces it. Shrunk to its words so the ring
+   hugs them rather than running under the close button. */
+.support__done-title {
+  width: fit-content;
+  max-width: calc(100% - 3rem);
+  margin: 0 0 1.1rem;
+  font-size: clamp(1.6rem, 5.5vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.support__done-title:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+/* The reference, the one thing worth keeping: a panel of its own, in the track result's
+   collect-from wash, set large enough to read out over the phone. */
+.support__ref {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.42);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+.story--support .support__ref-label {
+  max-width: none;
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.story--support .support__ref-value {
+  max-width: none;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.story--support .support__done-line {
+  max-width: 40ch;
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.story--support .support__done-note {
+  max-width: 40ch;
+  margin: 0.9rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* ---------------------------------------------------------------- the keyboard */
+/* An on-screen keyboard is up (assets/keyboard.js: html.is-typing, --vv-top and --vv-h on the
+   sheet). Browsers shrink only the visual viewport, so a sheet pinned to the bottom of the
+   layout viewport would carry on underneath the keys. Instead it takes the visible area above
+   them, with a sliver of the page left showing at the top so it still reads as a sheet, and
+   the foot rides on the keys. No transition: the keyboard's own slide is the motion. */
+html.is-typing .story--support.is-open {
+  top: calc(var(--vv-top, 0px) + 0.75rem);
+  bottom: auto;
+  height: calc(var(--vv-h, 100svh) - 0.75rem);
+  max-height: none;
+}
+
+/* The keyboard covers the home indicator, so its inset is not needed above the keys. */
+html.is-typing .story--support .support__foot { padding-bottom: 0.75rem; }
+
+/* ---------------------------------------------------------------- tablet up */
+
+@media (min-width: 760px) {
+  .support__foot { padding-block: 1rem; }
+
+  .support__times .choices__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  /* Done sits where Send sat, as the order sheet's Pay does, rather than across the panel. */
+  .support__finish {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  /* A shade less padding in the chips, so the five topics sit on one line in the panel. */
+  .story--support .choice__label { padding-inline: 0.95rem; }
+
+  /* Centred, the panel stays centred in what the keyboard leaves. */
+  html.is-typing .story--support.is-open {
+    top: calc(var(--vv-top, 0px) + var(--vv-h, 100svh) / 2);
+    height: auto;
+    max-height: calc(var(--vv-h, 100svh) - 2rem);
+  }
+}
+
+/* ---------------------------------------------------------------- the Contact us section */
+/* The call and WhatsApp pills, now second to the two that open this form: the same pill,
+   glass rather than black, so the eye goes to the form first and the phone second. */
+.contact__actions + .contact__block { margin-top: 1.5rem; }
+
+.contact__btn--quiet {
+  background: rgb(255 255 255 / 0.45);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.14);
+  transition: transform 0.4s var(--spring), background-color 0.2s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .contact__btn--quiet:hover { background: rgb(255 255 255 / 0.7); }
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .support__send { transition: opacity 0.2s ease; }
+  .support__send:active { transform: none; }
+  .support__reveal:not([hidden]) { animation: none; }
+  .contact__btn--quiet { transition: background-color 0.2s ease; }
+}
+
+/* Without backdrop-filter the foot has to be opaque, or the fields show through it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .support__foot { background: rgb(234 234 232 / 0.97); }
+}

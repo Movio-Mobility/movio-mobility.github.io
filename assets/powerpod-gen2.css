@@ -16,7 +16,7 @@
 
    Sections: 1 shell  2 stage  3 panel frame  4 header and progress  5 stages and steps
    6 option cards  7 Pro Pack  8 review  9 form fields  10 footer  11 wide  12 reduced
-   motion  13 fallbacks */
+   motion  13 fallbacks  14 confirmation  15 payment and the bill  16 typing */
 
 /* ---------------------------------------------------------------- 1. shell */
 .pg2 {
@@ -98,7 +98,7 @@ html.pg2-shell body {
   height: 100%;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.7s var(--ease-out);
+  transition: opacity 0.7s var(--ease-out), visibility 0s;
 }
 
 /* Loading state, no-WebGL state and no-JS state, all in one 12.5 KB file. Sized and
@@ -115,13 +115,49 @@ html.pg2-shell body {
   transform: translate(-50%, -50%);
   pointer-events: none;
   opacity: 1;
-  transition: opacity 0.7s var(--ease-out);
+  transition: opacity 0.7s var(--ease-out), visibility 0s;
 }
 
 .pg2__stage.is-pod-live #pod { opacity: 1; }
 .pg2__stage.is-pod-live .pg2__poster { opacity: 0; }
 
+/* Details and payment are not the pod's stages (powerpod-gen2.js, scenes). It fades out on
+   the last frame it drew, then leaves the compositor altogether. */
+.pg2__stage:not([data-scene="pod"]) #pod,
+.pg2__stage:not([data-scene="pod"]) .pg2__poster {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease-out), visibility 0s linear 0.5s;
+}
+
 html:not(.gl) #pod { display: none; }
+
+/* The drawings as still line art, for when the particle field cannot draw them: no WebGL, or
+   reduced motion. Sized and placed like the drawing the field would gather. */
+.pg2__glyph {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--poster-drop));
+  width: auto;
+  height: min(46%, 300px);
+  aspect-ratio: 1;
+  fill: none;
+  stroke: rgb(20 20 20 / 0.5);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out);
+}
+
+.pg2__stage.is-glyph-static[data-scene="profile"] .pg2__glyph[data-glyph="profile"],
+.pg2__stage.is-glyph-static[data-scene="rupee"] .pg2__glyph[data-glyph="rupee"],
+html:not(.gl) .pg2__stage[data-scene="profile"] .pg2__glyph[data-glyph="profile"],
+html:not(.gl) .pg2__stage[data-scene="rupee"] .pg2__glyph[data-glyph="rupee"] {
+  opacity: 1;
+}
 
 /* The chosen accessory, on the stage beside the pod. Glass, as store.css:72-94. */
 .pg2__companion {
@@ -723,7 +759,22 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
   color: rgb(20 20 20 / 0.5);
 }
 
+/* "Find a dealer": the foot hint's link, in a note's size. */
+.review__note a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.review__note a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
 /* ---------------------------------------------------------------- 9. form fields */
+/* The site's shared fields are assets/fields.css, which every other form links. This page
+   keeps its own block because its inputs sit on flat white rather than on glass, so they rest
+   on a faint ink tint (below) where those rest on a white wash. The accessory pages load both,
+   fields.css second, so the wash wins there. Change a shared property in one, change it in
+   the other: a buyer must never meet two different text fields. */
 .field { margin-bottom: 0.9rem; }
 
 .field__label {
@@ -911,12 +962,11 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
   text-underline-offset: 3px;
 }
 
-/* Wherever the nav island floats at the bottom right (site.css:369), the action bar lifts
-   clear of it rather than sitting underneath a black pill. */
+/* Wherever the nav island would float at the bottom (site.css, the same query), this page
+   does without it. The sheet's own back chevron covers the way out, and the action bar keeps
+   the bottom of the screen to itself. Desktop keeps the collapsed pill at the top right. */
 @media (max-width: 1024px), (hover: none) and (pointer: coarse) {
-  .pg2__foot {
-    padding-bottom: calc(max(0.95rem, env(safe-area-inset-bottom)) + 62px);
-  }
+  .island-wrap { display: none; }
 }
 
 /* Phones: vertical space is the scarce resource, so the type and the cards tighten up to
@@ -1016,7 +1066,8 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
   .pg2__scroll { scroll-behavior: auto; }
 
   #pod,
-  .pg2__poster { transition-duration: 0.2s; }
+  .pg2__poster,
+  .pg2__glyph { transition-duration: 0.2s; }
 
   .pg2-progress__fill { transition-duration: 0.2s; }
 
@@ -1146,4 +1197,159 @@ html:not(.pg2-shell) .pg2-next {
 
 @media (prefers-reduced-motion: reduce) {
   .pg2-done { animation: pg2-view-fade 0.3s ease both; }
+}
+
+/* ---------------------------------------------------------------- 15. payment and the bill */
+/* Two beats, shown one at a time: the offer, then the bill. Each slides in the way a stage
+   does, so the step forward and the step back read the same as everywhere else. */
+html.pg2-shell .pg2-pay:not([hidden]) { animation: pg2-view-in 0.42s var(--ease-out) both; }
+html.pg2-shell .pg2-pay[data-dir="back"]:not([hidden]) { animation-name: pg2-view-back; }
+
+/* Reserve Now is an action, not a choice, so it is a button wearing an option card: the
+   same card, the same rim when pressed, with a chevron where the tick would be. */
+.opt--go {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  box-shadow: inset 0 0 0 1.5px var(--ink), 0 10px 26px -20px rgb(20 20 20 / 0.5);
+}
+
+.opt--go .opt__tick {
+  opacity: 1;
+  transform: none;
+}
+
+.opt--go:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+@media (hover: hover) {
+  .opt--go:hover { background: rgb(20 20 20 / 0.022); }
+}
+
+/* The bill. Read top to bottom like a receipt: the order, the GST inside it, what is paid
+   now, and what is left for the final payment. */
+.bill { margin-top: 0.2rem; }
+
+.bill__group + .bill__group {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hair);
+}
+
+.bill__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.bill__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bill__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.42rem 0;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.bill__label {
+  min-width: 0;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.bill__aside {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.76rem;
+  color: rgb(20 20 20 / 0.45);
+}
+
+.bill__value {
+  flex: none;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.bill__row--soft .bill__value {
+  font-weight: 500;
+  color: rgb(20 20 20 / 0.45);
+}
+
+.bill__row--total {
+  margin-top: 0.2rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--hair);
+}
+
+.bill__row--total .bill__label { color: var(--ink); font-weight: 600; }
+.bill__row--total .bill__value { font-weight: 600; }
+
+.bill__note {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* reCAPTCHA's attribution, standing in for its badge (hidden in site.css). */
+.bill__legal {
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.bill__legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* The closing promise: the one thing worth remembering after paying. */
+.bill__note--end {
+  margin-top: 1.1rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  background: rgb(20 20 20 / 0.045);
+  color: rgb(20 20 20 / 0.66);
+}
+
+/* ---------------------------------------------------------------- 16. typing */
+/* An on-screen keyboard is up (powerpod-gen2.js, the on-screen keyboard). Browsers shrink only
+   the visual viewport for it, so the fixed panel would carry on underneath the keys. Instead
+   it takes exactly the visible area above them, following iOS as it pans: the stage behind
+   it is simply covered until the keyboard goes, and the footer rides on top of the keys.
+   No transition on the panel itself: the keyboard's own slide is the motion, and a panel
+   easing after it would be measured mid-move when the field is scrolled into view. */
+html.is-typing .pg2__panel {
+  top: var(--vv-top, 0px);
+  bottom: auto;
+  height: var(--vv-h, 100%);
+}
+
+/* The logo would otherwise sit on top of the panel's header. */
+.topbar { transition: opacity 0.25s var(--ease-out); }
+html.is-typing .topbar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The keyboard covers the home indicator, so its inset is not needed above the keys. */
+html.is-typing .pg2__foot { padding-bottom: 0.75rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar { transition: none; }
+  html.pg2-shell .pg2-pay:not([hidden]),
+  html.pg2-shell .pg2-pay[data-dir="back"]:not([hidden]) {
+    animation: pg2-view-fade 0.25s ease both;
+  }
 }

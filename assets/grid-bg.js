@@ -15,7 +15,16 @@
  * anything else loads. The night grade lives in both: `uHouse` in STUDIO_FS, nightGrade(),
  * setNight(), and the five uniform sites that read N instead of S. Change one, change both.
  * sweepX() and its uDriftVel/uDriftEnergy uniforms live here only: the home page never
- * travels sideways, and journey.js feature-detects it.
+ * travels sideways, and journey.js feature-detects it. So does setForm(), the drawing the
+ * Gen2 order page gathers the field into: it is JavaScript over the pod's existing targets
+ * and force, and powerpod-gen2.js feature-detects it. The force's uPodK and uPodNoise are the
+ * home copy's, ported as they are (index.html, setFormation), so the two still agree there.
+ *
+ * Cost. The engine works out how hard to work with assets/perf.js (GridPerf), shared with the
+ * pod so the two canvases are always paced together. It draws the composite at CSS resolution
+ * (see applySize), compiles its shaders on the driver's threads, builds the road's riders only
+ * when the opening will show them, and reads no layout inside a frame. The performance
+ * pass in both copies is mirrored too: change one, change both.
  */
 (() => {
   'use strict';
@@ -25,11 +34,12 @@
   const headline = document.querySelector('.headline');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const skipIntro = root.classList.contains('skip-intro');
+  const perf = window.GridPerf || null;
 
   const reveal = () => headline.classList.add('is-revealed');
   const fallback = (reason) => {
     if (reason) console.warn('[gridBG] using static background:', reason);
-    root.classList.remove('gl');
+    root.classList.remove('gl', 'gl-live');
     reveal();
   };
 
@@ -44,7 +54,7 @@
   // A panel needs more particles than the idle drift, but only while it is open.
   const SHEET_DENSITY = window.matchMedia('(hover: none) and (pointer: coarse)').matches ? 0.13 : 0.2;
   const SCROLL_FOLLOW = 0.6;  // how strongly scrolling sweeps particles (1 = locked to content at the ribbon depth)
-  const MIN_QUALITY = 0.45;
+  const MIN_QUALITY = 0.6;    // emergency shedding floor (the governor's last resort, see perf.js)
   const MAX_CANVAS_PIXELS = 3.5e6;
   const MAX_PARTICLE_PIXELS = 2.0e6;
 
@@ -217,6 +227,8 @@
     uniform float uPod;          // weight of the PowerPod silhouette formation
     uniform sampler2D uPodTargets;
     uniform vec2  uPodTexSize;
+    uniform float uPodK;         // how hard a formation holds its points: 22 lets a drawing breathe
+    uniform float uPodNoise;     // how much of the drift still moves a point held in a formation
     uniform float uHalo;         // weight of the optional store-card rim (does not use uPod)
     uniform vec4  uHaloRect;     // xy center, zw half-extents, world units at uHaloDepth
     uniform float uHaloRadius;   // corner radius, world units
@@ -364,8 +376,8 @@
         vec3 aAttr = vec3(0.0);
         if (uSweep > 0.0005) aAttr += sweepForce(p, v) * (uSweep / total);
         if (uRibbon > 0.0005) aAttr += ((ribbonTarget(h2, uTime) - p) * 5.5 - v * 4.7) * (uRibbon / total);
-        if (uPod > 0.0005) aAttr += ((podTarget(id) - p) * 22.0 - v * 8.5) * (uPod / total);
-        a = mix(aNoise, aAttr + aNoise * 0.3, w);
+        if (uPod > 0.0005) aAttr += ((podTarget(id) - p) * uPodK - v * (1.8 * sqrt(uPodK))) * (uPod / total);
+        a = mix(aNoise, aAttr + aNoise * mix(0.3, uPodNoise, min(uPod * 4.0, 1.0)), w);
       }
 
       // Optional rim: a few of the brighter sparks already drifting near one card
@@ -423,7 +435,7 @@
       drag = mix(drag, 0.3, haloW * uHaloGrip);
       v += a * dt;
       v *= exp(-drag * dt);
-      float maxSpeed = mix(1.0, mix(7.0, 14.0, uPod), w) + (uScrollEnergy + uDriftEnergy) * 1.3;
+      float maxSpeed = mix(1.0, mix(7.0, 14.0, uPod) * clamp(uPodK / 40.0, 1.0, 4.0), w) + (uScrollEnergy + uDriftEnergy) * 1.3;
       maxSpeed += haloW * uHaloGrip * 4.0; // the drift cap of 1.0 is far too slow to cross the frustum
       float speed = length(v);
       if (speed > maxSpeed) v *= maxSpeed / speed;
@@ -691,16 +703,24 @@
     void main() {
       float r = length(vUv);
 
-      // In focus: a tiny soft glow instead of a hard pixel.
-      float glow = exp(-(r * r) / (vCore * vCore));
+      // In focus: a tiny soft glow instead of a hard pixel. A fully defocused disc has none of
+      // it (mix() below would multiply it by exactly zero), so it is not worked out.
+      float glow = vDefocus < 1.0 ? exp(-(r * r) / (vCore * vCore)) : 0.0;
 
       // Defocused: aperture-shaped disc (70% circle, 30% six-blade hexagon) with a brighter rim.
-      vec2 q = mat2(0.9659, -0.2588, 0.2588, 0.9659) * vUv;
-      float sd = mix(r - vRadius, sdHexagon(q, vRadius * 0.94), 0.3);
-      float edge = 0.9 + vRadius * 0.06;
-      float disc = 1.0 - smoothstep(-edge, edge, sd);
-      float rim = smoothstep(-vRadius * 0.5, 0.0, sd) * disc;
-      float bokeh = disc * 0.78 + rim * 0.32;
+      // Skipped while a particle is fully in focus, where it would be weighted by zero.
+      float bokeh = 0.0;
+      if (vDefocus > 0.0) {
+        vec2 q = mat2(0.9659, -0.2588, 0.2588, 0.9659) * vUv;
+        float sd = mix(r - vRadius, sdHexagon(q, vRadius * 0.94), 0.3);
+        float edge = 0.9 + vRadius * 0.06;
+        // Outside the aperture a fully defocused disc adds exactly nothing: leave the pixel be
+        // rather than blend a zero into it.
+        if (vDefocus >= 1.0 && sd >= edge) discard;
+        float disc = 1.0 - smoothstep(-edge, edge, sd);
+        float rim = smoothstep(-vRadius * 0.5, 0.0, sd) * disc;
+        bokeh = disc * 0.78 + rim * 0.32;
+      }
 
       outColor = vec4(vLight * mix(glow, bokeh, vDefocus), 1.0);
     }
@@ -719,7 +739,7 @@
     precision highp int;
 
     uniform vec2 uRes;
-    uniform float uTime;
+    uniform vec2 uDrift;         // the lights' slow wander, worked out once a frame on the CPU
     uniform float uExposure;
     uniform float uParticleGain;
     uniform float uHouse;        // house lights over the cyclorama only: 1 = studio lit, 0 = dark stage
@@ -741,8 +761,7 @@
       c.y = -c.y;
       float portrait = clamp((1.0 - aspect) / 0.55, 0.0, 1.0);
 
-      vec2 drift = 0.012 * vec2(sin(uTime * 0.071) + 0.5 * sin(uTime * 0.13 + 1.7),
-                                cos(uTime * 0.053) + 0.5 * sin(uTime * 0.097 + 0.4));
+      vec2 drift = uDrift;
       float horizon = mix(-0.12, -0.17, portrait) + drift.y * 0.5;
       float by = c.y - horizon;
       float leftEdge = -0.5 * max(aspect, 1.0);
@@ -789,6 +808,8 @@
   `;
 
   // ---------------------------------------------------------------- WebGL setup
+  // A software-only context (no GPU acceleration, or a blocklisted driver) would draw this a
+  // few frames a second and hold the whole page up doing it. Those machines get the CSS studio.
   const gl = canvas.getContext('webgl2', {
     alpha: false,
     antialias: false,
@@ -796,38 +817,53 @@
     stencil: false,
     premultipliedAlpha: false,
     preserveDrawingBuffer: false,
+    failIfMajorPerformanceCaveat: true,
   });
   if (!gl) {
-    fallback('WebGL2 unavailable');
+    fallback('WebGL2 unavailable or software-only');
     return;
   }
+  if (perf) perf.classify(gl);
 
-  function compile(type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
-      throw new Error(gl.getShaderInfoLog(shader));
-    }
-    return shader;
-  }
+  // Shaders compile on the driver's own threads where the browser allows it: every program is
+  // started at once and only checked when it is needed, so nothing stands still waiting on the
+  // compiler. Without the extension, checking is what waits.
+  const parallel = gl.getExtension('KHR_parallel_shader_compile');
 
   function createProgram(vs, fs, varyings) {
     const program = gl.createProgram();
-    gl.attachShader(program, compile(gl.VERTEX_SHADER, vs));
-    gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fs));
+    const shaders = [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].map(([type, source]) => {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      gl.attachShader(program, shader);
+      return shader;
+    });
     if (varyings) gl.transformFeedbackVaryings(program, varyings, gl.INTERLEAVED_ATTRIBS);
     gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS) && !gl.isContextLost()) {
-      throw new Error(gl.getProgramInfoLog(program));
+    return { program, shaders, uniforms: null };
+  }
+
+  // Whether the driver has finished with a program. Never waits.
+  const programDone = (p) => !!p.uniforms || !parallel
+    || !!gl.getProgramParameter(p.program, parallel.COMPLETION_STATUS_KHR);
+
+  // Checks the link and reads the uniform table. This waits for the compiler, so it is called
+  // once programDone() says so, or where waiting is the right thing to do.
+  function finishProgram(p) {
+    if (p.uniforms) return p;
+    if (!gl.getProgramParameter(p.program, gl.LINK_STATUS) && !gl.isContextLost()) {
+      throw new Error(p.shaders.map((shader) => gl.getShaderInfoLog(shader))
+        .concat(gl.getProgramInfoLog(p.program)).filter(Boolean).join('\n'));
     }
     const uniforms = {};
-    const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    const count = gl.getProgramParameter(p.program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < count; i++) {
-      const { name } = gl.getActiveUniform(program, i);
-      uniforms[name.replace(/\[0\]$/, '')] = gl.getUniformLocation(program, name);
+      const { name } = gl.getActiveUniform(p.program, i);
+      uniforms[name.replace(/\[0\]$/, '')] = gl.getUniformLocation(p.program, name);
     }
-    return { program, uniforms };
+    p.uniforms = uniforms;
+    return p;
   }
 
   const STRIDE = 48;       // 3 × vec4 per particle
@@ -889,7 +925,10 @@
     return { count, state, updateVao, drawVao, read: 0 };
   }
 
-  function createGPU(capacity) {
+  // `wait`: check the programs before returning, as the engine always used to. A page that
+  // opens on a lit studio needs its first frame straight away; the home page opens on a dark
+  // stage and lets the compiler finish in the background instead (see gpuReady()).
+  function createGPU(capacity, wait) {
     const update = createProgram(UPDATE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
     const particles = createProgram(PARTICLE_VS, PARTICLE_FS);
     const studio = createProgram(FULLSCREEN_VS, STUDIO_FS);
@@ -903,13 +942,9 @@
     for (let i = 0; i < capacity; i++) initial[i * 12 + 3] = 1;
     const road = createPool(capacity, initial, quad, null);
 
-    let vehicles = null;
-    let traffic = null;
-    if (roster.length) {
-      vehicles = createProgram(VEHICLE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
-      const count = roster.length * POINTS_PER_VEHICLE;
-      traffic = createPool(count, new Float32Array(count * 12), quad, buildTrafficShapes());
-    }
+    // The riders are built later, and only where the opening will show them (prepareTraffic).
+    const vehicles = null;
+    const traffic = null;
 
     const fullscreenVao = gl.createVertexArray();
     const halfFloat = !!(gl.getExtension('EXT_color_buffer_half_float') || gl.getExtension('EXT_color_buffer_float'));
@@ -929,15 +964,58 @@
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, podSize, podSize, 0, gl.RGBA, gl.FLOAT, new Float32Array(podSize * podSize * 4));
     gl.bindTexture(gl.TEXTURE_2D, null);
 
-    return {
+    const g = {
       update, vehicles, particles, studio,
-      road, traffic, fullscreenVao,
+      road, traffic, fullscreenVao, quad,
       feedback: gl.createTransformFeedback(),
       light: { texture: gl.createTexture(), fbo: gl.createFramebuffer(), width: 0, height: 0, halfFloat },
       detail, // canvas-resolution light for the traffic, 1×1 while unused
       podTargets,
       prewarm: true,
+      ready: false,
     };
+    if (wait) {
+      [update, particles, studio].forEach(finishProgram);
+      g.ready = true;
+    }
+    return g;
+  }
+
+  // Ready to draw once every program is compiled and checked. Never waits on the compiler.
+  function gpuReady(g) {
+    if (g.ready) return true;
+    const programs = [g.update, g.particles, g.studio];
+    if (!programs.every(programDone)) return false;
+    programs.forEach(finishProgram);
+    g.ready = true;
+    return true;
+  }
+
+  // The riders on the opening's road. Only the home page's opening shows them, from about
+  // eleven seconds in and only to a reader who has not scrolled yet, so they are built a few
+  // seconds ahead at an idle moment rather than with everything else at load.
+  function prepareTraffic(g) {
+    if (g.vehicles || !roster.length) return;
+    g.vehicles = createProgram(VEHICLE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
+    const count = roster.length * POINTS_PER_VEHICLE;
+    g.traffic = createPool(count, new Float32Array(count * 12), g.quad, buildTrafficShapes());
+    // Without parallel compiling, checking is what waits, so do that here in idle time and not
+    // on the frame the first rider appears.
+    if (!parallel) trafficReady(g);
+  }
+
+  function trafficReady(g) {
+    if (!g.traffic) return false;
+    if (g.vehicles.uniforms) return true;
+    if (!programDone(g.vehicles)) return false;
+    try {
+      finishProgram(g.vehicles);
+      return true;
+    } catch (err) {
+      console.warn('[gridBG] riders unavailable:', err);
+      g.traffic = null; // the road plays on without them
+      return false;
+    }
   }
 
   // One transform-feedback pass over a pool: reads its current buffer, writes the other.
@@ -1240,9 +1318,12 @@
   let quality = 1;
   let resolutionScale = 1;
 
+  // These pages open on a lit studio (skip-intro), so their first frame is drawn as soon as
+  // the shaders are in, as it always was: the three still compile side by side first.
+  const waitForShaders = skipIntro || reduceMotion || !parallel;
   let gpu;
   try {
-    gpu = createGPU(capacity);
+    gpu = createGPU(capacity, waitForShaders);
   } catch (err) {
     fallback(err);
     return;
@@ -1252,7 +1333,7 @@
   const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
   const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
-  const S = { exposure: 0, focus: 3.0, aperture: 0.07, sweep: 0, sweepT: 0, ribbon: 0, breath: 0, density: 1, traffic: 0, pod: 0, night: 0 };
+  const S = { exposure: 0, focus: 3.0, aperture: 0.07, sweep: 0, sweepT: 0, ribbon: 0, breath: 0, density: 1, traffic: 0, pod: 0, podK: 22, podNoise: 0.3, night: 0 };
   roster.forEach((vehicle, i) => { S[`vehicle${i}`] = 0; });
   const tweens = [];
   const events = [];
@@ -1426,6 +1507,124 @@
     uploadPodTargets(xyz);
   }
 
+  // ---------------------------------------------------------------- form
+  // A drawing the field gathers into and holds, on a page that is not scroll driven: the Gen2
+  // order page draws a profile on its details screen and a rupee on its payment screen. It
+  // borrows the pod's targets and the pod's force, so the shaders cannot tell the difference,
+  // but unlike setPod it never takes the scroll. It moves the same S keys through the timeline
+  // and hands them back to wherever the drift had them when it lets go.
+  //
+  // spec: { key, points, rect, density }, or null to let go. `points` are x, y pairs in a unit
+  // box (y up), ideally `capacity` of them, ordered so any prefix reads as the whole drawing:
+  // the field only draws its first particles, and fewer of them on a struggling device.
+  // `rect` is the DOM rect to fit the box into, `density` the share of the field to bring in.
+  const FORM_IN = 1.6;         // s, the gather
+  const FORM_LOOSEN = 0.7;     // s, letting go of one drawing before the next is gathered
+  const FORM_OUT = 1.4;        // s, back to the drift
+  const FORM_APERTURE = 0.06;  // stopped down a touch, so the drawing reads crisp against the bokeh
+  // Between two drawings the lens racks off them and opens up, so the old one goes soft, the
+  // particles cross over as bokeh, and the new one resolves as focus comes back: a camera
+  // move rather than a swarm of sparks trading places.
+  const FORM_RACK = 2.4;       // world units past the drawing
+  const FORM_RACK_APERTURE = 0.11;
+  // A still drawing held firmly, with little of the drift left in it, so a straight stroke
+  // reads as straight. The defaults (22 and 0.3) are the loose, hand-drawn hold.
+  const FORM_K = 64;
+  const FORM_NOISE = 0.08;
+  let form = null;             // { key, xyz } of the drawing held, or on its way in
+  let formRest = null;         // the drift's own focus, aperture and density, to go back to
+  let formUploaded = '';       // the key whose targets are in the texture
+  let formSeq = 0;             // so a superseded swap never uploads
+
+  function formTargets(spec) {
+    const proj = projection();
+    const hh = proj.depth * proj.tanHalfY;
+    const r = spec.rect;
+    const pts = spec.points;
+    const n = Math.max(1, Math.floor(pts.length / 2));
+    const xyz = new Float32Array(capacity * 3);
+    for (let i = 0; i < capacity; i++) {
+      const j = (i % n) * 2;
+      const sx = r.left + (pts[j] * 0.5 + 0.5) * r.width;
+      const sy = r.top + (0.5 - pts[j + 1] * 0.5) * r.height;
+      xyz[i * 3] = ((sx / cssW) * 2 - 1) * hh * proj.aspect;
+      xyz[i * 3 + 1] = (1 - (sy / cssH) * 2) * hh;
+      // Flat, on purpose. The drawing usually sits well off the axis (high in a phone's stage),
+      // where any depth spread shows up through the perspective as a sideways scatter, and one
+      // keyed to the point order turns a straight stroke into a saw tooth.
+      xyz[i * 3 + 2] = -proj.depth;
+    }
+    return xyz;
+  }
+
+  function setForm(spec) {
+    if (reduceMotion) return;
+
+    if (!spec || !spec.points || !spec.rect) {
+      if (!form) return;
+      formSeq++; // a swap still waiting to upload is void now
+      form = null;
+      cancel('pod', 'density', 'focus', 'aperture', 'podK', 'podNoise');
+      tween('pod', 0, FORM_OUT * 0.7, 0, easeInOut);
+      tween('podK', 22, FORM_OUT, 0, easeInOut);
+      tween('podNoise', 0.3, FORM_OUT, 0, easeInOut);
+      if (formRest) {
+        tween('density', formRest.density, FORM_OUT, 0, easeInOut);
+        tween('focus', formRest.focus, FORM_OUT, 0, easeInOut);
+        tween('aperture', formRest.aperture, FORM_OUT, 0, easeInOut);
+      }
+      formRest = null;
+      return;
+    }
+
+    const xyz = formTargets(spec);
+    // The same drawing again is a new place for it (a resize), not a new gather.
+    if (form && form.key === spec.key) {
+      form.xyz = xyz;
+      if (formUploaded === spec.key) setPodTargets(xyz);
+      return;
+    }
+
+    // Counted only here and on release, never for a same-drawing refresh above: that one has
+    // to leave a pending swap alone, or the field would gather back into the old drawing.
+    const seq = ++formSeq;
+    if (!formRest) formRest = { focus: S.focus, aperture: S.aperture, density: S.density };
+    form = { key: spec.key, xyz };
+    cancel('pod', 'density', 'focus', 'aperture', 'podK', 'podNoise');
+
+    // The hold firms up as the drawing arrives: loose enough on the way in that it gathers
+    // softly, firm once it is there.
+    const gather = (delay) => {
+      tween('pod', 1, FORM_IN, delay, easeInOut);
+      tween('podK', FORM_K, FORM_IN * 1.4, delay, easeInOut);
+      tween('podNoise', FORM_NOISE, FORM_IN * 1.4, delay, easeInOut);
+      tween('density', Math.min(1, Math.max(DRIFT_DENSITY, spec.density || 0.2)), FORM_IN * 0.8, delay, easeInOut);
+      tween('focus', RIBBON_DEPTH, FORM_IN, delay, easeInOut);
+      tween('aperture', FORM_APERTURE, FORM_IN, delay, easeInOut);
+    };
+
+    // Still holding a different drawing: loosen it first and swap the targets while the field
+    // is loose, so it re-forms rather than flying straight across from one shape to the next.
+    if (formUploaded && formUploaded !== spec.key && S.pod > 0.05) {
+      tween('pod', 0, FORM_LOOSEN, 0, easeInOut);
+      tween('podK', 22, FORM_LOOSEN, 0, easeInOut);
+      tween('podNoise', 0.3, FORM_LOOSEN, 0, easeInOut);
+      tween('focus', RIBBON_DEPTH + FORM_RACK, FORM_LOOSEN, 0, easeInOut);
+      tween('aperture', FORM_RACK_APERTURE, FORM_LOOSEN, 0, easeInOut);
+      at(FORM_LOOSEN, () => {
+        if (seq !== formSeq || !form) return;
+        setPodTargets(form.xyz);
+        formUploaded = form.key;
+      });
+      gather(FORM_LOOSEN);
+      return;
+    }
+
+    setPodTargets(xyz);
+    formUploaded = spec.key;
+    gather(0);
+  }
+
   const halo = {
     weight: 0,
     cx: 0,
@@ -1447,8 +1646,6 @@
       return;
     }
     const proj = projection();
-    const cssW = Math.max(1, canvas.clientWidth);
-    const cssH = Math.max(1, canvas.clientHeight);
     const depth = spec.depth > 0.5 ? spec.depth : proj.depth;
     const hh = depth * proj.tanHalfY;
     const r = spec.rect;
@@ -1466,8 +1663,7 @@
   }
 
   function projection() {
-    const cssW = Math.max(1, canvas.clientWidth);
-    const cssH = Math.max(1, canvas.clientHeight);
+    if (!cssW) measureCanvas();
     const aspect = (canvas.width && canvas.height) ? canvas.width / canvas.height : cssW / cssH;
     const tanHalfY = TAN_HALF_FOV / Math.min(aspect, 1);
     return { aspect, tanHalfY, depth: RIBBON_DEPTH, sheetDepth: SHEET_DEPTH };
@@ -1509,14 +1705,33 @@
   // ---------------------------------------------------------------- sizing & quality
   let sizeDirty = true;
 
+  // The canvas's CSS size, read once per resize rather than once per frame: reading it inside
+  // a frame forces the browser to bring style and layout up to date first, every frame.
+  let cssW = 0;
+  let cssH = 0;
+  function measureCanvas() {
+    cssW = Math.max(1, canvas.clientWidth);
+    cssH = Math.max(1, canvas.clientHeight);
+  }
+
+  // The composite is drawn at CSS resolution. Everything in it is soft: the particle light
+  // buffer below was already at CSS resolution, the cyclorama's finest feature spans about
+  // fifteen CSS pixels, and the dither is under one level of 8-bit. At the device's full
+  // density the same picture cost four times the fill on a 2x screen (nine on 3x, before the
+  // cap), for pixels the compositor would have interpolated to the same values. The one thing
+  // that needs device pixels is the road's riders, whose points are a pixel wide: while they
+  // are on screen (`dense`) the canvas goes up to full density, as it always was.
+  let dense = false;
+
   function applySize() {
     sizeDirty = false;
-    const cssW = Math.max(1, canvas.clientWidth);
-    const cssH = Math.max(1, canvas.clientHeight);
+    measureCanvas();
     const area = cssW * cssH;
+    const dpr = window.devicePixelRatio || 1;
+    const canvasCap = Math.sqrt(MAX_CANVAS_PIXELS / area);
 
-    let ratio = Math.min(window.devicePixelRatio || 1, 2) * resolutionScale;
-    ratio = Math.min(ratio, Math.sqrt(MAX_CANVAS_PIXELS / area));
+    const base = Math.min(Math.min(dpr, 1) * resolutionScale, canvasCap);
+    const ratio = dense ? Math.min(Math.min(dpr, 2) * resolutionScale, canvasCap) : base;
     const width = Math.max(1, Math.round(cssW * ratio));
     const height = Math.max(1, Math.round(cssH * ratio));
     if (canvas.width !== width || canvas.height !== height) {
@@ -1525,7 +1740,7 @@
     }
 
     // Bokeh is soft, so the light buffer stays near CSS resolution: most of the fill cost saved.
-    const lightRatio = Math.min(ratio, resolutionScale, Math.sqrt(MAX_PARTICLE_PIXELS / area));
+    const lightRatio = Math.min(base, resolutionScale, Math.sqrt(MAX_PARTICLE_PIXELS / area));
     sizeLightBuffer(gpu.light, Math.max(1, Math.round(cssW * lightRatio)), Math.max(1, Math.round(cssH * lightRatio)));
   }
 
@@ -1541,7 +1756,17 @@
     }
   }
 
-  // Frame-time governor: sheds particles and resolution on struggling devices, restores slowly.
+  // perf.js owns the frame-rate ladder for every canvas on the page; particle shedding is its
+  // last step, applied here.
+  if (perf) {
+    perf.on((p) => {
+      const q = Math.pow(0.85, p.shed);
+      if (Math.abs(Math.max(MIN_QUALITY, q) - quality) > 1e-3) setQuality(q);
+    });
+  }
+
+  // Frame-time governor, for a page without perf.js: sheds particles and resolution on
+  // struggling devices, restores slowly.
   function governor(rawDt) {
     if (rawDt <= 0 || rawDt > 0.25) return;
     perfTime += rawDt;
@@ -1577,7 +1802,18 @@
   let scrollEnergy = 0;
   let lastScrollY = window.scrollY;
   let touchY = null;
-  const pageScrolls = () => document.documentElement.scrollHeight > window.innerHeight + 1;
+  // Whether the page scrolls, kept rather than measured on every wheel and touch event.
+  let scrollsKnown = false;
+  let scrolls = true;
+  const pageScrolls = () => {
+    if (!scrollsKnown) {
+      scrolls = document.documentElement.scrollHeight > window.innerHeight + 1;
+      scrollsKnown = true;
+    }
+    return scrolls;
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(() => { scrollsKnown = false; }).observe(document.documentElement);
+  window.addEventListener('resize', () => { scrollsKnown = false; });
 
   window.addEventListener('scroll', () => {
     scrollPx += window.scrollY - lastScrollY;
@@ -1621,7 +1857,7 @@
     const rawScrollVelocity = dt > 0 ? scrollPx / dt : 0;
     scrollPx = 0;
     scrollVelocity += (rawScrollVelocity - scrollVelocity) * (1 - Math.exp(-dt / 0.06));
-    const pxToWorld = (2 * RIBBON_DEPTH * tanHalfY) / Math.max(1, canvas.clientHeight);
+    const pxToWorld = (2 * RIBBON_DEPTH * tanHalfY) / cssH;
     // Scrolling sweeps the particles as it always did. The only time it eases off is while
     // they are locked into the pod's silhouette, so the formation can hold its shape.
     const followScale = (reduceMotion ? 0.3 : 1) * (1 - 0.85 * S.pod);
@@ -1664,6 +1900,8 @@
     gl.bindTexture(gl.TEXTURE_2D, g.podTargets.texture);
     gl.uniform1i(u.uPodTargets, 0);
     gl.uniform2f(u.uPodTexSize, g.podTargets.width, g.podTargets.height);
+    gl.uniform1f(u.uPodK, S.podK);
+    gl.uniform1f(u.uPodNoise, S.podNoise);
     gl.uniform1f(u.uHalo, halo.weight);
     gl.uniform4f(u.uHaloRect, halo.cx, halo.cy, halo.hx, halo.hy);
     gl.uniform1f(u.uHaloRadius, halo.radius);
@@ -1674,7 +1912,7 @@
     simulate(g, g.road, count);
 
     // 1b. Traffic: only while the road scene is on (parked just before, gone once scattered).
-    const trafficOn = g.traffic && clock > TRAFFIC_START && S.traffic < 1;
+    const trafficOn = trafficWindow() && trafficReady(g);
     if (trafficOn) {
       placeTraffic();
       u = g.vehicles.uniforms;
@@ -1723,7 +1961,7 @@
       gl.bindFramebuffer(gl.FRAMEBUFFER, g.detail.fbo);
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clear(gl.COLOR_BUFFER_BIT);
-      const pixelRatio = canvas.width / Math.max(1, canvas.clientWidth);
+      const pixelRatio = canvas.width / cssW;
       gl.uniform2f(u.uRes, canvas.width, canvas.height);
       gl.uniform1f(u.uCore, 0.006);
       gl.uniform1f(u.uMinCore, 0.85 * pixelRatio);
@@ -1747,7 +1985,9 @@
     gl.uniform1i(u.uDetail, 1);
     gl.activeTexture(gl.TEXTURE0);
     gl.uniform2f(u.uRes, canvas.width, canvas.height);
-    gl.uniform1f(u.uTime, simClock);
+    gl.uniform2f(u.uDrift,
+      0.012 * (Math.sin(simClock * 0.071) + 0.5 * Math.sin(simClock * 0.13 + 1.7)),
+      0.012 * (Math.cos(simClock * 0.053) + 0.5 * Math.sin(simClock * 0.097 + 0.4)));
     gl.uniform1f(u.uExposure, S.exposure);
     gl.uniform1f(u.uParticleGain, N.gain);
     gl.uniform1f(u.uHouse, N.house);
@@ -1759,18 +1999,70 @@
 
   let rafId = 0;
   let lastNow = 0;
+  let live = false;
+  let trafficQueued = false;
+
+  // The road scene's window, the riders' and the full-density canvas's: from just before the
+  // first one is due until the road lets go (or the reader scrolls, which ends it at once).
+  const trafficWindow = () => roster.length > 0 && !skipIntro && clock > TRAFFIC_START && S.traffic < 1;
 
   function frame(now) {
     rafId = requestAnimationFrame(frame);
     if (!gpu) return;
+    // Asked every frame, drawn or not, so the governor sees the page's real frame rate.
+    const due = perf ? perf.frame(now) : true;
+    // Still compiling: the timeline waits with it (only the home page's dark opening gets here).
+    let ready = false;
+    try {
+      ready = gpuReady(gpu);
+    } catch (err) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+      gpu = null;
+      fallback(err);
+      return;
+    }
+    if (!ready) {
+      lastNow = now;
+      return;
+    }
+    if (!due) return;
+    // Under reduced motion the field moves at a third of its speed, which thirty frames a
+    // second draw exactly as well as sixty.
+    if (reduceMotion && now - lastNow < 30) return;
     const rawDt = (now - lastNow) / 1000;
     lastNow = now;
     const dt = Math.min(Math.max(rawDt, 0), 1 / 20);
     clock += dt;
-    governor(rawDt);
+    if (!perf) governor(rawDt);
     advanceTimeline();
+
+    // Build the riders a few seconds before they are due, while the opening is calm.
+    if (!trafficQueued && roster.length && !skipIntro && !scrollDrive && clock > TRAFFIC_START - 6) {
+      trafficQueued = true;
+      const idle = perf ? perf.idle : (fn) => setTimeout(fn, 0);
+      idle(() => {
+        if (gpu && !scrollDrive && S.traffic < 1) prepareTraffic(gpu);
+      }, 2000);
+    }
+    const wantDense = trafficWindow() && !!gpu.traffic;
+    if (wantDense !== dense) {
+      dense = wantDense;
+      sizeDirty = true;
+    }
+
     if (sizeDirty) applySize();
     render(dt);
+
+    if (!live) {
+      // The canvas now covers the CSS studio behind it, so the root can stop painting it.
+      live = true;
+      root.classList.add('gl-live');
+    }
+    if (perf && perf.hudOn && frameIndex % 30 === 0) {
+      perf.report('field', `${canvas.width}x${canvas.height} light ${gpu.light.width}x${gpu.light.height}`
+        + ` particles ${capacity} q ${quality.toFixed(2)}${dense ? ' dense' : ''}`);
+    }
   }
 
   function start() {
@@ -1779,8 +2071,12 @@
   }
 
   // ---------------------------------------------------------------- lifecycle
-  if ('ResizeObserver' in window) new ResizeObserver(() => { sizeDirty = true; }).observe(canvas);
-  window.addEventListener('resize', () => { sizeDirty = true; });
+  const resized = () => {
+    sizeDirty = true;
+    cssW = 0; // measured again where it is next needed
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(resized).observe(canvas);
+  window.addEventListener('resize', resized);
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
@@ -1799,7 +2095,8 @@
   });
   canvas.addEventListener('webglcontextrestored', () => {
     try {
-      gpu = createGPU(capacity);
+      gpu = createGPU(capacity, true);
+      trafficQueued = false;
       sizeDirty = true;
       if (podTargetData) uploadPodTargets(podTargetData);
       if (!document.hidden) start();
@@ -1847,6 +2144,7 @@
     },
     setPod,
     setPodTargets,
+    setForm,
     setHalo,
     setNight,
     // CSS px something on the page travelled sideways this frame (+ = right). The field is

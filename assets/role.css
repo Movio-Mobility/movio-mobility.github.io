@@ -1,0 +1,504 @@
+/*
+ * A role page (jobs/<slug>/, built from tools/source/job.html by tools/careers.mjs).
+ *
+ * The store's language throughout: the same column and gutters, the same glass card recipe
+ * (store-card, ask-card), the same black pill, the same rise on arrival. One long glass card
+ * holds the role, rather than a card per section: one backdrop blur on screen instead of five
+ * is what keeps a budget phone's scrolling smooth, and it reads as one document.
+ *
+ * Phones: the role, then Apply, with a docked Apply beside the nav circle once the first one
+ * has scrolled away. From 1025px with a pointer: two columns, Apply held beside the text.
+ */
+
+.role {
+  --gutter-l: max(1rem, env(safe-area-inset-left)); /* matches .topbar on phones */
+  --gutter-r: max(1rem, env(safe-area-inset-right));
+  --hair: rgb(20 20 20 / 0.12);
+  --role-radius: 18px;
+  --island-size: 56px;
+  position: relative;
+  z-index: 2;
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding:
+    calc(max(1.125rem, env(safe-area-inset-top)) + 52px + 1.25rem)
+    var(--gutter-r)
+    calc(max(2.75rem, env(safe-area-inset-bottom)) + 108px)
+    var(--gutter-l);
+}
+
+/* While the application sheet is up the page recedes and the field does not, as on the store. */
+.role,
+.topbar { transition: opacity 0.6s var(--ease-out); }
+
+html.story-open .role,
+html.story-open .topbar { opacity: 0.18; }
+
+/* ---------------------------------------------------------------- the glass */
+.role__apply-card,
+.role__body {
+  border-radius: var(--role-radius);
+  background:
+    radial-gradient(120% 70% at 12% 0%, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 60%),
+    linear-gradient(160deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.07) 48%, rgb(255 255 255 / 0.12));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.2),
+    inset 0 -1px 0 rgb(20 20 20 / 0.05),
+    0 16px 36px -22px rgb(20 20 20 / 0.3);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .role__apply-card,
+  .role__body { background-color: rgb(226 226 224 / 0.82); }
+}
+
+/* ---------------------------------------------------------------- back */
+.role__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  margin: 0 0 1.4rem;
+  padding: 0 1rem 0 0.75rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.36);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s var(--ease-out), transform 0.34s var(--spring);
+}
+
+.role__back svg { color: rgb(20 20 20 / 0.6); }
+.role__back:active { transform: scale(0.97); }
+.role__back:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* ---------------------------------------------------------------- layout */
+.role__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+/* ---------------------------------------------------------------- the head */
+.role__domain {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.role__domain svg { flex: none; color: rgb(20 20 20 / 0.62); }
+
+.role__title {
+  margin: 0 0 0.9rem;
+  font-size: clamp(2.1rem, 2.6vw + 1.3rem, 3.4rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.role__summary {
+  max-width: 40ch;
+  margin: 0 0 1.3rem;
+  font-size: clamp(1.05rem, 0.4vw + 0.98rem, 1.3rem);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: rgb(20 20 20 / 0.74);
+  text-wrap: pretty;
+}
+
+.role__facts,
+.role__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role__fact,
+.role__skills li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 36px;
+  padding: 0.4rem 0.9rem 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.42);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 0 0 1px rgb(20 20 20 / 0.08);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.role__fact svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: rgb(20 20 20 / 0.55);
+}
+
+.role__skills li { padding-left: 0.9rem; color: var(--ink); }
+
+/* ---------------------------------------------------------------- apply */
+.role__apply-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: clamp(1.1rem, 4.5vw, 1.5rem);
+}
+
+/* The nav island's pill, as the store's WhatsApp button and the order sheet's Pay are. */
+.role__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.8rem 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 12px 32px -14px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  transition: transform 0.4s var(--spring);
+}
+
+.role__cta:active { transform: scale(0.985); }
+.role__cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.role__apply-note {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.55);
+  text-wrap: pretty;
+}
+
+.role__apply-note a { color: var(--ink); }
+
+.role__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin: 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+  list-style: none;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.7);
+  font-variant-numeric: tabular-nums;
+}
+
+.role__meta span { margin-right: 0.25rem; color: rgb(20 20 20 / 0.45); }
+
+/* ---------------------------------------------------------------- the role */
+.role__body { padding: clamp(1.35rem, 5.5vw, 2.4rem); }
+
+.role__section + .role__section {
+  margin-top: 1.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+}
+
+.role__h2 {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.15rem, 0.5vw + 1.02rem, 1.4rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.role__section p {
+  max-width: 62ch;
+  margin: 0 0 0.9em;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgb(20 20 20 / 0.74);
+  text-wrap: pretty;
+}
+
+.role__section p:last-child { margin-bottom: 0; }
+
+.role__list {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 62ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role__list li {
+  position: relative;
+  padding-left: 1.35rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.74);
+}
+
+/* A short rule rather than a dot: the hairline the site uses for every divider. */
+.role__list li::before {
+  content: "";
+  position: absolute;
+  top: 0.8em;
+  left: 0.1rem;
+  width: 0.6rem;
+  height: 1.5px;
+  border-radius: 1px;
+  background: rgb(20 20 20 / 0.35);
+}
+
+/* ---------------------------------------------------------------- not this one */
+.role__more {
+  padding: clamp(1.1rem, 4.5vw, 1.75rem) clamp(0.25rem, 1vw, 0.5rem) 0;
+}
+
+.role__more-text {
+  max-width: 46ch;
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.66);
+  text-wrap: pretty;
+}
+
+.role__ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 0 0 1px rgb(20 20 20 / 0.12);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s var(--ease-out), transform 0.4s var(--spring);
+}
+
+.role__ghost:active { transform: scale(0.985); }
+.role__ghost:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.role__more-mail {
+  margin: 1.1rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.55);
+}
+
+.role__more-mail a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- closed since the build */
+/* role.js: Paddock says this role closed (or paused) after the page was built. The apply
+   card gives way to this, in the same place. */
+.role__status {
+  display: grid;
+  gap: 0.75rem;
+  padding: clamp(1.1rem, 4.5vw, 1.5rem);
+  border-radius: var(--role-radius);
+  background: rgb(255 255 255 / 0.62);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    inset 0 0 0 1px rgb(20 20 20 / 0.08),
+    0 16px 36px -22px rgb(20 20 20 / 0.35);
+  animation: role-rise 0.6s var(--ease-out) both;
+}
+
+.role__status[hidden] { display: none; }
+
+.role__status-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.role__status-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.66);
+}
+
+.role__status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.role__status .role__cta { width: auto; }
+
+.role.is-closed .role__apply,
+.role.is-closed .role__dock { display: none; }
+
+/* ---------------------------------------------------------------- the dock (phones) */
+/* Apply, beside the nav circle, once the card's own button has scrolled away. It gives the
+   bottom edge back whenever the island opens (html.is-compact is the island folded), and it
+   dims with the room when the footer's night falls, as everything in .role does. */
+.role__dock {
+  position: fixed;
+  left: var(--gutter-l);
+  right: calc(var(--gutter-r) + var(--island-size) + 0.6rem);
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 9;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  pointer-events: none;
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.5s var(--spring);
+}
+
+.role__cta--dock { min-height: var(--island-size); }
+
+html.is-compact .role__dock.is-shown {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+html.is-lights-out .role__dock { pointer-events: none; }
+
+/* ---------------------------------------------------------------- arrival */
+/* Opacity and transform only, never a filter on the glass; backwards leaves nothing behind. */
+.role__back,
+.role__head,
+.role__apply,
+.role__body,
+.role__more {
+  animation: role-rise 0.9s var(--ease-out) backwards;
+}
+
+.role__head { animation-delay: 80ms; }
+.role__apply { animation-delay: 150ms; }
+.role__body { animation-delay: 220ms; }
+.role__more { animation-delay: 290ms; }
+
+@keyframes role-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+}
+
+@media (hover: hover) {
+  .role__back:hover,
+  .role__ghost:hover { background: rgb(255 255 255 / 0.66); }
+}
+
+/* ---------------------------------------------------------------- tablet */
+@media (min-width: 760px) {
+  .role {
+    --gutter-l: max(1.5rem, env(safe-area-inset-left));
+    --gutter-r: max(1.5rem, env(safe-area-inset-right));
+    --role-radius: 24px;
+    --island-size: 52px;
+    padding-top: calc(max(1.125rem, env(safe-area-inset-top)) + 52px + clamp(2rem, 5vh, 3.5rem));
+  }
+
+  .role__layout { gap: 1.5rem; }
+  .role__apply-card { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 1.25rem; }
+  .role__apply-card .role__cta { width: auto; }
+  .role__meta { grid-column: 1 / -1; }
+}
+
+/* ---------------------------------------------------------------- desktop */
+/* The island lives in the top bar here, so nothing needs to clear the bottom, and Apply is
+   held beside the text all the way down. */
+@media (min-width: 1025px) and (hover: hover), (min-width: 1025px) and (pointer: fine) {
+  .role {
+    padding-bottom: max(3.5rem, env(safe-area-inset-bottom));
+  }
+
+  .role__layout {
+    grid-template-columns: minmax(0, 1fr) 20.5rem;
+    column-gap: clamp(2rem, 4vw, 4rem);
+    row-gap: 1.75rem;
+    align-items: start;
+  }
+
+  .role__head,
+  .role__body,
+  .role__more { grid-column: 1; }
+
+  /* Apply, or the word that it has closed, held beside the text. */
+  .role__apply,
+  .role__status {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    position: sticky;
+    top: calc(max(1.125rem, env(safe-area-inset-top)) + 44px + 2rem);
+    align-self: start;
+  }
+
+  .role__apply-card { grid-template-columns: minmax(0, 1fr); }
+  .role__apply-card .role__cta { width: 100%; }
+
+  .role__dock { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role__back,
+  .role__head,
+  .role__apply,
+  .role__body,
+  .role__more,
+  .role__status {
+    animation: role-fade 0.5s ease backwards;
+    animation-delay: 0s;
+  }
+  .role__dock { transform: none; transition: opacity 0.2s ease; }
+  .role__cta:active,
+  .role__ghost:active,
+  .role__back:active { transform: none; }
+}
+
+@keyframes role-fade {
+  from { opacity: 0; }
+}

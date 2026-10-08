@@ -1,0 +1,939 @@
+{
+  "version": "d-fixture1",
+  "cities": [
+    {
+      "name": "Delhi",
+      "state": "Delhi",
+      "count": 4
+    },
+    {
+      "name": "Gurugram",
+      "state": "Haryana",
+      "count": 2
+    },
+    {
+      "name": "Bengaluru",
+      "state": "Karnataka",
+      "count": 2
+    },
+    {
+      "name": "Aurangabad",
+      "state": "Maharashtra",
+      "count": 2
+    },
+    {
+      "name": "Aurangabad",
+      "state": "Bihar",
+      "count": 2
+    }
+  ],
+  "dealers": [
+    {
+      "id": "dlrOkhla0001",
+      "slug": "okhla-swap-hub",
+      "name": "Okhla Swap Hub",
+      "area": "Okhla Phase 1",
+      "city": "Delhi",
+      "state": "Delhi",
+      "pincode": "110020",
+      "address": "D66, Pocket D, Okhla Phase 1, New Delhi 110020",
+      "lat": 28.5355,
+      "lng": 77.273,
+      "placeId": "ChIJokhla0001",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=28.5355,77.273&query_place_id=ChIJokhla0001",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543201",
+          "display": "+91 98765 43201",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "sales",
+        "service",
+        "swap",
+        "test_ride"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrOkhla0001-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "The Okhla Swap Hub shopfront"
+      },
+      "featured": true,
+      "sortOrder": 0,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrLajpat0002",
+      "slug": "lajpat-ev-point",
+      "name": "Lajpat EV Point",
+      "area": "Lajpat Nagar",
+      "city": "Delhi",
+      "state": "Delhi",
+      "pincode": "110024",
+      "address": "14 Central Market, Lajpat Nagar II, New Delhi 110024",
+      "lat": 28.5677,
+      "lng": 77.2433,
+      "placeId": "ChIJlajpat0002",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=28.5677,77.2433&query_place_id=ChIJlajpat0002",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543202",
+          "display": "+91 98765 43202",
+          "whatsapp": true,
+          "primary": true
+        },
+        {
+          "label": "Service",
+          "e164": "+919876543212",
+          "display": "+91 98765 43212",
+          "whatsapp": true,
+          "primary": false
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "13:30"
+          ],
+          [
+            "15:00",
+            "20:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "13:30"
+          ],
+          [
+            "15:00",
+            "20:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "13:30"
+          ],
+          [
+            "15:00",
+            "20:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "13:30"
+          ],
+          [
+            "15:00",
+            "20:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "13:30"
+          ],
+          [
+            "15:00",
+            "20:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "13:30"
+          ],
+          [
+            "15:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "11:00",
+            "14:00"
+          ]
+        ]
+      },
+      "hoursNote": "Closed for lunch from 1:30 to 3 PM.",
+      "services": [
+        "sales",
+        "installation",
+        "service"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrLajpat0002-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Lajpat EV Point counter"
+      },
+      "featured": false,
+      "sortOrder": 1,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrKarol0003",
+      "slug": "karol-bagh-batteries",
+      "name": "Karol Bagh Batteries",
+      "area": "Karol Bagh",
+      "city": "Delhi",
+      "state": "Delhi",
+      "pincode": "110005",
+      "address": "2/9 Ajmal Khan Road, Karol Bagh, New Delhi 110005",
+      "lat": 28.6519,
+      "lng": 77.1909,
+      "placeId": "ChIJkarol0003",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=28.6519,77.1909&query_place_id=ChIJkarol0003",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543203",
+          "display": "+91 98765 43203",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": null,
+      "hoursNote": "Call ahead on Sundays.",
+      "services": [
+        "sales",
+        "swap"
+      ],
+      "photo": null,
+      "featured": false,
+      "sortOrder": 2,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrScript0004",
+      "slug": "a-script-b",
+      "name": "A</script>B",
+      "area": "Connaught Place",
+      "city": "Delhi",
+      "state": "Delhi",
+      "pincode": "110001",
+      "address": "Block A <b>Inner Circle</b>, Connaught Place, New Delhi 110001",
+      "lat": 28.6315,
+      "lng": 77.2167,
+      "placeId": "ChIJscript0004",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=28.6315,77.2167&query_place_id=ChIJscript0004",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543204",
+          "display": "+91 98765 43204",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "Note with \"quotes\" & <tags>.",
+      "services": [
+        "sales"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrScript0004-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "A test shop whose name tries to close a script tag"
+      },
+      "featured": false,
+      "sortOrder": 3,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrCyber0005",
+      "slug": "cyber-city-motors",
+      "name": "Cyber City Motors",
+      "area": "DLF Cyber City",
+      "city": "Gurugram",
+      "state": "Haryana",
+      "pincode": "122002",
+      "address": "Ground floor, Building 8, DLF Cyber City, Gurugram 122002",
+      "lat": 28.4949,
+      "lng": 77.0887,
+      "placeId": "ChIJcyber0005",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=28.4949,77.0887&query_place_id=ChIJcyber0005",
+      "phones": [
+        {
+          "label": "Front desk",
+          "e164": "+911244123456",
+          "display": "0124 412 3456",
+          "whatsapp": false,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "sales",
+        "service"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrCyber0005-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Cyber City Motors showroom"
+      },
+      "featured": false,
+      "sortOrder": 0,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrSohna0006",
+      "slug": "sohna-road-ev",
+      "name": "Sohna Road EV",
+      "area": "Sohna Road",
+      "city": "Gurugram",
+      "state": "Haryana",
+      "pincode": "122018",
+      "address": "Shop 4, Vatika Business Park, Sohna Road, Gurugram 122018",
+      "lat": 28.4089,
+      "lng": 77.0418,
+      "placeId": null,
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=28.4089,77.0418",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543206",
+          "display": "+91 98765 43206",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "swap",
+        "service"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrSohna0006-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Sohna Road EV entrance"
+      },
+      "featured": false,
+      "sortOrder": 1,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrIndira0007",
+      "slug": "indiranagar-electric",
+      "name": "Indiranagar Electric",
+      "area": "Indiranagar",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560038",
+      "address": "100 Feet Road, HAL 2nd Stage, Indiranagar, Bengaluru 560038",
+      "lat": 12.9719,
+      "lng": 77.6412,
+      "placeId": "ChIJindira0007",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=12.9719,77.6412&query_place_id=ChIJindira0007",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543207",
+          "display": "+91 98765 43207",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "sales",
+        "installation",
+        "service",
+        "test_ride"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrIndira0007-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Indiranagar Electric storefront"
+      },
+      "featured": true,
+      "sortOrder": 0,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrKoram0008",
+      "slug": "koramangala-swap",
+      "name": "Koramangala Swap",
+      "area": "Koramangala",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560034",
+      "address": "80 Feet Road, 4th Block, Koramangala, Bengaluru 560034",
+      "lat": 12.9352,
+      "lng": 77.6245,
+      "placeId": "ChIJkoram0008",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=12.9352,77.6245&query_place_id=ChIJkoram0008",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543208",
+          "display": "+91 98765 43208",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "swap"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrKoram0008-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Koramangala Swap station"
+      },
+      "featured": false,
+      "sortOrder": 1,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrCidco0009",
+      "slug": "cidco-e-mobility",
+      "name": "CIDCO E-Mobility",
+      "area": "CIDCO N-1",
+      "city": "Aurangabad",
+      "state": "Maharashtra",
+      "pincode": "431003",
+      "address": "Plot 12, CIDCO N-1, Aurangabad, Maharashtra 431003",
+      "lat": 19.8762,
+      "lng": 75.3433,
+      "placeId": "ChIJcidco0009",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=19.8762,75.3433&query_place_id=ChIJcidco0009",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543209",
+          "display": "+91 98765 43209",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "sales",
+        "service"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrCidco0009-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "CIDCO E-Mobility workshop"
+      },
+      "featured": false,
+      "sortOrder": 0,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrJalna0010",
+      "slug": "jalna-road-batteries",
+      "name": "Jalna Road Batteries",
+      "area": "Jalna Road",
+      "city": "Aurangabad",
+      "state": "Maharashtra",
+      "pincode": "431001",
+      "address": "Near Seven Hills, Jalna Road, Aurangabad, Maharashtra 431001",
+      "lat": 19.8711,
+      "lng": 75.3428,
+      "placeId": "ChIJjalna0010",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=19.8711,75.3428&query_place_id=ChIJjalna0010",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543210",
+          "display": "+91 98765 43210",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "sales",
+        "swap"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrJalna0010-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Jalna Road Batteries"
+      },
+      "featured": false,
+      "sortOrder": 1,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrBihar0011",
+      "slug": "aurangabad-bihar-ev-centre",
+      "name": "Aurangabad EV Centre",
+      "area": "Station Road",
+      "city": "Aurangabad",
+      "state": "Bihar",
+      "pincode": "824101",
+      "address": "Station Road, Aurangabad, Bihar 824101",
+      "lat": 24.7524,
+      "lng": 84.3742,
+      "placeId": "ChIJbihar0011",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=24.7524,84.3742&query_place_id=ChIJbihar0011",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543211",
+          "display": "+91 98765 43211",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "sales",
+        "service"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrBihar0011-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Aurangabad EV Centre, Bihar"
+      },
+      "featured": false,
+      "sortOrder": 0,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    },
+    {
+      "id": "dlrDaud0012",
+      "slug": "daudnagar-road-motors",
+      "name": "Daudnagar Road Motors",
+      "area": "Daudnagar Road",
+      "city": "Aurangabad",
+      "state": "Bihar",
+      "pincode": "824101",
+      "address": "Daudnagar Road, Aurangabad, Bihar 824101",
+      "lat": 24.7601,
+      "lng": 84.3801,
+      "placeId": "ChIJdaud0012",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=24.7601,84.3801&query_place_id=ChIJdaud0012",
+      "phones": [
+        {
+          "label": "Shop",
+          "e164": "+919876543213",
+          "display": "+91 98765 43213",
+          "whatsapp": true,
+          "primary": true
+        }
+      ],
+      "hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": []
+      },
+      "hoursNote": "",
+      "services": [
+        "swap"
+      ],
+      "photo": {
+        "url": "https://paddockgridx.app/api/public/website/dealers/photo/dlrDaud0012-640.webp?v=1",
+        "w": 640,
+        "h": 480,
+        "alt": "Daudnagar Road Motors"
+      },
+      "featured": false,
+      "sortOrder": 1,
+      "updatedAt": "2026-10-04T06:00:00.000Z"
+    }
+  ]
+}

@@ -8,12 +8,21 @@
  *                     intent rather than on how far down the panel someone happens to be.
  * 2. Configuration:   real radios, nothing preselected. A group with no answer leaves its
  *                     step incomplete and the primary action resting.
- * 3. Particle field:  setHalo only, gathered on a pod sized square in the middle of the
- *                     stage, firming up briefly whenever a choice is made. Never setPod:
+ * 3. Particle field:  on the configure stage, setHalo only, gathered on a pod sized square
+ *                     in the middle of the stage, firming up briefly whenever a choice is
+ *                     made. On details and payment the pod steps aside and the field gathers
+ *                     into a drawing instead (setForm): a profile, then a rupee. Never setPod:
  *                     that path seizes scroll control for good (grid-bg.js takeScroll).
  *                     The stage is also made inert, see swallowing below.
  * 4. The 3D pod:      1.8 MB of Three.js and mesh data, loaded on idle. The flow is fully
- *                     usable before any of it arrives, and stays usable if none does.
+ *                     usable before any of it arrives, and stays usable if none does. It
+ *                     only draws on the configure stage, and is not even built off it.
+ * 5. Payment:         one way to pay, a reservation, then the full bill before Razorpay.
+ * 6. The keyboard:    while an on-screen keyboard is up the panel fits itself above it and
+ *                     keeps the field being typed in on screen.
+ * 7. Analytics:       each step the buyer reaches (configurator_step, a short slug, once a
+ *                     page), the reservation going in (order_submit: the SKU and whether it is
+ *                     collected or shipped) and what Razorpay's window did. Nothing typed.
  */
 (() => {
   'use strict';
@@ -25,6 +34,18 @@
   const form = document.getElementById('pg2-config');
   const podCanvas = document.getElementById('pod');
   const companion = document.getElementById('pg2-companion');
+
+  // The configurator is a purchase flow, so the checkout script is fetched at the first sign of
+  // use (a tap, a key, a focus in the panel) rather than with the page, and has long arrived by
+  // the time Pay is pressed. openCheckout() waits for it either way.
+  if (panel && window.gridxApi && window.gridxApi.loadRazorpay) {
+    // reCAPTCHA warms up with it: Paddock asks Google about the order before creating it.
+    const warm = () => {
+      window.gridxApi.loadRazorpay();
+      if (window.gridxApi.loadRecaptcha) window.gridxApi.loadRecaptcha();
+    };
+    for (const type of ['pointerdown', 'keydown', 'focusin']) panel.addEventListener(type, warm, { once: true, passive: true });
+  }
   const companionImg = document.getElementById('pg2-companion-img');
   if (!stageEl || !panel || !form || !scroller) return;
 
@@ -69,13 +90,24 @@
       no: { summary: 'Vehicle Dock', note: 'Not added', price: 0 },
     },
   };
-  // The reservation amount and the gateway fee are decided by the server, which is what
-  // Razorpay is actually charged against. The page only ever displays them.
   const CHEAPEST_CHARGER = 2199;
   const CHOICES = ['vehicle', 'charger', 'adapter', 'dock'];
 
-  // Nothing is preselected. Every group answers null until the buyer says otherwise.
-  const state = { vehicle: null, charger: null, adapter: null, dock: null, pay: null };
+  // The reservation, the only way to pay on this page: an advance against the PowerPod, with
+  // Razorpay's fee passed on as a platform fee. Paddock decides both (RESERVE_FEE_INR and
+  // GATEWAY_FEE_RATE in its pricing.js), and Razorpay is charged against Paddock's figure.
+  // This is what the page prints until Paddock's own quote arrives; the quote wins.
+  const RESERVE_INR = 500;
+  // Every line is taxed at 18% and every price already includes it (Paddock's pricing.js:
+  // one rate on every line). Only used to print the breakdown; the invoice is Paddock's.
+  const GST_RATE = 0.18;
+  // Chhattisgarh's PIN codes by their first three digits. GridX is registered there (Paddock's
+  // HOME_STATE_CODE 22), so a PowerPod shipped there is an intrastate supply.
+  const HOME_PIN = [490, 497];
+
+  // Nothing is preselected. Every group answers null until the buyer says otherwise. pay is
+  // the exception because there is nothing to choose: it is always a reservation.
+  const state = { vehicle: null, charger: null, adapter: null, dock: null, pay: 'reserve' };
   // Seeded from the DOM rather than from the literal, so a bfcache restore or a browser's
   // own form restoration can never leave the flow disagreeing with the checked radios.
   for (const input of form.querySelectorAll('.opt__input')) {
@@ -87,14 +119,73 @@
   const details = { name: '', phone: '', email: '', city: '', pincode: '', gstin: '' };
 
   // ---------------------------------------------------------------- money
-  const inr = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
-  const money = (n) => `₹${inr.format(n)}`;
+  // catalogue.js is the site's one copy of Paddock's rounding and gateway fee. The fallbacks
+  // only keep the page standing if it failed to load; Razorpay is charged Paddock's figure
+  // whatever is printed here.
+  const cat = window.gridCatalogue || null;
+  const round2 = cat ? cat.round2 : (x) => Math.sign(x) * Math.round(Math.abs(x) * 100) / 100;
+  // Paise only when there are paise, so a round figure does not read as ₹500.00.
+  const money = cat ? cat.money : (n) => `₹${new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(n)}`;
 
   const priceOf = (group) => (state[group] ? CATALOG[group][state[group]].price : 0);
   const subtotal = () => CATALOG.base.price + priceOf('adapter') + priceOf('dock');
   const total = () => subtotal() + priceOf('charger');
   const fromPrice = () => subtotal() + CHEAPEST_CHARGER;
   const configured = () => CHOICES.every((g) => state[g] !== null);
+
+  // What today's payment comes to. Paddock's own figures once createOrder() has answered,
+  // and until then the same arithmetic it uses: the fee grossed up, not marked up.
+  let quoted = null;
+  function reservation() {
+    if (quoted) return quoted;
+    const chargedInr = cat ? cat.grossUp(RESERVE_INR) : RESERVE_INR;
+    return { itemsInr: RESERVE_INR, feeInr: round2(chargedInr - RESERVE_INR), chargedInr };
+  }
+
+  // The order's lines, as Paddock's selectionsFromBuild() turns a build into SKUs.
+  function orderLines() {
+    const lines = [{ label: CATALOG.base.label, price: CATALOG.base.price }];
+    const c = state.charger ? CATALOG.charger[state.charger] : null;
+    if (c) lines.push({ label: c.summary, price: c.price });
+    for (const g of ['adapter', 'dock']) {
+      if (state[g] === 'yes') lines.push({ label: CATALOG[g].yes.summary, price: CATALOG[g].yes.price });
+    }
+    return lines;
+  }
+
+  // Place of supply, as Paddock's composeOrder() decides it. Collecting at a dealership is an
+  // over the counter supply in our own state; a shipment goes by its PIN code. Paddock reads
+  // the state off a table of postal circles and treats a PIN it does not recognise as
+  // intrastate. Only the home state's range is known here, so such a PIN shows IGST on this
+  // bill; the tax invoice at the final payment is Paddock's either way.
+  function interstate() {
+    if (state.vehicle === 'yes') return false;
+    const prefix = Number(String(details.pincode || '').trim().slice(0, 3));
+    return !(prefix >= HOME_PIN[0] && prefix <= HOME_PIN[1]);
+  }
+
+  /**
+   * The GST inside the order value, line by line, exactly as Paddock's pricingCore.js does
+   * it: each tax inclusive line is split into taxable value and tax (splitInclusive), the tax
+   * apportioned to CGST and SGST or to IGST (apportionTax), and the rounded lines summed, so
+   * this agrees with the eventual tax invoice to the paisa.
+   */
+  function orderTax(lines, across) {
+    const sum = { value: 0, taxable: 0, tax: 0, cgst: 0, sgst: 0, igst: 0 };
+    for (const line of lines) {
+      const taxable = round2(line.price / (1 + GST_RATE));
+      const tax = round2(line.price - taxable);
+      const cgst = across ? 0 : round2(tax / 2);
+      sum.value += line.price;
+      sum.taxable += taxable;
+      sum.tax += tax;
+      sum.cgst += cgst;
+      sum.sgst += across ? 0 : round2(tax - cgst);
+      sum.igst += across ? tax : 0;
+    }
+    for (const k of Object.keys(sum)) sum[k] = round2(sum[k]);
+    return sum;
+  }
 
   // ---------------------------------------------------------------- stages and steps
   // Three stage views, one shown at a time. Stage 1 holds six steps that run vertically,
@@ -109,6 +200,21 @@
   // The configuration group each step owns. Step 1 is the pod and step 6 the summary, so
   // neither of them owns one.
   const STEP_GROUP = { 2: 'vehicle', 3: 'charger', 4: 'adapter', 5: 'dock' };
+
+  // ---------------------------------------------------------------- analytics
+  // Through the queue gridx-api.js sets up. Each step is counted the first time this page
+  // reaches it, so walking back and forth through the list does not count it again.
+  const track = (name, props) => {
+    if (typeof window.gridTrack === 'function') window.gridTrack(name, props);
+  };
+  const STEP_SLUG = ['powerpod', 'vehicle', 'charger', 'adapter', 'dock', 'review'];
+  const stepsSeen = new Set();
+  let counting = false; // off for the page's own first placement, which nobody chose
+  const stepReached = (slug) => {
+    if (!counting || !slug || stepsSeen.has(slug)) return;
+    stepsSeen.add(slug);
+    track('configurator_step', { step: slug });
+  };
 
   let stage = 1;
   let currentStep = 1;
@@ -208,16 +314,17 @@
   }
 
   // ---------------------------------------------------------------- completeness
+  // Payment has nothing left to choose, so it can always move on: from the offer to the bill,
+  // and from the bill to Razorpay.
   function canAdvance(n) {
     if (n === 1) return configured();
     if (n === 2) return detailsValid();
-    return state.pay !== null;
+    return !busy && !paid;
   }
 
   const HINTS = {
     1: 'Choose an option in every step to continue.',
     2: 'Please complete the fields above.',
-    3: 'Choose how you would like to pay.',
   };
 
   // ---------------------------------------------------------------- render
@@ -228,25 +335,47 @@
   const totalAmount = document.getElementById('pg2-total');
   const hint = document.getElementById('pg2-hint');
   const status = document.getElementById('pg2-status');
-  const payFull = document.getElementById('pg2-pay-full');
+  const footTax = document.getElementById('pg2-foot-tax');
   const dealerNote = document.getElementById('pg2-dealer');
   const reviewList = document.getElementById('pg2-review');
+  const payReserve = document.getElementById('pg2-pay-reserve');
+  const payReview = document.getElementById('pg2-pay-review');
+  const reserveBtn = document.getElementById('pg2-reserve');
+  const bill = document.getElementById('pg2-bill');
+  const moneyEls = [...document.querySelectorAll('[data-money]')];
   const segs = [...document.querySelectorAll('.pg2-progress__seg')];
   const optEls = [...form.querySelectorAll('.opt[data-group]')];
 
   let paid = false;
+  let busy = false;
+  // The payment stage has two beats: the offer ('reserve'), then the bill ('review').
+  let payStep = 'reserve';
 
   function render() {
     for (const el of optEls) {
       el.dataset.selected = String(state[el.dataset.group] === el.dataset.value);
     }
 
-    // Footer total. "From" until a charger is chosen, because that is the only group with
-    // no free option, so it is the only one that can move the floor.
-    const priced = state.charger !== null;
-    totalLabel.textContent = priced ? 'Total' : 'From';
-    totalAmount.textContent = money(priced ? total() : fromPrice());
-    if (payFull) payFull.textContent = money(total());
+    const r = reservation();
+    if (stage === LAST_STAGE) {
+      // At payment the footer speaks for today's payment, not the PowerPod's price: the
+      // redeemable amount, and the fee that rides on top of it.
+      totalLabel.textContent = paid ? 'Paid' : (payStep === 'review' ? 'Reservation' : 'Reserve for');
+      totalAmount.textContent = money(paid ? r.chargedInr : r.itemsInr);
+      footTax.textContent = paid
+        ? `${money(r.itemsInr)} comes off your final payment`
+        : (r.feeInr > 0 ? `+ ${money(r.feeInr)} platform fee` : 'No platform fee');
+    } else {
+      // Footer total. "From" until a charger is chosen, because that is the only group with
+      // no free option, so it is the only one that can move the floor.
+      const priced = state.charger !== null;
+      totalLabel.textContent = priced ? 'Total' : 'From';
+      totalAmount.textContent = money(priced ? total() : fromPrice());
+      footTax.textContent = '(inclusive of all taxes)';
+    }
+    for (const el of moneyEls) {
+      if (el.dataset.money === 'reserve') el.textContent = money(r.itemsInr);
+    }
 
     // Steps you have not reached lighten, rather than disappear.
     const reached = reachedStep();
@@ -260,7 +389,7 @@
     const fills = [
       (CHOICES.filter((g) => state[g] !== null).length / CHOICES.length) * 100,
       (validCount() / FIELDS.length) * 100,
-      paid ? 100 : (state.pay ? 100 : 0),
+      paid ? 100 : (stage === LAST_STAGE && payStep === 'review' ? 50 : 0),
     ];
     segs.forEach((seg, i) => {
       seg.querySelector('.pg2-progress__fill').style.setProperty('--fill', `${Math.round(fills[i])}%`);
@@ -268,12 +397,16 @@
       seg.dataset.state = n === stage ? 'current' : (n < stage ? 'done' : 'todo');
     });
 
-    // Back: out to the store from the first stage, one stage back from the others.
-    backBtn.setAttribute('aria-label', stage === 1 ? 'Back to the store' : 'Back to the previous stage');
+    // Back: out to the store from the first stage, one stage back from the others, and from
+    // the bill back to the offer.
+    const onBill = stage === LAST_STAGE && payStep === 'review' && !paid;
+    backBtn.setAttribute('aria-label', stage === 1 ? 'Back to the store'
+      : (onBill ? 'Back to the reservation' : 'Back to the previous stage'));
 
-    // Primary action
+    // Primary action. On the bill it names the exact amount Razorpay is about to ask for.
     nextBtn.setAttribute('aria-disabled', String(!canAdvance(stage)));
-    nextLabel.textContent = stage === LAST_STAGE ? 'Confirm and pay' : 'Continue';
+    if (stage !== LAST_STAGE) nextLabel.textContent = 'Continue';
+    else nextLabel.textContent = payStep === 'review' ? `Pay ${money(r.chargedInr)}` : 'Reserve Now';
 
     if (dealerNote) dealerNote.hidden = state.vehicle !== 'yes';
     syncCompanion();
@@ -303,6 +436,62 @@
     ).join('');
   }
 
+  /**
+   * The bill: the last thing on screen before Razorpay opens, so it says everything. What the
+   * order is and what it is worth, the GST inside that, what is paid today and why, and what
+   * is left to pay at the end. Every label is ours and every figure is a number, so it is
+   * built as markup like the review list above.
+   */
+  function renderBill() {
+    if (!bill) return;
+    const lines = orderLines();
+    const across = interstate();
+    const tax = orderTax(lines, across);
+    const r = reservation();
+    const balance = round2(tax.value - r.itemsInr);
+
+    const row = (label, value, mod = '', note = '') => `<li class="bill__row${mod ? ` bill__row--${mod}` : ''}">`
+      + `<span class="bill__label">${label}${note ? `<small class="bill__aside">${note}</small>` : ''}</span>`
+      + `<span class="bill__value">${value}</span></li>`;
+    const group = (title, rows, after = '') => `<section class="bill__group">`
+      + `<h3 class="bill__title">${title}</h3><ul class="bill__rows">${rows.join('')}</ul>${after}</section>`;
+
+    const order = lines.map((l) => row(l.label, money(l.price)));
+    if (state.vehicle === 'yes') order.push(row('EV two wheeler', 'At the dealership', 'soft'));
+    order.push(row('GridX-Pro Pack', 'Free for the first year', 'soft'));
+    order.push(row('Order value, incl. GST', money(tax.value), 'total'));
+
+    const gst = [row('Taxable value', money(tax.taxable))];
+    if (across) {
+      gst.push(row('IGST @ 18%', money(tax.igst)));
+    } else {
+      gst.push(row('CGST @ 9%', money(tax.cgst)));
+      gst.push(row('SGST @ 9%', money(tax.sgst)));
+    }
+    gst.push(row('Total GST', money(tax.tax), 'total'));
+
+    const now = [row('Reservation amount', money(r.itemsInr), '', 'Redeemable at your final payment')];
+    if (r.feeInr > 0) now.push(row('Platform fee', money(r.feeInr), '', 'Payment processing'));
+    now.push(row('GST', money(0), '', 'None on an advance for goods'));
+    now.push(row('Total payable now', money(r.chargedInr), 'total'));
+
+    const later = [
+      row('Order value', money(tax.value)),
+      row('Less your reservation', `−${money(r.itemsInr)}`),
+      row('Balance', money(balance), 'total',
+        state.vehicle === 'yes' ? 'Plus your two wheeler, priced at the dealership' : ''),
+    ];
+
+    bill.innerHTML = group('Your order', order)
+      + group('GST included in your order', gst,
+        '<p class="bill__note">Billed on your tax invoice at the final payment, not today.</p>')
+      + group('Pay now', now)
+      + group('At your final payment', later)
+      + `<p class="bill__note bill__note--end">Your ${money(r.itemsInr)} reservation is fully redeemable: it comes off `
+      + 'your PowerPod amount when you make the final payment. The platform fee covers payment processing '
+      + 'and is not part of what is deducted. Your receipt voucher will be sent by email and on WhatsApp.</p>';
+  }
+
   // ---------------------------------------------------------------- navigation
   let advanceTimer = 0;
 
@@ -324,21 +513,57 @@
     if (hint) hint.textContent = '';
     if (status) status.textContent = '';
 
-    // Stage 1 hands the camera back to whichever step is in play; 2 and 3 have a pose of
-    // their own, calm enough not to compete with a form.
-    goToStep(stage === 1 ? currentStep : LAST_STEP + (stage - 1), false);
+    // Payment always opens on the offer. Coming back to it from details starts it over.
+    if (stage === LAST_STAGE && !paid) showPayStep('reserve');
+    if (stage === 2) stepReached('details');
+    if (stage === LAST_STAGE) stepReached('reserve');
+
+    // Stage 1 hands the camera back to whichever step is in play. The other two are not the
+    // pod's: it stops drawing and the field gathers into their drawing instead.
+    if (stage === 1) goToStep(currentStep, false);
+    else setArt('idle');
+    setScene();
     render();
 
-    if (focus !== false) {
-      const title = el.querySelector('.pg2-step__title');
-      if (title) title.focus({ preventScroll: true });
+    if (focus !== false) focusTitle(el);
+  }
+
+  // The visible title of a view: the payment stage holds two, one per beat.
+  function focusTitle(view) {
+    const title = [...view.querySelectorAll('.pg2-step__title')].find((t) => !t.closest('[hidden]'));
+    if (title) title.focus({ preventScroll: true });
+  }
+
+  // The payment stage's two beats. Hidden, not removed, so the bill can be rebuilt in place
+  // and Back is a matter of showing the offer again.
+  function showPayStep(step, dir) {
+    payStep = step;
+    if (payReserve) {
+      payReserve.hidden = step !== 'reserve';
+      payReserve.dataset.dir = dir === 'back' ? 'back' : 'fwd';
     }
+    if (payReview) {
+      payReview.hidden = step !== 'review';
+      payReview.dataset.dir = dir === 'back' ? 'back' : 'fwd';
+    }
+    if (step === 'review') renderBill();
+  }
+
+  function goToPayStep(step, dir) {
+    if (stage !== LAST_STAGE || paid || step === payStep) return;
+    showPayStep(step, dir);
+    if (step === 'review') stepReached('bill');
+    scroller.scrollTop = 0;
+    if (status) status.textContent = '';
+    render();
+    focusTitle(views[LAST_STAGE - 1]);
   }
 
   // The pod moves here and only here: on a selection, or on a stage change. Never on
   // scroll.
   function goToStep(n, scrollThere) {
     currentStep = stage === 1 ? clamp(n, 1, LAST_STEP) : currentStep;
+    if (stage === 1) stepReached(STEP_SLUG[clamp(n, 1, LAST_STEP) - 1]);
     shotTarget = n;
     setArt(ART[n] || 'idle');
     startLoop();
@@ -349,6 +574,8 @@
   }
 
   function tryAdvance() {
+    // Payment already under way, or done: a press has nothing to add and nothing to explain.
+    if (stage === LAST_STAGE && (busy || paid)) return;
     if (!canAdvance(stage)) {
       if (hint) hint.textContent = HINTS[stage] || 'Please complete this step.';
       if (stage === 2) {
@@ -366,20 +593,27 @@
           const first = stepAt(missing).querySelector('.opt__input');
           if (first) first.focus({ preventScroll: true });
         }
-      } else {
-        const first = views[stage - 1].querySelector('.opt__input');
-        if (first) first.focus({ preventScroll: true });
       }
       return;
     }
-    if (stage === LAST_STAGE) { pay(); return; }
+    if (stage === LAST_STAGE) {
+      if (payStep === 'reserve') goToPayStep('review', 'fwd');
+      else pay();
+      return;
+    }
     goToStage(stage + 1, 'fwd');
   }
+
+  if (reserveBtn) reserveBtn.addEventListener('click', () => goToPayStep('review', 'fwd'));
 
   nextBtn.addEventListener('click', tryAdvance);
 
   backBtn.addEventListener('click', () => {
     if (stage === 1) { location.assign('store.html'); return; }
+    if (stage === LAST_STAGE && payStep === 'review' && !paid && !busy) {
+      goToPayStep('reserve', 'back');
+      return;
+    }
     goToStage(stage - 1, 'back');
   });
 
@@ -433,6 +667,17 @@
         return;
       }
     }
+    // In a details field, Enter is the keyboard's Next: on to the following field, which the
+    // keyboard handling then keeps in view. Only the last field moves the flow on, so nobody
+    // is told off for the fields below the one they have just finished.
+    if (!opt) {
+      const at = ALL_FIELDS.findIndex((k) => fieldEls[k] && fieldEls[k].input === event.target);
+      const following = at >= 0 ? ALL_FIELDS.slice(at + 1).find((k) => fieldEls[k]) : null;
+      if (following) {
+        fieldEls[following].input.focus({ preventScroll: true });
+        return;
+      }
+    }
     tryAdvance();
   });
 
@@ -450,9 +695,8 @@
     { at: 4, az: -0.95, el: 0.10, frame: P(0.60, 0.54), target: 6 },              // 4 Adapter: carried
     { at: 5, az: -0.20, el: 0.06, frame: P(0.62, 0.60), target: -10 },            // 5 Dock: face on
     { at: 6, az: -0.55, el: 0.19, frame: P(0.58, 0.54), target: 0 },              // 6 Review
-    { at: 7, az: -0.70, el: 0.22, frame: P(0.46, 0.42), target: 0 },              // 7 Details: steps back
-    { at: 8, az: -0.58, el: 0.16, frame: P(0.56, 0.52), target: 0 },              // 8 Payment
   ];
+  // Details and payment have no beat: the pod is not on screen for them (see scenes below).
   const LAST_BEAT = BEATS[BEATS.length - 1].at;
 
   function shotAt(t) {
@@ -542,7 +786,9 @@
       depth: proj.depth,
       fill: 0.08 * pulseT,
       grip: mix(REST_GRIP, 0.55, pulseT),
-      weight: weight * smoother(visibility(r)),
+      // The ring belongs to the pod. On the other stages it lets go, and the drawing that
+      // takes the pod's place is gathered by the field itself (setForm, below).
+      weight: scene === 'pod' ? weight * smoother(visibility(r)) : 0,
     };
   }
 
@@ -585,6 +831,139 @@
     }
   }
 
+  // ---------------------------------------------------------------- scenes
+  // What the stage shows: the pod while the PowerPod is being configured, then a drawing the
+  // particle field gathers into, a profile while details are filled in and a rupee at
+  // payment. The 3D pod is the heaviest thing on the page, so it is not drawn, and not even
+  // built, while it is not the scene. Without the WebGL field, or with reduced motion, the
+  // drawings are still SVGs on the stage instead (.pg2__glyph).
+  const SCENES = { 1: 'pod', 2: 'profile', 3: 'rupee' };
+  let scene = stageEl.dataset.scene || 'pod';
+  const formOn = haloOn && root.classList.contains('gl') && typeof window.gridBG.setForm === 'function';
+  stageEl.classList.toggle('is-glyph-static', !formOn);
+
+  // Mounting waits for the pod's own stage, see boot3D.
+  let podSceneWaiters = [];
+  const whenPodScene = () => (scene === 'pod' ? Promise.resolve()
+    : new Promise((resolve) => podSceneWaiters.push(resolve)));
+
+  function setScene() {
+    const next = SCENES[stage] || 'pod';
+    if (next === scene) return;
+    scene = next;
+    stageEl.dataset.scene = next;
+    sendForm();
+    if (next === 'pod') {
+      const waiting = podSceneWaiters;
+      podSceneWaiters = [];
+      for (const resolve of waiting) resolve();
+    }
+    startLoop();
+  }
+
+  // The drawings, as strokes in a unit box, y up, in grid-bg.js's stroke format:
+  // ['line', x1, y1, x2, y2] | ['arc', cx, cy, r, deg0, deg1].
+  // The profile is the familiar account glyph: a head, and shoulders cut off by the ring.
+  function profileStrokes() {
+    const cy = -0.95;
+    const r = 0.68;
+    // Where the shoulder arc meets the unit ring: r^2 + cy^2 + 2 cy r sin(a) = 1.
+    const a = (Math.asin((1 - r * r - cy * cy) / (2 * cy * r)) * 180) / Math.PI;
+    return {
+      figure: [['arc', 0, 0.25, 0.32, 0, 360], ['arc', 0, cy, r, a, 180 - a]],
+      ring: [['arc', 0, 0, 1, 0, 360]],
+    };
+  }
+
+  // ₹: two bars, the bowl hanging off the top one, a short return to the left, and the leg.
+  const RUPEE_STROKES = [
+    ['line', -0.55, 0.9, 0.55, 0.9],
+    ['line', -0.55, 0.52, 0.55, 0.52],
+    ['arc', -0.06, 0.5, 0.4, 90, -90],
+    ['line', -0.06, 0.1, -0.5, 0.1],
+    ['line', -0.5, 0.1, 0.46, -0.95],
+  ];
+
+  /**
+   * A drawing as `count` points, ordered for the field. It only ever draws its first
+   * particles, and fewer of them on a device the governor has thinned, so any prefix of the
+   * list must read as the whole drawing. The sampler walks the strokes in order, so the points
+   * are stepped through with a stride coprime to their number instead, which spreads every
+   * prefix across the entire figure (as the home page's scooter does). A hair of scatter off
+   * the line, so it reads as drawn rather than plotted.
+   */
+  const shapes = {};
+  function shapePoints(key) {
+    const api = window.gridBG;
+    const count = api.capacity || 8000;
+    if (shapes[key] && shapes[key].length === count * 2) return shapes[key];
+
+    const sample = (strokes, n) => api.sampleVehicle({ height: 1, wheels: [], strokes }, n);
+    let points;
+    if (key === 'profile') {
+      // The ring is sampled on its own and kept to about a third of the points. Shared out by
+      // length it would take most of them and leave the figure inside it faint.
+      const { figure, ring } = profileStrokes();
+      const nRing = Math.round(count * 0.34);
+      points = sample(figure, count - nRing).concat(sample(ring, nRing));
+    } else {
+      points = sample(RUPEE_STROKES, count);
+    }
+
+    const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+    let stride = Math.max(1, Math.round(points.length * 0.6180339887));
+    while (gcd(stride, points.length) !== 1) stride++;
+    // The scatter is hashed rather than stepped: a regular pattern rides the stride and shows
+    // up along a straight stroke as a saw tooth.
+    const scatter = (n) => {
+      const x = Math.sin(n * 12.9898) * 43758.5453;
+      return (x - Math.floor(x)) - 0.5;
+    };
+    const out = new Float32Array(count * 2);
+    for (let i = 0; i < count; i++) {
+      const p = points[(i * stride) % points.length];
+      out[i * 2] = p[0] + scatter(i + 0.17) * 0.012;
+      out[i * 2 + 1] = p[1] + scatter(i + 0.71) * 0.012;
+    }
+    shapes[key] = out;
+    return out;
+  }
+
+  // Where the drawing sits: a square in the open part of the stage, the same proportion of
+  // it the halo ring takes. Under 1025px the brand lockup floats over the top of the stage, so
+  // the square is centred in what is left below it.
+  function formRect() {
+    const r = stageEl.getBoundingClientRect();
+    let top = r.top;
+    if (stacked()) {
+      const lockup = document.querySelector('.brand-lockup');
+      if (lockup) top = Math.max(top, lockup.getBoundingClientRect().bottom);
+    }
+    const h = Math.max(1, r.bottom - top);
+    // Capped, so on a wide desktop stage it stays a quiet mark rather than a poster.
+    const side = Math.min(r.width * 0.6, h * 0.66, 300);
+    return {
+      left: r.left + (r.width - side) / 2,
+      top: top + (h - side) / 2,
+      width: side,
+      height: side,
+    };
+  }
+
+  function sendForm() {
+    if (!formOn) return;
+    const api = window.gridBG;
+    if (scene === 'pod') {
+      api.setForm(null);
+      return;
+    }
+    const rect = formRect();
+    // A few points per pixel of width: enough to read as a line at any size while still
+    // reading as particles, and a fraction of what the pod costs to draw.
+    const wanted = clamp(rect.width * 5, 650, 1300);
+    api.setForm({ key: scene, points: shapePoints(scene), rect, density: wanted / (api.capacity || 8000) });
+  }
+
   // ---------------------------------------------------------------- one loop
   let pod = null;
   let rafId = 0;
@@ -592,6 +971,8 @@
 
   function frame(now) {
     rafId = requestAnimationFrame(frame);
+    // Paced with the particle field (assets/perf.js), so the two canvases draw together.
+    if (window.GridPerf && !window.GridPerf.frame(now)) return;
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
 
@@ -600,12 +981,17 @@
     const k = reduceMotion ? 30 : (phone ? 3.6 : 3.0);
     shotT += (clamp(shotTarget, 0, LAST_BEAT) - shotT) * (1 - Math.exp(-dt * k));
 
-    if (pod) {
+    // Only on its own stage. Elsewhere its canvas fades out on the last frame it drew.
+    if (pod && scene === 'pod') {
       const driftAz = reduceMotion ? 0 : Math.sin(now * 0.00017) * 0.004;
       const driftEl = reduceMotion ? 0 : Math.cos(now * 0.00013) * 0.003;
       pod.setShot(shotAt(shotT), driftAz, driftEl, lens());
     }
     if (haloOn) stepHalo(dt, now);
+
+    // Off the pod's stage there is nothing left to do here once the ring has let go: the
+    // drawing is the particle field's own work. So the loop sleeps until the pod is back.
+    if (scene !== 'pod' && (!haloOn || spec.weight < 0.002)) stopLoop();
   }
 
   function startLoop() {
@@ -632,6 +1018,9 @@
 
   const onResize = () => {
     if (pod) pod.resize();
+    // The drawing is pinned to the stage, so it moves with it. Same drawing, so the field
+    // just shifts to the new place rather than gathering again.
+    if (scene !== 'pod') sendForm();
     startLoop();
   };
   window.addEventListener('resize', onResize);
@@ -653,15 +1042,20 @@
     const conn = navigator.connection;
     if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
 
-    // Loaded in sequence, not in parallel: powerpod-data.js declares the GEO and LOGO
-    // globals that powerpod-3d.js reads, and three.min.js has to be there before both.
-    loadScript('assets/three.min.js')
-      .then(() => loadScript('assets/powerpod-data.js'))
-      .then(() => loadScript('assets/powerpod-3d.js'))
-      .then(() => {
+    // three.js, the model and the scene module download side by side (assets/pod-assets.js);
+    // they used to come one after another, three round trips back to back.
+    if (!window.GridPodAssets) return;
+    Promise.all([window.GridPodAssets.load(), loadScript('assets/powerpod-3d.js')])
+      .then(async ([assets]) => {
         if (!window.gridPod) return;
-        pod = window.gridPod.mount({
+        // The download can run whenever, but building the pod compiles every material on the
+        // main thread. Someone typing their details should never be competing with that, so
+        // the build waits until the pod is the scene again.
+        await whenPodScene();
+        // Built in idle slices; resolves once it can draw without stalling a frame.
+        pod = await window.gridPod.mount({
           canvas: podCanvas,
+          assets,
           phone,
           onContextLost: () => {
             pod = null;
@@ -683,21 +1077,25 @@
       .catch((err) => console.warn('[gridPod] 3D unavailable:', err));
   }
 
-  // Two GL contexts share this device. If grid-bg's own frame-time governor is already
-  // shedding particles, step this renderer down once and leave it there, so the two do not
-  // chase each other up and down.
+  // Two GL contexts share this device, and one governor paces both (assets/perf.js). While the
+  // device is struggling with the pod on screen it draws the pod a little under full density,
+  // and gives that back as soon as it can. Only steps below this screen's own density count.
   function watchQuality() {
-    let steppedDown = false;
-    const timer = window.setInterval(() => {
-      if (steppedDown || !pod || !window.gridBG) return;
-      if (typeof window.gridBG.quality === 'number' && window.gridBG.quality < 0.6) {
-        steppedDown = true;
-        // Through the handle, not the renderer: the module caps the ratio by buffer area on
-        // every resize, so a value written straight onto the renderer would not survive one.
-        pod.setPixelRatio(1);
-        window.clearInterval(timer);
-      }
-    }, 2000);
+    const perf = window.GridPerf;
+    if (!perf || !pod) return;
+    const steps = phone ? [1.5, 1.25] : [2, 1.75, 1.5];
+    const full = Math.min(window.devicePixelRatio || 1, steps[0]);
+    perf.registerPod(steps.filter((r) => r < full).length);
+    let level = -1;
+    const follow = (p) => {
+      if (!pod || p.podLevel === level) return;
+      level = p.podLevel;
+      // Through the handle, not the renderer: the module caps the ratio by buffer area on
+      // every resize, so a value written straight onto the renderer would not survive one.
+      pod.setPixelRatio(level > 0 ? steps[Math.min(steps.length - 1, level)] : 0);
+    };
+    perf.on(follow);
+    follow(perf);
   }
 
   // ---------------------------------------------------------------- payment
@@ -712,10 +1110,14 @@
    * amount, so a doctored total in the browser changes nothing. The server answers with
    * the Razorpay order id and the publishable key.
    */
-  function createOrder() {
+  async function createOrder() {
     if (!window.gridxApi) {
-      return Promise.reject(new Error('Could not reach GridX. Please check your connection and try again.'));
+      throw new Error('Could not reach GridX. Please check your connection and try again.');
     }
+    // A fresh token per attempt: they are single use and expire in minutes.
+    const token = window.gridxApi.recaptchaToken
+      ? await window.gridxApi.recaptchaToken('create_order')
+      : null;
     return window.gridxApi.postJSON('/api/public/website/orders', {
       build: {
         vehicle: state.vehicle,
@@ -725,11 +1127,22 @@
         pay: state.pay,
       },
       customer: { ...details },
+      recaptcha: { token, action: 'create_order' },
     });
   }
 
+  /**
+   * The phone as Razorpay wants it, +91 and ten digits. Checkout opens with the contact
+   * locked (readonly below), so a number it could not parse would leave nothing to fix.
+   */
+  function checkoutContact(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    const ten = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits.slice(-10);
+    return ten.length === 10 ? `+91${ten}` : undefined;
+  }
+
   function openCheckout(created) {
-    return new Promise((resolve, reject) => {
+    return window.gridxApi.loadRazorpay().then(() => new Promise((resolve, reject) => {
       if (!window.Razorpay) {
         reject(new Error('The payment window could not load. Please refresh and try again.'));
         return;
@@ -741,51 +1154,81 @@
         amount: created.amountPaise,
         currency: 'INR',
         name: 'GridX Energy',
-        description: state.pay === 'reserve' ? 'PowerPod Gen2 reservation' : 'PowerPod Gen2',
+        description: `PowerPod Gen2 reservation, ${created.orderNumber}`,
+        // Filed under this customer in Razorpay, which also emails them its receipt.
+        customer_id: created.customerId || undefined,
         prefill: {
           name: created.customer?.name || details.name,
           email: created.customer?.email || details.email,
-          contact: created.customer?.phone || details.phone,
+          contact: checkoutContact(created.customer?.phone || details.phone),
         },
-        notes: { gridxOrderNumber: created.orderNumber },
+        // What Paddock stored is what Razorpay records, and where its receipt goes.
+        readonly: { name: true, email: true, contact: true },
+        // No `notes` here, on purpose. Checkout notes come from the browser, so nothing
+        // trusts them; Paddock writes the order's notes itself, server side.
         theme: { color: '#141414' },
         // Presentational only. The webhook is what actually confirms the money and sends
         // the receipt, so this handler never claims more than "we have it from here".
         handler() {
           settled = true;
+          track('payment_success');
           resolve(created);
         },
         modal: {
           ondismiss() {
             if (settled) return;
+            track('payment_dismissed');
             reject(new Error('Payment was cancelled. Your order is saved, you can try again.'));
           },
         },
       });
       rzp.on('payment.failed', (response) => {
         settled = true;
+        track('payment_failed');
         reject(new Error(response?.error?.description || 'That payment did not go through. Please try again.'));
       });
       rzp.open();
-    });
+      track('payment_open');
+    }));
   }
 
   function pay() {
+    // One order per press: a second tap while the first is still being set up would create a
+    // second order and open a second payment window.
+    if (busy || paid) return;
     for (const key of ALL_FIELDS) details[key] = fieldEls[key] ? fieldEls[key].input.value.trim() : '';
     // Uppercased here so the browser and the server normalize identically.
     if (details.gstin && window.gridGstin) details.gstin = window.gridGstin.normalize(details.gstin);
+    // gen2 is Paddock's SKU for the PowerPod; buying it with a two wheeler means collecting both
+    // at the dealership, and on its own it is shipped.
+    track('order_submit', { sku: 'gen2', intent: 'reserve', delivery: state.vehicle === 'yes' ? 'dealership' : 'ship' });
+    busy = true;
     if (status) status.textContent = 'Setting up your payment.';
-    nextBtn.setAttribute('aria-disabled', 'true');
+    render();
 
     createOrder()
-      .then((created) => openCheckout(created))
+      .then((created) => {
+        // Paddock priced it. If that is not what the bill said, the bill changes before the
+        // Razorpay window opens rather than after, so the two never disagree on screen. It is
+        // what gets charged either way.
+        if ([created.itemsInr, created.feeInr, created.chargedInr].every(Number.isFinite)) {
+          quoted = { itemsInr: created.itemsInr, feeInr: created.feeInr, chargedInr: created.chargedInr };
+          renderBill();
+        }
+        // Still busy: the payment window is opening, and it is the window that settles this.
+        if (status) status.textContent = '';
+        render();
+        return openCheckout(created);
+      })
       .then((created) => {
         paid = true;
+        busy = false;
         if (status) status.textContent = '';
         showConfirmation(created);
         render();
       })
       .catch((err) => {
+        busy = false;
         if (status) status.textContent = err.message;
         render();
       });
@@ -798,9 +1241,10 @@
   function showConfirmation(created) {
     const view = views[LAST_STAGE - 1];
     if (!view) return;
-    view.querySelectorAll('.pg2-step__options, .pg2-step__sub').forEach((el) => { el.hidden = true; });
-    const title = view.querySelector('.pg2-step__title');
-    if (title) title.textContent = 'Thank you.';
+    // The offer and the bill have both been acted on. The confirmation carries its own title.
+    if (payReserve) payReserve.hidden = true;
+    if (payReview) payReview.hidden = true;
+    scroller.scrollTop = 0;
 
     const done = document.getElementById('pg2-done');
     if (done) {
@@ -809,9 +1253,7 @@
       if (ref) ref.textContent = created.orderNumber;
       const where = document.getElementById('pg2-done-where');
       if (where) {
-        where.textContent = state.pay === 'reserve'
-          ? 'Your reservation is confirmed. We have sent your receipt voucher to '
-          : 'Your order is confirmed. We have sent your receipt to ';
+        where.textContent = 'Your reservation is confirmed. We have sent your receipt voucher to ';
       }
       const to = document.getElementById('pg2-done-to');
       if (to) to.textContent = `${details.email} and on WhatsApp to ${details.phone}.`;
@@ -821,11 +1263,22 @@
     nextBtn.hidden = true;
   }
 
+  // ---------------------------------------------------------------- the on-screen keyboard
+  // The page is a fixed shell, and a phone's keyboard shrinks only the visual viewport. While
+  // one is up the panel takes exactly the visible area above it and the field being typed in
+  // is scrolled into view inside it (html.is-typing, --vv-top and --vv-h on .pg2, see section
+  // 16 of the stylesheet). The mechanics are assets/keyboard.js, which every form on the site
+  // shares; it was lifted out of this file unchanged. Event driven only: nothing runs per frame.
+  if (window.gridKeyboard) {
+    window.gridKeyboard.watch({ shell: document.querySelector('.pg2'), scope: panel, scroller });
+  }
+
   // ---------------------------------------------------------------- go
   // Stage 1 already carries is-active in the markup, so there is no flash of an empty
   // panel before this runs; the camera just needs pointing at the first step.
   render();
   goToStep(1, false);
+  counting = true;
   startLoop();
   window.addEventListener('load', () => {
     if ('requestIdleCallback' in window) requestIdleCallback(boot3D, { timeout: 1200 });

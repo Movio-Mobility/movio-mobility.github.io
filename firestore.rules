@@ -12,18 +12,18 @@ rules_version = '2';
 //
 // Deploy with:  firebase deploy --only firestore
 //
-// firebase.json here declares firestore and nothing else, deliberately. The
-// same project also has Cloud Functions and Storage rules, owned by
-// movio-mobility.github.io, and a deploy only touches what is declared, so a
-// deploy from this folder cannot reach them.
+// firebase.json here declares firestore and storage (storage.rules, also the
+// only copy). The project's old Cloud Functions were retired at the careers
+// cutover, so nothing else deploys to this project.
 //
 // ---------------------------------------------------------------
 // THREE GROUPS, THREE OWNERS
 // ---------------------------------------------------------------
-//   1. Careers        jobs, applications. LIVE DATA, in use right now.
+//   1. Careers        jobs, applications. Closed: Paddock only, since the cutover.
 //   2. Lead form      config/form, formVersions, submissions. Managed by Paddock.
 //   3. Orders         websiteOrders, websiteCounters, websiteAnalyticsDaily.
 //                     Written only by Paddock's Admin SDK, so closed to everyone.
+//   4. The rest       dealers, support, site build, careers v2: Paddock only.
 // ===============================================================
 
 service cloud.firestore {
@@ -63,38 +63,20 @@ service cloud.firestore {
     }
 
     // =============================================================
-    // 1. CAREERS
+    // 1. CAREERS (cutover phase 2, at the new site's launch)
     // -------------------------------------------------------------
-    // Copied verbatim from movio-mobility.github.io/firestore.rules. This
-    // protects data the live site reads and writes today: the careers page
-    // lists `jobs` and submits to `applications`. Do not "tidy" this block
-    // without testing the live careers page against it.
+    // The old careers page and its movio.html admin are gone, and the new site
+    // reaches careers only through Paddock's API, which uses the Admin SDK and
+    // is not bound by these rules. So no client reads or writes careers data.
+    // See Paddock's docs/careers-cutover.md.
     // =============================================================
 
     match /jobs/{jobId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null
-        && request.auth.token.email.matches('.*@gridxenergy[.]in$');
+      allow read, write: if false;
     }
 
-    match /applications/{appId} {
-      allow create: if request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'contactNumber', 'jobId'])
-        && request.resource.data.firstName is string
-        && request.resource.data.firstName.size() > 0
-        && request.resource.data.firstName.size() <= 100
-        && request.resource.data.lastName is string
-        && request.resource.data.lastName.size() > 0
-        && request.resource.data.lastName.size() <= 100
-        && request.resource.data.email is string
-        && request.resource.data.email.matches('^[^@]+@[^@]+\\.[^@]+$')
-        && request.resource.data.contactNumber is string
-        && request.resource.data.contactNumber.size() >= 5
-        && request.resource.data.contactNumber.size() <= 32
-        && request.resource.data.jobId is string
-        && request.resource.data.jobId.size() > 0;
-
-      allow read, update, delete: if request.auth != null
-        && request.auth.token.email.matches('.*@gridxenergy[.]in$');
+    match /applications/{appId=**} {
+      allow read, write: if false;
     }
 
     // =============================================================
@@ -186,6 +168,45 @@ service cloud.firestore {
     match /websiteAnalyticsDaily/{dateKey} {
       allow read, write: if false;
     }
+
+    // =============================================================
+    // 4. EVERYTHING PADDOCK RUNS FOR THE NEW SITE
+    // -------------------------------------------------------------
+    // Closed to every client, like group 3, and for the same reason: Paddock
+    // reads and writes these with the Admin SDK, and the website reaches them
+    // only through Paddock's HTTP API (validated, rate limited, verified).
+    // The catch-all at the end would deny them anyway; they are named here so
+    // nobody opens one by accident thinking it was forgotten.
+    //
+    //   Dealers     websiteDealers (+ history), websiteDealerSlugs
+    //   Support     websiteSupportTickets (+ activity), websiteSupportKeys (TTL),
+    //               websiteSupportPurgeLog
+    //   Site        websiteConfig (siteBuild, support holidays)
+    //   Careers v2  jobSlugs, applicationKeys, interviews, scheduleOffers,
+    //               interviewSlotLocks (TTL), scheduledEmails, emailTemplates,
+    //               careersConfig, careersInbox (TTL), careersPurgeLog
+    //               (and under applications: activity, messages, scorecards)
+    //
+    // CAREERS CUTOVER: group 1 above is at phase 2 (closed). The phases and the
+    // order of steps around them are in Paddock's docs/careers-cutover.md.
+    // =============================================================
+
+    match /websiteDealers/{id=**} { allow read, write: if false; }
+    match /websiteDealerSlugs/{slug} { allow read, write: if false; }
+    match /websiteSupportTickets/{ref=**} { allow read, write: if false; }
+    match /websiteSupportKeys/{key} { allow read, write: if false; }
+    match /websiteSupportPurgeLog/{id} { allow read, write: if false; }
+    match /websiteConfig/{doc} { allow read, write: if false; }
+    match /jobSlugs/{slug} { allow read, write: if false; }
+    match /applicationKeys/{key} { allow read, write: if false; }
+    match /interviews/{id} { allow read, write: if false; }
+    match /scheduleOffers/{id} { allow read, write: if false; }
+    match /interviewSlotLocks/{id} { allow read, write: if false; }
+    match /scheduledEmails/{id} { allow read, write: if false; }
+    match /emailTemplates/{key} { allow read, write: if false; }
+    match /careersConfig/{doc} { allow read, write: if false; }
+    match /careersInbox/{id} { allow read, write: if false; }
+    match /careersPurgeLog/{id} { allow read, write: if false; }
 
     // Anything not named above. Keep last.
     match /{document=**} {

@@ -1,0 +1,511 @@
+/*
+ * Form fields: the one set of text boxes, choices and uploads every form on the site uses.
+ *
+ * The order sheet, order tracking on the support page and every form built after them (the
+ * contact sheet, the careers application) take their fields from here, so a visitor who fills
+ * in one of them and then another never meets two different text boxes. Link this before the
+ * page's own form stylesheet (order-sheet.css, track.css), which only adds what is particular
+ * to it.
+ *
+ * TOKENS. Everything here reads --hair (the resting hairline) and --bad (the error colour)
+ * from the form around it: .story--order and .track set them, with the same values as the
+ * .pg2 token block in powerpod-gen2.css. The rules copied from the order sheet below read
+ * them bare, exactly as they always have; the newer primitives after them fall back to those
+ * same values, so a new form that forgets to set them still draws correctly.
+ *
+ * THE CONFIGURATOR KEEPS ITS OWN COPY. powerpod-gen2.css has a field block of its own (its
+ * section 9) and does not load this file: its inputs sit on flat white rather than on glass,
+ * so their resting fill is a faint ink tint where these are a white wash. Everything else is
+ * the same, and pages that load both (the accessory pages) load this after it, so here wins.
+ * Change a shared property in one, change it in the other.
+ *
+ * Mobile first. 44px is the floor for anything a thumb has to hit, and every input is 16px
+ * type, because anything smaller makes iOS zoom the page when it takes focus.
+ */
+
+/* ---------------------------------------------------------------- text fields */
+/* Moved verbatim from assets/order-sheet.css, where these used to live. */
+
+.field { margin-bottom: 0.9rem; }
+
+.field__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgb(20 20 20 / 0.6);
+}
+
+.field__input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-family: inherit;
+  font-size: 1rem; /* 16px: anything smaller makes iOS zoom the page on focus */
+  line-height: 1.3;
+  color: var(--ink);
+  transition: box-shadow 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+
+.field__input::placeholder { color: rgb(20 20 20 / 0.32); }
+.field__input:focus { background: #fff; box-shadow: inset 0 0 0 1.5px var(--ink); outline: none; }
+.field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.field.is-bad .field__input { box-shadow: inset 0 0 0 1.5px var(--bad); }
+
+.field__err { margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.4; color: var(--bad); }
+.field__err:empty { display: none; }
+
+.field__opt {
+  margin-left: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgb(20 20 20 / 0.38);
+}
+
+.field__hint { margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.45; color: rgb(20 20 20 / 0.5); }
+.field.is-bad .field__hint { display: none; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+/* ---------------------------------------------------------------- long answers */
+/* A textarea is a .field__input that grows downward. Tall enough at rest to say "write a few
+   lines", and only ever resized vertically, so it can never push the sheet sideways. */
+textarea.field__input {
+  display: block;
+  min-height: 7.5rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+/* Under a field: its hint or error on the left, its counter on the right, on one line. */
+.field__foot {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.field__foot > .field__hint,
+.field__foot > .field__err {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Characters used of the limit. Quiet until it matters: it firms up near the limit
+   (is-near) and turns the error colour past it (is-over), set by the form's script. */
+.field__count {
+  flex: none;
+  margin: 0.35rem 0 0 auto;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.42);
+  transition: color 0.2s var(--ease-out);
+}
+
+.field__count.is-near { color: rgb(20 20 20 / 0.66); }
+.field__count.is-over { color: var(--bad, #b3261e); }
+
+/* ---------------------------------------------------------------- select */
+/* The native control keeps its own picker (the wheel on iOS, the sheet on Android), dressed
+   as a text field with a chevron drawn in, so it does not read as a different kind of box. */
+select.field__input {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.6rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23141414' stroke-opacity='0.55' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 18px 18px;
+  cursor: pointer;
+}
+
+/* The first option is the "Choose one" prompt: shown as a placeholder until something real
+   is picked (the select carries required, so :invalid means "still on the prompt"). */
+select.field__input:invalid { color: rgb(20 20 20 / 0.42); }
+select.field__input option { color: var(--ink); }
+
+/* ---------------------------------------------------------------- file */
+/*
+ * An upload: a label dressed as a drop zone, wrapping an input[type=file] that is hidden
+ * from sight but not from the keyboard or a screen reader, so Tab reaches it and Space
+ * opens the picker. The script behind the form adds is-dragover while a file is held over
+ * the zone, and has-file once one is chosen, when the zone gives way to the chosen row.
+ *
+ *   <label class="file">
+ *     <input class="file__input" type="file" accept=".pdf,.doc,.docx">
+ *     <span class="file__icon" aria-hidden="true"><svg viewBox="0 0 24 24">...</svg></span>
+ *     <span class="file__text">
+ *       <span class="file__title">Choose a file or drop it here</span>
+ *       <span class="file__note">PDF or Word, up to 10 MB</span>
+ *     </span>
+ *   </label>
+ *   <div class="file__chosen" hidden>
+ *     <span class="file__name"></span>
+ *     <span class="file__size"></span>
+ *     <span class="file__actions">
+ *       <button class="file__action" type="button">Replace</button>
+ *       <button class="file__action" type="button">Remove</button>
+ *     </span>
+ *   </div>
+ */
+.file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 72px;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.45);
+  /* Dashed, where every other box is a solid hairline: the one place on a form that asks to
+     have something put into it. */
+  outline: 1px dashed rgb(20 20 20 / 0.28);
+  outline-offset: -1px;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.2s var(--ease-out),
+    outline-color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out);
+}
+
+.file__input,
+.choice__input,
+.check__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .file:hover { background: rgb(255 255 255 / 0.65); outline-color: rgb(20 20 20 / 0.45); }
+}
+
+/* A file held over the zone: it firms into a solid ink rim, the same answer a chosen card
+   gives, so it reads as "let go here". */
+.file.is-dragover {
+  background: #fff;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+/* The ring belongs on the zone, not on the hidden input inside it. */
+.file:has(.file__input:focus-visible) {
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.9), 0 0 0 4px var(--ink);
+}
+
+.field.is-bad .file { outline: 1.5px solid var(--bad, #b3261e); outline-offset: -1.5px; }
+
+.file.has-file { display: none; }
+
+.file__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgb(20 20 20 / 0.05);
+}
+
+.file__icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.file__text {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.file__title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.file__note {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* What was chosen: its name (cut short with an ellipsis rather than wrapping), its size,
+   and the two things worth doing to it. */
+.file__chosen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  min-height: 56px;
+  padding: 0.4rem 0.4rem 0.4rem 1rem;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow: inset 0 0 0 1px var(--hair, rgb(20 20 20 / 0.12));
+}
+
+.file__chosen[hidden] { display: none; }
+
+.file__name {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.file__size {
+  flex: none;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.file__actions {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.file__action {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s var(--ease-out);
+}
+
+.file__action:active { background: rgb(20 20 20 / 0.06); }
+.file__action:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+@media (hover: hover) {
+  .file__action:hover { background: rgb(20 20 20 / 0.05); }
+}
+
+/* ---------------------------------------------------------------- choice chips */
+/*
+ * One of a few (radios) or any of a few (checkboxes), as pills. In the configurator's
+ * language: a hairline at rest, a solid ink rim once chosen, never a fill that shouts.
+ *
+ *   <fieldset class="choices">
+ *     <legend class="field__label">When could you start?</legend>
+ *     <div class="choices__list">
+ *       <label class="choice">
+ *         <input class="choice__input" type="radio" name="availability" value="immediately">
+ *         <span class="choice__label">Immediately</span>
+ *       </label>
+ *     </div>
+ *     <p class="field__err" aria-live="polite"></p>
+ *   </fieldset>
+ */
+.choices {
+  min-width: 0;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  border: 0;
+}
+
+/* A legend ignores most layout, so it is made to behave like the label it looks like. */
+.choices > legend.field__label { float: left; width: 100%; padding: 0; }
+.choices > legend.field__label + * { clear: both; }
+
+.choices__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.choice {
+  position: relative;
+  display: inline-flex;
+}
+
+.choice__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow: inset 0 0 0 1px var(--hair, rgb(20 20 20 / 0.12));
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: rgb(20 20 20 / 0.74);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  transition:
+    box-shadow 0.22s var(--ease-out),
+    background-color 0.22s var(--ease-out),
+    color 0.22s var(--ease-out),
+    transform 0.34s var(--spring);
+}
+
+.choice__label:active { transform: scale(0.97); }
+
+@media (hover: hover) {
+  .choice__input:not(:checked):not(:disabled) + .choice__label:hover {
+    box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.3);
+  }
+}
+
+.choice__input:checked + .choice__label {
+  background: rgb(255 255 255 / 0.75);
+  box-shadow: inset 0 0 0 2px var(--ink);
+  color: var(--ink);
+}
+
+.choice__input:focus-visible + .choice__label {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.choice__input:disabled + .choice__label {
+  opacity: 0.4;
+  cursor: default;
+}
+.choice__input:disabled + .choice__label:active { transform: none; }
+
+.choices.is-bad .choice__input:not(:checked) + .choice__label,
+.field.is-bad .choice__input:not(:checked) + .choice__label {
+  box-shadow: inset 0 0 0 1.5px var(--bad, #b3261e);
+}
+
+/* ---------------------------------------------------------------- checkbox row */
+/*
+ * A sentence with a box: consent, a talent-pool opt-in. The whole row is the target, so
+ * tapping the words ticks it; a link inside the words still goes where it says.
+ *
+ *   <label class="check">
+ *     <input class="check__input" type="checkbox" name="consent" required>
+ *     <span class="check__box" aria-hidden="true">
+ *       <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.5 3.5 7.5-8"/></svg>
+ *     </span>
+ *     <span class="check__label">I agree to the <a href="privacy_policy.html">privacy policy</a>.</span>
+ *   </label>
+ */
+.check {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.6rem 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.check__box {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 0.05rem;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow: inset 0 0 0 1.5px rgb(20 20 20 / 0.3);
+  color: #fff;
+  transition:
+    background-color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out);
+}
+
+.check__box svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 0.18s var(--ease-out),
+    transform 0.3s var(--rubber);
+}
+
+.check__input:checked + .check__box {
+  background: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+.check__input:checked + .check__box svg {
+  opacity: 1;
+  transform: none;
+}
+
+.check__input:focus-visible + .check__box {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.check.is-bad .check__input:not(:checked) + .check__box,
+.field.is-bad .check__input:not(:checked) + .check__box {
+  box-shadow: inset 0 0 0 1.5px var(--bad, #b3261e);
+}
+
+.check__label {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.check__label a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.check__label a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 3px; }
+
+/* ---------------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .choice__label,
+  .check__box svg { transition: opacity 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+  .choice__label:active { transform: none; }
+  .check__box svg { transform: none; }
+}

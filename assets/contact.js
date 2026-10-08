@@ -6,6 +6,10 @@
  * zone, is told about GridX's day rather than their own. It does not know about public
  * holidays, and neither do the hours printed under it.
  *
+ * The arithmetic is assets/hours.js (window.gridHours), shared with the dealer cards; this file
+ * only keeps its own words. A page should load hours.js before this; one that does not gets it
+ * fetched here, once, so the line never silently goes missing.
+ *
  * Not an aria-live region: the line changes at most twice a day, and a screen reader should
  * not be interrupted to hear it.
  */
@@ -15,51 +19,41 @@
   const status = document.getElementById('contact-status');
   if (!status) return;
 
-  const OPEN = 11 * 60;  // 11 AM, in minutes
-  const CLOSE = 18 * 60; // 6 PM
-  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const SHORT = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-  const working = (day) => day >= 1 && day <= 5;
+  // GridX's own hours, as printed beside the line: Monday to Friday, 11 AM to 6 PM.
+  const WEEKDAY = [['11:00', '18:00']];
+  const HOURS = { mon: WEEKDAY, tue: WEEKDAY, wed: WEEKDAY, thu: WEEKDAY, fri: WEEKDAY, sat: [], sun: [] };
 
-  let clock;
-  try {
-    clock = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Kolkata', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
-    });
-  } catch {
-    return; // no time zone data: the printed hours are enough on their own
+  function line(H, now) {
+    const s = H.state(HOURS, now);
+    if (s.open) return { open: true, text: `Open now, until ${H.clock(s.closesAt)}` };
+    // Closed: the next working morning, as today, tomorrow or its weekday.
+    const { ahead, day, time } = s.opensAt;
+    const when = ahead === 0 ? 'today' : ahead === 1 ? 'tomorrow' : H.LONG[day];
+    return { open: false, text: `Closed now, opens ${when} at ${H.clock(time)}` };
   }
 
-  function india(now) {
-    const parts = {};
-    for (const p of clock.formatToParts(now)) parts[p.type] = p.value;
-    return { day: SHORT[parts.weekday], minutes: (Number(parts.hour) % 24) * 60 + Number(parts.minute) };
-  }
-
-  function line(now) {
-    const { day, minutes } = india(now);
-    if (working(day) && minutes >= OPEN && minutes < CLOSE) {
-      return { open: true, text: 'Open now, until 6 PM' };
+  function start(H) {
+    let timer = 0;
+    function tick() {
+      const { open, text } = line(H, new Date());
+      status.textContent = text;
+      status.classList.toggle('is-open', open);
+      status.hidden = false;
+      // Again on the next minute, and at once when the tab comes back from the background,
+      // where timers are slowed and the line could have gone stale.
+      window.clearTimeout(timer);
+      timer = window.setTimeout(tick, 60000 - (Date.now() % 60000) + 50);
     }
-    // Closed: count forward to the next working morning.
-    let ahead = working(day) && minutes < OPEN ? 0 : 1;
-    while (!working((day + ahead) % 7)) ahead++;
-    const when = ahead === 0 ? 'today' : ahead === 1 ? 'tomorrow' : DAYS[(day + ahead) % 7];
-    return { open: false, text: `Closed now, opens ${when} at 11 AM` };
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+    tick();
   }
 
-  let timer = 0;
-  function tick() {
-    const { open, text } = line(new Date());
-    status.textContent = text;
-    status.classList.toggle('is-open', open);
-    status.hidden = false;
-    // Again on the next minute, and at once when the tab comes back from the background,
-    // where timers are slowed and the line could have gone stale.
-    window.clearTimeout(timer);
-    timer = window.setTimeout(tick, 60000 - (Date.now() % 60000) + 50);
+  if (window.gridHours) {
+    start(window.gridHours);
+    return;
   }
-
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
-  tick();
+  const script = document.createElement('script');
+  script.src = 'assets/hours.js';
+  script.onload = () => { if (window.gridHours) start(window.gridHours); };
+  document.head.appendChild(script);
 })();

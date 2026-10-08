@@ -1,0 +1,179 @@
+/*
+ * The legal page: the Terms and Conditions and the Customer Privacy Policy, which are one
+ * document, as they were on the old site. Both footer links land here.
+ *
+ * It sits in .store, the inner page container, for the top bar and nav island clearances
+ * and for footer.js, which dims .store with the room. The text is set like the FAQ answers
+ * (faq.css), a touch darker because it is read at length: rgb(20 20 20 / 0.72) on the
+ * studio's grey is about 5.8:1. Sections are split by the FAQ's hairline.
+ *
+ * Phones and tablets read straight down. A desktop gets a sticky index of the sections
+ * beside the text, plain anchors, nothing to run.
+ */
+
+.legal {
+  /* The fixed top bar's height, so an anchor lands with its heading in view. */
+  --legal-clear: calc(max(1.125rem, env(safe-area-inset-top)) + 52px + 1.5rem);
+}
+
+.legal__layout {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.legal__title { text-wrap: balance; }
+
+/* ---------------------------------------------------------------- text */
+.legal__body {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgb(20 20 20 / 0.72);
+  text-wrap: pretty;
+  overflow-wrap: break-word; /* the bracketed URL and email are long unbroken strings */
+  animation: store-rise 0.9s var(--ease-out) backwards;
+  animation-delay: calc(80ms + var(--i, 0) * 70ms);
+}
+
+.legal__body p { margin: 0 0 0.9rem; }
+
+.legal__section {
+  scroll-margin-top: var(--legal-clear);
+  padding-top: 1.75rem;
+  margin-top: 1.75rem;
+  border-top: 1px solid rgb(20 20 20 / 0.12);
+}
+.legal__section:first-child { margin-top: 0; }
+.legal__section > :last-child,
+.legal__section li > :last-child { margin-bottom: 0; }
+
+.legal__section h3 {
+  display: flex;
+  gap: 0.6em;
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.legal__section h4 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.86);
+}
+
+/* The section and clause numbers, a step back from the words they number. */
+.legal__n {
+  flex: none;
+  color: rgb(20 20 20 / 0.42);
+  font-weight: 600;
+}
+
+.legal__body strong {
+  font-weight: 600;
+  color: rgb(20 20 20 / 0.86);
+}
+
+/* ---------------------------------------------------------------- lists */
+/* The old page's bullets, as bullets. */
+.legal__points {
+  margin: 0 0 0.9rem;
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+.legal__points > li + li { margin-top: 1rem; }
+.legal__points > li::marker { color: rgb(20 20 20 / 0.35); }
+/* Short one-line bullets (the subscription policy's), set closer together. */
+.legal__points--tight { margin: 0.4rem 0 0.9rem; }
+.legal__points--tight > li + li { margin-top: 0.35rem; }
+/* A point another page links to (the contact form's consent: #support-requests) lands below
+   the top bar, as a section does. */
+.legal__points > li[id] { scroll-margin-top: var(--legal-clear); }
+
+/* Clauses that carry their own numbers, (a) or ii., which are part of the text: the number
+   hangs in a column of its own so a clause that wraps lines up under its first word. */
+.legal__list {
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+.legal__list > li {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+}
+.legal__list > li + li { margin-top: 0.4rem; }
+.legal__list--wide > li + li { margin-top: 0.9rem; }
+.legal__list > li > .legal__n { grid-column: 1; }
+.legal__list > li > :not(.legal__n) { grid-column: 2; }
+.legal__list > li > p { margin: 0 0 0.9rem; }
+.legal__list .legal__list { margin: 0.6rem 0 0; }
+
+/* ---------------------------------------------------------------- index */
+.legal__index { display: none; }
+
+/* Desktop pointer: the index sits beside the text and stays put while it scrolls. The title
+   takes the first row over the text, so the index starts level with the first section
+   however many lines the title runs to. */
+@media (min-width: 1025px) and (hover: hover), (min-width: 1025px) and (pointer: fine) {
+  .legal__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 44rem);
+    justify-content: center;
+    column-gap: clamp(2.5rem, 5vw, 5rem);
+    max-width: none;
+  }
+  .legal__title { grid-column: 2; grid-row: 1; }
+  .legal__body { grid-column: 2; grid-row: 2; font-size: 1.0625rem; }
+
+  .legal__index {
+    display: block;
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    position: sticky;
+    top: var(--legal-clear);
+    max-height: calc(100svh - var(--legal-clear) - 2rem);
+    overflow-y: auto;
+    scrollbar-width: none;
+    animation: store-rise 0.9s var(--ease-out) backwards;
+    animation-delay: calc(80ms + var(--i, 0) * 70ms);
+  }
+  .legal__index::-webkit-scrollbar { display: none; }
+
+  .legal__index ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .legal__index a {
+    display: flex;
+    gap: 0.5em;
+    padding: 0.32rem 0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: rgb(20 20 20 / 0.55);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .legal__index a:hover { color: var(--ink); }
+  .legal__index a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .legal__index .legal__n {
+    min-width: 2.4em;
+    font-weight: 500;
+    color: rgb(20 20 20 / 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legal__body,
+  .legal__index {
+    animation-name: store-fade;
+    animation-duration: 0.5s;
+    animation-delay: 0s;
+  }
+}

@@ -1,0 +1,1118 @@
+[
+  {
+    "page": "index",
+    "profile": "low",
+    "fcp": 524,
+    "lcp": 524,
+    "load": 2536,
+    "tbt": 48,
+    "kb": {
+      "total": 792,
+      "js": 151,
+      "css": 2,
+      "font": 61,
+      "image": 63,
+      "other": 515
+    },
+    "scroll": {
+      "ms": 26921,
+      "frames": 1605,
+      "fps": 59.6,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.84,
+        "pod": 1.23
+      },
+      "dropped": 2,
+      "jank": 0.1,
+      "loaf": 2,
+      "loafBlocking": 8,
+      "perFrame": {
+        "task": 2.99,
+        "script": 1.45,
+        "style": 0.3,
+        "layout": 0.01
+      }
+    }
+  },
+  {
+    "page": "journey",
+    "profile": "low",
+    "fcp": 532,
+    "lcp": 532,
+    "load": 1066,
+    "tbt": 16,
+    "kb": {
+      "total": 157,
+      "js": 35,
+      "css": 11,
+      "font": 61,
+      "image": 32,
+      "other": 17
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 357,
+      "fps": 59.5,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.599
+      },
+      "dropped": 2,
+      "jank": 0.6,
+      "loaf": 1,
+      "loafBlocking": 4,
+      "perFrame": {
+        "task": 4.1,
+        "script": 0.71,
+        "style": 1.29,
+        "layout": 0.12
+      }
+    }
+  },
+  {
+    "page": "store",
+    "profile": "low",
+    "fcp": 556,
+    "lcp": 1412,
+    "load": 1362,
+    "tbt": 44,
+    "kb": {
+      "total": 199,
+      "js": 34,
+      "css": 12,
+      "font": 61,
+      "image": 85,
+      "other": 7
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.409
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 2.53,
+        "script": 0.48,
+        "style": 0.87,
+        "layout": 0.04
+      }
+    }
+  },
+  {
+    "page": "powerpod-gen2",
+    "profile": "low",
+    "fcp": 588,
+    "lcp": 628,
+    "load": 1290,
+    "tbt": 66,
+    "kb": {
+      "total": 843,
+      "js": 180,
+      "css": 8,
+      "font": 92,
+      "image": 83,
+      "other": 480
+    },
+    "scroll": {
+      "ms": 6005,
+      "frames": 361,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.997,
+        "pod": 1.377
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.89,
+        "script": 1.15,
+        "style": 0.02,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "adapter",
+    "profile": "low",
+    "fcp": 544,
+    "lcp": 548,
+    "load": 1354,
+    "tbt": 31,
+    "kb": {
+      "total": 198,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 59,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.277
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.49,
+        "script": 0.16,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "vehicle-dock",
+    "profile": "low",
+    "fcp": 560,
+    "lcp": 572,
+    "load": 1452,
+    "tbt": 30,
+    "kb": {
+      "total": 216,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 77,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6004,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.663
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.6,
+        "script": 0.19,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "chargers",
+    "profile": "low",
+    "fcp": 556,
+    "lcp": 556,
+    "load": 1230,
+    "tbt": 42,
+    "kb": {
+      "total": 172,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 32,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6003,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.63
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.55,
+        "script": 0.19,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "support",
+    "profile": "low",
+    "fcp": 684,
+    "lcp": 1260,
+    "load": 1210,
+    "tbt": 55,
+    "kb": {
+      "total": 148,
+      "js": 29,
+      "css": 17,
+      "font": 61,
+      "image": 32,
+      "other": 9
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.308
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.78,
+        "script": 0.34,
+        "style": 0.54,
+        "layout": 0.06
+      }
+    }
+  },
+  {
+    "page": "careers",
+    "profile": "low",
+    "fcp": 480,
+    "lcp": 480,
+    "load": 1025,
+    "tbt": 17,
+    "kb": {
+      "total": 128,
+      "js": 24,
+      "css": 5,
+      "font": 61,
+      "image": 32,
+      "other": 5
+    },
+    "scroll": {
+      "ms": 6003,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.837
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.75,
+        "script": 0.34,
+        "style": 0.53,
+        "layout": 0.06
+      }
+    }
+  },
+  {
+    "page": "dealers",
+    "profile": "low",
+    "fcp": 496,
+    "lcp": 496,
+    "load": 1024,
+    "tbt": 33,
+    "kb": {
+      "total": 128,
+      "js": 24,
+      "css": 5,
+      "font": 61,
+      "image": 32,
+      "other": 5
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.38
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.75,
+        "script": 0.38,
+        "style": 0.53,
+        "layout": 0.04
+      }
+    }
+  },
+  {
+    "page": "index",
+    "profile": "mid",
+    "fcp": 232,
+    "lcp": 232,
+    "load": 596,
+    "tbt": 14,
+    "kb": {
+      "total": 792,
+      "js": 151,
+      "css": 2,
+      "font": 61,
+      "image": 63,
+      "other": 514
+    },
+    "scroll": {
+      "ms": 27013,
+      "frames": 1616,
+      "fps": 59.8,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 1.054,
+        "pod": 1.389
+      },
+      "dropped": 2,
+      "jank": 0.1,
+      "loaf": 2,
+      "loafBlocking": 2,
+      "perFrame": {
+        "task": 2.53,
+        "script": 1.16,
+        "style": 0.21,
+        "layout": 0.02
+      }
+    }
+  },
+  {
+    "page": "journey",
+    "profile": "mid",
+    "fcp": 224,
+    "lcp": 224,
+    "load": 315,
+    "tbt": 0,
+    "kb": {
+      "total": 157,
+      "js": 35,
+      "css": 11,
+      "font": 61,
+      "image": 32,
+      "other": 17
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 359,
+      "fps": 59.8,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.592
+      },
+      "dropped": 1,
+      "jank": 0.3,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 2.9,
+        "script": 0.54,
+        "style": 0.92,
+        "layout": 0.07
+      }
+    }
+  },
+  {
+    "page": "store",
+    "profile": "mid",
+    "fcp": 236,
+    "lcp": 352,
+    "load": 374,
+    "tbt": 10,
+    "kb": {
+      "total": 199,
+      "js": 34,
+      "css": 12,
+      "font": 61,
+      "image": 85,
+      "other": 7
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.684
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.85,
+        "script": 0.37,
+        "style": 0.61,
+        "layout": 0.02
+      }
+    }
+  },
+  {
+    "page": "powerpod-gen2",
+    "profile": "mid",
+    "fcp": 252,
+    "lcp": 268,
+    "load": 360,
+    "tbt": 23,
+    "kb": {
+      "total": 843,
+      "js": 180,
+      "css": 8,
+      "font": 92,
+      "image": 83,
+      "other": 480
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 1.186,
+        "pod": 1.646
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.2,
+        "script": 0.72,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "adapter",
+    "profile": "mid",
+    "fcp": 236,
+    "lcp": 236,
+    "load": 390,
+    "tbt": 0,
+    "kb": {
+      "total": 198,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 59,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.54
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.36,
+        "script": 0.14,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "vehicle-dock",
+    "profile": "mid",
+    "fcp": 232,
+    "lcp": 232,
+    "load": 407,
+    "tbt": 1,
+    "kb": {
+      "total": 216,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 77,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.848
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.39,
+        "script": 0.13,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "chargers",
+    "profile": "mid",
+    "fcp": 244,
+    "lcp": 244,
+    "load": 340,
+    "tbt": 11,
+    "kb": {
+      "total": 172,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 32,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 361,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.486
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.38,
+        "script": 0.13,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "support",
+    "profile": "mid",
+    "fcp": 296,
+    "lcp": 1308,
+    "load": 414,
+    "tbt": 18,
+    "kb": {
+      "total": 148,
+      "js": 29,
+      "css": 17,
+      "font": 61,
+      "image": 32,
+      "other": 9
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.81
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.26,
+        "script": 0.27,
+        "style": 0.38,
+        "layout": 0.04
+      }
+    }
+  },
+  {
+    "page": "careers",
+    "profile": "mid",
+    "fcp": 200,
+    "lcp": 200,
+    "load": 297,
+    "tbt": 0,
+    "kb": {
+      "total": 128,
+      "js": 24,
+      "css": 5,
+      "font": 61,
+      "image": 32,
+      "other": 5
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.509
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.17,
+        "script": 0.24,
+        "style": 0.33,
+        "layout": 0.03
+      }
+    }
+  },
+  {
+    "page": "dealers",
+    "profile": "mid",
+    "fcp": 220,
+    "lcp": 220,
+    "load": 301,
+    "tbt": 0,
+    "kb": {
+      "total": 128,
+      "js": 24,
+      "css": 5,
+      "font": 61,
+      "image": 32,
+      "other": 5
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.745
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.41,
+        "script": 0.31,
+        "style": 0.38,
+        "layout": 0.03
+      }
+    }
+  },
+  {
+    "page": "index",
+    "profile": "high",
+    "fcp": 56,
+    "lcp": 56,
+    "load": 60,
+    "tbt": 0,
+    "kb": {
+      "total": 792,
+      "js": 151,
+      "css": 2,
+      "font": 61,
+      "image": 63,
+      "other": 514
+    },
+    "scroll": {
+      "ms": 26992,
+      "frames": 1620,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 1.448,
+        "pod": 2.747
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.48,
+        "script": 0.72,
+        "style": 0.14,
+        "layout": 0.01
+      }
+    }
+  },
+  {
+    "page": "journey",
+    "profile": "high",
+    "fcp": 36,
+    "lcp": 36,
+    "load": 51,
+    "tbt": 0,
+    "kb": {
+      "total": 157,
+      "js": 35,
+      "css": 11,
+      "font": 61,
+      "image": 32,
+      "other": 17
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.825
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.75,
+        "script": 0.27,
+        "style": 0.6,
+        "layout": 0.03
+      }
+    }
+  },
+  {
+    "page": "store",
+    "profile": "high",
+    "fcp": 32,
+    "lcp": 1244,
+    "load": 55,
+    "tbt": 0,
+    "kb": {
+      "total": 199,
+      "js": 34,
+      "css": 12,
+      "font": 61,
+      "image": 85,
+      "other": 7
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 361,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.811
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 1.16,
+        "script": 0.23,
+        "style": 0.39,
+        "layout": 0.02
+      }
+    }
+  },
+  {
+    "page": "powerpod-gen2",
+    "profile": "high",
+    "fcp": 52,
+    "lcp": 52,
+    "load": 62,
+    "tbt": 0,
+    "kb": {
+      "total": 843,
+      "js": 180,
+      "css": 8,
+      "font": 92,
+      "image": 83,
+      "other": 480
+    },
+    "scroll": {
+      "ms": 6003,
+      "frames": 361,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.733,
+        "pod": 0.089
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.51,
+        "script": 0.26,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "adapter",
+    "profile": "high",
+    "fcp": 44,
+    "lcp": 44,
+    "load": 59,
+    "tbt": 0,
+    "kb": {
+      "total": 198,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 59,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.723
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.38,
+        "script": 0.14,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "vehicle-dock",
+    "profile": "high",
+    "fcp": 44,
+    "lcp": 44,
+    "load": 56,
+    "tbt": 0,
+    "kb": {
+      "total": 216,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 77,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.73
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.47,
+        "script": 0.18,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "chargers",
+    "profile": "high",
+    "fcp": 44,
+    "lcp": 44,
+    "load": 55,
+    "tbt": 0,
+    "kb": {
+      "total": 172,
+      "js": 31,
+      "css": 11,
+      "font": 92,
+      "image": 32,
+      "other": 6
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.882
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.38,
+        "script": 0.15,
+        "style": 0,
+        "layout": 0
+      }
+    }
+  },
+  {
+    "page": "support",
+    "profile": "high",
+    "fcp": 32,
+    "lcp": 1028,
+    "load": 61,
+    "tbt": 0,
+    "kb": {
+      "total": 148,
+      "js": 29,
+      "css": 17,
+      "font": 61,
+      "image": 32,
+      "other": 9
+    },
+    "scroll": {
+      "ms": 6001,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.911
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.93,
+        "script": 0.22,
+        "style": 0.25,
+        "layout": 0.02
+      }
+    }
+  },
+  {
+    "page": "careers",
+    "profile": "high",
+    "fcp": 24,
+    "lcp": 24,
+    "load": 41,
+    "tbt": 0,
+    "kb": {
+      "total": 128,
+      "js": 24,
+      "css": 5,
+      "font": 61,
+      "image": 32,
+      "other": 5
+    },
+    "scroll": {
+      "ms": 6003,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.7,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.886
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.95,
+        "script": 0.23,
+        "style": 0.25,
+        "layout": 0.02
+      }
+    }
+  },
+  {
+    "page": "dealers",
+    "profile": "high",
+    "fcp": 44,
+    "lcp": 44,
+    "load": 41,
+    "tbt": 0,
+    "kb": {
+      "total": 128,
+      "js": 24,
+      "css": 5,
+      "font": 61,
+      "image": 32,
+      "other": 5
+    },
+    "scroll": {
+      "ms": 6002,
+      "frames": 360,
+      "fps": 60,
+      "p50": 16.7,
+      "p95": 16.8,
+      "p99": 16.8,
+      "gpu": {
+        "bg": 0.97
+      },
+      "dropped": 0,
+      "jank": 0,
+      "loaf": 0,
+      "loafBlocking": 0,
+      "perFrame": {
+        "task": 0.96,
+        "script": 0.24,
+        "style": 0.25,
+        "layout": 0.02
+      }
+    }
+  }
+]

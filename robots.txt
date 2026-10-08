@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /interview.html
+
+Sitemap: https://gridxenergy.in/sitemap.xml

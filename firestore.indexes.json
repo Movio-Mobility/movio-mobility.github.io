@@ -4,17 +4,274 @@
       "collectionGroup": "jobs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isActive", "order": "ASCENDING" },
-        { "fieldPath": "postedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "postedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "websiteOrders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
+    },
+    {
+      "collectionGroup": "scheduledEmails",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sendAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "refunds",
+      "fieldPath": "status",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "arrayConfig": "CONTAINS",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "websiteSupportKeys",
+      "fieldPath": "expiresAt",
+      "ttl": true,
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "arrayConfig": "CONTAINS",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "interviewSlotLocks",
+      "fieldPath": "expireAt",
+      "ttl": true,
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "arrayConfig": "CONTAINS",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "careersInbox",
+      "fieldPath": "expireAt",
+      "ttl": true,
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "arrayConfig": "CONTAINS",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "fieldPath": "whyGridX",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "applications",
+      "fieldPath": "answers",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "applications",
+      "fieldPath": "answersSnapshot",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "applications",
+      "fieldPath": "gmail",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "description",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "aboutTeamAndRole",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "responsibilities",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "experienceAndQualifications",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "mustHaveCompetencies",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "niceToHave",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "jobs",
+      "fieldPath": "screeningQuestions",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "messages",
+      "fieldPath": "text",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "activity",
+      "fieldPath": "text",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "scorecards",
+      "fieldPath": "notes",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "scheduledEmails",
+      "fieldPath": "bodyText",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteSupportTickets",
+      "fieldPath": "message",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "careersInbox",
+      "fieldPath": "text",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "pages",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "hours",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "channels",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "refs",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "utm",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "devices",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "viewports",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "dpr",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "langs",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "geo",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "events",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "eventProps",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "websiteAnalyticsDaily",
+      "fieldPath": "server",
+      "indexes": []
     }
   ]
 }

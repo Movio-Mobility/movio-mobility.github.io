@@ -7,7 +7,11 @@
  *
  *   1. gridBG.setNight(night): the house lights come down over the cyclorama while the
  *      particle buffer stays at full strength, and the field goes out a spark at a time.
- *   2. --night on <html>:        the page's chrome recedes with the room (see footer.css).
+ *   2. --night on the chrome:    the page's chrome recedes with the room (see footer.css).
+ *      It is written on the handful of elements that dim, not on <html>: a value there is
+ *      inherited by every element on the page, and the whole page was restyled every frame
+ *      of the blackout for the sake of five opacities. window.gridNight carries the same
+ *      number to scripts (the home page's pod, support's disclosure halo).
  *   3. <meta name="theme-color">: the status bar goes dark with everything else.
  *
  * Then the credit reveals out of the dark, and the colophon rises once the stage has pinned.
@@ -49,6 +53,20 @@
 
   const bg = () => window.gridBG;
 
+  // Everything that recedes with the room (see footer.css). The credits carry the value for
+  // the no-WebGL scrim, which is their own ::before.
+  const dimmed = [...document.querySelectorAll('.topbar, .hero, .store, .film, .journey, .careers, .role, .interview, .lost, .dealers')];
+  const published = (window.gridNight = window.gridNight || { value: 0 });
+  let written = '';
+  function publish() {
+    const v = night.toFixed(4);
+    published.value = night;
+    if (v === written) return;
+    written = v;
+    for (const el of dimmed) el.style.setProperty('--night', v);
+    credits.style.setProperty('--night-scrim', v);
+  }
+
   let night = 0;
   let target = 0;
   let isNight = false;
@@ -71,9 +89,16 @@
   // page gets it; index gets the same blackout without this last flourish.
   const haloState = { weight: 0, placed: false, held: false };
 
+  // Whether there is a halo to drive at all: index.html's engine has none.
+  const haloWanted = () => {
+    const api = bg();
+    return !!(line && api && typeof api.setHalo === 'function' && !reduceMotion);
+  };
+
+  // Returns whether the halo is still moving.
   function driveHalo(dt, rect) {
     const api = bg();
-    if (!api || typeof api.setHalo !== 'function' || reduceMotion) return;
+    if (!api || typeof api.setHalo !== 'function' || reduceMotion) return false;
 
     // Peaks while the room is going dark, then lets go as the field itself goes out,
     // because there is nothing left to gather by the end.
@@ -85,12 +110,13 @@
     // Let go once, not every frame. Until the room is dark enough for the credit the halo
     // belongs to whatever the page is doing, and on a short page like support the footer is
     // in range, and this loop running, from the first frame.
+    const moving = Math.abs(want - haloState.weight) > 0.001;
     if (haloState.weight < 0.002) {
       if (haloState.held) {
         api.setHalo(null);
         haloState.held = false;
       }
-      return;
+      return moving;
     }
     haloState.held = true;
     const proj = api.projection();
@@ -102,6 +128,7 @@
       grip: 0.25,
       weight: haloState.weight * (api.quality || 1),
     });
+    return moving;
   }
 
   // ---------------------------------------------------------------- the loop
@@ -125,13 +152,15 @@
     const dt = Math.min(0.05, Math.max(0, (now - lastNow) / 1000));
     lastNow = now;
 
+    // Both rects are read before anything is written, so the frame costs at most one layout.
     measure();
+    const lineRect = haloWanted() ? line.getBoundingClientRect() : null;
     // Critically damped, like every other follow on the site: the room dims smoothly even
     // when a trackpad delivers scroll in lumps. Reduced motion takes the value straight.
     night += (target - night) * (reduceMotion ? 1 : 1 - Math.exp(-dt / 0.12));
     if (Math.abs(target - night) < 0.0005) night = target;
 
-    root.style.setProperty('--night', night.toFixed(4));
+    publish();
 
     const on = night > 0.02;
     if (on !== isNight) {
@@ -175,12 +204,20 @@
       }
     }
 
-    if (line) driveHalo(dt, line.getBoundingClientRect());
+    const haloMoving = lineRect ? driveHalo(dt, lineRect) : false;
 
-    // Sleep only once the observer agrees the footer is out of range. Sleeping on `target`
-    // alone would strand the loop: scroll up a hair to target 0 while still in range, and
-    // nothing would be left to wake it on the way back down.
+    // Sleep once the observer agrees the footer is out of range. Sleeping on `target` alone
+    // would strand the loop: scroll up a hair to target 0 while still in range, and nothing
+    // would be left to wake it on the way back down.
     if (!near && night <= 0 && haloState.weight < 0.002) {
+      rafId = 0;
+      return;
+    }
+    // In range but settled: nothing moves until the page does. On a page as short as support
+    // or careers the footer is in range from the first frame, and this loop used to run, and
+    // restyle the page, on every one of them. Scrolling, a resize or a change in the page's
+    // height (a disclosure opening above the footer) wakes it again.
+    if (night === target && !haloMoving) {
       rafId = 0;
       return;
     }
@@ -205,17 +242,21 @@
   if ('IntersectionObserver' in window) {
     new IntersectionObserver((entries) => {
       near = entries[entries.length - 1].isIntersecting;
-      if (near) start();
+      // Leaving range with the room still dark has to bring the lights back up too.
+      if (near || night > 0) start();
     }, { rootMargin: '120% 0px 0px 0px' }).observe(credits);
   } else {
     near = true; // no observer: the loop leans on the scroll handler and never self-sleeps
   }
 
-  // Cheap belt and braces: arithmetic only, no layout, and it covers the no-observer case.
-  const wake = () => { if (!rafId && inPlay()) start(); };
+  // Cheap belt and braces: arithmetic only, no layout, and it covers the no-observer case. A
+  // room that is still dark wakes it wherever the page is: the loop rests once the night has
+  // settled, and a jump back to the top (Home, a fling, a link) must still bring the lights up.
+  const wake = () => { if (!rafId && (inPlay() || night > 0 || haloState.weight > 0.002)) start(); };
   const relayout = () => { if (!rafId) measure(); wake(); };
   window.addEventListener('scroll', wake, { passive: true });
   window.addEventListener('resize', relayout);
+  if ('ResizeObserver' in window) new ResizeObserver(() => relayout()).observe(document.body);
   if (document.fonts) document.fonts.ready.then(relayout);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
@@ -228,24 +269,30 @@
     night = target;
     start();
   }
+  publish();
 
   // ---------------------------------------------------------------- the gate
   // However hard the page is thrown, it should not land in the footer. The footer is the end
   // of the thing, not somewhere to arrive by accident, so it costs a second, deliberate
   // scroll to open.
   //
-  // The gate is one line: while it is closed, any scroll past it is put straight back to it.
-  // The stop sits where the footer's first pixel meets the bottom of the screen, which is
-  // also where `night` is still 0, so nothing of the sequence above has begun and the footer
-  // itself needs no changes at all. Come to rest against it and the gate is spent; the next
-  // scroll opens the footer and behaves exactly as it always did.
+  // While the gate is closed the footer takes no room (footer.css, .credits.is-gated), so as
+  // far as the browser knows the page ends where the footer's first pixel meets the bottom of
+  // the screen. That is also where `night` is still 0, so nothing of the sequence above has
+  // begun. A fling of any speed stops there on the browser's own scroller, with its own end of
+  // page physics, and nothing here runs in the scroll path. Come to rest against it and the
+  // gate opens: the footer gets its room back below the fold, where nothing shows, and the
+  // next scroll goes in exactly as it always did.
   //
-  // CSS scroll-snap was tried first and cannot do this. With one snap position, `mandatory`
-  // drags the page to it from any distance (five viewports above, measured), so there is no
-  // zone that catches a fling without also grabbing a reader; and `scroll-snap-stop: always`
-  // is not applied to compositor-driven momentum, so flings and trackpad bursts pass straight
-  // through whether it is armed early or late. Hence an explicit clamp, which is the one
-  // thing on this page that moves the scroll, and only ever by the width of an overshoot.
+  // It used to clamp instead, putting every scroll past the stop back with scrollTo. Scrolling
+  // runs ahead of the main thread, so each momentum frame was painted past the stop before it
+  // was pulled back, a hundred times a fling, and the field and the nav pill read every one.
+  //
+  // CSS scroll-snap was tried before either and cannot do this. With one snap position,
+  // `mandatory` drags the page to it from any distance (five viewports above, measured), so
+  // there is no zone that catches a fling without also grabbing a reader; and
+  // `scroll-snap-stop: always` is not applied to compositor-driven momentum, so flings and
+  // trackpad bursts pass straight through whether it is armed early or late.
   (function gate() {
     // A page whose footer starts within a screen of the top has no room for a gate: the
     // stop would land at zero and pin the page rather than the footer. The stubs are exactly
@@ -257,61 +304,86 @@
     const REST = 200;    // ms of stillness that counts as having come to rest against it
     const NEAR = 3;      // px within the stop that counts as being at it
 
-    let spent = false;
+    let gated = false;
     let bypass = false;   // an explicit jump to the end, honoured until the scroll settles
+    let touching = false; // a finger on the glass is a gesture still going on
     let timer = 0;
 
     const stopY = () => Math.max(0, docTop - window.innerHeight);
 
-    function onScroll() {
-      if (!worthGating()) return;
-      const stop = stopY();
-      const y = window.scrollY;
-
-      // Back up into the page: the gate closes again, so it is there next time down.
-      if (spent && y < stop - RESET * window.innerHeight) spent = false;
-
-      // Every event restarts the stillness timer, clamping ones included. That ordering is
-      // the whole trick. A fling is not one push against the gate but a hundred, and while
-      // it is being absorbed the page sits within a pixel or two of the stop. Let a clamp
-      // skip this line and the timer runs to its end mid-struggle, the gate reads a position
-      // near the stop as having come to rest, declares itself spent, and the rest of the
-      // momentum sails through.
-      clearTimeout(timer);
-
-      // Any pixel past is a pixel of footer showing, so the clamp has no dead zone of
-      // its own. NEAR is only ever used to decide whether the page has come to rest.
-      if (!spent && !bypass && y > stop) {
-        window.scrollTo(0, stop);
-        // The top bar folds itself away by reading which way the page is going, and this is a
-        // jump backwards that nobody asked for. Say so, or a fling absorbed here reads as a
-        // hundred small scrolls up and flaps the nav pill open and shut the whole way through.
-        // Fired synchronously, so the baseline is corrected before the browser's own scroll
-        // event for the jump arrives and that event reads as no movement at all.
-        window.dispatchEvent(new Event('grid:scroll-clamped'));
-      }
-
-      timer = setTimeout(() => {
-        // Resting against the gate is what spends it, and resting means the scroll has
-        // genuinely stopped, not merely passed close by.
-        if (!spent && Math.abs(window.scrollY - stopY()) <= NEAR) spent = true;
-        bypass = false;
-      }, REST);
+    function setGated(on) {
+      if (on === gated) return;
+      gated = on;
+      credits.classList.toggle('is-gated', on);
     }
 
-    // An explicit jump to the end is an instruction, not an overshoot. Fighting it would put
-    // the footer's own links out of reach of the keyboard. It has to be its own flag rather
-    // than simply spending the gate: End starts from above the stop, and the first scroll
-    // event it produces is still high enough to trip the re-close test and arm it again.
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'End') { bypass = true; spent = true; }
-    });
+    function settle() {
+      timer = 0;
+      bypass = false;
+      // Resting means the input has genuinely stopped at the stop, not merely passed close by.
+      if (gated && !touching && window.scrollY >= stopY() - NEAR) setGated(false);
+    }
+
+    // Every sign of input restarts the stillness timer, and only at the stop does it run at
+    // all. Wheel events count as well as scrolls: a trackpad's momentum keeps arriving as wheel
+    // events after the page has stopped against the end, and opening under it would let the
+    // rest of the fling sail into the footer.
+    function restart() {
+      clearTimeout(timer);
+      timer = 0;
+      if (touching) return;
+      if (bypass || (gated && window.scrollY >= stopY() - NEAR)) timer = setTimeout(settle, REST);
+    }
+
+    function onScroll() {
+      if (!worthGating()) {
+        setGated(false);
+        return;
+      }
+      // Back up into the page: the gate closes again, so it is there next time down. All of
+      // the room it takes away is below the fold, so nothing on screen moves.
+      if (!gated && !bypass && window.scrollY < stopY() - RESET * window.innerHeight) setGated(true);
+      restart();
+    }
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
+    // The page can also grow above the footer without anyone scrolling: journey opens its year
+    // after the tape has run, and a page that was too short to gate at load becomes worth it.
+    // Layout is clean inside an observer callback, so the fresh rect costs nothing extra. The
+    // gate's own toggles land here too, and find nothing left to change.
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(() => { measure(); onScroll(); }).observe(document.body);
+    }
+    window.addEventListener('wheel', restart, { passive: true });
+    window.addEventListener('touchstart', () => {
+      touching = true;
+      clearTimeout(timer);
+      timer = 0;
+    }, { passive: true });
+    const lift = () => { touching = false; restart(); };
+    window.addEventListener('touchend', lift, { passive: true });
+    window.addEventListener('touchcancel', lift, { passive: true });
+
+    // An explicit jump to the end is an instruction, not an overshoot. Fighting it would put
+    // the footer's own links out of reach of the keyboard. The bypass keeps the gate open for
+    // the jump itself: End starts from above the stop, and the first scroll events it produces
+    // are still high enough to close it again. The read forces the new height into layout
+    // before the browser works out where the end of the page is.
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'End' || (e.key === 'ArrowDown' && e.metaKey)) {
+        bypass = true;
+        setGated(false);
+        void credits.offsetHeight;
+        restart();
+      }
+    });
+    // Tabbing into the footer's links is the same instruction. Focus events fire before the
+    // browser scrolls the focused link into view, so it has a page to scroll to.
+    credits.addEventListener('focusin', () => setGated(false));
+
     // A restored position already inside the footer is where the reader left off, not an
     // overshoot, so the gate starts open there.
-    if (measure() > 0) spent = true;
-    onScroll();
+    if (worthGating() && target <= 0) setGated(true);
   }());
 })();

@@ -1,0 +1,557 @@
+/*
+ * The careers application sheet (assets/apply-sheet.js).
+ *
+ * The shell is the story sheet's (sheet.css): the glass, the backdrop, the grabber, the close
+ * button and the slide. The fields are fields.css, linked before this file. Only what is
+ * particular to applying lives here, and it follows the order sheet (order-sheet.css) wherever
+ * the two do the same job: the same foot, the same black pill, the same hint line, so a
+ * visitor who has bought an adapter and then applies for a role meets one design.
+ *
+ * Mobile first: phone values are the base and 760px widens them.
+ */
+
+/* Several rules below set display, which would beat the UA stylesheet's [hidden]. */
+.story--apply [hidden] { display: none !important; }
+
+.story--apply {
+  --hair: rgb(20 20 20 / 0.12);
+  --bad: #b3261e;
+  /* A form, not a story: as tall as the order sheet, so it never reads as a scroll trap. */
+  max-height: min(92svh, 860px);
+}
+
+/* .story[open] is the flex column; the form must be one too, or the foot scrolls away. */
+.apply {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.story--apply .story__scroll { padding-bottom: 1.5rem; }
+
+/* Each view arrives with a short rise, the store's entrance in miniature. */
+.apply__view { animation: apply-in 0.42s var(--ease-out) both; }
+
+@keyframes apply-in {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+}
+
+/* ---------------------------------------------------------------- headings */
+.story--apply .apply__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.1rem;
+  margin: 0 3rem 0.6rem 0; /* clear of the close button */
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.apply__title {
+  width: fit-content;
+  max-width: calc(100% - 3rem);
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.apply__title:focus { outline: none; }
+.apply__title:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4px; }
+
+.apply__title--form {
+  margin-bottom: 1.4rem;
+  font-size: clamp(1.45rem, 5vw, 2rem);
+}
+
+.story--apply .apply__lede {
+  max-width: 44ch;
+  margin: 0 0 1.1rem;
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.74);
+  text-wrap: pretty;
+}
+
+.apply__sub {
+  display: block;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.apply__sub .field__opt { font-size: 0.72rem; letter-spacing: 0.02em; }
+
+/* ---------------------------------------------------------------- icons */
+.apply__icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+}
+
+.apply__icon svg,
+.apply__chip-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.story--apply .apply__eyebrow .apply__icon svg { width: 18px; height: 18px; }
+
+/* ---------------------------------------------------------------- the intro */
+.apply__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.apply__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  padding: 0.35rem 0.85rem 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.45);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgb(20 20 20 / 0.74);
+}
+
+/* What we will ask: a quiet inset panel on the glass, numbered like steps. */
+.apply__ask {
+  padding: 1.1rem 1.15rem 1.15rem;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 0.32);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.3);
+}
+
+.apply__steps {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.apply__steps li {
+  position: relative;
+  padding-left: 1.85rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.apply__steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  top: 0.08rem;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(20 20 20 / 0.2);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.6);
+}
+
+.story--apply .apply__note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* ---------------------------------------------------------------- the form */
+.apply__group {
+  min-width: 0;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  border: 0;
+}
+
+/* A legend ignores most layout, so it is made to behave like the heading it looks like. */
+.apply__group > legend.apply__sub,
+.choices > legend.apply__sub { float: left; width: 100%; }
+.apply__group > legend.apply__sub + *,
+.choices > legend.apply__sub + * { clear: both; }
+
+.apply__date { max-width: 15rem; margin-top: 0.4rem; }
+
+.apply__question { margin-bottom: 1.25rem; }
+.apply__question:last-child { margin-bottom: 0; }
+.apply__question .field__label { font-size: 0.9rem; line-height: 1.4; color: rgb(20 20 20 / 0.74); }
+.story--apply .apply__question .field__hint { margin-top: 0.4rem; }
+
+/* A required screening question says so in the same quiet voice an optional field does. */
+.apply__req { color: rgb(20 20 20 / 0.5); }
+
+.apply__chip-icon {
+  display: inline-grid;
+  place-items: center;
+  margin-left: -0.15rem;
+  color: rgb(20 20 20 / 0.6);
+}
+
+.apply__chip-icon svg { width: 18px; height: 18px; }
+.choice__input:checked + .choice__label .apply__chip-icon { color: var(--ink); }
+
+/* sheet.css styles every paragraph in a sheet as story copy (.story__scroll p). The fields'
+   own lines are put back to what fields.css draws. */
+.story--apply .field__hint,
+.story--apply .field__err,
+.story--apply .field__count {
+  max-width: none;
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.story--apply .field__hint { color: rgb(20 20 20 / 0.5); }
+.story--apply .field__err { color: var(--bad); }
+.story--apply .field__count { flex: none; margin-left: auto; font-size: 0.72rem; color: rgb(20 20 20 / 0.42); }
+.story--apply .field__count.is-near { color: rgb(20 20 20 / 0.66); }
+.story--apply .field__count.is-over { color: var(--bad); }
+
+/* An optional select with nothing chosen reads as a placeholder, as a required one does. */
+select.field__input.is-empty { color: rgb(20 20 20 / 0.42); }
+
+.apply__group--consent { margin-bottom: 0.5rem; }
+.apply__group--consent .field { margin-bottom: 0; }
+.story--apply .apply__group--consent .field__err { margin: 0 0 0.4rem 2.15rem; }
+
+/* The honeypot: out of sight and out of reach, but present for a form-filling script. */
+.apply__trap {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- notices */
+/* What cannot go as it is, and what to do instead. Ink, not red: red belongs to a field. */
+.apply__notice {
+  margin: 0 0 1.4rem;
+  padding: 1rem 1.1rem 1.05rem;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgb(20 20 20 / 0.1),
+    0 12px 28px -22px rgb(20 20 20 / 0.55);
+  animation: apply-in 0.4s var(--ease-out) both;
+}
+
+.apply__notice:focus { outline: none; }
+.apply__notice:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.apply__notice.is-quiet {
+  background: rgb(255 255 255 / 0.36);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+}
+
+.story--apply .apply__notice-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.story--apply .apply__notice-title .apply__icon { margin-top: 0.05rem; }
+.story--apply .apply__notice-title .apply__icon svg { width: 18px; height: 18px; }
+
+.story--apply .apply__notice-text {
+  margin: 0.4rem 0 0 1.7rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.66);
+}
+
+.apply__notice-action {
+  min-height: 44px;
+  margin: 0.85rem 0 0 1.7rem;
+  padding: 0 1.15rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.4s var(--spring);
+}
+
+.apply__notice-action:active { transform: scale(0.985); }
+.apply__notice-action:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* ---------------------------------------------------------------- done */
+.apply__done { padding-top: 0.25rem; }
+
+.apply__done-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 0 1.1rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 14px 30px -18px rgb(20 20 20 / 0.8);
+  animation: apply-mark 0.7s var(--rubber) 0.1s both;
+}
+
+.apply__done-mark svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes apply-mark {
+  from { opacity: 0; transform: scale(0.72); }
+}
+
+.story--apply .apply__done-ref {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.story--apply .apply__done-ref strong {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.5);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.story--apply .apply__done-line {
+  max-width: 42ch;
+  margin: 0 0 0.8rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: rgb(20 20 20 / 0.74);
+}
+
+.story--apply .apply__done-line--quiet { font-size: 0.88rem; color: rgb(20 20 20 / 0.5); }
+
+/* ---------------------------------------------------------------- the foot */
+/* The order sheet's foot: frosted, under the scroller, carrying the bottom safe area. */
+.apply__foot {
+  flex: none;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.85rem var(--sheet-pad);
+  padding-bottom: max(0.95rem, env(safe-area-inset-bottom));
+  background: rgb(255 255 255 / 0.55);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgb(20 20 20 / 0.08);
+  box-shadow: 0 -12px 24px -24px rgb(20 20 20 / 0.5);
+}
+
+.apply__bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.apply__primary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0.8rem 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 14px 30px -18px rgb(20 20 20 / 0.8);
+  transition:
+    transform 0.4s var(--spring),
+    opacity 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out);
+}
+
+.apply__primary:active { transform: scale(0.985); }
+.apply__primary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.apply__primary[aria-disabled="true"] { opacity: 0.32; box-shadow: none; cursor: default; }
+.apply__primary[aria-disabled="true"]:active { transform: none; }
+
+/* The upload, as a lighter band filling the button from the left. One transform: no layout,
+   no paint beyond the button itself. */
+.apply__fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(255 255 255 / 0.18);
+  transform-origin: left center;
+  transform: scaleX(var(--progress, 0));
+  transition: transform 0.35s var(--ease-out);
+}
+
+.apply__label { position: relative; }
+
+.apply__secondary {
+  flex: none;
+  min-height: 52px;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.5);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.4s var(--spring), background-color 0.2s var(--ease-out);
+}
+
+.apply__secondary:active { transform: scale(0.985); }
+.apply__secondary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.apply__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.apply__hint:empty { display: none; }
+.apply__hint.is-bad { color: var(--bad); }
+
+/* reCAPTCHA's attribution, standing in for its badge (hidden in site.css). */
+.apply__legal {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.apply__legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* While it goes up, the form is held still: what is being sent is what is on screen. */
+.story--apply.is-busy .apply__scroll {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .apply__secondary:hover { background: rgb(255 255 255 / 0.7); }
+}
+
+/* ---------------------------------------------------------------- the keyboard */
+/* keyboard.js sets html.is-typing and --vv-top / --vv-h on this sheet while a phone's keyboard
+   is up: the sheet takes exactly the visible area above the keys, and the field being typed in
+   is scrolled into view inside it. No transition: the keyboard's own slide is the motion. */
+@media (max-width: 759px) {
+  html.is-typing .story--apply {
+    inset: var(--vv-top, 0px) 0 auto 0;
+    height: var(--vv-h, 100%);
+    max-height: none;
+    border-radius: 0;
+  }
+
+  html.is-typing .story--apply .story__grabber,
+  html.is-typing .story--apply .apply__legal { display: none; }
+  html.is-typing .story--apply .apply__foot { padding-bottom: 0.75rem; }
+}
+
+@media (min-width: 760px) {
+  .apply__primary { flex: 0 0 auto; min-width: 13rem; }
+  .apply__foot { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 1.25rem; }
+  .apply__bar { grid-column: 2; grid-row: 1; }
+  .apply__hint { grid-column: 1; grid-row: 1; }
+  .apply__legal { grid-column: 1 / -1; }
+
+  html.is-typing .story--apply {
+    top: calc(var(--vv-top, 0px) + 12px);
+    max-height: calc(var(--vv-h, 100svh) - 24px);
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .apply__view,
+  .apply__notice,
+  .apply__done-mark { animation: apply-fade 0.25s ease both; }
+  .apply__primary,
+  .apply__secondary,
+  .apply__notice-action { transition: opacity 0.2s ease; }
+  .apply__primary:active,
+  .apply__secondary:active,
+  .apply__notice-action:active { transform: none; }
+  .apply__fill { transition: none; }
+}
+
+@keyframes apply-fade {
+  from { opacity: 0; }
+}
+
+/* Without backdrop-filter the foot has to be opaque, or the fields show through it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .apply__foot { background: rgb(234 234 232 / 0.97); }
+}

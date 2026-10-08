@@ -7,6 +7,11 @@
  *
  * Hold the current page's grey chip, then slide across the island and release
  * to open that page. The highlight stays inside the bar.
+ *
+ * Four tabs are the site; a fifth, set off by a hairline, belongs to the page. Journey, Careers
+ * and Legal are reached from the footer, so the island grows a tab for whichever one is open.
+ * It arrives a beat after the page: the pill settles at its usual four, then makes room on the
+ * same spring, and the page's own tab, its chip already on it, comes out from under the edge.
  */
 (() => {
   'use strict';
@@ -21,7 +26,10 @@
   const list = island.querySelector('.island__list');
   const thumb = island.querySelector('.island__thumb');
   const links = [...list.querySelectorAll('.island__link')];
-  const current = list.querySelector('.island__link[aria-current="page"]') || links[0];
+  // Any aria-current, not only "page": a page that lives under a section (a role page under
+  // Careers) marks that section's tab aria-current="true", and it is still the chip to hold.
+  const current = list.querySelector('.island__link[aria-current]') || links[0];
+  const context = list.querySelector('.island__context');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const skipIntro = root.classList.contains('skip-intro');
   // Opt in, for pages that want the island out of the way until it is asked for. It starts
@@ -35,6 +43,7 @@
   const SHOW_DELAY_MS = skipIntro ? 0 : (reduceMotion ? 200 : 450); // after the headline starts revealing
   const IDLE_MS = 4500;
   const HOLD_MS = reduceMotion ? 80 : 180;
+  const CONTEXT_DELAY_MS = 420; // after the island appears, before it makes room for the fifth tab
   const SLOP2 = 12 * 12;
   const DIR_SLOP = 6;  // px of scroll before it counts as a direction, so jitter is not a gesture
   const TOP_REST = 8;  // and the band at the top of the page where down means nothing
@@ -50,11 +59,39 @@
   let swallowClick = false;
   let lastY = window.scrollY;
 
+  // Until the fifth tab has arrived, the pill is measured to the end of the four and the tab
+  // waits hidden past its edge, so rounding can never let its hairline show and Tab cannot
+  // land on it. Without motion there is nothing to stage, and the pill starts at full width.
+  let contextPending = Boolean(context) && !reduceMotion;
+  if (contextPending) island.classList.add('is-context-pending');
+
   // The island animates between two numeric widths, so measure the full nav. On phones the
-  // expanded pill also centres itself off this width, so set it before the first paint —
+  // expanded pill also centres itself off this width, so set it before the first paint:
   // show() can be seconds away, and until then the pill would sit at the wrong offset.
-  const measure = () => wrap.style.setProperty('--island-w', `${Math.ceil(list.offsetWidth)}px`);
+  const measure = () => {
+    let w = list.offsetWidth;
+    if (contextPending) {
+      const last = context.previousElementSibling;
+      w = last.offsetLeft + last.offsetWidth + parseFloat(getComputedStyle(list).paddingRight);
+    }
+    wrap.style.setProperty('--island-w', `${Math.ceil(w)}px`);
+  };
+  // The first measure is a jump, not a move. Styles computed before this script ran saw no
+  // width at all, and on phones the pill would spring in sideways from there to the centre.
+  island.style.transition = 'none';
   measure();
+  void island.offsetWidth;
+  island.style.transition = '';
+
+  // A new width is all it takes: the island's width transition (and on phones, the centring
+  // transform that rides on the same variable) carries the rest. The right edge holds, so the
+  // four slide over as one and the page's tab is uncovered rather than faded in.
+  function revealContext() {
+    if (!contextPending) return;
+    contextPending = false;
+    island.classList.remove('is-context-pending');
+    measure();
+  }
 
   function placeThumb(link) {
     if (!thumb || !link) return;
@@ -68,8 +105,16 @@
   }
 
   function syncThumb() {
+    // The fifth tab's chip waits past the edge with it, so its first placement is a jump too:
+    // gliding in from the left, it would cross the four tabs and vanish under the edge.
+    const snap = contextPending && thumb && !island.classList.contains('thumb-ready');
+    if (snap) thumb.style.transition = 'none';
     placeThumb(scrubbing ? aim : current);
     if (thumb) island.classList.add('thumb-ready');
+    if (snap) {
+      void thumb.offsetWidth;
+      thumb.style.transition = '';
+    }
   }
 
   const setCompact = (compact) => {
@@ -128,6 +173,9 @@
     lastY = window.scrollY;
     root.classList.add('chrome-in');
     requestAnimationFrame(syncThumb);
+    // Timed from the first frame, not from now: on a page still busy loading, the four have
+    // to be seen settled before the island makes room for the fifth.
+    if (contextPending) requestAnimationFrame(() => setTimeout(revealContext, CONTEXT_DELAY_MS));
     // Pages using clickOnly set is-compact themselves so the first paint is already
     // collapsed and nothing animates shut on arrival; this is only the safety net.
     if (clickOnly) setCompact(true);
@@ -187,10 +235,6 @@
 
   if (!clickOnly) {
     window.addEventListener('scroll', onScroll, { passive: true });
-    // The footer gate puts an overshoot back where it belongs (see footer.js). That is a jump
-    // backwards, but it is the page correcting itself rather than anyone scrolling up, so take
-    // the new position as the baseline instead of reading a direction out of it.
-    window.addEventListener('grid:scroll-clamped', () => { lastY = window.scrollY; });
   }
 
   for (const el of [lockup, island]) {
@@ -211,6 +255,7 @@
   topbar.addEventListener('focusin', (event) => {
     if (!event.target.matches(':focus-visible')) return; // keyboard focus only, not mouse clicks
     held = true;
+    revealContext(); // so the next Tab can reach the page's own tab
     wake();
   });
   topbar.addEventListener('focusout', (event) => {
@@ -235,7 +280,7 @@
     if (root.classList.contains('is-compact')) return;
     if (event.button) return;
     const link = event.target.closest('.island__link');
-    if (!link || link.getAttribute('aria-current') !== 'page') return;
+    if (!link || !link.hasAttribute('aria-current')) return;
     event.preventDefault();
     startX = event.clientX;
     startY = event.clientY;

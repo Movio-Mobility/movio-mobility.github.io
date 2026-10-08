@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Particle Studio</title>
+<!--
+  GridX Particle Studio. Drop, paste or choose an image and get it back as GridX particles or as
+  a monochrome mark, then export a PNG. Runs offline from the folder (double-click this file);
+  nothing leaves the computer. The particles are drawn by particles.js, the same still-frame port
+  of the website's field that drew the design kit.
+-->
+<style>
+  @font-face {
+    font-family: 'DM Sans';
+    font-weight: 400 700;
+    src: url("fonts/dm-sans-latin.woff2") format('woff2'),
+         url("https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2") format('woff2');
+  }
+  :root {
+    --ink: #141414;
+    --soft: rgb(20 20 20 / 0.78);
+    --quiet: rgb(20 20 20 / 0.52);
+    --faint: rgb(20 20 20 / 0.4);
+    --spring: cubic-bezier(0.32, 0.72, 0, 1);
+    --glass:
+      radial-gradient(120% 70% at 12% 0%, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 60%),
+      linear-gradient(160deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.08) 48%, rgb(255 255 255 / 0.14));
+    --glass-edge: inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.2), inset 0 -1px 0 rgb(20 20 20 / 0.05), 0 16px 36px -22px rgb(20 20 20 / 0.3);
+  }
+  * { box-sizing: border-box; }
+  html {
+    min-height: 100%;
+    background-color: #cfcfcd;
+    background-image:
+      radial-gradient(ellipse 26% 16% at 37% 30%, rgb(236 236 234 / 0.95), rgb(236 236 234 / 0) 70%),
+      radial-gradient(ellipse 60% 8% at 74% 41%, rgb(236 236 234 / 0.9), rgb(236 236 234 / 0) 80%),
+      radial-gradient(ellipse 5% 12% at 0% 78%, rgb(245 245 243 / 0.8), rgb(245 245 243 / 0) 90%),
+      linear-gradient(180deg, #aeaeac 0%, #bdbdbb 26%, #d6d6d4 37%, #cfcfcd 46%, #d3d3d1 70%, #d8d8d6 100%);
+    background-attachment: fixed;
+  }
+  body {
+    margin: 0;
+    font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input { font: inherit; color: inherit; }
+
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 16px 20px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 20px;
+  }
+  header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 14px; padding: 4px 4px 0; }
+  header h1 { margin: 0; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.03em; }
+  header p { margin: 0; font-size: 0.95rem; color: var(--quiet); }
+
+  /* ------------------------------------------------------------ stage */
+  .stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    border-radius: 28px;
+    background: var(--glass);
+    box-shadow: var(--glass-edge);
+    padding: 24px 24px 64px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+  }
+  .stage.is-over { box-shadow: var(--glass-edge), inset 0 0 0 2px var(--ink); }
+  .stage canvas {
+    display: none;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 6px;
+    box-shadow: 0 18px 40px -28px rgb(20 20 20 / 0.6);
+  }
+  .has-image .stage canvas { display: block; }
+  .has-image .drop { display: none; }
+  .checker-light { background: repeating-conic-gradient(#9b9b99 0 25%, #a8a8a6 0 50%) 0 0 / 20px 20px; }
+  .checker-dark { background: repeating-conic-gradient(#fff 0 25%, #ececea 0 50%) 0 0 / 20px 20px; }
+  .stage__info {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.32);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--soft);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .has-image .stage__info { opacity: 1; }
+  .busy .stage__info::after { content: " · drawing…"; }
+
+  .drop { display: grid; justify-items: center; gap: 14px; padding: 24px; text-align: center; }
+  .drop svg { width: 44px; height: 44px; fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
+  .drop h2 { margin: 6px 0 0; font-size: clamp(1.6rem, 2vw + 1rem, 2.4rem); font-weight: 500; letter-spacing: -0.03em; }
+  .drop p { margin: 0; max-width: 420px; font-size: 1rem; line-height: 1.5; color: var(--quiet); }
+
+  /* ------------------------------------------------------------ panel */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    padding: 22px 20px 20px;
+    border-radius: 28px;
+    background: var(--glass);
+    box-shadow: var(--glass-edge);
+    overflow-y: auto;
+  }
+  .group { display: grid; gap: 10px; }
+  .group[hidden] { display: none; }
+  .label {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* Segmented control: the site's nav pill. */
+  .seg { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: #000; box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06); }
+  .seg button {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 36px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(255 255 255 / 0.6);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.38s var(--spring);
+  }
+  .seg button:hover { color: #fff; }
+  .seg button[aria-pressed="true"] { color: #fff; background: rgb(255 255 255 / 0.14); }
+  .seg button:focus-visible { outline: 2px solid rgb(255 255 255 / 0.75); outline-offset: -2px; }
+  .seg button:disabled { opacity: 0.35; cursor: default; }
+  .seg--main button { height: 40px; font-size: 0.95rem; }
+
+  .slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 10px; }
+  .slider span { font-size: 0.92rem; font-weight: 500; }
+  .slider output { font-size: 0.85rem; font-weight: 500; color: var(--quiet); font-variant-numeric: tabular-nums; }
+  input[type="range"] {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 22px;
+    margin: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: rgb(20 20 20 / 0.16); }
+  input[type="range"]::-moz-range-track { height: 4px; border-radius: 999px; background: rgb(20 20 20 / 0.16); }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -7px;
+    border-radius: 50%;
+    background: var(--ink);
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.45), 0 6px 14px -6px rgb(20 20 20 / 0.6);
+  }
+  input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 4px rgb(255 255 255 / 0.45); }
+  input[type="range"]:focus-visible { outline: none; }
+  input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgb(20 20 20 / 0.25); }
+
+  .check { display: flex; align-items: center; gap: 10px; font-size: 0.92rem; font-weight: 500; cursor: pointer; }
+  .check input { width: 18px; height: 18px; accent-color: var(--ink); }
+
+  .actions { display: grid; gap: 10px; margin-top: auto; padding-top: 4px; }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 50px;
+    padding: 0 1.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: #000;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    transition: transform 0.2s var(--spring), opacity 0.2s ease;
+  }
+  .cta:active { transform: scale(0.985); }
+  .cta:disabled { opacity: 0.32; cursor: default; box-shadow: none; }
+  .cta svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .ghost {
+    height: 44px;
+    padding: 0 1.1rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.22);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+    color: var(--soft);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .ghost:hover { background: rgb(255 255 255 / 0.36); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hint { margin: 0; font-size: 0.82rem; line-height: 1.45; color: var(--quiet); }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; padding: 16px; }
+    .stage { min-height: 60vh; }
+    .panel { overflow: visible; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <h1>Particle Studio</h1>
+    <p>Any image, as GridX particles or a monochrome mark.</p>
+  </header>
+
+  <main class="stage" id="stage">
+    <div class="drop">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <h2>Drop an image</h2>
+      <p>PNG, JPG, WebP or SVG. You can also paste one, or choose a file. Everything stays on this computer.</p>
+      <button class="cta" id="choose" type="button">Choose a file</button>
+    </div>
+    <canvas id="view" class="checker-light"></canvas>
+    <div class="stage__info" id="info"></div>
+  </main>
+
+  <aside class="panel" aria-label="Settings">
+    <div class="group">
+      <p class="label">Make</p>
+      <div class="seg seg--main" data-key="mode">
+        <button type="button" data-value="particles">Particles</button>
+        <button type="button" data-value="mono">Monochrome</button>
+      </div>
+    </div>
+
+    <!-- Particles -->
+    <div class="group" data-for="particles">
+      <p class="label">Shape</p>
+      <div class="seg" data-key="shape">
+        <button type="button" data-value="outline">Outline</button>
+        <button type="button" data-value="fill">Fill</button>
+        <button type="button" data-value="both">Both</button>
+      </div>
+    </div>
+    <div class="group" data-for="particles">
+      <p class="label">Draw from</p>
+      <div class="seg" data-key="draw">
+        <button type="button" data-value="auto">Auto</button>
+        <button type="button" data-value="alpha">Cut-out</button>
+        <button type="button" data-value="dark">Darks</button>
+        <button type="button" data-value="light">Lights</button>
+      </div>
+    </div>
+    <div class="group" data-for="particles">
+      <p class="label">Colour</p>
+      <div class="seg" data-key="colour">
+        <button type="button" data-value="light">Light</button>
+        <button type="button" data-value="ink">Ink</button>
+        <button type="button" data-value="sage">Sage</button>
+      </div>
+    </div>
+
+    <!-- Monochrome -->
+    <div class="group" data-for="mono">
+      <p class="label">Style</p>
+      <div class="seg" data-key="mono">
+        <button type="button" data-value="grey">Grey</button>
+        <button type="button" data-value="studio">Studio</button>
+        <button type="button" data-value="ink">Ink</button>
+        <button type="button" data-value="white">White</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="label">Background</p>
+      <div class="seg" data-key="backdrop">
+        <button type="button" data-value="none">None</button>
+        <button type="button" data-value="studio">Studio</button>
+        <button type="button" data-value="night">Night</button>
+      </div>
+    </div>
+
+    <div class="group" data-for="particles">
+      <label class="slider"><span>Density</span><output data-out="density"></output><input type="range" data-key="density" min="0" max="100" step="1"></label>
+      <label class="slider"><span>Particle size</span><output data-out="size"></output><input type="range" data-key="size" min="0.5" max="3" step="0.05"></label>
+      <label class="slider"><span>Sparkle</span><output data-out="sparkle"></output><input type="range" data-key="sparkle" min="0" max="2" step="0.05"></label>
+      <label class="slider"><span>Depth</span><output data-out="soft"></output><input type="range" data-key="soft" min="0" max="0.4" step="0.01"></label>
+      <label class="slider"><span>Glow</span><output data-out="glow"></output><input type="range" data-key="glow" min="1" max="6" step="0.1"></label>
+    </div>
+
+    <div class="group" data-for="mono">
+      <label class="slider"><span>Contrast</span><output data-out="contrast"></output><input type="range" data-key="contrast" min="0.4" max="2.5" step="0.05"></label>
+      <label class="slider"><span>Brightness</span><output data-out="brightness"></output><input type="range" data-key="brightness" min="-0.5" max="0.5" step="0.01"></label>
+      <label class="slider"><span>Threshold</span><output data-out="threshold"></output><input type="range" data-key="threshold" min="0.05" max="0.95" step="0.01"></label>
+      <p class="hint">Threshold shapes Ink and White when the image has no transparency.</p>
+    </div>
+
+    <div class="group">
+      <label class="check"><input type="checkbox" data-key="knockout"> Remove white background</label>
+    </div>
+
+    <div class="group">
+      <p class="label">Export size</p>
+      <div class="seg" data-key="scale">
+        <button type="button" data-value="1">1x</button>
+        <button type="button" data-value="2">2x</button>
+        <button type="button" data-value="4">4x</button>
+      </div>
+      <p class="hint" id="exportHint">Drop an image to begin.</p>
+    </div>
+
+    <div class="actions">
+      <button class="cta" id="export" type="button" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        Export PNG
+      </button>
+      <div class="row">
+        <button class="ghost" id="shuffle" type="button" disabled>Shuffle</button>
+        <button class="ghost" id="replace" type="button">New image</button>
+      </div>
+    </div>
+  </aside>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
+
+<script src="particles.js"></script>
+<script>
+(() => {
+  'use strict';
+  const P = window.GridParticles;
+  const app = document.getElementById('app');
+  const stage = document.getElementById('stage');
+  const view = document.getElementById('view');
+  const info = document.getElementById('info');
+  const fileInput = document.getElementById('file');
+  const exportBtn = document.getElementById('export');
+  const shuffleBtn = document.getElementById('shuffle');
+  const exportHint = document.getElementById('exportHint');
+
+  const BASE = 1600;      // the 1x long side every image is analysed and drawn at
+  const MAX_SIDE = 4096;  // the largest export
+  const INK = [20, 20, 20];
+  const SAGE = [152, 192, 130];
+  const LIGHT_TINT = P.WARM.map((c) => c * 1.15);
+  const PARTICLE_SCALE = 0.92;  // at 1x a particle's glow is about 2px, as on a 1920 slide
+
+  const state = {
+    mode: 'particles', shape: 'both', draw: 'auto', colour: 'light', backdrop: 'studio',
+    mono: 'ink', density: 55, size: 1, sparkle: 1, soft: 0.06, glow: 3,
+    contrast: 1, brightness: 0, threshold: 0.5, knockout: false, scale: '2', seed: 1,
+  };
+
+  let source = null;   // { bitmap, name, hasAlpha }
+  let base = null;     // ImageData at the 1x size
+  let points = null;   // particles in base px
+  let pointsKey = '';
+
+  // ---------------------------------------------------------------- controls
+  for (const seg of document.querySelectorAll('.seg')) {
+    const key = seg.dataset.key;
+    seg.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button || button.disabled) return;
+      state[key] = button.dataset.value;
+      sync();
+      schedule();
+    });
+  }
+  for (const input of document.querySelectorAll('input[type="range"]')) {
+    input.value = state[input.dataset.key];
+    input.addEventListener('input', () => {
+      state[input.dataset.key] = Number(input.value);
+      sync();
+      schedule();
+    });
+  }
+  const knock = document.querySelector('input[data-key="knockout"]');
+  knock.addEventListener('change', () => {
+    state.knockout = knock.checked;
+    schedule();
+  });
+
+  const fmt = {
+    density: (v) => `${Math.round(v)}`,
+    size: (v) => `${v.toFixed(2)}x`,
+    sparkle: (v) => `${v.toFixed(2)}`,
+    soft: (v) => `${Math.round(v * 100)}%`,
+    glow: (v) => v.toFixed(1),
+    contrast: (v) => v.toFixed(2),
+    brightness: (v) => `${v > 0 ? '+' : ''}${v.toFixed(2)}`,
+    threshold: (v) => v.toFixed(2),
+  };
+
+  function sync() {
+    for (const seg of document.querySelectorAll('.seg')) {
+      for (const b of seg.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.value === String(state[seg.dataset.key])));
+    }
+    for (const el of document.querySelectorAll('[data-for]')) el.hidden = el.dataset.for !== state.mode;
+    for (const out of document.querySelectorAll('output[data-out]')) out.textContent = fmt[out.dataset.out](state[out.dataset.out]);
+    knock.checked = state.knockout;
+    const dims = outputSize(Number(state.scale));
+    exportHint.textContent = source ? `${dims.width} × ${dims.height} px` : 'Drop an image to begin.';
+    // A transparent preview sits on a checker that suits the particles' colour.
+    const lightOnClear = state.backdrop === 'none' && ((state.mode === 'particles' && state.colour === 'light') || (state.mode === 'mono' && state.mono === 'white'));
+    view.className = state.backdrop !== 'none' ? '' : lightOnClear ? 'checker-light' : 'checker-dark';
+  }
+
+  // ---------------------------------------------------------------- input
+  document.getElementById('choose').addEventListener('click', () => fileInput.click());
+  document.getElementById('replace').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) load(fileInput.files[0]);
+    fileInput.value = '';
+  });
+  let depth = 0;
+  window.addEventListener('dragenter', (e) => { e.preventDefault(); depth++; stage.classList.add('is-over'); });
+  window.addEventListener('dragleave', () => { if (--depth <= 0) { depth = 0; stage.classList.remove('is-over'); } });
+  window.addEventListener('dragover', (e) => e.preventDefault());
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    depth = 0;
+    stage.classList.remove('is-over');
+    const file = [...(e.dataTransfer.files || [])].find((f) => f.type.startsWith('image/'));
+    if (file) load(file);
+  });
+  window.addEventListener('paste', (e) => {
+    const item = [...(e.clipboardData.items || [])].find((i) => i.type.startsWith('image/'));
+    if (item) load(item.getAsFile());
+  });
+
+  async function load(file) {
+    let bitmap;
+    try {
+      bitmap = await decode(file);
+    } catch (err) {
+      alert('That file could not be read as an image.');
+      return;
+    }
+    const name = (file.name || 'pasted').replace(/\.[^.]+$/, '') || 'image';
+    // The 1x size: the long side at BASE, so every image draws with the same particle scale.
+    const k = BASE / Math.max(bitmap.width, bitmap.height);
+    const w = Math.max(1, Math.round(bitmap.width * k));
+    const h = Math.max(1, Math.round(bitmap.height * k));
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    base = ctx.getImageData(0, 0, w, h);
+    const d = base.data;
+    let clear = 0, edgeWhite = 0, edges = 0, solid = 0, whiteInside = 0;
+    for (let i = 3; i < d.length; i += 4 * 7) {
+      if (d[i] < 250) clear++;
+      if (d[i] > 128) {
+        solid++;
+        if (Math.min(d[i - 3], d[i - 2], d[i - 1]) > 232) whiteInside++;
+      }
+    }
+    // A light frame round the edge suggests a logo on white: offer to take it away.
+    for (let x = 0; x < w; x += 4) for (const y of [0, h - 1]) { edges++; if (isWhite(d, (y * w + x) * 4)) edgeWhite++; }
+    for (let y = 0; y < h; y += 4) for (const x of [0, w - 1]) { edges++; if (isWhite(d, (y * w + x) * 4)) edgeWhite++; }
+    const hasAlpha = clear > (d.length / 28) * 0.002;
+    source = { bitmap, name, hasAlpha };
+    // Take the white away when the picture sits on white, or when a cut-out carries a white
+    // panel inside it (many partner logos do). Not when the mark itself is mostly white.
+    const white = solid ? whiteInside / solid : 0;
+    state.knockout = hasAlpha ? white > 0.02 && white < 0.8 : edgeWhite / edges > 0.85;
+    // A photo reads best as the site's line drawings; a cut-out or a logo as outline and fill.
+    state.shape = hasAlpha || state.knockout ? 'both' : 'outline';
+    pointsKey = '';
+    app.classList.add('has-image');
+    exportBtn.disabled = false;
+    shuffleBtn.disabled = false;
+    sync();
+    schedule();
+  }
+
+  const isWhite = (d, o) => Math.min(d[o], d[o + 1], d[o + 2]) > 232 && d[o + 3] > 200;
+
+  async function decode(file) {
+    if ('createImageBitmap' in window && file.type !== 'image/svg+xml') {
+      try { return await createImageBitmap(file); } catch (err) { /* fall through to <img> */ }
+    }
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      // An SVG with no size of its own is drawn at the base size.
+      if (!img.naturalWidth || !img.naturalHeight) { img.width = BASE; img.height = BASE; }
+      return img;
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }
+
+  // ---------------------------------------------------------------- drawing
+  // 1x is the base size; 4x is held to MAX_SIDE on the long side.
+  function outputSize(scale) {
+    if (!base) return { width: 0, height: 0, r: 1 };
+    const r = Math.min(scale, MAX_SIDE / Math.max(base.width, base.height));
+    return { width: Math.round(base.width * r), height: Math.round(base.height * r), r };
+  }
+
+  function tone() {
+    if (state.draw !== 'auto') return state.draw;
+    return source.hasAlpha || state.knockout ? 'alpha' : 'dark';
+  }
+
+  function ensurePoints() {
+    const key = [state.shape, tone(), state.knockout, state.density, state.seed].join('|');
+    if (key === pointsKey) return;
+    const cells = P.mix(110, 640, state.density / 100);
+    const spacing = BASE / cells;
+    points = P.imagePoints(base, { mode: state.shape, spacing, tone: tone(), knockout: state.knockout, seed: state.seed * 7919 });
+    pointsKey = key;
+  }
+
+  // The finished picture at r times the 1x size, as a canvas.
+  function draw(r) {
+    const w = Math.max(1, Math.round(base.width * r));
+    const h = Math.max(1, Math.round(base.height * r));
+    const layer = state.mode === 'particles' ? particleLayer(w, h, r) : monoLayer(w, h);
+    const out = document.createElement('canvas');
+    out.width = w;
+    out.height = h;
+    const ctx = out.getContext('2d');
+    if (state.backdrop !== 'none') {
+      const night = state.backdrop === 'night';
+      const bg = P.compose(w, h, P.studio(w, h), null, night ? { house: 0.1 } : {});
+      ctx.putImageData(new ImageData(bg, w, h), 0, 0);
+    }
+    const lc = document.createElement('canvas');
+    lc.width = w;
+    lc.height = h;
+    lc.getContext('2d').putImageData(new ImageData(layer, w, h), 0, 0);
+    ctx.drawImage(lc, 0, 0);
+    return { canvas: out, count: state.mode === 'particles' ? points.length : 0 };
+  }
+
+  function particleLayer(w, h, r) {
+    ensurePoints();
+    const pts = points.map(([x, y, wt]) => [x * r, y * r, wt]);
+    const parts = P.formation(pts, { seed: state.seed, focus: 6, soft: state.soft, sparkle: state.sparkle });
+    // Particle sizes follow the picture, so a preview and a 4x export are the same artwork.
+    const cam = P.camera({ scale: r * state.size * PARTICLE_SCALE, focus: 6, aperture: 0.06 });
+    const light = P.render(w, h, parts, cam, true);
+    if (state.colour === 'light') return P.toTransparent(w, h, light, { tint: LIGHT_TINT, strength: state.glow });
+    return P.toTransparent(w, h, light, { color: state.colour === 'ink' ? INK : SAGE, strength: state.glow * 0.8 });
+  }
+
+  function monoLayer(w, h) {
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source.bitmap, 0, 0, w, h);
+    const src = ctx.getImageData(0, 0, w, h).data;
+    const out = new Uint8ClampedArray(w * h * 4);
+    const shapeFromAlpha = source.hasAlpha || state.knockout;
+    const t = state.threshold;
+    const paper = [236, 236, 234];
+    for (let p = 0; p < w * h; p++) {
+      const o = p * 4;
+      const R = src[o] / 255, G = src[o + 1] / 255, B = src[o + 2] / 255;
+      let a = src[o + 3] / 255;
+      if (state.knockout) a *= 1 - P.smoothstep(0.86, 0.97, Math.min(R, G, B));
+      const lum = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+      const v = P.clamp((lum - 0.5) * state.contrast + 0.5 + state.brightness, 0, 1);
+      if (state.mono === 'grey' || state.mono === 'studio') {
+        const c3 = state.mono === 'grey' ? [v * 255, v * 255, v * 255] : INK.map((k, i) => k + (paper[i] - k) * v);
+        out[o] = c3[0]; out[o + 1] = c3[1]; out[o + 2] = c3[2];
+        out[o + 3] = a * 255;
+      } else {
+        const solid = state.mono === 'ink' ? INK : [255, 255, 255];
+        const shape = shapeFromAlpha ? a : a * (1 - P.smoothstep(t - 0.05, t + 0.05, v));
+        out[o] = solid[0]; out[o + 1] = solid[1]; out[o + 2] = solid[2];
+        out[o + 3] = shape * 255;
+      }
+    }
+    return out;
+  }
+
+  // Redraw the preview at screen size, once per frame at most.
+  let queued = false;
+  function schedule() {
+    if (!source || queued) return;
+    queued = true;
+    app.classList.add('busy');
+    requestAnimationFrame(() => setTimeout(() => {
+      queued = false;
+      const box = stage.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const fit = Math.min((box.width - 48) / base.width, (box.height - 88) / base.height);
+      const r = P.clamp(fit * dpr, 0.05, 1);
+      const { canvas, count } = draw(r);
+      view.width = canvas.width;
+      view.height = canvas.height;
+      view.style.width = `${canvas.width / dpr}px`;
+      view.style.height = `${canvas.height / dpr}px`;
+      view.getContext('2d').drawImage(canvas, 0, 0);
+      const dims = outputSize(Number(state.scale));
+      info.textContent = state.mode === 'particles'
+        ? `${count.toLocaleString()} particles · exports at ${dims.width} × ${dims.height}`
+        : `Monochrome · exports at ${dims.width} × ${dims.height}`;
+      app.classList.remove('busy');
+    }, 0));
+  }
+  window.addEventListener('resize', schedule);
+
+  shuffleBtn.addEventListener('click', () => {
+    state.seed = (state.seed % 9973) + 1;
+    schedule();
+  });
+
+  exportBtn.addEventListener('click', async () => {
+    if (!source) return;
+    exportBtn.disabled = true;
+    const label = exportBtn.lastChild.textContent;
+    exportBtn.lastChild.textContent = ' Drawing…';
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    try {
+      const { r } = outputSize(Number(state.scale));
+      const { canvas } = draw(r);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      const kind = state.mode === 'particles' ? `particles-${state.shape}-${state.colour}` : `mono-${state.mono}`;
+      const bg = state.backdrop === 'none' ? '' : `-on-${state.backdrop}`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${source.name}_gridx-${kind}${bg}_${canvas.width}x${canvas.height}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    } finally {
+      exportBtn.lastChild.textContent = label;
+      exportBtn.disabled = false;
+    }
+  });
+
+  sync();
+})();
+</script>
+</body>
+</html>

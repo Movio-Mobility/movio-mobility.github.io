@@ -15,6 +15,10 @@
  * order-sheet.js; this file opens the first two and lets the field follow whichever is up.
  *
  * Does not call setPod (that path damps scroll).
+ *
+ * The loop rests once the rim has settled on its target, and wakes on anything that can move
+ * it: scrolling, a resize, a press, a sheet opening. While a sheet is up or a card is held it
+ * runs every frame, because a sheet slides and drags and the rim follows it live.
  */
 (() => {
   'use strict';
@@ -25,9 +29,15 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+  // Corner radii, read once per element and again after a resize (a breakpoint can change one),
+  // rather than through getComputedStyle on every frame.
+  let radii = new WeakMap();
   const radiusOf = (el, fallback) => {
-    const n = parseFloat(getComputedStyle(el).borderTopLeftRadius);
-    return Number.isFinite(n) ? n : fallback;
+    if (!radii.has(el)) {
+      const n = parseFloat(getComputedStyle(el).borderTopLeftRadius);
+      radii.set(el, Number.isFinite(n) ? n : fallback);
+    }
+    return radii.get(el);
   };
   const visibility = (r) => {
     const vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
@@ -146,6 +156,14 @@
   const spec = { left: 0, top: 0, width: 1, height: 1, radius: 24, depth: 6, fill: 0, grip: 0, weight: 0 };
   let placed = false;
   let last = performance.now();
+  let rafId = 0;
+  let held = false; // whether the field currently has a halo from us
+
+  function wake() {
+    if (rafId || document.hidden) return;
+    last = performance.now();
+    rafId = requestAnimationFrame(frame);
+  }
 
   function targetFor(proj) {
     // A sheet outranks everything: while one is up the field is what it is made of.
@@ -183,15 +201,18 @@
   }
 
   function frame(now) {
+    rafId = 0;
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
+    let settled = true;
 
     const api = window.gridBG;
     if (api && typeof api.setHalo === 'function') {
       const proj = typeof api.projection === 'function' ? api.projection() : { depth: 6, sheetDepth: 3.2 };
       const t = targetFor(proj);
       if (!t) {
-        api.setHalo(null);
+        if (held) api.setHalo(null);
+        held = false;
       } else {
         // Exponential easing, so the rim visibly travels between cards and onto the sheet.
         const k = placed ? 1 - Math.exp(-dt / 0.1) : 1;
@@ -207,9 +228,24 @@
         spec.grip += (t.grip - spec.grip) * kSlow;
         spec.weight += (t.weight - spec.weight) * kSlow;
 
+        // Settled once every value is within a hundredth of a pixel (or a ten-thousandth of
+        // its range) of where it is going: it lands there and the loop can rest.
+        const r = t.rect;
+        settled = Math.abs(r.left - spec.left) < 0.01 && Math.abs(r.top - spec.top) < 0.01
+          && Math.abs(r.width - spec.width) < 0.01 && Math.abs(r.height - spec.height) < 0.01
+          && Math.abs(t.radius - spec.radius) < 0.01 && Math.abs(t.depth - spec.depth) < 1e-4
+          && Math.abs(t.fill - spec.fill) < 1e-4 && Math.abs(t.grip - spec.grip) < 1e-4
+          && Math.abs(t.weight - spec.weight) < 1e-4;
+        if (settled) {
+          Object.assign(spec, { left: r.left, top: r.top, width: r.width, height: r.height,
+            radius: t.radius, depth: t.depth, fill: t.fill, grip: t.grip, weight: t.weight });
+        }
+
         if (spec.weight < 0.002) {
-          api.setHalo(null);
+          if (held) api.setHalo(null);
+          held = false;
         } else {
+          held = true;
           api.setHalo({
             rect: { left: spec.left, top: spec.top, width: spec.width, height: spec.height },
             radius: spec.radius,
@@ -222,8 +258,22 @@
       }
     }
 
-    requestAnimationFrame(frame);
+    // A sheet slides and drags, and a held card is about to change: follow those every frame.
+    if (!settled || mode === 'press' || window.gridSheet.openElement()) rafId = requestAnimationFrame(frame);
   }
 
-  requestAnimationFrame(frame);
+  window.addEventListener('scroll', wake, { passive: true });
+  window.addEventListener('resize', () => {
+    radii = new WeakMap();
+    wake();
+  });
+  document.addEventListener('pointerdown', wake, { passive: true });
+  document.addEventListener('pointerup', wake, { passive: true });
+  document.addEventListener('keydown', wake);
+  document.addEventListener('visibilitychange', wake);
+  // A sheet opening or closing (dialogs carry `open`), and anything that moves the cards.
+  new MutationObserver(wake).observe(document.body, { attributes: true, attributeFilter: ['open', 'class'], subtree: true });
+  if ('ResizeObserver' in window) new ResizeObserver(wake).observe(document.body);
+
+  wake();
 })();

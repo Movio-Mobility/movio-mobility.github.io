@@ -7,3 +7,9 @@ dist/
 # and store/ WebP exports), and the Gen2 renders alone are ~200 MB. They stay on disk.
 assets/productImages/**/*.png
 assets/productImages/**/*.PNG
+
+# Frame sheets from tools/perf/reel.mjs (regenerate with npm run reel)
+tools/perf/reel/
+
+# Crops from tools/check/hand.mjs (regenerate with npm run check:hand)
+tools/check/out/

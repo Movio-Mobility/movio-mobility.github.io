@@ -6,9 +6,17 @@
  * the credit lands. The page's own chrome leaves with the lights: there is no logo and no
  * nav pill at the end of a film, only the card.
  *
- * Everything here reads `--night`, a 0 → 1 value footer.js publishes on <html>, so the DOM
- * and the shader dim on exactly the same curve.
+ * Everything here reads `--night`, a 0 → 1 value footer.js publishes on the elements that
+ * dim, so the DOM and the shader dim on exactly the same curve.
  */
+
+/* Not inherited: footer.js writes it on each element that dims, and a change then restyles
+   just those, not everything inside them. */
+@property --night {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
 
 :root {
   /* The dark stage's inks, the mirror of the studio's rgb(20 20 20 / …) ramp. */
@@ -28,7 +36,12 @@
 .hero,
 .store,
 .film,
-.journey {
+.journey,
+.careers,
+.role,
+.interview,
+.lost,
+.dealers {
   opacity: calc(1 - var(--night, 0));
 }
 
@@ -37,16 +50,18 @@
    add lag: drop it for the duration. At the 0.02 threshold opacity is 0.98, so nothing jumps. */
 html.is-night .store,
 html.is-night .journey,
+html.is-night .careers,
+html.is-night .role,
+html.is-night .interview,
+html.is-night .lost,
+html.is-night .dealers,
 html.is-night .topbar {
   transition: none;
 }
 
-/* #pod's opacity is written inline every frame by the film loop, so a filter is the only
-   way to compose with it. Without this the PowerPod would sit brightly lit in a dark room:
-   podFadeAt() ramps it to 1 and never brings it back down. */
-#pod {
-  filter: opacity(calc(1 - var(--night, 0)));
-}
+/* #pod takes the night in its own opacity, which the film loop writes (podFade × (1 − night),
+   from window.gridNight). It used to be a filter here, which kept a full-screen filter surface
+   alive under the whole film just to multiply by one. */
 
 /* Once the lights are down the chrome is invisible, and an invisible tap target is worse
    than none: below 1025px the nav pill is fixed to the bottom-right, right on top of the
@@ -77,6 +92,16 @@ main {
   color: var(--credit-bright);
 }
 
+/* The gate (see footer.js). While it is closed the footer takes no room, so the page simply
+   ends where the footer's first pixel meets the bottom of the screen, and a fling stops there
+   on the browser's own scroller. Opening it hands the room back below the fold, where nothing
+   shows. Without overflow: clip the footer just isn't collapsed, and nothing is gated. */
+.credits.is-gated {
+  height: 0;
+  min-height: 0;
+  overflow: clip;
+}
+
 /* Without WebGL2 there is no shader to dim, so the night is a scrim over the CSS studio.
    #bg is display:none on that path, so nothing is covered that shouldn't be. */
 html:not(.gl) .credits::before {
@@ -88,7 +113,7 @@ html:not(.gl) .credits::before {
     radial-gradient(ellipse 60% 10% at 74% 41%, rgb(38 38 36 / 0.9), rgb(24 24 23 / 0) 80%),
     radial-gradient(ellipse 6% 14% at 0% 76%, rgb(46 46 43 / 0.75), rgb(24 24 23 / 0) 90%),
     linear-gradient(180deg, #0a0a0a 0%, #0e0e0d 38%, #131312 62%, #101010 100%);
-  opacity: var(--night, 0);
+  opacity: var(--night-scrim, 0);
   pointer-events: none;
 }
 
@@ -379,7 +404,7 @@ html:not(.gl) .credits::before {
 
 /* ---------------------------------------------------------------- reduced motion
    The night still happens, because it is the content rather than decoration, but it crossfades
-   of travelling. footer.js snaps `--night` rather than easing it, and setHalo already
+   of travelling. footer.js snaps the night rather than easing it, and setHalo already
    declines to gather the field at all. */
 @media (prefers-reduced-motion: reduce) {
   .credits { min-height: 120svh; }
@@ -394,7 +419,7 @@ html:not(.gl) .credits::before {
 }
 
 /* ---------------------------------------------------------------- without JS
-   Nothing publishes --night, so the lights never go down and the footer would be white text
+   Nothing publishes the night, so the lights never go down and the footer would be white text
    on a grey studio. Show it lit instead, in the studio's own inks: readable, if not
    cinematic. The head script that sets `gl` also sets `js`, so this is the default and
    scripting opts out of it, so the fallback can never flash. */

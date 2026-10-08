@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Subscription Policy | GridXenergy</title>
+  <meta name="description" content="GridXenergy cancellation, refund, pricing and subscription policy for the Spark, Surge and Anchor plans, operated by Movio Technologies Private Limited.">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/store.css">
+  <link rel="stylesheet" href="assets/sheet.css">
+  <link rel="stylesheet" href="assets/legal.css">
+  <link rel="stylesheet" href="assets/footer.css">
+
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
+  <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GridX home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Legal</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <!-- The fifth slot is the page's own. Like Careers, this page is reached from the
+               footer, not the nav, so it joins the island only while it is open (see topbar.js). -->
+          <li class="island__context">
+            <a class="island__link" href="subscription_policy.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H7.5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V7z"/><path d="M14 3.5V7h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+              <span class="island__label">Legal</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon, the same glyph as its own tab. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M14 3.5H7.5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V7z"/><path d="M14 3.5V7h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- The Cancellation, Refund, Pricing and Subscription Policy, word for word as it stood on
+       the old site's subscription_policy.html. The file name is kept because the app and other
+       sites link to it. Only the setting has changed, as on privacy_policy.html: the old page's
+       <br> runs are paragraphs, its bullets are lists, and its headings are in sentence case.
+       Change the wording here only with the legal text signed off. -->
+  <main class="store legal">
+    <article class="legal__layout">
+      <h2 class="store-kicker legal__title" style="--i:0">Cancellation, Refund, Pricing and Subscription Policy</h2>
+
+      <nav class="legal__index" aria-label="Sections" style="--i:2">
+        <ol>
+          <li><a href="#nature"><span class="legal__n">1.</span><span>Nature of subscription</span></a></li>
+          <li><a href="#pricing"><span class="legal__n">2.</span><span>Right to modify pricing, plans and benefits</span></a></li>
+          <li><a href="#cancellation"><span class="legal__n">3.</span><span>Cancellation</span></a></li>
+          <li><a href="#refunds"><span class="legal__n">4.</span><span>Refund policy</span></a></li>
+          <li><a href="#auto-renewal"><span class="legal__n">5.</span><span>Auto-renewal authorization</span></a></li>
+          <li><a href="#suspension"><span class="legal__n">6.</span><span>Suspension and termination</span></a></li>
+          <li><a href="#liability"><span class="legal__n">7.</span><span>Limitation of liability</span></a></li>
+          <li><a href="#indian-law"><span class="legal__n">8.</span><span>Compliance with Indian law</span></a></li>
+          <li><a href="#force-majeure"><span class="legal__n">9.</span><span>Force majeure</span></a></li>
+          <li><a href="#governing-law"><span class="legal__n">10.</span><span>Governing law and exclusive jurisdiction</span></a></li>
+          <li><a href="#amendments"><span class="legal__n">11.</span><span>Amendments</span></a></li>
+          <li><a href="#trademark"><span class="legal__n">12.</span><span>Trademark ownership</span></a></li>
+          <li><a href="#contact"><span class="legal__n">13.</span><span>Contact</span></a></li>
+        </ol>
+      </nav>
+
+      <div class="legal__body" style="--i:1">
+        <section class="legal__section" id="scope">
+          <p><strong>For Spark, Surge and Anchor Plans. Operated by Movio Technologies Private Limited.</strong></p>
+          <p>GridXenergy is a brand and trademark owned and operated by Movio Technologies Private Limited, a company incorporated under the Companies Act, 2013, having its registered office in India ("Company", "we", "us", "our"). "GridXenergy", including its name, logo, product names, plan names, and all associated intellectual property, are the exclusive property of Movio Technologies Private Limited.</p>
+          <p>This Policy governs all matters relating to subscription pricing, cancellation, refunds, billing, and use of the Spark, Surge, and Anchor plans ("Plans"). By purchasing or using any Plan, the user ("User", "you", "your") expressly agrees to be bound by this Policy.</p>
+        </section>
+
+        <section class="legal__section" id="nature">
+          <h3><span class="legal__n">1.</span><span>Nature of subscription</span></h3>
+          <ol class="legal__list">
+            <li><span class="legal__n">1.1</span><span>All Plans are prepaid, recurring subscription services billed monthly unless otherwise specified.</span></li>
+            <li><span class="legal__n">1.2</span><span>The subscription fee grants the User limited, non-exclusive, non-transferable access to platform services, pricing benefits, and energy-related features for the applicable billing cycle.</span></li>
+            <li><span class="legal__n">1.3</span><span>Once a billing cycle has commenced, the subscription shall be deemed activated and consumed, irrespective of actual usage.</span></li>
+            <li><span class="legal__n">1.4</span><span>Subscriptions do not create any ownership, vested rights, or permanent entitlement to any pricing, energy rates, or benefits.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="pricing">
+          <h3><span class="legal__n">2.</span><span>Right to modify pricing, plans and benefits</span></h3>
+          <ol class="legal__list legal__list--wide">
+            <li>
+              <span class="legal__n">2.1</span>
+              <p>The Company reserves the absolute, unrestricted, and unilateral right to:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Change subscription prices</li>
+                <li>Introduce, modify, or discontinue any plan</li>
+                <li>Alter features, benefits, limits, energy rates, or entitlements</li>
+              </ul>
+              <p>at any time and at its sole discretion, without prior notice.</p>
+            </li>
+            <li>
+              <span class="legal__n">2.2</span>
+              <p>Price changes shall apply:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Immediately for new subscriptions</li>
+                <li>From the next billing cycle for existing subscriptions</li>
+              </ul>
+            </li>
+            <li><span class="legal__n">2.3</span><span>No pricing or benefit shall be deemed permanent or guaranteed.</span></li>
+            <li>
+              <span class="legal__n">2.4</span>
+              <p>Changes in pricing or plan structure shall not:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Constitute a breach of contract</li>
+                <li>Create any right to refund</li>
+                <li>Give rise to claims for damages or compensation</li>
+              </ul>
+            </li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="cancellation">
+          <h3><span class="legal__n">3.</span><span>Cancellation</span></h3>
+          <ol class="legal__list legal__list--wide">
+            <li><span class="legal__n">3.1</span><span>The User may cancel a subscription at any time through the GridXenergy app, website, or authorized support channels.</span></li>
+            <li><span class="legal__n">3.2</span><span>Cancellation becomes effective only at the end of the current billing cycle.</span></li>
+            <li>
+              <span class="legal__n">3.3</span>
+              <p>Upon cancellation:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Auto-renewal stops</li>
+                <li>Access remains valid until the paid period expires</li>
+                <li>No prorated or partial refunds shall be provided</li>
+              </ul>
+            </li>
+            <li><span class="legal__n">3.4</span><span>Cancellation does not entitle the User to any refund.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="refunds">
+          <h3><span class="legal__n">4.</span><span>Refund policy</span></h3>
+          <ol class="legal__list legal__list--wide">
+            <li>
+              <span class="legal__n">4.1</span>
+              <p>Refunds are not a matter of right and shall be issued solely at the discretion of the Company and only in the following circumstances:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Erroneous charge due to a system or technical failure</li>
+                <li>Charge after successful cancellation</li>
+                <li>Duplicate payment</li>
+                <li>Prolonged service unavailability directly attributable to Company systems</li>
+              </ul>
+            </li>
+            <li>
+              <span class="legal__n">4.2</span>
+              <p>Refunds shall not be granted for:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Change of mind</li>
+                <li>Non-usage or partial usage</li>
+                <li>Mid-cycle cancellation</li>
+                <li>Dissatisfaction with pricing or plan features</li>
+                <li>Pricing or plan changes</li>
+                <li>Network, hardware, electricity, or third-party failures</li>
+                <li>Payment gateway or banking delays</li>
+                <li>Force majeure events</li>
+                <li>Where benefits or energy advantages have already been availed</li>
+              </ul>
+            </li>
+            <li><span class="legal__n">4.3</span><span>Approved refunds shall be processed to the original payment method within 5–7 working days, subject to banking and payment gateway timelines.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="auto-renewal">
+          <h3><span class="legal__n">5.</span><span>Auto-renewal authorization</span></h3>
+          <ol class="legal__list">
+            <li><span class="legal__n">5.1</span><span>All subscriptions are auto-renewing by default.</span></li>
+            <li><span class="legal__n">5.2</span><span>By subscribing, the User expressly authorizes recurring billing.</span></li>
+            <li><span class="legal__n">5.3</span><span>Failure to cancel before renewal constitutes explicit consent to charge.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="suspension">
+          <h3><span class="legal__n">6.</span><span>Suspension and termination</span></h3>
+          <ol class="legal__list legal__list--wide">
+            <li>
+              <span class="legal__n">6.1</span>
+              <p>The Company may suspend or terminate a subscription without refund in cases including but not limited to:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Fraud or attempted fraud</li>
+                <li>Abuse or misuse of services</li>
+                <li>Breach of Terms of Service</li>
+                <li>Violation of law or regulations</li>
+                <li>Exploitation of pricing or system loopholes</li>
+              </ul>
+            </li>
+            <li><span class="legal__n">6.2</span><span>Such termination shall not create any refund or compensation obligation.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="liability">
+          <h3><span class="legal__n">7.</span><span>Limitation of liability</span></h3>
+          <ol class="legal__list legal__list--wide">
+            <li>
+              <span class="legal__n">7.1</span>
+              <p>The Company shall not be liable for:</p>
+              <ul class="legal__points legal__points--tight">
+                <li>Indirect, incidental, special, or consequential damages</li>
+                <li>Loss of profits, data, business, or goodwill</li>
+                <li>Power outages, network failures, hardware faults</li>
+                <li>Third-party service disruptions</li>
+              </ul>
+            </li>
+            <li><span class="legal__n">7.2</span><span>Maximum liability, if any, shall not exceed the amount paid by the User in the immediately preceding billing cycle.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="indian-law">
+          <h3><span class="legal__n">8.</span><span>Compliance with Indian law</span></h3>
+          <p>This Policy is governed by and drafted in accordance with:</p>
+          <ul class="legal__points legal__points--tight">
+            <li>The Indian Contract Act, 1872</li>
+            <li>The Consumer Protection Act, 2019</li>
+            <li>The Information Technology Act, 2000</li>
+            <li>Applicable RBI and payment gateway regulations</li>
+          </ul>
+          <p>The User agrees that this constitutes a legally binding electronic contract.</p>
+        </section>
+
+        <section class="legal__section" id="force-majeure">
+          <h3><span class="legal__n">9.</span><span>Force majeure</span></h3>
+          <p>The Company shall not be liable for failure or delay caused by events beyond its reasonable control including natural disasters, government orders, power failures, internet outages, regulatory actions, strikes, riots, or war. No refunds shall be due in such cases.</p>
+        </section>
+
+        <section class="legal__section" id="governing-law">
+          <h3><span class="legal__n">10.</span><span>Governing law and exclusive jurisdiction</span></h3>
+          <p>This Policy, all subscriptions, refunds, cancellations, pricing disputes, billing issues, and any claims arising from GridXenergy services shall be governed by the laws of India.</p>
+          <p>The courts at New Delhi, India, shall have exclusive jurisdiction. No other court, consumer forum, or authority shall have jurisdiction.</p>
+        </section>
+
+        <section class="legal__section" id="amendments">
+          <h3><span class="legal__n">11.</span><span>Amendments</span></h3>
+          <p>The Company reserves the right to amend or replace this Policy at any time without notice. Continued use after modification constitutes acceptance.</p>
+        </section>
+
+        <section class="legal__section" id="trademark">
+          <h3><span class="legal__n">12.</span><span>Trademark ownership</span></h3>
+          <p>"GridXenergy" is a proprietary trademark and intellectual property of Movio Technologies Private Limited. Any unauthorized use is strictly prohibited.</p>
+        </section>
+
+        <section class="legal__section" id="contact">
+          <h3><span class="legal__n">13.</span><span>Contact</span></h3>
+          <p>Company: Movio Technologies Private Limited<br>Brand: GridXenergy<br>Email: <a href="mailto:info@gridxenergy.in">info@gridxenergy.in</a></p>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
+       the dark. Copied into every page the way the island nav is: the address and the sitemap
+       belong in the HTML, not in a script. The only per-page difference is aria-current. -->
+  <footer class="credits">
+    <div class="credits__stage">
+      <h2 class="credits__line">
+        <span class="credits__seg">
+          <span class="w" style="--i:0">Designed</span>
+          <span class="w" style="--i:1">and</span>
+          <span class="w" style="--i:2">Developed</span>
+        </span>
+        <span class="credits__seg">
+          <span class="w" style="--i:3">in-house</span>
+          <span class="w" style="--i:4">at</span>
+        </span>
+        <span class="credits__seg credits__seg--name">
+          <span class="w" style="--i:5">GridXenergy</span>
+        </span>
+      </h2>
+
+      <div class="credits__colophon">
+        <div class="credits__cols">
+          <div class="credits__col">
+            <h3 class="credits__label">Pages</h3>
+            <ul class="credits__list credits__list--pages">
+              <li><a class="credits__link" href="index.html">Home</a></li>
+              <li><a class="credits__link" href="store.html">Store</a></li>
+              <li><a class="credits__link" href="dealers.html">Dealers</a></li>
+              <li><a class="credits__link" href="support.html">Support</a></li>
+              <li><a class="credits__link" href="journey.html">Journey</a></li>
+              <li><a class="credits__link" href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+
+          <div class="credits__col">
+            <h3 class="credits__label">Connect</h3>
+            <ul class="credits__list credits__list--social">
+              <li>
+                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span class="credits__social-label">WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://instagram.com/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><path d="M16.9 7.1h.01"/></svg>
+                  <span class="credits__social-label">Instagram</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://youtube.com/@gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10.2 9.6 5.4 2.9-5.4 2.9z"/></svg>
+                  <span class="credits__social-label">YouTube</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://linkedin.com/company/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 7.9h.01"/><path d="M8 10.6v5.8"/><path d="M11.7 16.4v-5.8"/><path d="M11.7 13.1a2.35 2.35 0 0 1 4.7 0v3.3"/></svg>
+                  <span class="credits__social-label">LinkedIn</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="credits__col credits__col--mark">
+            <h3 class="credits__label">Address</h3>
+            <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
+            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+          </div>
+        </div>
+
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
+        <div class="credits__legal">
+          <a href="privacy_policy.html">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html">Privacy Policy</a>
+          <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/footer.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

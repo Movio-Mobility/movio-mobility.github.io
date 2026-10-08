@@ -1,15 +1,16 @@
 /*
  * The accessories order sheet.
  *
- * The shell is the story sheet's: .story gives the bottom sheet, its backdrop, the
- * grabber, the close button and the slide. Only the contents live here.
+ * The shell is the story sheet's: .story (assets/sheet.css) gives the bottom sheet, its
+ * backdrop, the grabber, the close button and the slide. Only the contents live here.
  *
- * THE FORM PRIMITIVES BELOW ARE A SECOND COPY. .field, .field__input, .field__err and
- * .field-row are lifted from assets/powerpod-gen2.css (the block around its inputs), and
- * --hair and --bad from the .pg2 token block there. They are copied rather than shared
- * because this page does not load that stylesheet and pulling in a 30 KB app shell to
- * borrow six selectors is the worse trade. Change one, change the other: a buyer who
- * fills in this form and then the configurator must not see two different text fields.
+ * The text fields are assets/fields.css, linked just before this file on every page that
+ * loads it; the 760px .field-row gap below is the only field rule that stays here. --hair
+ * and --bad, which those fields read, are set on .story--order just below, with the same
+ * values as the .pg2 token block in powerpod-gen2.css. That stylesheet keeps its own field
+ * block, because its inputs sit on flat white and so rest on a faint ink tint where these
+ * rest on a white wash. Change a shared property in one, change it in the other: a buyer
+ * who fills in this form and then the configurator must not see two different text fields.
  *
  * Mobile first throughout. Phone values are the base and 760px widens them, matching
  * store.css rather than site.css, which is written the other way round.
@@ -171,62 +172,18 @@
 /* A line nobody has taken yet should not shout its zero. */
 .order__item[data-qty="0"] .stepper__count { color: rgb(20 20 20 / 0.32); }
 
-/* ---------------------------------------------------------------- fields */
-/* Copied from assets/powerpod-gen2.css. See the note at the top of this file. */
-
-.field { margin-bottom: 0.9rem; }
-
-.field__label {
-  display: block;
-  margin-bottom: 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: rgb(20 20 20 / 0.6);
-}
-
-.field__input {
-  width: 100%;
-  min-height: 48px;
-  padding: 0.7rem 0.85rem;
-  border: 0;
-  border-radius: 12px;
-  background: rgb(255 255 255 / 0.45);
-  box-shadow: inset 0 0 0 1px var(--hair);
-  font-family: inherit;
-  font-size: 1rem; /* 16px: anything smaller makes iOS zoom the page on focus */
-  line-height: 1.3;
-  color: var(--ink);
-  transition: box-shadow 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
-}
-
-.field__input::placeholder { color: rgb(20 20 20 / 0.32); }
-.field__input:focus { background: #fff; box-shadow: inset 0 0 0 1.5px var(--ink); outline: none; }
-.field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
-.field.is-bad .field__input { box-shadow: inset 0 0 0 1.5px var(--bad); }
-
-.field__err { margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.4; color: var(--bad); }
-.field__err:empty { display: none; }
-
-.field__opt {
-  margin-left: 0.3rem;
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  color: rgb(20 20 20 / 0.38);
-}
-
-.field__hint { margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.45; color: rgb(20 20 20 / 0.5); }
-.field.is-bad .field__hint { display: none; }
-
-.field-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 0.75rem;
-}
-
 /* ---------------------------------------------------------------- the foot */
+
+/* reCAPTCHA's attribution, standing in for its badge (hidden in site.css). */
+.order__legal {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.42);
+}
+
+.order__legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
 .order__foot {
   flex: none;

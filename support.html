@@ -4,18 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Support | GridXenergy</title>
-  <meta name="description" content="Help with your GRID battery.">
+  <meta name="description" content="Help with your GridX battery.">
   <meta name="theme-color" content="#c4c4c2">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap">
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/store.css">
+  <link rel="stylesheet" href="assets/sheet.css">
+  <link rel="stylesheet" href="assets/fields.css">
   <link rel="stylesheet" href="assets/order-sheet.css">
   <link rel="stylesheet" href="assets/disclose.css">
   <link rel="stylesheet" href="assets/track.css">
   <link rel="stylesheet" href="assets/contact.css">
+  <link rel="stylesheet" href="assets/support-form.css">
   <link rel="stylesheet" href="assets/faq.css">
   <link rel="stylesheet" href="assets/manuals.css">
   <link rel="stylesheet" href="assets/footer.css">
@@ -23,13 +27,15 @@
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
 
   <header class="topbar">
     <div class="brand-lockup">
-      <a class="brand" href="index.html" aria-label="GRID home">
+      <a class="brand" href="index.html" aria-label="GridX home">
         <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
         <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
       </a>
@@ -62,12 +68,6 @@
             <a class="island__link" href="support.html" aria-current="page">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
               <span class="island__label">Support</span>
-            </a>
-          </li>
-          <li>
-            <a class="island__link" href="journey.html">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><path d="M7.5 18.5H15a3.25 3.25 0 0 0 0-6.5H9a3.25 3.25 0 0 1 0-6.5h7.5"/></svg>
-              <span class="island__label">Journey</span>
             </a>
           </li>
         </ul>
@@ -132,16 +132,19 @@
 
             <noscript>
               <p class="track__note">Tracking needs JavaScript. You can also ask us on
-                <a class="story__link" href="https://wa.me/919220199098">WhatsApp</a>, quoting
+                <a class="story__link" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20would%20like%20to%20know%20where%20my%20order%20is.%20My%20order%20reference%20is%20">WhatsApp</a>, quoting
                 your order reference.</p>
             </noscript>
           </div>
         </div>
       </section>
 
-      <!-- How to reach a person. The number is only ever in the two buttons' hrefs, never printed:
-           the buttons are the way in. The open or closed line under Hours is assets/contact.js,
-           worked out in India's time; without JavaScript it stays hidden and the hours say it. -->
+      <!-- How to reach a person. First, the two ways in that work at any hour: a callback or a
+           message, both the contact form (dialog#support-sheet below, assets/support-form.js).
+           Without JavaScript they are WhatsApp links with the request already written. Then the
+           phone and WhatsApp, quieter. The number is only ever in hrefs, never printed. The open
+           or closed line under Hours is assets/contact.js, worked out in India's time; without
+           JavaScript it stays hidden and the hours say it. -->
       <section class="store-section contact disclose" id="contact">
         <h2 class="store-kicker disclose__head" style="--i:1">
           <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="contact-panel">
@@ -152,18 +155,37 @@
 
         <div class="disclose__panel" id="contact-panel">
           <div class="disclose__inner">
-            <p class="contact__lede">Talk to someone at GridX about your PowerPod, an order, or
-              anything else. A real person picks up.</p>
+            <p class="contact__lede">Tell us what you need, about your PowerPod, an order, or
+              anything else, and someone at GridX will get back to you. A real person reads every
+              request.</p>
 
             <div class="contact__actions">
-              <a class="contact__btn" href="tel:+919220199098" data-press>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.3c.5 0 .9.3 1 .8l.7 3.1c.1.4 0 .8-.3 1.1L8.8 10a11.5 11.5 0 0 0 5.2 5.2l1.5-1.5c.3-.3.7-.4 1.1-.3l3.1.7c.5.1.8.5.8 1v2.3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/></svg>
-                <span>Call GridX</span>
+              <a class="contact__btn" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20was%20on%20your%20Support%20page.%20Please%20call%20me%20back."
+                 target="_blank" rel="noopener" data-support-open="callback"
+                 aria-haspopup="dialog" aria-controls="support-sheet" data-press>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.3c.5 0 .9.3 1 .8l.7 3.1c.1.4 0 .8-.3 1.1L8.8 10a11.5 11.5 0 0 0 5.2 5.2l1.5-1.5c.3-.3.7-.4 1.1-.3l3.1.7c.5.1.8.5.8 1v2.3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/><path d="M19.5 4.5 15 9"/><path d="M15 5.5V9h3.5"/></svg>
+                <span>Request a callback</span>
               </a>
-              <a class="contact__btn" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20need%20help%20with%20my%20PowerPod." target="_blank" rel="noopener" data-press>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
-                <span>WhatsApp GridX</span>
+              <a class="contact__btn" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20was%20on%20your%20Support%20page%20and%20need%20some%20help."
+                 target="_blank" rel="noopener" data-support-open="message"
+                 aria-haspopup="dialog" aria-controls="support-sheet" data-press>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5 5.6 15 15.8 4.8a2.1 2.1 0 0 1 3 3L8.6 18l-4.1 1.5z"/><path d="m14 6.6 3 3"/></svg>
+                <span>Write to us</span>
               </a>
+            </div>
+
+            <div class="contact__block">
+              <h3 class="contact__label">Call or WhatsApp</h3>
+              <div class="contact__actions">
+                <a class="contact__btn contact__btn--quiet" href="tel:+919220199098" data-press>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.3c.5 0 .9.3 1 .8l.7 3.1c.1.4 0 .8-.3 1.1L8.8 10a11.5 11.5 0 0 0 5.2 5.2l1.5-1.5c.3-.3.7-.4 1.1-.3l3.1.7c.5.1.8.5.8 1v2.3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/></svg>
+                  <span>Call GridX</span>
+                </a>
+                <a class="contact__btn contact__btn--quiet" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20need%20help%20with%20my%20PowerPod." target="_blank" rel="noopener" data-press>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span>WhatsApp GridX</span>
+                </a>
+              </div>
             </div>
 
             <div class="contact__block">
@@ -203,7 +225,7 @@
         <div class="disclose__panel" id="faq-panel">
           <div class="disclose__inner">
             <ul class="faq__list">
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="can-i-charge-my-powerpod-to-100-every-time">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-1">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -220,7 +242,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="does-charging-fully-and-often-wear-the-battery">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-2">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -238,7 +260,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="why-did-my-charge-percentage-look-wrong">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-3">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -257,7 +279,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="how-do-i-charge-my-powerpod">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-4">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -279,7 +301,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="how-long-does-a-charge-take">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-5">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -295,7 +317,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="how-do-i-see-how-much-charge-is-left">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-6">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -313,7 +335,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="what-does-the-warranty-cover">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-7">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -337,7 +359,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="what-should-i-never-do-with-my-powerpod">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-8">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -360,7 +382,7 @@
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="my-powerpod-looks-smells-or-feels-wrong">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-9">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -382,14 +404,14 @@
                         <li>Repeated faults, or cutting out again and again</li>
                       </ul>
                       <p>Do not try to repair, open, cool, bag or bin it. <a class="story__link" href="tel:+919220199098">Call GridX</a> or
-                        <a class="story__link" href="https://wa.me/919220199098">WhatsApp GridX</a>, or speak to your GridX
+                        <a class="story__link" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20something%20is%20wrong%20with%20my%20PowerPod%20and%20I%20have%20stopped%20using%20it.">WhatsApp GridX</a>, or speak to your GridX
                         Authorised Dealer, and raise a claim in the GridXenergy app so the pod's own data goes with
                         it. Reporting early costs you nothing.</p>
                     </div>
                   </div>
                 </div>
               </li>
-              <li class="faq__item disclose">
+              <li class="faq__item disclose" data-faq-id="what-should-i-do-in-the-unlikely-event-of-a-fire">
                 <h3 class="faq__q disclose__head">
                   <button class="disclose__toggle" type="button" aria-expanded="false" aria-controls="faq-10">
                     <svg class="disclose__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.75 5.5 15.25 12l-6.5 6.5"/></svg>
@@ -436,7 +458,7 @@
             <ul class="manuals__list">
               <li>
                 <a class="manuals__link" href="assets/manuals/powerpod-gen2-user-manual.pdf"
-                   download="GridX PowerPod Gen 2 User Manual.pdf" data-press>
+                   download="GridX PowerPod Gen 2 User Manual.pdf" data-manual-id="powerpod-gen2-user-manual" data-press>
                   <svg class="manuals__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h6.5L18 8v11.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M13.5 3.5V8H18"/><path d="M9 12.5h6M9 16h4"/></svg>
                   <span class="manuals__name">
                     <span class="manuals__title">PowerPod Gen 2 User Manual</span>
@@ -452,6 +474,163 @@
       </section>
     </div>
   </main>
+
+  <!-- The contact form: a callback or a message, sent to Paddock. assets/support-form.js gives it
+       its behaviour and assets/support-form.css its contents; the glass, the slide and the ways
+       to dismiss it are sheet.css and sheet.js. Opened by anything carrying data-support-open,
+       by #callback and #write, and from a tracked order. The questions and their wording match
+       Paddock's own checks, so what the form accepts the server accepts. -->
+  <dialog class="story story--support" id="support-sheet" aria-labelledby="support-title">
+    <div class="story__grabber" aria-hidden="true"></div>
+    <button class="story__close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+    </button>
+
+    <form class="support" id="support-form" novalidate>
+      <div class="story__scroll">
+        <div class="support__ask" id="support-ask">
+          <h2 class="support__headline" id="support-title">How can we help?</h2>
+          <p class="support__lede" id="support-lede">Leave your number and someone at GridX will call you back.</p>
+
+          <fieldset class="choices support__kind" id="s-kind">
+            <legend class="field__label">How should we get back to you?</legend>
+            <div class="choices__list">
+              <label class="choice">
+                <input class="choice__input" type="radio" name="kind" value="callback">
+                <span class="choice__label">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.3c.5 0 .9.3 1 .8l.7 3.1c.1.4 0 .8-.3 1.1L8.8 10a11.5 11.5 0 0 0 5.2 5.2l1.5-1.5c.3-.3.7-.4 1.1-.3l3.1.7c.5.1.8.5.8 1v2.3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/></svg>
+                  Call me back
+                </span>
+              </label>
+              <label class="choice">
+                <input class="choice__input" type="radio" name="kind" value="message">
+                <span class="choice__label">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5 5.6 15 15.8 4.8a2.1 2.1 0 0 1 3 3L8.6 18l-4.1 1.5z"/><path d="m14 6.6 3 3"/></svg>
+                  Write to us
+                </span>
+              </label>
+            </div>
+            <p class="field__err" id="es-kind" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="choices" id="s-topic">
+            <legend class="field__label">What is it about?</legend>
+            <div class="choices__list">
+              <label class="choice"><input class="choice__input" type="radio" name="topic" value="order"><span class="choice__label">My order</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="topic" value="product"><span class="choice__label">PowerPod</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="topic" value="charging"><span class="choice__label">Charging</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="topic" value="dealer"><span class="choice__label">A dealer</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="topic" value="other"><span class="choice__label">Something else</span></label>
+            </div>
+            <p class="field__err" id="es-topic" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="field support__reveal" id="s-ref-field" hidden>
+            <label class="field__label" for="s-ref">Order reference <span class="field__opt">optional</span></label>
+            <input class="field__input" id="s-ref" name="orderRef" type="text" maxlength="40"
+                   autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"
+                   placeholder="GX-XXXXXXXXXX" aria-describedby="hs-ref es-ref">
+            <p class="field__hint" id="hs-ref">From your invoice or your WhatsApp confirmation.</p>
+            <p class="field__err" id="es-ref"></p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="s-name">Your name</label>
+            <input class="field__input" id="s-name" name="name" type="text" maxlength="80"
+                   autocomplete="name" autocapitalize="words" spellcheck="false" aria-describedby="es-name">
+            <p class="field__err" id="es-name"></p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="s-phone">Mobile number</label>
+            <input class="field__input" id="s-phone" name="phone" type="tel" maxlength="16"
+                   inputmode="tel" autocomplete="tel" placeholder="10 digit mobile number"
+                   aria-describedby="hs-phone es-phone">
+            <p class="field__hint" id="hs-phone">We will call you on this number, and send your confirmation here on WhatsApp.</p>
+            <p class="field__err" id="es-phone"></p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="s-email">Email <span class="field__opt">optional</span></label>
+            <input class="field__input" id="s-email" name="email" type="email" maxlength="160"
+                   inputmode="email" autocomplete="email" spellcheck="false" aria-describedby="hs-email es-email">
+            <p class="field__hint" id="hs-email">Only if you would like a copy by email too.</p>
+            <p class="field__err" id="es-email"></p>
+          </div>
+
+          <fieldset class="choices support__times support__reveal" id="s-time-field">
+            <legend class="field__label">When suits you?</legend>
+            <div class="choices__list">
+              <label class="choice"><input class="choice__input" type="radio" name="preferredTime" value="morning"><span class="choice__label">Morning</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="preferredTime" value="afternoon"><span class="choice__label">Afternoon</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="preferredTime" value="evening"><span class="choice__label">Evening</span></label>
+              <label class="choice"><input class="choice__input" type="radio" name="preferredTime" value="any"><span class="choice__label">Any time</span></label>
+            </div>
+            <p class="field__err" id="es-time" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="field">
+            <label class="field__label" for="s-message" id="ls-message">What would you like to talk about?</label>
+            <textarea class="field__input" id="s-message" name="message" rows="4"
+                      autocapitalize="sentences" aria-describedby="hs-message es-message"
+                      placeholder="Tell us what is happening, and anything we should know."></textarea>
+            <div class="field__foot">
+              <p class="field__hint" id="hs-message">A sentence or two is plenty.</p>
+              <p class="field__err" id="es-message"></p>
+              <p class="field__count" id="cs-message" aria-hidden="true">0 / 2,000</p>
+            </div>
+          </div>
+
+          <label class="check support__consent" id="s-consent-field">
+            <input class="check__input" type="checkbox" name="consent" id="s-consent" aria-describedby="es-consent">
+            <span class="check__box" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.5 3.5 7.5-8"/></svg>
+            </span>
+            <span class="check__label">I agree to GridX contacting me about this request by phone,
+              WhatsApp or email, as set out in the
+              <a href="privacy_policy.html#support-requests" target="_blank" rel="noopener">privacy policy</a>.</span>
+          </label>
+          <p class="field__err" id="es-consent"></p>
+
+          <!-- For scripts, not people: out of sight, out of the tab order and hidden from screen
+               readers. Anything in it, and Paddock quietly keeps nothing. -->
+          <div class="support__trap" aria-hidden="true">
+            <label for="s-company">Company website</label>
+            <input id="s-company" name="company_website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Revealed in place once Paddock has the request. -->
+        <div class="support__done" id="support-done" hidden>
+          <span class="support__done-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.5 3.5 7.5-8"/></svg>
+          </span>
+          <h3 class="support__done-title" id="support-done-title" tabindex="-1">We have your request.</h3>
+          <div class="support__ref">
+            <p class="support__ref-label">Your reference</p>
+            <p class="support__ref-value" id="support-done-ref"></p>
+          </div>
+          <p class="support__done-line">We have sent a WhatsApp confirmation to your number.</p>
+          <p class="support__done-line" id="support-done-when"></p>
+          <p class="support__done-note">Quote your reference if you get in touch about this again.</p>
+        </div>
+      </div>
+
+      <div class="support__foot">
+        <p class="support__promise" id="support-promise">
+          <span class="support__promise-label" id="support-promise-label">Monday to Friday</span>
+          <span class="support__promise-value" id="support-promise-value">11 AM to 6 PM</span>
+        </p>
+        <button class="support__send" id="support-send" type="submit" aria-disabled="true" aria-describedby="support-hint">
+          <span id="support-send-label">Request callback</span>
+        </button>
+        <button class="support__send support__finish" id="support-finish" type="button" hidden>Done</button>
+        <p class="support__hint" id="support-hint" role="status" aria-live="polite"></p>
+        <!-- Google's terms for hiding the reCAPTCHA badge: say so where the check happens. -->
+        <p class="support__legal">Protected by reCAPTCHA: Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.</p>
+      </div>
+    </form>
+  </dialog>
 
   <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
        the dark. Copied into every page the way the island nav is: the address and the sitemap
@@ -491,7 +670,7 @@
             <h3 class="credits__label">Connect</h3>
             <ul class="credits__list credits__list--social">
               <li>
-                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                <a class="credits__link" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20was%20on%20your%20Support%20page%20and%20have%20a%20question." target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
                   <span class="credits__social-label">WhatsApp</span>
                 </a>
@@ -524,27 +703,34 @@
           </div>
         </div>
 
-        <!-- terms.html and privacy.html are not written yet; the links are here so the footer
-             is finished and the pages can drop in behind them. -->
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
         <div class="credits__legal">
-          <a href="terms.html">Terms &amp; Conditions</a>
-          <a href="privacy.html">Privacy Policy</a>
+          <a href="privacy_policy.html">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html">Privacy Policy</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- gridx-api.js first: track.js and analytics.js both reach Paddock through it. -->
+  <!-- gridx-api.js first: track.js, the contact form and analytics.js all reach Paddock
+       through it. -->
   <script src="assets/gridx-api.js"></script>
   <script src="assets/grid-bg.js"></script>
+  <!-- sheet.js and keyboard.js before the contact form, which takes its behaviour from them. -->
+  <script src="assets/sheet.js"></script>
+  <script src="assets/keyboard.js"></script>
   <!-- disclose.js before track.js, which opens the form through it. -->
   <script src="assets/disclose.js"></script>
+  <script src="assets/hours.js"></script>
   <script src="assets/contact.js"></script>
   <script src="assets/track.js"></script>
+  <script src="assets/support-form.js"></script>
   <script src="assets/topbar.js"></script>
   <script src="assets/footer.js"></script>
-  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <!-- First party, cookieless analytics. What it collects, and what it never does: see the top
+       of assets/analytics.js. -->
   <script src="assets/analytics.js" defer></script>
 </body>
 </html>

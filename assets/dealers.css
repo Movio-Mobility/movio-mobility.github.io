@@ -1,0 +1,849 @@
+/*
+ * The dealers page.
+ *
+ * Built from the store's parts rather than beside them: .store is the container (top bar and
+ * nav pill clearance, gutters, the 18/24px radius), .store-kicker the heading, the cards are
+ * the .ask-card glass (store.css), the chips are the choice pills (fields.css), the black pill
+ * is the nav island's (contact.css .contact__btn). This file is only what a list of dealers
+ * needs on top: the cards' insides, the city chips, the search dock and the states.
+ *
+ * MOBILE FIRST. One column of cards on a phone, two from 760px, three from 1200px. The search
+ * dock is fixed above the nav pill, and while a phone's keyboard is up it rides on top of the
+ * keyboard instead (html.is-typing and --vv-top/--vv-h, from assets/keyboard.js).
+ *
+ * COST. Each card is content-visibility: auto, so a long list costs only the cards on screen,
+ * and the only live effects are the glass blurs the store already pays for. Nothing animates
+ * at rest; the entrance, a found card's light and the loading cards' breathing are one-off or
+ * short-lived CSS animations, never a script running per frame.
+ */
+
+/* ---------------------------------------------------------------- the page */
+.dealers {
+  --dock-h: 56px;
+  --pill-h: 56px;          /* the nav island on a phone (site.css) */
+  --dock-gap: 0.625rem;    /* between the dock and the island */
+  --dock-bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--pill-h) + var(--dock-gap));
+  padding-bottom: calc(var(--dock-bottom) + var(--dock-h) + 2.5rem);
+}
+
+/* Tablets: the island is 52px tall and still at the bottom right. */
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .dealers { --pill-h: 52px; }
+}
+@media (max-width: 759px) {
+  .dealers { --pill-h: 56px; }
+}
+/* Desktop pointer: the island is in the top bar, so the dock has the bottom to itself. */
+@media (min-width: 1025px) and (hover: hover), (min-width: 1025px) and (pointer: fine) {
+  .dealers {
+    --pill-h: 0px;
+    --dock-gap: 0px;
+    --dock-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    padding-bottom: calc(var(--dock-bottom) + var(--dock-h) + 3.5rem);
+  }
+}
+
+/* ---------------------------------------------------------------- intro */
+.dealers-intro {
+  max-width: 40rem;
+  margin-bottom: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.dealers-intro .store-kicker { margin-bottom: 0.65rem; }
+
+.dealers-lede {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(1.05rem, 0.4vw + 0.95rem, 1.25rem);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: rgb(20 20 20 / 0.62);
+  text-wrap: pretty;
+}
+
+/* "12 dealers in 5 cities", or what the search found. Holds its line while it is empty. */
+.dealers-count {
+  min-height: 1.5em;
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.5);
+}
+
+/* ---------------------------------------------------------------- city chips */
+/* A row that swipes edge to edge on a phone, the way the store's accessories do, and wraps
+   once there is room. The padding leaves space for a chip's focus ring and shadow. */
+.dealers-cities {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 calc(-1 * var(--gutter-r)) 0.5rem calc(-1 * var(--gutter-l));
+  padding: 0.25rem var(--gutter-r) 0.75rem var(--gutter-l);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--gutter-l) var(--gutter-r);
+  scrollbar-width: none;
+}
+.dealers-cities::-webkit-scrollbar { display: none; }
+
+/* Chips filter the list, which needs the script; without it they would only mislead. While
+   the list is on its way they keep their row, so the cards land where they will stay. */
+html:not(.js) .dealers-cities { display: none; }
+html.js .dealers-cities:empty { display: none; }
+
+/* While the list is on its way, the count and two chips in outline, the loading cards' kin. */
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-cities:empty { display: flex; }
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-cities:empty::before,
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-cities:empty::after,
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-count:empty::before {
+  content: "";
+  flex: none;
+  display: block;
+  height: 44px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.3);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  animation: dealer-breathe 1.6s ease-in-out infinite alternate;
+}
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-cities:empty::before { width: 3.6rem; }
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-cities:empty::after { width: 7.5rem; }
+html.js .dealers:not(.is-loaded):not(.is-error) .dealers-count:empty::before {
+  width: 8.5rem;
+  height: 0.75rem;
+  margin-top: 0.4rem;
+  background: rgb(20 20 20 / 0.07);
+  box-shadow: none;
+}
+
+/* The choice pill (fields.css .choice__label), on glass because it floats on the field. */
+.dealers-city {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0 1.05rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.42);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 0 0 1px rgb(20 20 20 / 0.1);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: rgb(20 20 20 / 0.74);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  transition:
+    box-shadow 0.22s var(--ease-out),
+    background-color 0.22s var(--ease-out),
+    color 0.22s var(--ease-out),
+    transform 0.34s var(--spring);
+}
+
+.dealers-city:active { transform: scale(0.97); }
+.dealers-city:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.dealers-city[aria-pressed="true"] {
+  background: rgb(255 255 255 / 0.78);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 0 0 2px var(--ink);
+  color: var(--ink);
+}
+
+.dealers-city__n {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.42);
+}
+
+@media (hover: hover) {
+  .dealers-city[aria-pressed="false"]:hover {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.45),
+      inset 0 0 0 1px rgb(20 20 20 / 0.3);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dealers-city { background-color: rgb(236 236 234 / 0.9); }
+}
+
+/* ---------------------------------------------------------------- note */
+/* What the finder wants to say about the results: near me, a pincode with no dealer yet. */
+.dealers-note {
+  max-width: 44rem;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.62);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+.dealers-note[hidden] { display: none; }
+
+/* ---------------------------------------------------------------- the list */
+.dealers-list,
+.dealers-loading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------------------------------------------------------------- a card */
+/* The .ask-card glass, holding a photo across its top and the dealer beneath. The card is the
+   <li>, so content-visibility skips whole cards off screen; its own shadow is not content and
+   is never clipped by that, while the photo is clipped to the rounded corners. */
+.dealer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--store-radius);
+  background:
+    radial-gradient(120% 70% at 12% 0%, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 60%),
+    linear-gradient(160deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.07) 48%, rgb(255 255 255 / 0.12));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.2),
+    inset 0 -1px 0 rgb(20 20 20 / 0.05),
+    0 16px 36px -22px rgb(20 20 20 / 0.3);
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 560px;
+}
+.dealer[hidden] { display: none; }
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dealer { background-color: rgb(226 226 224 / 0.82); }
+}
+
+/* Before a jump to one dealer, every card is laid out at its real height (dealers.js). */
+.dealers-list.is-measuring .dealer { content-visibility: visible; }
+
+/* The photo: 16:10, as Paddock's editor previews it. A hairline of light along its foot,
+   where the glass begins. */
+.dealer__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: rgb(20 20 20 / 0.06);
+}
+
+.dealer__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.3);
+  pointer-events: none;
+}
+
+.dealer__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* No photo. On a phone the card is simply its words; in a grid the outline pin holds the
+   photo's place, so a row of cards still lines up (the store's unphotographed chargers). */
+.dealer__media--mark { display: none; }
+
+.dealer__media--mark svg {
+  width: clamp(40px, 14%, 64px);
+  height: auto;
+  fill: none;
+  stroke: rgb(20 20 20 / 0.28);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dealer__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(1.15rem, 4.6vw, 1.5rem);
+}
+
+.dealer__name {
+  margin: 0;
+  font-size: clamp(1.2rem, 0.4vw + 1.1rem, 1.4rem);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.dealer__where {
+  margin: 0.3rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgb(20 20 20 / 0.5);
+}
+
+.dealer__dist {
+  font-variant-numeric: tabular-nums;
+  color: rgb(20 20 20 / 0.78);
+}
+
+.dealer__address {
+  margin: 0.85rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.66);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+/* Open or closed, right now, in India (hours.js). The contact block's dots: filled for open,
+   hollow for closed, so the answer reads at a glance without a colour of its own. */
+.dealer__now {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.9rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.dealer__now::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgb(20 20 20 / 0.28);
+}
+
+.dealer__now.is-open::before {
+  background: var(--ink);
+  box-shadow: none;
+}
+
+/* Prerendered blank, so the line keeps its height until the script writes it. Without the
+   script there is nothing live to say, and the week's hours below say it all. */
+.dealer__now.is-pending { visibility: hidden; }
+html:not(.js) .dealer__now { display: none; }
+
+.dealer__hours,
+.dealer__note {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.52);
+  text-wrap: pretty;
+}
+
+.dealer__where + .dealer__hours,
+.dealer__address + .dealer__hours { margin-top: 0.9rem; }
+
+/* What the dealer does: the store's quiet tags, in sentence case. */
+.dealer__services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dealer__services li {
+  padding: 0.34em 0.72em;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: rgb(20 20 20 / 0.62);
+  background: rgb(20 20 20 / 0.05);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+}
+
+/* Call, WhatsApp, Directions, Share: equal keys along the foot of the card, icon over label.
+   Call is the island's black, the rest are glass. margin-top: auto keeps them on one line
+   across a row of cards of different heights. */
+.dealer__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.dealer__act {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  min-width: 0;
+  min-height: 60px;
+  padding: 0.55rem 0.25rem;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.48);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 0 0 1px rgb(255 255 255 / 0.3);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.35s var(--spring), background-color 0.2s ease;
+}
+
+.dealer__act span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dealer__act svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dealer__act--call {
+  background: #000;
+  color: #fff;
+  box-shadow:
+    0 12px 28px -16px rgb(0 0 0 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.dealer__act:active { transform: scale(0.97); }
+.dealer__act:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+@media (hover: hover) {
+  .dealer__act:not(.dealer__act--call):hover { background: rgb(255 255 255 / 0.72); }
+}
+
+/* Share needs the script (the share sheet, or a copy); without it the key would do nothing. */
+html:not(.js) .dealer__act--share { display: none; }
+
+/* ---------------------------------------------------------------- a linked card */
+/* dealers.html#d-<slug>: a band of light crosses the glass once, the way light catches a
+   pane as it turns, and an ink rim holds the card for a moment, then lets it go. */
+.dealer::before,
+.dealer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.dealer::after { box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+.dealer::before {
+  background: linear-gradient(105deg, rgb(255 255 255 / 0) 30%, rgb(255 255 255 / 0.5) 50%, rgb(255 255 255 / 0) 70%);
+  transform: translate3d(-100%, 0, 0);
+}
+
+.dealer:target::after,
+.dealer.is-target::after { animation: dealer-rim 2.6s var(--ease-out) both; }
+
+.dealer:target::before,
+.dealer.is-target::before { animation: dealer-sheen 1.5s var(--ease-gentle) 0.2s both; }
+
+@keyframes dealer-rim {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes dealer-sheen {
+  0% { opacity: 1; transform: translate3d(-100%, 0, 0); }
+  100% { opacity: 1; transform: translate3d(100%, 0, 0); }
+}
+
+/* ---------------------------------------------------------------- loading */
+/* Cards in outline while the list is on its way (a build without data). Only with the
+   script, which is what fetches it, and only while the list is still empty. */
+.dealers-loading { display: none; }
+html.js .dealers:not(.is-error) .dealers-list:empty + .dealers-loading { display: grid; }
+
+.dealer-ghost {
+  overflow: hidden;
+  border-radius: var(--store-radius);
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.08));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    inset 0 0 0 1px rgb(255 255 255 / 0.18);
+  animation: dealer-breathe 1.6s ease-in-out infinite alternate;
+}
+
+.dealer-ghost:nth-child(3) { display: none; }
+
+.dealer-ghost__media {
+  aspect-ratio: 16 / 10;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.dealer-ghost__body {
+  display: grid;
+  gap: 0.7rem;
+  padding: clamp(1.15rem, 4.6vw, 1.5rem);
+}
+
+.dealer-ghost__body span {
+  display: block;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: rgb(20 20 20 / 0.07);
+}
+
+.dealer-ghost__body span:nth-child(1) { width: 55%; height: 1.2rem; }
+.dealer-ghost__body span:nth-child(2) { width: 35%; }
+.dealer-ghost__body span:nth-child(3) { width: 82%; }
+.dealer-ghost__body span:nth-child(4) { width: 60%; margin-top: 1.4rem; height: 3.6rem; border-radius: 14px; }
+
+@keyframes dealer-breathe {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------- empty and error */
+/* The .ask-card glass, stacked at every width: a heading, a line, and what to do. */
+.dealers-state {
+  justify-items: start;
+  gap: 0.75rem;
+}
+.dealers-state[hidden] { display: none; }
+
+.dealers-state__title {
+  margin: 0;
+  font-size: clamp(1.2rem, 0.5vw + 1.05rem, 1.45rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.dealers-state__line {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgb(20 20 20 / 0.62);
+  text-wrap: pretty;
+}
+
+.dealers-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 0.4rem;
+}
+
+.dealers-state .contact__btn { border: 0; font-family: inherit; cursor: pointer; }
+
+.dealers-state__link {
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.dealers-state__link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+/* Without the script, the "needs JavaScript" card shows only when there are no cards. */
+.dealers-list:not(:empty) ~ noscript .dealers-nojs { display: none; }
+
+/* ---------------------------------------------------------------- the search dock */
+/* A capsule of the same glass, a little denser so the words in it stay crisp over the
+   field: the search icon, the field, a clear key, and "Near me" in the island's black. */
+.dealer-dock {
+  position: fixed;
+  right: var(--gutter-r);
+  bottom: var(--dock-bottom);
+  left: var(--gutter-l);
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: var(--dock-h);
+  margin: 0;
+  padding: 0 6px 0 1rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(120% 160% at 10% 0%, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0) 60%),
+    rgb(240 240 238 / 0.62);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.65),
+    inset 0 0 0 1px rgb(255 255 255 / 0.35),
+    0 18px 40px -18px rgb(20 20 20 / 0.45);
+  transition: box-shadow 0.25s var(--ease-out);
+}
+
+/* The rim marks the field being typed in, not a tap on Near me. */
+.dealer-dock:has(.dealer-dock__input:focus) {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.65),
+    inset 0 0 0 1.5px var(--ink),
+    0 18px 40px -18px rgb(20 20 20 / 0.45);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dealer-dock { background: rgb(238 238 236 / 0.96); }
+}
+
+html:not(.js) .dealer-dock { display: none; }
+/* Once the footer's lights are down, it takes no taps (footer.css does the same for the bar). */
+html.is-lights-out .dealer-dock { pointer-events: none; }
+
+/* The keyboard is up: the dock sits on it, inside what is still visible (keyboard.js). */
+html.is-typing .dealer-dock {
+  top: calc(var(--vv-top, 0px) + var(--vv-h, 100vh));
+  bottom: auto;
+  translate: 0 calc(-100% - 0.75rem);
+}
+
+.dealer-dock__icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: rgb(20 20 20 / 0.5);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+/* .field__input only so keyboard.js knows it raises a keyboard; none of the field's box. */
+.dealer-dock__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  padding: 0 0.25rem 0 0.6rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 1rem; /* 16px: anything smaller makes iOS zoom the page on focus */
+  color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+.dealer-dock__input::placeholder { color: rgb(20 20 20 / 0.42); }
+.dealer-dock__input::-webkit-search-cancel-button,
+.dealer-dock__input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+
+.dealer-dock__clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 0.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(20 20 20 / 0.08);
+  color: rgb(20 20 20 / 0.62);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.dealer-dock__clear[hidden] { display: none; }
+.dealer-dock__clear svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.dealer-dock__clear:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.dealer-dock__near {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 44px;
+  padding: 0 1.05rem 0 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  box-shadow:
+    0 10px 24px -14px rgb(0 0 0 / 0.6),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.4s var(--spring);
+}
+
+.dealer-dock__near svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease;
+}
+
+.dealer-dock__near[aria-pressed="true"] svg { fill: currentColor; }
+.dealer-dock__near.is-busy svg { animation: dealer-breathe 0.7s ease-in-out infinite alternate; }
+.dealer-dock__near:active { transform: scale(0.97); }
+.dealer-dock__near:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------- entrance */
+/* The store's rise (store.css): the words, the chips and the dock, then the first row of
+   cards, which are the only ones on the first screen. Only those: a card further down is
+   skipped by content-visibility until it is scrolled to, and would rise then instead.
+   is-entering is taken off once it has played (dealers.js), so a card the finder moves to
+   the top later does not rise a second time. */
+.dealers-lede,
+.dealers-count,
+.dealers-cities,
+.dealer-dock {
+  animation: store-rise 0.9s var(--ease-out) backwards;
+  animation-delay: calc(80ms + var(--i, 0) * 70ms);
+}
+.dealer-dock { --i: 4; }
+
+.dealers.is-entering .dealer:nth-child(-n+2),
+.dealers.is-entering .dealer-ghost {
+  animation: store-rise 0.9s var(--ease-out) backwards;
+  animation-delay: 360ms;
+}
+.dealers.is-entering .dealer:nth-child(2),
+.dealers.is-entering .dealer-ghost:nth-child(2) { animation-delay: 430ms; }
+.dealers.is-entering .dealer-ghost:nth-child(3) { animation-delay: 500ms; }
+
+/* ---------------------------------------------------------------- tablet and up */
+@media (min-width: 760px) {
+  .dealers-cities {
+    flex-wrap: wrap;
+    margin: 0 0 0.75rem;
+    padding: 0.25rem 0 0.5rem;
+    overflow: visible;
+  }
+
+  .dealers-list,
+  .dealers-loading {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .dealer { contain-intrinsic-size: auto none auto 600px; }
+
+  .dealer__media--mark {
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(70% 90% at 30% 10%, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 70%),
+      rgb(20 20 20 / 0.035);
+  }
+
+  .dealer-ghost:nth-child(3) { display: block; }
+
+  /* ask-card puts its line and its button side by side here; a state card stays stacked. */
+  .dealers-state {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  /* Centred, the width of a comfortable search field. */
+  .dealer-dock {
+    right: 0;
+    left: 0;
+    width: min(34rem, calc(100% - var(--gutter-l) - var(--gutter-r)));
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dealers-list,
+  .dealers-loading { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .dealers.is-entering .dealer:nth-child(3) {
+    animation: store-rise 0.9s var(--ease-out) backwards;
+    animation-delay: 500ms;
+  }
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dealers-lede,
+  .dealers-count,
+  .dealers-cities,
+  .dealer-dock,
+  .dealers.is-entering .dealer:nth-child(-n+3),
+  .dealers.is-entering .dealer-ghost {
+    animation-name: store-fade;
+    animation-duration: 0.5s;
+    animation-delay: 0s;
+  }
+  .dealer:target::before,
+  .dealer.is-target::before { animation: none; }
+  .dealer-ghost,
+  .dealer-dock__near.is-busy svg,
+  .dealers-cities:empty::before,
+  .dealers-cities:empty::after,
+  .dealers-count:empty::before { animation: none; }
+  .dealers-city,
+  .dealer__act,
+  .dealer-dock__near { transition: background-color 0.2s ease, box-shadow 0.2s ease; }
+  .dealers-city:active,
+  .dealer__act:active,
+  .dealer-dock__near:active { transform: none; }
+}

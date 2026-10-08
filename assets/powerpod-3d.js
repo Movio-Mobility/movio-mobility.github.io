@@ -11,7 +11,12 @@
  * geometry here must be made there too. Home was left on its inline copy so that adding a
  * product page could not regress the film on the front door.
  *
- * Requires THREE and the GEO/LOGO globals from powerpod-data.js to already be loaded.
+ * Takes what GridPodAssets.load() resolves to (assets/pod-assets.js) as `assets`: THREE, the
+ * binary model and the logo's URL.
+ *
+ * mount() resolves to the handle once the pod is ready to draw. It builds in idle slices and
+ * compiles every material before the first frame, a part at a time, so building the pod never
+ * holds the page for longer than one of those parts takes.
  */
 (() => {
   'use strict';
@@ -36,13 +41,17 @@
     };
   }
 
-  function mount(opts) {
+  // Waits for an idle moment between the steps of building the pod (assets/perf.js).
+  const slice = () => (window.GridPerf ? window.GridPerf.nextIdle(400) : new Promise((resolve) => setTimeout(resolve, 0)));
+
+  async function mount(opts) {
     const o = opts || {};
     const canvas = o.canvas;
-    if (!canvas || !window.THREE || typeof GEO === 'undefined') return null;
+    const assets = o.assets;
+    if (!canvas || !assets || !assets.THREE || !assets.model) return null;
 
     try {
-      const THREE = window.THREE;
+      const THREE = assets.THREE;
       const coarse = window.matchMedia('(pointer: coarse)').matches;
       const phone = o.phone !== undefined
         ? o.phone
@@ -56,6 +65,8 @@
         alpha: true,
         powerPreference: phone ? 'low-power' : 'high-performance',
         premultipliedAlpha: true,
+        // A software-only context would be a slideshow; the page keeps its poster instead.
+        failIfMajorPerformanceCaveat: true,
       });
       // A starting value only. applySize() sets the real one before the first frame, which is
       // this capped by buffer area as well (see podPixelRatio).
@@ -96,10 +107,20 @@
         P(1300, 700, 20, 0, 120, -820, 0xffffff, 1.2);     // back wall
         return s;
       }
+      // Only the environment map is kept: the generator's own targets and shaders, and the room
+      // it photographed, are handed back. (fromScene() never needed the equirectangular shader
+      // this used to compile as well.)
+      await slice();
       const pm = new THREE.PMREMGenerator(renderer);
-      pm.compileEquirectangularShader();
-      const envRT = pm.fromScene(studio(), 0.035);
+      const room = studio();
+      const envRT = pm.fromScene(room, 0.035);
       scene.environment = envRT.texture;
+      pm.dispose();
+      room.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) obj.material.dispose();
+      });
+      await slice();
 
       function grain(size, amt) {
         const c = document.createElement('canvas');
@@ -118,43 +139,6 @@
         return t;
       }
       const GRAIN = grain(256, 86);
-
-      function decode(src) {
-        const vb = atob(src.v);
-        const pos = new Float32Array(src.nv * 3);
-        for (let i = 0; i < src.nv * 3; i++) {
-          const k = i * 2;
-          const q = vb.charCodeAt(k) | (vb.charCodeAt(k + 1) << 8);
-          pos[i] = src.lo[i % 3] + q * src.sc[i % 3];
-        }
-        const nb = atob(src.n);
-        const nor = new Float32Array(src.nv * 3);
-        for (let i = 0; i < src.nv * 3; i++) {
-          let c = nb.charCodeAt(i);
-          if (c > 127) c -= 256;
-          nor[i] = c / 127;
-        }
-        const fb = atob(src.f);
-        const idx = new Uint16Array(src.nf * 3);
-        for (let i = 0; i < src.nf * 3; i++) {
-          const k = i * 2;
-          idx[i] = fb.charCodeAt(k) | (fb.charCodeAt(k + 1) << 8);
-        }
-        const g = new THREE.BufferGeometry();
-        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
-        const uv = new Float32Array(src.nv * 2);
-        for (let i = 0; i < src.nv; i++) {
-          uv[i * 2] = pos[i * 3] * 0.01;
-          uv[i * 2 + 1] = pos[i * 3 + 1] * 0.01;
-        }
-        g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
-        g.setIndex(new THREE.BufferAttribute(idx, 1));
-        g.addGroup(0, src.split * 3, 0);
-        g.addGroup(src.split * 3, (src.nf - src.split) * 3, 1);
-        g.computeBoundingBox();
-        return g;
-      }
 
       // The caps: moulded black with a soft satin coat, not a lacquer.
       const pc = new THREE.MeshPhysicalMaterial({
@@ -191,15 +175,21 @@
 
       const pod = new THREE.Group();
       scene.add(pod);
-      const mesh = new THREE.Mesh(decode(GEO), [pc, alu]);
+      // From the binary model: identical to what decode() built from the old base64 globals.
+      const mesh = new THREE.Mesh(window.GridPodAssets.geometry(THREE, assets.model), [pc, alu]);
       pod.add(mesh);
       pod.rotation.z = Math.PI / 2; // local +X becomes world +Y: the pod stands up
       const bb = mesh.geometry.boundingBox;
       const HALF = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y, bb.max.z - bb.min.z) / 2;
       const BASE = bb.min.x; // the connector end, which lands at the bottom once rotated
 
-      if (typeof LOGO !== 'undefined') {
-        new THREE.TextureLoader().load(LOGO, (t) => {
+      // The decals arrive with their texture; the warm-up below waits for them, briefly, so their
+      // program is built with the others rather than on the frame they first appear.
+      let logoDone;
+      const logoReady = new Promise((resolve) => { logoDone = resolve; });
+      if (!assets.logoUrl) logoDone();
+      else {
+        new THREE.TextureLoader().load(assets.logoUrl, (t) => {
           t.encoding = THREE.sRGBEncoding;
           t.anisotropy = 8;
           const LEN = 258, WID = LEN / 8, FACE = 66.11, LIFT = 0.4, SHIFT = -20, ALONG = -4;
@@ -221,8 +211,10 @@
               .addScaledVector(ey, SHIFT).addScaledVector(ex, ALONG);
             pod.add(m);
           });
-        });
+          logoDone();
+        }, undefined, () => logoDone());
       }
+      await slice();
 
       (function connector() {
         const brass = new THREE.MeshPhysicalMaterial({
@@ -364,8 +356,8 @@
 
         // Lens shift in fractions of the canvas box. Positive y lifts the subject in frame,
         // negative drops it. Pages use it to keep the pod clear of overlaid chrome.
-        const w = Math.max(1, canvas.clientWidth);
-        const h = Math.max(1, canvas.clientHeight);
+        const w = boxW;
+        const h = boxH;
         if (offset && (offset.x || offset.y)) {
           camera.setViewOffset(w, h, w * offset.x, h * offset.y, w, h);
         } else if (camera.view && camera.view.enabled) {
@@ -380,15 +372,18 @@
       // cannot call setSize several times in one frame.
       let sizeDirty = true;
       let lost = false;
+      // The box's CSS size as of the last applySize(), so the per-frame placement reads no layout.
+      let boxW = 1;
+      let boxH = 1;
 
       // The buffer is capped by area as well as by device pixel ratio. Without it a large window
       // put this canvas at fourteen million pixels, redrawn every frame. The cap is set high
       // enough that every ordinary laptop size still renders at the full device pixel ratio and
       // only a genuinely large window gives anything up.
       const MAX_POD_PIXELS = 8.0e6;
-      // The page can step the ratio down itself when the two GL contexts on the device start
-      // competing (see watchQuality in powerpod-gen2.js). applySize runs on every resize, so
-      // without somewhere to record that the next resize would quietly undo it.
+      // The page can step the ratio down itself when the device is struggling (powerpod-gen2.js
+      // follows the governor in assets/perf.js). applySize runs on every resize, so without
+      // somewhere to record that the next resize would quietly undo it.
       let ratioOverride = 0;
       const podPixelRatio = (w, h) => Math.min(
         ratioOverride || o.pixelRatio || Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2),
@@ -399,11 +394,16 @@
         sizeDirty = false;
         const w = Math.max(1, canvas.clientWidth);
         const h = Math.max(1, canvas.clientHeight);
+        boxW = w;
+        boxH = h;
         camera.aspect = w / h;
         camera.clearViewOffset();
         camera.updateProjectionMatrix();
         renderer.setPixelRatio(podPixelRatio(w, h));
         renderer.setSize(w, h, false);
+        if (window.GridPerf && window.GridPerf.hudOn) {
+          window.GridPerf.report('pod', `${canvas.width}x${canvas.height} at ${podPixelRatio(w, h).toFixed(2)}x`);
+        }
         // A fresh buffer has nothing left on it, so the next frame has to be drawn whatever the
         // change test below would have said.
         drawnAt = null;
@@ -475,6 +475,7 @@
         probePrev.set(probeNow);
         if (!differs) return;
         renderer.render(scene, camera);
+        if (window.GridPerf) window.GridPerf.podDrawn();
         if (!drawnAt) drawnAt = new Float64Array(probeNow.length);
         drawnAt.set(probeNow);
       }
@@ -549,29 +550,38 @@
       applySize();
 
       // The first real render is where the driver builds a pipeline state for every material in
-      // here and where three.js pushes the mesh and its textures to the GPU: about 35ms, and left
-      // alone it lands on whichever frame first shows the pod. Do it at the first idle moment
-      // instead, into a one pixel scissor, so none of it pays for a screenful of fill, and clear
-      // afterwards so the canvas is left exactly as untouched as it was found. The pipeline
+      // here and where three.js pushes the mesh and its textures to the GPU: about 35ms here and
+      // far longer on a phone, and left alone it lands on whichever frame first shows the pod
+      // (the page draws a frame as soon as it has the handle). So it happens before mount()
+      // resolves, a part of the pod at a time (body, decals, connector, display), one idle slice
+      // each, and then once into a one pixel scissor so none of it pays for a screenful of fill.
+      // The canvas is cleared afterwards, left exactly as untouched as it was found. Pipeline
       // states do not depend on where the camera is, so no particular shot is needed.
-      const warm = () => {
-        if (lost) return;
-        try {
+      await Promise.race([logoReady, new Promise((resolve) => setTimeout(resolve, 1500))]);
+      const parts = pod.children;
+      try {
+        for (const part of parts.slice()) {
+          if (lost) break;
+          pod.children = [part];
           renderer.compile(scene, camera);
+          pod.children = parts;
+          await slice();
+        }
+        if (!lost) {
           renderer.setScissorTest(true);
           renderer.setScissor(0, 0, 1, 1);
           renderer.render(scene, camera);
           renderer.setScissorTest(false);
           renderer.clear();
-          drawnAt = null;   // that was a one pixel stub, not a frame of the film
-        } catch (err) {
-          console.warn('[powerpod-3d] warm-up skipped:', err);
         }
-      };
-      if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 2000 });
-      else setTimeout(warm, 600);
+      } catch (err) {
+        console.warn('[powerpod-3d] warm-up skipped:', err);
+      } finally {
+        pod.children = parts;
+        drawnAt = null;   // that was a one pixel stub, not a frame of the film
+      }
 
-      return handle;
+      return lost ? null : handle;
     } catch (err) {
       console.warn('[gridPod] 3D unavailable:', err);
       return null;

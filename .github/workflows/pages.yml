@@ -1,0 +1,91 @@
+# Builds the site (npm run build → dist/) and publishes dist/ to GitHub Pages.
+#
+# One-time setup in the repository: Settings → Pages → Build and deployment → Source:
+# "GitHub Actions". A custom domain is set on that same page (the build also copies a CNAME
+# file into dist/ if the repository has one).
+#
+# This repository is public and the site takes payments, so every action is pinned to a
+# full commit SHA rather than a tag: a tag can be moved to different code, a commit cannot.
+# Dependabot (.github/dependabot.yml) proposes updates as pull requests to review. The site
+# needs no secrets at all; nothing here reads one. The two API addresses below are Paddock's
+# public, unauthenticated read routes.
+#
+# WHEN IT RUNS
+#   push to main          a change to the site itself. Always deploys.
+#   workflow_dispatch     Paddock asking for a rebuild because careers or dealers changed
+#                         (debounced on its side; the reason says what changed), or a person
+#                         pressing "Run workflow".
+#   schedule              every six hours, a safety net in case a dispatch was lost.
+# A dispatched or scheduled run deploys only if the build got fresh data from Paddock
+# (data_ok, written by tools/build.mjs): if Paddock was down and the build fell back to the
+# live site's own snapshot, or to nothing, there is nothing new to publish and the live site
+# is better left exactly as it is.
+#
+# Runs queue rather than cancel each other (cancel-in-progress: false): a deploy that has
+# started always finishes, and of the runs waiting behind it GitHub keeps only the newest.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why this rebuild (careers, dealers, manual)
+        type: string
+        required: false
+        default: manual
+  schedule:
+    - cron: '23 */6 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      careers_source: ${{ steps.build.outputs.careers_source }}
+      dealers_source: ${{ steps.build.outputs.dealers_source }}
+      data_ok: ${{ steps.build.outputs.data_ok }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      # esbuild's platform binary arrives as an optional dependency, so optional
+      # dependencies must stay on; no install scripts are needed.
+      - run: npm ci --ignore-scripts
+      # The build never fails over data: Paddock down means the live snapshot, and no
+      # snapshot means the pages ship with their no-data state (see DATA in tools/build.mjs).
+      # The reason is free text from whoever dispatched the run, so it is only ever read as
+      # an environment variable, never written into the script itself.
+      - id: build
+        env:
+          CAREERS_API: https://paddockgridx.app/api/public/website/careers
+          DEALERS_API: https://paddockgridx.app/api/public/website/dealers
+          BUILD_REASON: ${{ inputs.reason || github.event_name }}
+        run: |
+          printf 'Build reason: %s\n' "$BUILD_REASON"
+          npm run build
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' || needs.build.outputs.data_ok == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
