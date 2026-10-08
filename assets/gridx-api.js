@@ -339,10 +339,11 @@
   /**
    * reCAPTCHA Enterprise, which Paddock asks Google about before it creates an order, so a
    * script cannot fill Razorpay with junk orders. The site key is public by design and
-   * restricted to gridxenergy.in in Google Cloud. Empty means not set up yet: the order is
-   * sent without a token, and Paddock only lets that through while it is not enforcing.
+   * restricted to gridxenergy.in in Google Cloud (key "gridxenergy.in website" in
+   * gridxenergy-production, score based). Empty would mean not set up: the order is sent
+   * without a token, and Paddock only lets that through while it is not enforcing.
    */
-  const RECAPTCHA_SITE_KEY = '';
+  const RECAPTCHA_SITE_KEY = '6Lfz_OQtAAAAAEWFEXxpiegEfvscWaTwvw5paBbF';
 
   let recaptcha = null;
   function loadRecaptcha() {
