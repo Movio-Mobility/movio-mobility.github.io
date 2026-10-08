@@ -8,7 +8,8 @@
  * The rule it enforces: what is on screen stays the same. A device that cannot keep up gives
  * up the things nobody can see first, and only then things that are hard to see:
  *   1. on a 90/120/144 Hz screen, render at 60 instead of at the screen's rate
- *   2. draw the 3D pod a little below the device's full pixel density (only while it is up)
+ *   2. draw the 3D pod a little below its full pixel density (only while it is up; see
+ *      podRatios for what full is)
  *   3. a steady 30 fps for both canvases together, rather than an uneven 40 to 50
  *   4. an emergency only: the field's own particle shedding (grid-bg.js setQuality)
  * It steps down after two struggling seconds and back up, slowly, after a long run of easy
@@ -291,6 +292,26 @@
     easy = 0;
   });
 
+  // ---------------------------------------------------------------- the pod's densities
+  // Pixel densities the 3D pod is drawn at, best first: the first is what it is drawn at
+  // whenever the device keeps up, the rest are the governor's pod steps (registerPod with
+  // length - 1). Every page that shows the pod asks here, so they all agree.
+  //   - Up to 2x everywhere. Phones used to stop at 1.5 and drew without antialiasing, which
+  //     on a 3x screen is a stepped edge on every curve of the pod. A phone the browser says
+  //     is short of memory (Chromium only) holds at 1.5: antialiasing keeps four samples of
+  //     every pixel.
+  //   - A screen below 1.5x is drawn at 1.5 and scaled down on the way to the screen. At one
+  //     pixel per CSS pixel the pod's silhouette and its highlights alias, which antialiasing
+  //     only partly fixes (it smooths edges, not a highlight that falls between pixels).
+  //   - Each step is an eighth below the one before, never more than two steps: at worst a
+  //     2x screen draws at 1.5, as before, and a 1x one at a touch over 1x.
+  function podRatios(phone) {
+    const dpr = window.devicePixelRatio || 1;
+    const ceiling = phone && memory && memory <= 2 ? 1.5 : 2;
+    const full = Math.min(ceiling, Math.max(dpr, 1.5));
+    return [full, full * 0.875, full * 0.75].map((r) => Math.round(r * 100) / 100);
+  }
+
   // ---------------------------------------------------------------- scheduling helpers
   const idle = window.requestIdleCallback
     ? (fn, timeout = 1500) => window.requestIdleCallback(fn, { timeout })
@@ -349,6 +370,7 @@
       if (podLevel > podLevels) podLevel = podLevels;
     },
     podDrawn(now) { podSeen = now || performance.now(); },
+    podRatios,
     report(name, text) {
       reports[name] = text;
     },

@@ -1153,6 +1153,7 @@
       uniform float uPodEven;      // 0 keeps the field's sparkle along a drawn line, 1 an even stroke
       uniform float uPodSnap;      // 0 lets a held formation chase its targets, 1 puts it on them
       uniform float uPodLetGo;     // 1 while a formation is being let go at the end of its scene
+      uniform float uPodGain;      // a held drawing's brightness on this screen (see POD_GAIN)
 
       ${HASH_GLSL}
       ${NOISE_GLSL}
@@ -1321,6 +1322,9 @@
         // A figure's outline reads as a stroke rather than a string of beads when its points are
         // near one brightness; a little of each point's own is kept so it still glints.
         if (uPod > 0.0005) brightness = mix(brightness, 0.20 + 0.14 * h.z, uPodEven * w * min(uPod * 4.0, 1.0));
+        // A sparser field draws the same figure with fewer points, and it reads dimmer for it:
+        // only the points held in the drawing are lifted, never the dust around it.
+        if (uPod > 0.0005) brightness *= mix(1.0, uPodGain, w * clamp(uPod / max(uSweep + uRibbon + uPod, 1e-4), 0.0, 1.0));
         float kept = 1.0 - smoothstep(uDensity, uDensity + 0.1, (float(gl_VertexID) + 0.5) / uCount);
 
         vPosAge = vec4(p, age);
@@ -1914,6 +1918,13 @@
       const n = { phone: 2000, tablet: 4000, desktop: 8000, large: 12000 }[tier];
       return tier === 'desktop' && cores <= 4 ? Math.round(n * 0.6) : n;
     }
+
+    // The film's drawings (the hand, the dock and its scooter, her and the lift) are made of the
+    // field's own particles, so a phone, with a quarter of a desktop's, draws them with a quarter
+    // of the points, and they read dimmer: measured, about a third less light along a stroke
+    // (tools/check/figures.mjs). Their held points are lifted by this much to read as they do
+    // on a desktop. The dust and everything outside a drawing are left exactly as they were.
+    const POD_GAIN = { phone: 3.0, tablet: 1.8 }[tier] || 1;
 
     // ---------------------------------------------------------------- traffic
     // Side profiles in figure units: facing +x, about 1 × 1, ground at y = 0.
@@ -2621,6 +2632,7 @@
       gl.uniform1f(u.uPodK, S.podK);
       gl.uniform1f(u.uPodNoise, S.podNoise);
       gl.uniform1f(u.uPodEven, S.podEven);
+      gl.uniform1f(u.uPodGain, POD_GAIN);
       gl.uniform1f(u.uPodSnap, S.podSnap);
       gl.uniform1f(u.uPodLetGo, S.podLetGo);
       g.prewarm = false;
@@ -5394,9 +5406,18 @@
     // ---------------------------------------------------------------- loading the pod
     // three.js, the model and its logo download at low priority while the opening plays
     // (assets/pod-assets.js). The pod is then put together a slice at a time in idle moments
-    // once the headline has landed, or straight away if the reader is already scrolling toward
-    // it, so building it never stops the opening. It used to be 1.7 MB of script the page had
-    // to stop and run before anything below it, the nav and footer included, could start.
+    // once the headline has landed and its words have finished coming in, or straight away if
+    // the reader is already scrolling toward it, so building it never stops the opening. It used
+    // to be 1.7 MB of script the page had to stop and run before anything below it, the nav and
+    // footer included, could start.
+    //
+    // Building it is the heaviest thing the page does after the field: a second WebGL context,
+    // the environment, and three.js compiling every material, which r128 waits on (tens of
+    // milliseconds a material on a laptop, far more on a phone). So it waits for the headline
+    // itself, never for a clock. A fixed four-second fallback used to start it anyway, and on a
+    // first visit, when the field's shaders compile with nothing cached and the opening starts
+    // late, that landed in the middle of the opening and stalled the particles before the
+    // headline appeared (tools/perf/opening.mjs --compile-ms 2500 shows it).
     const slice = () => {
       if (!perf) return new Promise((resolve) => setTimeout(resolve, 0));
       return filmTarget > 0.02 ? perf.nextTask() : perf.nextIdle(400);
@@ -5404,20 +5425,48 @@
     function bootPod() {
       const assets = window.GridPodAssets.load();
       const go = new Promise((resolve) => {
-        if (!headline || reduceMotion || headline.classList.contains('is-revealed') || filmTarget > 0.02) {
+        if (!headline || reduceMotion || filmTarget > 0.02) {
           resolve();
           return;
         }
+        let settled = false;
+        let landing = 0;
+        let lost = 0;
+        let observer = null;
+        const onScroll = () => done();
         const done = () => {
-          observer.disconnect();
+          if (settled) return;
+          settled = true;
+          if (observer) observer.disconnect();
           window.removeEventListener('scroll', onScroll);
+          clearTimeout(landing);
+          clearTimeout(lost);
           resolve();
         };
-        const observer = new MutationObserver(() => { if (headline.classList.contains('is-revealed')) done(); });
-        observer.observe(headline, { attributes: true, attributeFilter: ['class'] });
-        const onScroll = () => done();
+        // The headline's last word is the last to finish (the words are staggered); its opacity
+        // transition ending is the moment the headline has fully come in. A timer a little past
+        // the longest entrance stands in if that event never comes (a tab in the background
+        // does not run transitions).
+        const landed = () => {
+          if (observer) observer.disconnect();
+          const words = headline.querySelectorAll('.w');
+          const last = words[words.length - 1];
+          if (!last) {
+            done();
+            return;
+          }
+          landing = setTimeout(done, 1600);
+          last.addEventListener('transitionend', (e) => {
+            if (e.propertyName === 'opacity') done();
+          });
+        };
         window.addEventListener('scroll', onScroll, { passive: true });
-        setTimeout(done, 4000); // whatever happens to the opening, do not wait on it forever
+        // Only for a headline that never reveals at all, which would be a fault: the static
+        // fallback and reduced motion both reveal it. Never a clock the opening can lose to.
+        lost = setTimeout(done, 15000);
+        observer = new MutationObserver(() => { if (headline.classList.contains('is-revealed')) landed(); });
+        if (headline.classList.contains('is-revealed')) landed();
+        else observer.observe(headline, { attributes: true, attributeFilter: ['class'] });
       });
       Promise.all([assets, go])
         .then(([a]) => initPod(a))
@@ -5428,7 +5477,9 @@
       try {
         const renderer = new THREE.WebGLRenderer({
           canvas: podCanvas,
-          antialias: !phone,
+          // On every device: a phone's GPU resolves its samples on the chip, so the pod's edges
+          // come out clean for very little, and without it every curve of the pod is stepped.
+          antialias: true,
           alpha: true,
           powerPreference: phone ? 'low-power' : 'high-performance',
           premultipliedAlpha: true,
@@ -5437,7 +5488,7 @@
         });
         // A starting value only. resize() runs before the first frame and sets the real one,
         // which is this capped by buffer area as well (see podPixelRatio).
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
+        renderer.setPixelRatio(perf ? perf.podRatios(phone)[0] : Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
         renderer.setClearColor(0x000000, 0);
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -6220,19 +6271,17 @@
         // set high enough that every ordinary laptop size still renders at the full device pixel
         // ratio and only a genuinely large window gives anything up.
         const MAX_POD_PIXELS = 8.0e6;
-        // The governor's pod steps (assets/perf.js): a little under the device's full density
-        // while the device is struggling with the pod on screen, back up as soon as it is not.
-        // The first entry is the density the pod is drawn at whenever it can be.
-        const POD_STEPS = phone ? [1.5, 1.25] : [2, 1.75, 1.5];
+        // The governor's pod steps (assets/perf.js, podRatios): the first entry is the density
+        // the pod is drawn at whenever it can be, which on a screen under 1.5x is above the
+        // screen's own (drawn finer and scaled down, so its edges and highlights do not alias);
+        // the rest are a little under it, while the device struggles with the pod on screen.
+        const POD_STEPS = perf ? perf.podRatios(phone) : [Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2)];
         const podPixelRatio = (w, h) => Math.min(
-          window.devicePixelRatio || 1,
           POD_STEPS[Math.min(POD_STEPS.length - 1, perf ? perf.podLevel : 0)],
           Math.sqrt(MAX_POD_PIXELS / Math.max(1, w * h)),
         );
         if (perf) {
-          // Only the steps that are actually below this screen's density are worth offering.
-          const full = Math.min(window.devicePixelRatio || 1, POD_STEPS[0]);
-          perf.registerPod(POD_STEPS.filter((r) => r < full).length);
+          perf.registerPod(POD_STEPS.length - 1);
           let level = perf.podLevel;
           perf.on((p) => {
             if (p.podLevel === level) return;

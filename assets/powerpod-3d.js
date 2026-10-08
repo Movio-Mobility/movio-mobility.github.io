@@ -61,7 +61,9 @@
 
       const renderer = new THREE.WebGLRenderer({
         canvas,
-        antialias: o.antialias !== undefined ? o.antialias : !phone,
+        // On by default on every device (see podRatios in assets/perf.js): a phone's GPU
+        // resolves its samples on the chip, and without it every curve of the pod is stepped.
+        antialias: o.antialias !== undefined ? o.antialias : true,
         alpha: true,
         powerPreference: phone ? 'low-power' : 'high-performance',
         premultipliedAlpha: true,
@@ -70,7 +72,12 @@
       });
       // A starting value only. applySize() sets the real one before the first frame, which is
       // this capped by buffer area as well (see podPixelRatio).
-      renderer.setPixelRatio(o.pixelRatio || Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
+      // The density to draw at whenever the device keeps up: the governor's first pod step
+      // (assets/perf.js podRatios), which also draws a screen under 1.5x a little finer.
+      const fullRatio = () => (window.GridPerf
+        ? window.GridPerf.podRatios(phone)[0]
+        : Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
+      renderer.setPixelRatio(o.pixelRatio || fullRatio());
       renderer.setClearColor(0x000000, 0);
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -386,7 +393,7 @@
       // somewhere to record that the next resize would quietly undo it.
       let ratioOverride = 0;
       const podPixelRatio = (w, h) => Math.min(
-        ratioOverride || o.pixelRatio || Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2),
+        ratioOverride || o.pixelRatio || fullRatio(),
         Math.sqrt(MAX_POD_PIXELS / Math.max(1, w * h)),
       );
 

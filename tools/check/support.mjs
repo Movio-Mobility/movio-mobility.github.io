@@ -96,6 +96,11 @@ async function open(hash = '', { viewport = PHONE, overrides = {}, keyboard = fa
   await page.setRequestInterception(true);
   page.on('request', async (req) => {
     const url = req.url();
+    // reCAPTCHA stays offline here: the check is about the form, not Google, and Google's own
+    // frame logs things of its own. Blocked, it is what an ad blocker does: the form goes
+    // without a token, which is what the contract below expects and Paddock accepts while it
+    // is not enforcing.
+    if (/^https:\/\/www\.(google|gstatic)\.com\/recaptcha\//.test(url)) { req.abort(); return; }
     if (!url.startsWith(`${PADDOCK}/`)) { req.continue(); return; }
     const cors = { 'Access-Control-Allow-Origin': SITE, 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
     try {

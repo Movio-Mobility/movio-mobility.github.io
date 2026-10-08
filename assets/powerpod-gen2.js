@@ -1079,13 +1079,13 @@
 
   // Two GL contexts share this device, and one governor paces both (assets/perf.js). While the
   // device is struggling with the pod on screen it draws the pod a little under full density,
-  // and gives that back as soon as it can. Only steps below this screen's own density count.
+  // and gives that back as soon as it can. The densities are the governor's (podRatios), the
+  // same ones the home page's pod uses.
   function watchQuality() {
     const perf = window.GridPerf;
     if (!perf || !pod) return;
-    const steps = phone ? [1.5, 1.25] : [2, 1.75, 1.5];
-    const full = Math.min(window.devicePixelRatio || 1, steps[0]);
-    perf.registerPod(steps.filter((r) => r < full).length);
+    const steps = perf.podRatios(phone);
+    perf.registerPod(steps.length - 1);
     let level = -1;
     const follow = (p) => {
       if (!pod || p.podLevel === level) return;

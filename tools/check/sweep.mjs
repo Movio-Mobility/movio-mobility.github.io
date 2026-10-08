@@ -219,12 +219,19 @@ for (const name of ['journey', 'store']) {
   await sleep(2000);
   await page.setViewport({ width: 844, height: 390, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   await sleep(2000);
-  const st = await page.evaluate(() => ({
-    bg: `${document.getElementById('bg').width}x${document.getElementById('bg').height}`,
-    pod: `${document.getElementById('pod').width}x${document.getElementById('pod').height}`,
-  }));
+  const st = await page.evaluate(() => {
+    // The pod's density on this phone, at the governor's current step (assets/perf.js).
+    const perf = window.GridPerf;
+    const steps = perf.podRatios(true);
+    const ratio = steps[Math.min(steps.length - 1, perf.podLevel)];
+    return {
+      bg: `${document.getElementById('bg').width}x${document.getElementById('bg').height}`,
+      pod: `${document.getElementById('pod').width}x${document.getElementById('pod').height}`,
+      want: `${Math.round(844 * ratio)}x${Math.round(390 * ratio)}`,
+    };
+  });
   const drawn = await canvasDrawn(page, 'pod');
-  report('rotate mid-film', st.bg === '844x390' && st.pod.startsWith('1266') && drawn, JSON.stringify(st), errors);
+  report('rotate mid-film', st.bg === '844x390' && st.pod === st.want && drawn, JSON.stringify(st), errors);
   await page.close();
 }
 

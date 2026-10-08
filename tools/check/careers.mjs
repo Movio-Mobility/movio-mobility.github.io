@@ -118,6 +118,12 @@ async function open(url, { viewport = PHONE, before } = {}) {
     if (/Content Security Policy|Refused to (load|execute|connect|apply)/i.test(t)) problems.push(`CSP: ${t.slice(0, 160)}`);
     else if (m.type() === 'error' && !/Failed to load resource|favicon/i.test(t)) problems.push(t.slice(0, 160));
   });
+  // reCAPTCHA stays offline: the apply sheet is under test, not Google, whose frame logs things
+  // of its own. Blocked, it is what an ad blocker does, and the application goes without a
+  // token. Blocked below request interception, so a scenario's own interceptor still works.
+  const cdp = await page.createCDPSession();
+  await cdp.send('Network.enable');
+  await cdp.send('Network.setBlockedURLs', { urls: ['*://www.google.com/recaptcha/*', '*://www.gstatic.com/recaptcha/*'] });
   if (before) await before(page);
   await page.goto(url, { waitUntil: 'load' });
   return { page, problems };
