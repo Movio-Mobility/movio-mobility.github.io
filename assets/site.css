@@ -452,7 +452,8 @@ html.skip-intro .headline .w {
   }
   .is-compact .island { transform: none; }
 
-  .island__list { padding: 0 4px; }
+  /* Room at the two ends, so the first and last tabs' labels clear the pill's curve. */
+  .island__list { padding: 0 10px; }
   .island__link {
     flex-direction: column;
     justify-content: center;
