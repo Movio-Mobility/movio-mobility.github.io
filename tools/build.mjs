@@ -45,6 +45,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { normalizeDealers, downloadDealerPhotos, dealersTransform, siteRootOf } from './dealers.mjs';
+import { seoTransform, lastmodOf } from './seo.mjs';
 import { prepareCareers, writeCareers } from './careers.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -517,15 +518,18 @@ export function dataOk(loaded) {
 
 // ---------------------------------------------------------------- generated files
 function sitemap(pages, extra = []) {
-  // Home first, then the rest in name order.
+  // Home first, then the rest in name order. Each page carries the date it last changed, from
+  // git (tools/seo.mjs lastmodOf); when git cannot say, under a shallow clone, the date is
+  // left out rather than stamping the scheduled build's own date on everything.
   const urls = pages
     .filter((f) => !NOT_IN_SITEMAP.has(f))
     .sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b)))
-    .map((f) => (f === 'index.html' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}/${f}`))
-    .concat(extra);
+    .map((f) => ({ loc: f === 'index.html' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}/${f}`, lastmod: lastmodOf(f) }))
+    .concat(extra.map((loc) => ({ loc })));
+  const x = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
   return '<?xml version="1.0" encoding="UTF-8"?>\n'
     + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    + urls.map((u) => `  <url><loc>${u.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</loc></url>\n`).join('')
+    + urls.map(({ loc, lastmod }) => `  <url><loc>${x(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>\n`).join('')
     + '</urlset>\n';
 }
 
@@ -690,6 +694,11 @@ async function main() {
   // Careers (tools/careers.mjs): the share images onto the site and careers.html's tags
   // registered before any page is built; the role pages themselves come after the pages.
   const careers = await prepareCareers(loaded.careers.data, { out: OUT, registerSourceTransform, warn, siteOrigin: SITE_ORIGIN });
+
+  // What search engines and link scrapers read (tools/seo.mjs): every indexable page's share
+  // card and structured data, built from the page's own head. After careers, so careers.html
+  // and the job pages, which that transform serves, are already spoken for.
+  registerSourceTransform(seoTransform({ siteOrigin: SITE_ORIGIN }));
 
   // The build id: the hash of every source file that ships, and of the data it was built
   // from, so it changes exactly when the site does.

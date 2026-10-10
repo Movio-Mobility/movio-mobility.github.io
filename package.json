@@ -16,6 +16,8 @@
     "check:careers-page": "node tools/check/careers-page.mjs",
     "icons": "node tools/source/icons.mjs",
     "favicons": "python3 tools/source/favicons.py",
+    "og": "python3 tools/source/og.py",
+    "check:seo": "node tools/check/seo.mjs",
     "check:favicons": "node tools/check/favicons.mjs",
     "check:lift": "node tools/check/lift.mjs",
     "check:hand": "node tools/check/hand.mjs --browser",
