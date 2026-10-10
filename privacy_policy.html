@@ -20,6 +20,9 @@
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Reaching for DevTools gets a joke instead of the site (assets/guard.js). Ahead of the
+       page scripts, so it is in place before any of them runs. -->
+  <script src="assets/guard.js"></script>
   <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
   <script src="assets/perf.js"></script>
 </head>
@@ -29,8 +32,8 @@
   <header class="topbar">
     <div class="brand-lockup">
       <a class="brand" href="index.html" aria-label="GridX home">
-        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
-        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__word"><img src="assets/gridX_logo_dark.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo_dark.png" alt=""></span>
       </a>
       <h1 class="headline"><span class="w" style="--i:0">Legal</span></h1>
     </div>
@@ -250,7 +253,7 @@
             </li>
             <li>
               <span class="legal__n">iv.</span>
-              <p>When you reserve or buy a product on gridxenergy.in, your name, phone number, email address, city, PIN code and, if you provide one, your GSTIN are shared with our payment gateway, Razorpay Software Private Limited, so that it can process your payment, record it against you and email you a receipt for it. Your card, UPI, net banking or wallet details are collected by Razorpay directly; they do not pass through, and are not stored by, our website.</p>
+              <p>When you pre-book or buy a product on gridxenergy.in, your name, phone number, email address, city, PIN code and, if you provide one, your GSTIN are shared with our payment gateway, Razorpay Software Private Limited, so that it can process your payment, record it against you and email you a receipt for it. Your card, UPI, net banking or wallet details are collected by Razorpay directly; they do not pass through, and are not stored by, our website.</p>
               <p>To protect our ordering pages from automated abuse, they use Google reCAPTCHA Enterprise, which receives information about your device and how the page is used. Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply to it.</p>
             </li>
           </ol>
@@ -315,7 +318,7 @@
           <p>We use this only to consider you for the role you applied for, to contact you about it and to arrange interviews. If you choose to join our talent pool, we may also contact you about other roles that fit, for twelve (12) months from your application.</p>
           <p>Your application is seen by the people at GridX who are hiring for the role and by those who interview you. Our email, calendar and storage providers process it on our behalf. We do not sell it, and we do not share it with other employers.</p>
           <p>We keep an application for twelve (12) months after we decide on it, or until the end of the talent pool period if that is later, and then delete it, together with your resume. If you join GridX, your application becomes part of your employment records.</p>
-          <p>You may ask for a copy of your application, ask us to correct it, or ask us to delete it at any time by writing to careers@gridxenergy.in. We will do so within thirty (30) days.</p>
+          <p>You may ask for a copy of your application, ask us to correct it, or ask us to delete it at any time by writing to info@gridxenergy.in. We will do so within thirty (30) days.</p>
         </section>
 
         <section class="legal__section" id="support-requests">

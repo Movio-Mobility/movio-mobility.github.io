@@ -1228,6 +1228,18 @@ html.pg2-shell .pg2-pay[data-dir="back"]:not([hidden]) { animation-name: pg2-vie
   .opt--go:hover { background: rgb(20 20 20 / 0.022); }
 }
 
+/* Before reservations open: resting, the way the footer button rests. Still focusable, and a
+   press says when rather than doing nothing. */
+.opt--go[aria-disabled="true"] {
+  opacity: 0.45;
+  box-shadow: inset 0 0 0 1.5px rgb(20 20 20 / 0.35);
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .opt--go[aria-disabled="true"]:hover { background: none; }
+}
+
 /* The bill. Read top to bottom like a receipt: the order, the GST inside it, what is paid
    now, and what is left for the final payment. */
 .bill { margin-top: 0.2rem; }

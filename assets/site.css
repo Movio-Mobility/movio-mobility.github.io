@@ -200,14 +200,26 @@ html.skip-intro .headline .w {
   border-radius: 1px;
 }
 
-/* Logo: one image cropped into the GRID wordmark and the X mark (source 2048×256). */
+/* Logo: one image cropped into the GRID wordmark and the X mark (source 2048×256, half
+   scale here: the logo in its own colours, sage GRID and cream X, as it is made for dark
+   grounds). It sits on a translucent black pill, so it reads the same on every page and over
+   anything behind it. The pill is as wide as what it holds, so it springs with the wordmark
+   and the X as they fold (--rubber); its padding covers the X's overshoot. */
 .brand {
   --logo-h: 22px;
   display: flex;
   align-items: center;
   height: 44px;
-  border-radius: 6px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgb(12 12 12 / 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06);
   -webkit-tap-highlight-color: transparent;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .brand { background: rgb(18 18 18 / 0.86); }
 }
 .brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
 .brand__part {
@@ -222,7 +234,6 @@ html.skip-intro .headline .w {
   width: calc(var(--logo-h) * 2048 / 256);
   max-width: none;
   height: 100%;
-  filter: brightness(0); /* solid black logo */
 }
 /* Collapse: the wordmark is wiped from its right edge while the X — and, behind it,
    the separator and page title, which ride the lockup's width — slide left on a
@@ -274,10 +285,7 @@ html.skip-intro .headline .w {
   width: var(--h);
   cursor: pointer;
 }
-.island.is-scrubbing {
-  z-index: 2;
-  touch-action: none;
-}
+.island.is-scrubbing { z-index: 2; }
 
 .island__thumb {
   position: absolute;
@@ -301,7 +309,9 @@ html.skip-intro .headline .w {
     opacity 0.2s ease;
 }
 .island.thumb-ready .island__thumb { opacity: 1; }
-.is-compact .island__thumb { opacity: 0; }
+/* Folded, the circle holds the lit icon and nothing else. As many classes as the rule above and
+   after it, so it wins: on Home the chip sits right where the circle is, and it would show. */
+.is-compact .island .island__thumb { opacity: 0; }
 .island.is-scrubbing .island__thumb {
   background: rgb(255 255 255 / 0.22);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
@@ -346,7 +356,12 @@ html.skip-intro .headline .w {
   text-decoration: none;
   transition: color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-drag: none;
 }
+/* The current tab is the scrub's handle, so a finger on it belongs to the island from the
+   first touch. The browser decides what a touch is for as it lands, and left to itself it
+   would take the slide for a scroll and cancel the scrub on the first move. */
+.island__link[aria-current] { touch-action: none; }
 .island__link:hover,
 .island__link.is-aimed,
 .island__link[aria-current="page"] { color: #fff; }

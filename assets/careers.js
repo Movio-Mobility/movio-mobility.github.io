@@ -45,7 +45,8 @@
   const OPEN_ID = 'open-application';
   const KEY = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
   const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  const FALLBACK_EMAIL = 'careers@gridxenergy.in';
+  // Where applications by email go, whatever the careers data says.
+  const FALLBACK_EMAIL = 'info@gridxenergy.in';
   const LENS = 1.34; // a label's scale at the needle (tape.js placeLabels, the lens at full swell)
 
   const track = (name, props) => {
@@ -187,7 +188,7 @@
     m.byKey = new Map(m.teams.map((t) => [t.key, t]));
     m.openOk = Boolean(data.openApplication && data.openApplication.enabled);
     m.paused = Boolean(data.applicationsPaused);
-    m.email = (data.org && clean(data.org.careersEmail)) || FALLBACK_EMAIL;
+    m.email = FALLBACK_EMAIL;
     m.total = m.teams.reduce((n, t) => n + t.jobs.length, 0);
     return m;
   }
@@ -558,7 +559,7 @@
   function fillOpenPanel(m) {
     openPanel.paused.hidden = !m.paused;
     setDisabled(openPanel.button, m.paused);
-    mailLine(openPanel.mail, 'It takes about five minutes. Or write to us at ', m.email, '.');
+    mailLine(openPanel.mail, 'It takes about five minutes. Or send your resume over to ', m.email, '.');
   }
 
   function setDisabled(button, off) {
@@ -718,7 +719,7 @@
         noticeEl.append(b);
       }
       const mail = el('p', 'cr-notice__mail');
-      mailLine(mail, m.openOk ? 'Or write to us at ' : 'You can also write to us at ', m.email, '.');
+      mailLine(mail, m.openOk ? 'Or send your resume over to ' : 'You can also send your resume over to ', m.email, '.');
       noticeEl.append(mail);
     } else if (kind === 'failed') {
       noticeEl.append(
@@ -730,7 +731,7 @@
       b.dataset.retry = '';
       noticeEl.append(b);
       const mail = el('p', 'cr-notice__mail');
-      mailLine(mail, 'Or write to us at ', FALLBACK_EMAIL, '.');
+      mailLine(mail, 'Or send your resume over to ', FALLBACK_EMAIL, '.');
       noticeEl.append(mail);
     }
     noticeEl.hidden = false;
@@ -1146,7 +1147,7 @@
     }
     const tail = el('p', 'rs__note');
     if (m.openOk && !m.paused) tail.textContent = 'Or send an open application, and we will write when something fits.';
-    else mailLine(tail, 'You can still write to us at ', m.email, '.');
+    else mailLine(tail, 'You can still send your resume over to ', m.email, '.');
     v.append(tail);
 
     const toTeam = team ? { label: `All ${team.label} roles`, run: () => closeSheetTo(team.key) } : { label: 'See open roles', run: () => closeSheetTo(null) };

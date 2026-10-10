@@ -218,6 +218,10 @@ for (const name of ['journey', 'store']) {
   await page.evaluate(() => window.scrollTo({ top: innerHeight * 5.0, behavior: 'instant' }));
   await sleep(2000);
   await page.setViewport({ width: 844, height: 390, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+  await sleep(1000);
+  // The same scroll in pixels is much further down the film in landscape, past the lift, where
+  // the pod has no part any more; back to the dock shot, so the pod is on screen to be measured.
+  await page.evaluate(() => window.scrollTo({ top: innerHeight * 5.0, behavior: 'instant' }));
   await sleep(2000);
   const st = await page.evaluate(() => {
     // The pod's density on this phone, at the governor's current step (assets/perf.js).

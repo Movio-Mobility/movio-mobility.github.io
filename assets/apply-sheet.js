@@ -406,7 +406,7 @@
       ...apply,
       openApplication: Boolean(d && d.openApplication && d.openApplication.enabled),
       applicationsPaused: Boolean(d && d.applicationsPaused),
-      careersEmail: (d && d.org && d.org.careersEmail) || 'careers@gridxenergy.in',
+      careersEmail: 'info@gridxenergy.in',
       domains: (d && Array.isArray(d.domains) ? d.domains.slice() : []).sort((a, b) => (a.order || 0) - (b.order || 0)),
       ready: Boolean(apply.consent && apply.consent.version),
     };
@@ -1135,11 +1135,11 @@
     if (why === 'all_paused') {
       notice(ref.introNotice, { title: 'Applications are paused for a short while.', text: 'Please come back soon. Anything you have already written is kept in this tab.' });
     } else if (why === 'open_closed') {
-      notice(ref.introNotice, { title: 'Open applications are closed right now.', text: `You can still write to ${c.careersEmail}.` });
+      notice(ref.introNotice, { title: 'Open applications are closed right now.', text: `You can still send your resume over to ${c.careersEmail}.` });
     } else if (why) {
       notice(ref.introNotice, {
         title: why === 'paused' ? 'This role is not taking applications right now.' : 'This role has closed.',
-        text: c.openApplication ? 'You can still send an open application, and we will keep you in mind for what comes next.' : `You can still write to ${c.careersEmail}.`,
+        text: c.openApplication ? 'You can still send an open application, and we will keep you in mind for what comes next.' : `You can still send your resume over to ${c.careersEmail}.`,
         action: c.openApplication ? 'Send an open application' : '',
         onAction: () => switchToOpen({ toForm: false }),
       });
@@ -1420,7 +1420,7 @@
       const canSwitch = app.kind === 'role' && openOk;
       notice(ref.formNotice, {
         title,
-        text: canSwitch ? 'You can send what you have written as an open application instead. Nothing you wrote is lost.' : `Nothing you wrote is lost. You can still write to ${c.careersEmail}.`,
+        text: canSwitch ? 'You can send what you have written as an open application instead. Nothing you wrote is lost.' : `Nothing you wrote is lost. You can still send your resume over to ${c.careersEmail}.`,
         action: canSwitch ? 'Send it as an open application' : '',
         onAction: () => switchToOpen({ toForm: true }),
       });

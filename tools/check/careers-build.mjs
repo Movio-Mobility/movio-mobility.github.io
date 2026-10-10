@@ -215,7 +215,7 @@ try {
   check('no-data build: careers.html still has its card', meta(read(path.join(c.out, 'careers.html')), 'og:image') === 'https://paddockgridx.app/api/public/website/careers/og/careers.jpg');
   const bare = read(path.join(c.out, 'careers.html'));
   check('no-data build: no snapshot, and the plain list says where to write instead',
-    !bare.includes('id="careers-snapshot"') && /could not be listed here/.test(bare) && bare.includes('mailto:careers@gridxenergy.in'));
+    !bare.includes('id="careers-snapshot"') && /could not be listed here/.test(bare) && bare.includes('mailto:info@gridxenergy.in'));
 
   // ---------------------------------------------------------------- 4. Paddock down
   const down = await startMock({ port: 3142, quiet: true });

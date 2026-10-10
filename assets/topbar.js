@@ -97,11 +97,17 @@
     if (!thumb || !link) return;
     const ir = island.getBoundingClientRect();
     const r = link.getBoundingClientRect();
-    const x = r.left - ir.left;
     const y = r.top - ir.top;
-    thumb.style.width = `${Math.round(r.width)}px`;
+    let left = r.left - ir.left;
+    let right = left + r.width;
+    // Concentric with the pill. At either end the chip reaches out to the same gap it keeps
+    // above and below, so its curve runs alongside the pill's instead of floating inside it.
+    // The list's wider end padding on phones is room for the labels, not for the chip.
+    if (link === links[0]) left = Math.min(left, y);
+    if (link === links[links.length - 1]) right = Math.max(right, list.offsetWidth - y);
+    thumb.style.width = `${Math.round(right - left)}px`;
     thumb.style.height = `${Math.round(r.height)}px`;
-    thumb.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    thumb.style.transform = `translate3d(${left}px, ${y}px, 0)`;
   }
 
   function syncThumb() {
@@ -201,7 +207,8 @@
     aim = link;
     for (const item of links) item.classList.toggle('is-aimed', item === link);
     placeThumb(link);
-    if (navigator.vibrate) navigator.vibrate(10);
+    // Chrome refuses a vibration before the page has had a tap, and says so in the console.
+    if (navigator.vibrate && navigator.userActivation?.hasBeenActive) navigator.vibrate(10);
   }
 
   function startScrub(link, pointerId) {
@@ -277,6 +284,9 @@
   });
 
   island.addEventListener('pointerdown', (event) => {
+    // A long press on a touch screen often ends without a click at all, which would leave the
+    // last scrub's flag up to eat the next real tap. Every new press starts clean.
+    swallowClick = false;
     if (root.classList.contains('is-compact')) return;
     if (event.button) return;
     const link = event.target.closest('.island__link');
@@ -307,9 +317,10 @@
   island.addEventListener('pointerup', () => endScrub(true));
   island.addEventListener('pointercancel', () => endScrub(false));
 
-  island.addEventListener('contextmenu', (event) => {
-    if (scrubbing || holdTimer) event.preventDefault();
-  });
+  // On a phone a long press is the scrub, never the browser's link menu (open in a new tab,
+  // download the link, preview it), and a press never lifts a tab out as a dragged link.
+  island.addEventListener('contextmenu', (event) => event.preventDefault());
+  island.addEventListener('dragstart', (event) => event.preventDefault());
 
   const onLayout = () => {
     measure();

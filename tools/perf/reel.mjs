@@ -46,7 +46,9 @@ const shotsWanted = opt('shots', '');
 const SHOTS = page === 'index'
   ? [['hero', 0], ['haze', 0.55], ['reveal', 1.0], ['grip', 2.4], ['hand-held', 2.74], ['hand-lift', 3.02], ['hand-gone', 3.4],
     ['overhead', 3.6], ['dock', 5.0],
-    ['lift-wait', 6.1], ['lift-walk', 6.75], ['ride', 7.35], ['app', 8.6], ['warranty', 10.7], ['footer', 13.5]]
+    ['lift-wait', 6.1], ['lift-walk', 6.75], ['ride', 7.35], ['app', 8.6],
+    ['tour-centre', 9.5], ['tour-powerpod', 9.97], ['tour-charging', 10.87], ['app-live', 12.5], ['warranty', 13.6],
+    ['pull-back', 14.4], ['phone-in', 15.1], ['finale', 15.95], ['footer', 17.1]]
   : [['top', 0], ['middle', 0.5], ['bottom', 1]];
 
 const VIRTUAL = (seed) => {

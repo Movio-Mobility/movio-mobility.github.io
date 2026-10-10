@@ -76,7 +76,7 @@
     }
 
     const openOk = Boolean(data.openApplication && data.openApplication.enabled);
-    const email = (data.org && data.org.careersEmail) || 'careers@gridxenergy.in';
+    const email = 'info@gridxenergy.in';
     let title;
     let text;
     if (paused) {
@@ -86,12 +86,12 @@
       title = 'This role is paused for now.';
       text = openOk
         ? 'It is not taking applications at the moment. You can still send an open application, and we will keep you in mind.'
-        : `It is not taking applications at the moment. You can still write to ${email}.`;
+        : `It is not taking applications at the moment. You can still send your resume over to ${email}.`;
     } else {
       title = 'This role has closed.';
       text = openOk
         ? 'Thank you for your interest. You can still send an open application, and we will write when something fits.'
-        : `Thank you for your interest. You can still write to ${email}.`;
+        : `Thank you for your interest. You can still send your resume over to ${email}.`;
     }
 
     status.textContent = '';

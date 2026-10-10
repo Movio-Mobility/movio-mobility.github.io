@@ -64,8 +64,9 @@ const ROOT_FILES = ['CNAME', 'robots.txt', 'favicon.ico', 'apple-touch-icon.png'
 export const SITE_ORIGIN = 'https://gridxenergy.in';
 
 // Pages that exist but are not for search engines: the 404 is not a page anyone links to,
-// and the interview page is reached only from a private link.
-const NOT_IN_SITEMAP = new Set(['404.html', 'interview.html']);
+// the interview page is reached only from a private link, and better.html only by reaching
+// for DevTools (assets/guard.js).
+const NOT_IN_SITEMAP = new Set(['404.html', 'interview.html', 'better.html']);
 
 /** A slug, as Paddock mints them (Part 0 of the platform plan): 3 to 48 characters. */
 export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

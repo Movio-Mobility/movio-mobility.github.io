@@ -40,6 +40,8 @@ import { loadIcons } from './source/icons.mjs';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE = path.join(HERE, 'source/job.html');
 const OG_MAX_BYTES = 300 * 1024;
+// Where applications by email go, whatever the careers data says.
+const CAREERS_EMAIL = 'info@gridxenergy.in';
 const PADDOCK_OG = 'https://paddockgridx.app/api/public/website/careers/og/';
 const OKHLA = {
   '@type': 'PostalAddress',
@@ -325,7 +327,7 @@ export function roleBody(job, ctx) {
   if (formatDate(job.publishedAt)) meta.push(`<li><span>Posted</span> ${esc(formatDate(job.publishedAt))}</li>`);
   if (formatDate(job.closesAt)) meta.push(`<li><span>Applications close</span> ${esc(formatDate(job.closesAt))}</li>`);
 
-  const email = (ctx.data.org && ctx.data.org.careersEmail) || 'careers@gridxenergy.in';
+  const email = CAREERS_EMAIL;
   const openOk = Boolean(ctx.data.openApplication && ctx.data.openApplication.enabled);
   const resumeNote = job.resumeRequired === false ? 'A resume helps, but is not required.' : 'Have your resume ready, as a PDF or a Word file.';
 
@@ -348,7 +350,7 @@ export function roleBody(job, ctx) {
           <div class="role__apply-card">
             <button class="role__cta" type="button" data-role-apply>Apply for this role</button>
             <p class="role__apply-note">It takes about five minutes. ${esc(resumeNote)}</p>
-            <noscript><p class="role__apply-note">Applying needs JavaScript. You can also write to <a href="mailto:${esc(email)}">${esc(email)}</a>.</p></noscript>
+            <noscript><p class="role__apply-note">Applying needs JavaScript. You can also send your resume over to <a href="mailto:${esc(email)}">${esc(email)}</a>.</p></noscript>
             ${meta.length ? `<ul class="role__meta">${meta.join('')}</ul>` : ''}
           </div>
         </aside>
@@ -493,7 +495,7 @@ export function byRoleOrder(a, b) {
  * A role in a team the document does not list still shows, under its team's key.
  */
 export function careersList(data) {
-  const email = (data && data.org && data.org.careersEmail) || 'careers@gridxenergy.in';
+  const email = CAREERS_EMAIL;
   const mail = `<a href="mailto:${esc(email)}">${esc(email)}</a>`;
   const jobs = data && Array.isArray(data.jobs) ? data.jobs : [];
   const domains = (data && Array.isArray(data.domains) ? data.domains : []).slice()

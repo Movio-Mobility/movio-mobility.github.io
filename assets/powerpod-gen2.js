@@ -313,18 +313,29 @@
     });
   }
 
+  // ---------------------------------------------------------------- the launch
+  // Pre-booking opens at one instant (assets/launch.js). Until then everything up to the offer
+  // works, so people can choose and fill in their details ahead of time, and each of the three
+  // ways into a payment waits: the footer button (through canAdvance), the Pre-book card and
+  // pay() itself. Paddock refuses an early order whatever this page believes, so a wrong clock
+  // here can only show the wrong thing, never take a payment. Without launch.js nothing waits.
+  const launch = window.gridLaunch;
+  const launchOpen = () => !launch || launch.isOpen();
+  const NOT_OPEN = `Pre-booking opens ${launch ? launch.when : '12 October, 12 PM'} IST. Shipping across India.`;
+
   // ---------------------------------------------------------------- completeness
   // Payment has nothing left to choose, so it can always move on: from the offer to the bill,
-  // and from the bill to Razorpay.
+  // and from the bill to Razorpay. Once pre-booking is open, that is.
   function canAdvance(n) {
     if (n === 1) return configured();
     if (n === 2) return detailsValid();
-    return !busy && !paid;
+    return !busy && !paid && launchOpen();
   }
 
   const HINTS = {
     1: 'Choose an option in every step to continue.',
     2: 'Please complete the fields above.',
+    3: NOT_OPEN,
   };
 
   // ---------------------------------------------------------------- render
@@ -341,6 +352,8 @@
   const payReserve = document.getElementById('pg2-pay-reserve');
   const payReview = document.getElementById('pg2-pay-review');
   const reserveBtn = document.getElementById('pg2-reserve');
+  const offerLine = payReserve ? payReserve.querySelector('.pg2-step__sub') : null;
+  const OFFER_LINE = offerLine ? offerLine.textContent : '';
   const bill = document.getElementById('pg2-bill');
   const moneyEls = [...document.querySelectorAll('[data-money]')];
   const segs = [...document.querySelectorAll('.pg2-progress__seg')];
@@ -360,7 +373,7 @@
     if (stage === LAST_STAGE) {
       // At payment the footer speaks for today's payment, not the PowerPod's price: the
       // redeemable amount, and the fee that rides on top of it.
-      totalLabel.textContent = paid ? 'Paid' : (payStep === 'review' ? 'Reservation' : 'Reserve for');
+      totalLabel.textContent = paid ? 'Paid' : (payStep === 'review' ? 'Pre-booking' : 'Pre-book for');
       totalAmount.textContent = money(paid ? r.chargedInr : r.itemsInr);
       footTax.textContent = paid
         ? `${money(r.itemsInr)} comes off your final payment`
@@ -401,12 +414,17 @@
     // the bill back to the offer.
     const onBill = stage === LAST_STAGE && payStep === 'review' && !paid;
     backBtn.setAttribute('aria-label', stage === 1 ? 'Back to the store'
-      : (onBill ? 'Back to the reservation' : 'Back to the previous stage'));
+      : (onBill ? 'Back to the pre-booking' : 'Back to the previous stage'));
 
     // Primary action. On the bill it names the exact amount Razorpay is about to ask for.
     nextBtn.setAttribute('aria-disabled', String(!canAdvance(stage)));
     if (stage !== LAST_STAGE) nextLabel.textContent = 'Continue';
-    else nextLabel.textContent = payStep === 'review' ? `Pay ${money(r.chargedInr)}` : 'Reserve Now';
+    else nextLabel.textContent = payStep === 'review' ? `Pay ${money(r.chargedInr)}` : 'Pre-book Now';
+
+    // Before the launch the offer says when, in place of its usual line, and its card rests.
+    const open = launchOpen();
+    if (reserveBtn) reserveBtn.setAttribute('aria-disabled', String(!open));
+    if (offerLine) offerLine.textContent = open ? OFFER_LINE : NOT_OPEN;
 
     if (dealerNote) dealerNote.hidden = state.vehicle !== 'yes';
     syncCompanion();
@@ -470,14 +488,14 @@
     }
     gst.push(row('Total GST', money(tax.tax), 'total'));
 
-    const now = [row('Reservation amount', money(r.itemsInr), '', 'Redeemable at your final payment')];
+    const now = [row('Pre-booking amount', money(r.itemsInr), '', 'Redeemable at your final payment')];
     if (r.feeInr > 0) now.push(row('Platform fee', money(r.feeInr), '', 'Payment processing'));
     now.push(row('GST', money(0), '', 'None on an advance for goods'));
     now.push(row('Total payable now', money(r.chargedInr), 'total'));
 
     const later = [
       row('Order value', money(tax.value)),
-      row('Less your reservation', `−${money(r.itemsInr)}`),
+      row('Less your pre-booking', `−${money(r.itemsInr)}`),
       row('Balance', money(balance), 'total',
         state.vehicle === 'yes' ? 'Plus your two wheeler, priced at the dealership' : ''),
     ];
@@ -487,7 +505,7 @@
         '<p class="bill__note">Billed on your tax invoice at the final payment, not today.</p>')
       + group('Pay now', now)
       + group('At your final payment', later)
-      + `<p class="bill__note bill__note--end">Your ${money(r.itemsInr)} reservation is fully redeemable: it comes off `
+      + `<p class="bill__note bill__note--end">Your ${money(r.itemsInr)} pre-booking is fully redeemable: it comes off `
       + 'your PowerPod amount when you make the final payment. The platform fee covers payment processing '
       + 'and is not part of what is deducted. Your receipt voucher will be sent by email and on WhatsApp.</p>';
   }
@@ -604,7 +622,13 @@
     goToStage(stage + 1, 'fwd');
   }
 
-  if (reserveBtn) reserveBtn.addEventListener('click', () => goToPayStep('review', 'fwd'));
+  if (reserveBtn) reserveBtn.addEventListener('click', () => {
+    if (!launchOpen()) {
+      if (status) status.textContent = NOT_OPEN;
+      return;
+    }
+    goToPayStep('review', 'fwd');
+  });
 
   nextBtn.addEventListener('click', tryAdvance);
 
@@ -1154,7 +1178,7 @@
         amount: created.amountPaise,
         currency: 'INR',
         name: 'GridX Energy',
-        description: `PowerPod Gen2 reservation, ${created.orderNumber}`,
+        description: `PowerPod Gen2 pre-booking, ${created.orderNumber}`,
         // Filed under this customer in Razorpay, which also emails them its receipt.
         customer_id: created.customerId || undefined,
         prefill: {
@@ -1196,6 +1220,11 @@
     // One order per press: a second tap while the first is still being set up would create a
     // second order and open a second payment window.
     if (busy || paid) return;
+    if (!launchOpen()) {
+      if (status) status.textContent = NOT_OPEN;
+      render();
+      return;
+    }
     for (const key of ALL_FIELDS) details[key] = fieldEls[key] ? fieldEls[key].input.value.trim() : '';
     // Uppercased here so the browser and the server normalize identically.
     if (details.gstin && window.gridGstin) details.gstin = window.gridGstin.normalize(details.gstin);
@@ -1253,7 +1282,7 @@
       if (ref) ref.textContent = created.orderNumber;
       const where = document.getElementById('pg2-done-where');
       if (where) {
-        where.textContent = 'Your reservation is confirmed. We have sent your receipt voucher to ';
+        where.textContent = 'Your pre-booking is confirmed. We have sent your receipt voucher to ';
       }
       const to = document.getElementById('pg2-done-to');
       if (to) to.textContent = `${details.email} and on WhatsApp to ${details.phone}.`;
@@ -1277,6 +1306,16 @@
   // Stage 1 already carries is-active in the markup, so there is no flash of an empty
   // panel before this runs; the camera just needs pointing at the first step.
   render();
+  // The page can be open across the launch: at that moment the holds lift and their sentence
+  // goes, without a reload. Called at once with the current state, which render() just drew.
+  if (launch) {
+    launch.subscribe((open) => {
+      if (!open) return;
+      if (hint && hint.textContent === NOT_OPEN) hint.textContent = '';
+      if (status && status.textContent === NOT_OPEN) status.textContent = '';
+      render();
+    });
+  }
   goToStep(1, false);
   counting = true;
   startLoop();

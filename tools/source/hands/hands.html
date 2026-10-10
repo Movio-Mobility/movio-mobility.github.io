@@ -1,0 +1,300 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Hands: offline renderer</title>
+<!--
+  Renders one hand from tools/source/hands/poses.mjs into a transparent image, in the look of the
+  film's hand on the grip: a milky, see-through body, a fine white outline round it and wherever
+  one finger passes in front of another, and the forearm running out into a dotted line that
+  fades away. Driven by render.mjs, which calls window.renderHand(scene) and reads back a WebP.
+
+  Pass 1 ray-marches the hand (round cones, smoothly joined) and keeps, per pixel: whether it
+  hit, how near the camera, where along the forearm, and how much light falls there, or how
+  close the ray came if it missed. Pass 2 draws from that: the fill, the outline (a constant
+  width in pixels, found from the neighbours), the dots on the arm, and a faint shadow outside
+  the edge so the white hand still reads over the pale studio.
+-->
+<canvas id="c"></canvas>
+<script>
+const MAX = 40;
+
+const VS = `#version 300 es
+in vec2 p; out vec2 uv;
+void main() { uv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+
+const FS1 = `#version 300 es
+precision highp float;
+in vec2 uv; out vec4 o;
+uniform int uN;
+uniform vec4 uA[${MAX}];
+uniform vec4 uB[${MAX}];
+uniform float uG[${MAX}];
+uniform vec4 uRect;      // x0 y0 x1 y1, mm
+uniform float uClip;     // the glass's plane, z
+uniform int uMode;       // 0 the whole hand; 1 only what is in front of the glass; 2 only behind
+uniform vec4 uArm;       // wrist xyz, arm length
+uniform vec3 uArmDir;
+
+float dot2(vec3 v) { return dot(v, v); }
+float sdRoundCone(vec3 p, vec3 a, vec3 b, float r1, float r2) {
+  vec3 ba = b - a;
+  float l2 = dot(ba, ba);
+  if (l2 < 1e-6) return length(p - a) - r1;
+  float rr = r1 - r2;
+  float a2 = l2 - rr * rr;
+  float il2 = 1.0 / l2;
+  vec3 pa = p - a;
+  float y = dot(pa, ba);
+  float z = y - l2;
+  float x2 = dot2(pa * l2 - ba * y);
+  float y2 = y * y * l2;
+  float z2 = z * z * l2;
+  float k = sign(rr) * rr * rr * x2;
+  if (sign(z) * a2 * z2 > k) return sqrt(x2 + z2) * il2 - r2;
+  if (sign(y) * a2 * y2 < k) return sqrt(x2 + y2) * il2 - r1;
+  return (sqrt(x2 * a2 * il2) + y * rr) * il2 - r1;
+}
+float smin(float a, float b, float k) {
+  float h = max(k - abs(a - b), 0.0) / k;
+  return min(a, b) - h * h * k * 0.25;
+}
+// Groups: 0 palm, 1 forearm, 2-5 fingers, 6 thumb. Each finger is its own soft chain; fingers
+// meet the palm softly but stay apart from each other.
+float map(vec3 p) {
+  float g[7];
+  for (int i = 0; i < 7; i++) g[i] = 1e9;
+  for (int i = 0; i < ${MAX}; i++) {
+    if (i >= uN) break;
+    float d = sdRoundCone(p, uA[i].xyz, uB[i].xyz, uA[i].w, uB[i].w);
+    int k = int(uG[i] + 0.5);
+    float s = k == 0 ? 9.0 : (k == 6 ? 2.5 : 1.4);
+    g[k] = g[k] > 1e8 ? d : smin(g[k], d, s);
+  }
+  float d = smin(g[0], g[1], 16.0);
+  d = smin(d, g[6], 7.0);
+  for (int f = 2; f <= 5; f++) d = smin(d, g[f], 3.5);
+  return d;
+}
+vec3 normalAt(vec3 p) {
+  const vec2 e = vec2(0.02, -0.02);
+  return normalize(e.xyy * map(p + e.xyy) + e.yyx * map(p + e.yyx) + e.yxy * map(p + e.yxy) + e.xxx * map(p + e.xxx));
+}
+void main() {
+  vec2 xy = mix(uRect.xy, uRect.zw, uv);
+  vec3 ro = vec3(xy, 400.0);
+  float t = 0.0, minD = 1e9;
+  vec3 pMin = ro;
+  bool hit = false;
+  for (int i = 0; i < 260; i++) {
+    vec3 p = ro - vec3(0, 0, t);
+    float d = map(p);
+    if (d < minD) { minD = d; pMin = p; }
+    if (d < 0.01) { hit = true; break; }
+    t += d * 0.92;
+    if (t > 800.0) break;
+  }
+  // Where along the forearm this is, from the wrist: drives its fade and its dots. A ray that
+  // misses is measured where it came closest to the hand, which is what its shadow belongs to.
+  vec3 p = hit ? ro - vec3(0, 0, t) : pMin;
+  float s = dot(p - uArm.xyz, uArmDir);
+  // A surface this layer leaves to the other one: drawn there, so not here, but its depth is
+  // kept, so the outline still runs where a nearer part of the hand crosses it. The forearm is
+  // always behind the phone: it comes from under its lower corner rather than across the screen.
+  float armD = 1e9;
+  for (int i = 0; i < ${MAX}; i++) {
+    if (i >= uN) break;
+    if (int(uG[i] + 0.5) == 1) armD = min(armD, sdRoundCone(p, uA[i].xyz, uB[i].xyz, uA[i].w, uB[i].w));
+  }
+  bool front = p.z >= uClip && armD > 1.5;
+  if (hit && ((uMode == 1 && !front) || (uMode == 2 && front))) {
+    o = vec4(0.5, p.z, s, -1e3);
+    return;
+  }
+  if (!hit) { o = vec4(0.0, -1e3, s, -minD); return; }
+  vec3 n = normalAt(p);
+  vec3 L = normalize(vec3(-0.5, 0.75, 0.6));
+  float light = 0.5 + 0.5 * dot(n, L);
+  o = vec4(1.0, p.z, s, light);
+}`;
+
+const FS2 = `#version 300 es
+precision highp float;
+in vec2 uv; out vec4 o;
+uniform sampler2D uT;
+uniform vec2 uPx;          // one pixel in uv
+uniform float uMm;         // millimetres per pixel
+uniform float uLine;       // outline width, px
+uniform float uFill;       // body opacity
+uniform float uInk;        // outline opacity
+uniform vec2 uFade;        // forearm: the fill is gone by uFade.x mm up it, the outline by uFade.y
+uniform float uHalo;       // the faint shadow outside the edge
+uniform float uDots;       // where along the arm the outline turns to dots, mm
+void main() {
+  vec4 c = texture(uT, uv);
+  float s = c.z;
+  float armK = clamp(s / uFade.y, 0.0, 1.0);
+  float fillFade = 1.0 - smoothstep(uFade.x * 0.35, uFade.x, s);
+  float inkFade = 1.0 - smoothstep(uFade.y * 0.45, uFade.y, s);
+  if (c.x < 0.75) {
+    // Outside the hand: only the faint shadow, close to the edge.
+    float d = max(-c.w, 0.0);
+    float halo = c.x < 0.25 ? uHalo * exp(-d / 2.2) * inkFade : 0.0;
+    o = vec4(0.0, 0.0, 0.0, halo);
+    return;
+  }
+  // On the hand: an edge if a neighbour within the line's width is not the hand, or is a
+  // surface well behind this one.
+  float edge = 0.0;
+  int R = int(ceil(uLine));
+  for (int j = -4; j <= 4; j++) {
+    for (int i = -4; i <= 4; i++) {
+      if (abs(i) > R || abs(j) > R) continue;
+      float r = length(vec2(i, j));
+      if (r > uLine) continue;
+      vec4 n = texture(uT, uv + vec2(i, j) * uPx);
+      if (n.x < 0.25) edge = 1.0;
+      else if (n.y < c.y - 2.6) edge = max(edge, 1.0);
+    }
+  }
+  // Up the forearm the line breaks into dots, the way the film's particles thin out.
+  float along = max(s - uDots, 0.0);
+  float period = 2.6 + along * 0.02;
+  float duty = mix(1.0, 0.32, smoothstep(0.0, 30.0, along));
+  float dash = s > uDots ? step(fract(s / period), duty) : 1.0;
+  float ink = edge * uInk * inkFade * dash;
+  float fill = uFill * (0.82 + 0.3 * c.w) * fillFade;
+  float a = 1.0 - (1.0 - fill) * (1.0 - ink);
+  o = vec4(1.0, 1.0, 1.0, a);
+}`;
+
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl2', { premultipliedAlpha: false, preserveDrawingBuffer: true, antialias: false });
+gl.getExtension('EXT_color_buffer_float');
+
+function program(vs, fs) {
+  const p = gl.createProgram();
+  for (const [type, src] of [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]]) {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+    gl.attachShader(p, sh);
+  }
+  gl.bindAttribLocation(p, 0, 'p');
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+const P1 = program(VS, FS1);
+const P2 = program(VS, FS2);
+const quad = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);
+gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+/**
+ * scene: { cones: [{a, b, ra, rb, group}], rect: [x0, y0, x1, y1] mm, height: px (final),
+ *          ss: supersampling, clip, line px (final), fill, ink, fade [fill mm, ink mm], halo,
+ *          dots mm }
+ * Returns a WebP data URL of the final size.
+ */
+window.renderHand = async function renderHand(scene) {
+  const [x0, y0, x1, y1] = scene.rect;
+  const ss = scene.ss || 2;
+  const H = Math.round(scene.height * ss);
+  const W = Math.round(H * (x1 - x0) / (y1 - y0));
+  canvas.width = W;
+  canvas.height = H;
+
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, W, H, 0, gl.RGBA, gl.FLOAT, null);
+  for (const k of [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER]) gl.texParameteri(gl.TEXTURE_2D, k, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+
+  // Pass 1, in tiles so no single draw runs long enough to trip a GPU watchdog.
+  gl.useProgram(P1);
+  const cones = scene.cones;
+  const A = new Float32Array(MAX * 4), B = new Float32Array(MAX * 4), G = new Float32Array(MAX);
+  cones.forEach((c, i) => {
+    A.set([...c.a, c.ra], i * 4);
+    B.set([...c.b, c.rb], i * 4);
+    G[i] = c.group;
+  });
+  const arm = cones.find((c) => c.group === 1);
+  const dir = [arm.b[0] - arm.a[0], arm.b[1] - arm.a[1], arm.b[2] - arm.a[2]];
+  const dl = Math.hypot(...dir);
+  gl.uniform1i(gl.getUniformLocation(P1, 'uN'), cones.length);
+  gl.uniform4fv(gl.getUniformLocation(P1, 'uA'), A);
+  gl.uniform4fv(gl.getUniformLocation(P1, 'uB'), B);
+  gl.uniform1fv(gl.getUniformLocation(P1, 'uG'), G);
+  gl.uniform4f(gl.getUniformLocation(P1, 'uRect'), x0, y0, x1, y1);
+  gl.uniform1f(gl.getUniformLocation(P1, 'uClip'), scene.clip ?? 0);
+  gl.uniform1i(gl.getUniformLocation(P1, 'uMode'), scene.mode || 0);
+  gl.uniform4f(gl.getUniformLocation(P1, 'uArm'), ...arm.a, dl);
+  gl.uniform3f(gl.getUniformLocation(P1, 'uArmDir'), dir[0] / dl, dir[1] / dl, dir[2] / dl);
+  gl.viewport(0, 0, W, H);
+  gl.enable(gl.SCISSOR_TEST);
+  const T = 256;
+  for (let ty = 0; ty < H; ty += T) {
+    for (let tx = 0; tx < W; tx += T) {
+      gl.scissor(tx, ty, T, T);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    gl.finish();
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  gl.disable(gl.SCISSOR_TEST);
+
+  // Pass 2, to the canvas.
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.useProgram(P2);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.uniform1i(gl.getUniformLocation(P2, 'uT'), 0);
+  gl.uniform2f(gl.getUniformLocation(P2, 'uPx'), 1 / W, 1 / H);
+  gl.uniform1f(gl.getUniformLocation(P2, 'uMm'), (y1 - y0) / H);
+  gl.uniform1f(gl.getUniformLocation(P2, 'uLine'), (scene.line || 1.4) * ss);
+  gl.uniform1f(gl.getUniformLocation(P2, 'uFill'), scene.fill ?? 0.34);
+  gl.uniform1f(gl.getUniformLocation(P2, 'uInk'), scene.ink ?? 0.95);
+  gl.uniform2f(gl.getUniformLocation(P2, 'uFade'), ...(scene.fade || [60, 150]));
+  gl.uniform1f(gl.getUniformLocation(P2, 'uHalo'), scene.halo ?? 0.07);
+  gl.uniform1f(gl.getUniformLocation(P2, 'uDots'), scene.dots ?? 40);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.finish();
+
+  // Down to the final size, smoothly, and out as WebP.
+  const out = document.createElement('canvas');
+  out.width = Math.round(W / ss);
+  out.height = Math.round(H / ss);
+  const ctx = out.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(canvas, 0, 0, out.width, out.height);
+  gl.deleteTexture(tex);
+  gl.deleteFramebuffer(fb);
+  // Where anything is drawn at all, as fractions of the box (y down), so render.mjs can crop
+  // every size to the same part of the world.
+  const px = ctx.getImageData(0, 0, out.width, out.height).data;
+  let minX = out.width, minY = out.height, maxX = -1, maxY = -1;
+  for (let y = 0; y < out.height; y++) {
+    for (let x = 0; x < out.width; x++) {
+      if (px[(y * out.width + x) * 4 + 3] > 2) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  const bbox = maxX < 0 ? null : [minX / out.width, minY / out.height, (maxX + 1) / out.width, (maxY + 1) / out.height];
+  return { webp: out.toDataURL('image/webp', scene.quality ?? 0.9), png: out.toDataURL('image/png'), width: out.width, height: out.height, bbox };
+};
+window.ready = true;
+</script>

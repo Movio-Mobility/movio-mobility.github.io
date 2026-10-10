@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>GridX</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#c4c4c2">
+
+  <!-- Where reaching for DevTools lands (assets/guard.js). Markup and one stylesheet, and
+       nothing else: no scripts, so there is nothing here to inspect. The studio is the static
+       one from site.css, its drifting light a handful of CSS motes, and the line rises the way
+       every headline on the site does. -->
+  <style>
+    @font-face {
+      font-family: 'DM Sans';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url("assets/fonts/dm-sans-latin.woff2") format('woff2');
+    }
+
+    :root {
+      --ink: #141414;
+      --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+      --logo-h: 22px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* The studio, as site.css paints it when there is no WebGL. */
+    html {
+      min-height: 100%;
+      background-color: #cfcfcd;
+      background-image:
+        radial-gradient(ellipse 26% 16% at 37% 30%, rgb(236 236 234 / 0.95), rgb(236 236 234 / 0) 70%),
+        radial-gradient(ellipse 60% 8% at 74% 41%, rgb(236 236 234 / 0.9), rgb(236 236 234 / 0) 80%),
+        radial-gradient(ellipse 5% 12% at 0% 78%, rgb(245 245 243 / 0.8), rgb(245 245 243 / 0) 90%),
+        linear-gradient(180deg, #aeaeac 0%, #bdbdbb 26%, #d6d6d4 37%, #cfcfcd 46%, #d3d3d1 70%, #d8d8d6 100%);
+      background-attachment: fixed;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      padding: 0 max(1.5rem, env(safe-area-inset-right)) 0 max(1.5rem, env(safe-area-inset-left));
+      overflow: hidden;
+      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* The line: the site's headline type, its words rising out of a blur one after another. */
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 15ch;
+      margin: 0;
+      font-size: clamp(2.25rem, 6.4vw, 5.25rem);
+      font-weight: 500;
+      font-optical-sizing: auto;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      text-align: center;
+      text-wrap: balance;
+    }
+    h1 .w {
+      display: inline-block;
+      animation: rise 0.9s var(--ease-out) calc(0.35s + var(--i) * 70ms) both;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translate3d(0, 0.4em, 0); filter: blur(8px); }
+      to { opacity: 1; transform: none; filter: none; }
+    }
+
+    /* The logo and the way home. The sprite is the wordmark, the gap and the X, exactly as the
+       top bar lays them out open, so it is shown whole. */
+    .brand {
+      position: fixed;
+      top: max(1.125rem, env(safe-area-inset-top));
+      left: max(1.5rem, env(safe-area-inset-left));
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      height: 44px;
+      border-radius: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+    .brand img {
+      display: block;
+      width: calc(var(--logo-h) * 2048 / 256);
+      height: var(--logo-h);
+      filter: brightness(0);
+    }
+
+    /* Drifting light: soft discs, the big ones faint and out of focus, the small ones crisp,
+       as the studio's field throws them. Each wanders a little and breathes, on transform and
+       opacity alone, so the compositor does it all. */
+    .motes {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      animation: lights 2.4s ease both;
+    }
+    .motes i {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--s);
+      height: var(--s);
+      margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgb(255 255 255 / 0.95) 0, rgb(255 255 255 / 0.55) 36%, rgb(255 255 255 / 0) 70%);
+      opacity: var(--o);
+      animation:
+        drift var(--d) ease-in-out var(--dl) infinite alternate,
+        breathe calc(var(--d) * 0.55) ease-in-out var(--dl) infinite alternate;
+    }
+    /* The fine dust, in three depths. Each depth is one dot whose shadows are all the others,
+       so dozens of crisp points cost three layers, and the nearer ones drift further. */
+    .dust {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      animation:
+        drift var(--d) ease-in-out var(--dl) infinite alternate,
+        shimmer calc(var(--d) * 0.5) ease-in-out var(--dl) infinite alternate;
+    }
+    .dust--near {
+      --d: 30s; --dl: -9s; --dx: 34px; --dy: -22px;
+      box-shadow:
+        43.7vw 6.4vh 0.6px 1.3px rgb(255 255 255 / 0.87),
+        22.0vw 21.8vh 0.6px 1.7px rgb(255 255 255 / 0.76),
+        40.1vw 0.8vh 0.6px 1.2px rgb(255 255 255 / 0.80),
+        96.2vw 29.6vh 0.6px 2.3px rgb(255 255 255 / 0.76),
+        58.4vw 97.9vh 0.6px 2.2px rgb(255 255 255 / 0.94),
+        12.3vw 68.5vh 0.6px 0.8px rgb(255 255 255 / 0.83),
+        28.9vw 67.9vh 0.6px 1.9px rgb(255 255 255 / 0.89),
+        -0.6vw 13.4vh 0.6px 1.6px rgb(255 255 255 / 0.86),
+        100.8vw 31.2vh 0.6px 2.1px rgb(255 255 255 / 0.82),
+        96.4vw 14.2vh 0.6px 1.7px rgb(255 255 255 / 0.79),
+        65.0vw 23.3vh 0.6px 1.1px rgb(255 255 255 / 0.82),
+        83.9vw 37.8vh 0.6px 1.5px rgb(255 255 255 / 0.93),
+        57.3vw 86.0vh 0.6px 1.5px rgb(255 255 255 / 0.88),
+        74.4vw 40.1vh 0.6px 1.3px rgb(255 255 255 / 0.81),
+        45.6vw 53.3vh 0.6px 1.3px rgb(255 255 255 / 0.91),
+        93.1vw 41.6vh 0.6px 1.6px rgb(255 255 255 / 0.76),
+        78.3vw 71.1vh 0.6px 1.8px rgb(255 255 255 / 0.76),
+        5.1vw 0.5vh 0.6px 1.4px rgb(255 255 255 / 0.76),
+        44.3vw 84.5vh 0.6px 1.3px rgb(255 255 255 / 0.81),
+        97.4vw 4.5vh 0.6px 2.5px rgb(255 255 255 / 0.81),
+        90.4vw 58.5vh 0.6px 1.8px rgb(255 255 255 / 0.89),
+        30.8vw 53.7vh 0.6px 1.0px rgb(255 255 255 / 0.87);
+    }
+    .dust--mid {
+      --d: 42s; --dl: -21s; --dx: -22px; --dy: 16px;
+      box-shadow:
+        30.8vw -1.9vh 0.4px 0.4px rgb(255 255 255 / 0.74),
+        7.0vw 57.2vh 0.4px 0.7px rgb(255 255 255 / 0.78),
+        37.0vw 78.1vh 0.4px 1.0px rgb(255 255 255 / 0.72),
+        97.6vw 44.7vh 0.4px 0.5px rgb(255 255 255 / 0.85),
+        8.3vw 52.2vh 0.4px 0.2px rgb(255 255 255 / 0.71),
+        20.1vw 72.4vh 0.4px 0.6px rgb(255 255 255 / 0.88),
+        14.7vw 20.1vh 0.4px 0.3px rgb(255 255 255 / 0.79),
+        92.0vw 31.3vh 0.4px 1.0px rgb(255 255 255 / 0.77),
+        45.0vw 56.8vh 0.4px 0.1px rgb(255 255 255 / 0.77),
+        31.7vw 86.6vh 0.4px 0.7px rgb(255 255 255 / 0.81),
+        97.9vw 57.6vh 0.4px 0.7px rgb(255 255 255 / 0.88),
+        81.4vw 82.8vh 0.4px 0.7px rgb(255 255 255 / 0.67),
+        99.4vw 3.8vh 0.4px 0.6px rgb(255 255 255 / 0.83),
+        81.6vw 99.6vh 0.4px 0.7px rgb(255 255 255 / 0.71),
+        59.2vw 29.0vh 0.4px 0.7px rgb(255 255 255 / 0.87),
+        34.6vw 78.5vh 0.4px 0.2px rgb(255 255 255 / 0.75),
+        52.5vw 73.8vh 0.4px 0.4px rgb(255 255 255 / 0.88),
+        75.7vw 79.9vh 0.4px 0.3px rgb(255 255 255 / 0.70),
+        26.0vw 68.7vh 0.4px 0.5px rgb(255 255 255 / 0.87),
+        62.2vw 26.2vh 0.4px 0.4px rgb(255 255 255 / 0.86),
+        52.2vw 18.4vh 0.4px 0.8px rgb(255 255 255 / 0.68),
+        25.7vw 76.0vh 0.4px 0.3px rgb(255 255 255 / 0.81),
+        96.9vw 93.3vh 0.4px 0.2px rgb(255 255 255 / 0.76),
+        33.4vw 68.6vh 0.4px 0.9px rgb(255 255 255 / 0.72),
+        26.1vw -1.1vh 0.4px 1.0px rgb(255 255 255 / 0.89),
+        82.0vw 14.6vh 0.4px 0.9px rgb(255 255 255 / 0.84),
+        62.4vw 16.2vh 0.4px 0.5px rgb(255 255 255 / 0.71),
+        23.9vw 73.9vh 0.4px 0.5px rgb(255 255 255 / 0.77),
+        25.5vw 72.6vh 0.4px 0.8px rgb(255 255 255 / 0.73),
+        46.1vw 19.2vh 0.4px 0.6px rgb(255 255 255 / 0.75);
+    }
+    .dust--far {
+      --d: 56s; --dl: -33s; --dx: 14px; --dy: 10px;
+      box-shadow:
+        61.1vw 66.4vh 0.3px 0.0px rgb(255 255 255 / 0.55),
+        37.2vw 58.4vh 0.3px 0.1px rgb(255 255 255 / 0.66),
+        50.5vw 95.4vh 0.3px 0.0px rgb(255 255 255 / 0.70),
+        27.3vw 0.2vh 0.3px 0.0px rgb(255 255 255 / 0.73),
+        92.5vw 66.5vh 0.3px 0.1px rgb(255 255 255 / 0.57),
+        36.4vw 88.8vh 0.3px 0.0px rgb(255 255 255 / 0.71),
+        82.0vw 40.6vh 0.3px 0.0px rgb(255 255 255 / 0.77),
+        58.9vw 78.1vh 0.3px 0.1px rgb(255 255 255 / 0.72),
+        49.2vw 63.6vh 0.3px 0.0px rgb(255 255 255 / 0.52),
+        81.1vw 80.6vh 0.3px 0.2px rgb(255 255 255 / 0.73),
+        10.6vw 4.6vh 0.3px 0.0px rgb(255 255 255 / 0.71),
+        26.8vw 69.5vh 0.3px 0.0px rgb(255 255 255 / 0.69),
+        61.6vw 23.6vh 0.3px 0.2px rgb(255 255 255 / 0.58),
+        47.7vw 13.0vh 0.3px 0.0px rgb(255 255 255 / 0.71),
+        84.7vw 6.4vh 0.3px 0.3px rgb(255 255 255 / 0.54),
+        14.1vw 13.6vh 0.3px 0.0px rgb(255 255 255 / 0.70),
+        10.6vw 45.7vh 0.3px 0.0px rgb(255 255 255 / 0.60),
+        78.2vw 39.1vh 0.3px 0.0px rgb(255 255 255 / 0.55),
+        7.4vw 97.1vh 0.3px 0.2px rgb(255 255 255 / 0.59),
+        21.6vw 75.1vh 0.3px 0.0px rgb(255 255 255 / 0.67),
+        79.4vw 57.1vh 0.3px 0.0px rgb(255 255 255 / 0.75),
+        92.1vw 76.5vh 0.3px 0.1px rgb(255 255 255 / 0.51),
+        8.7vw 55.4vh 0.3px 0.1px rgb(255 255 255 / 0.75),
+        0.0vw 30.0vh 0.3px 0.0px rgb(255 255 255 / 0.54),
+        58.9vw 27.1vh 0.3px 0.0px rgb(255 255 255 / 0.59),
+        27.6vw 21.8vh 0.3px 0.0px rgb(255 255 255 / 0.54),
+        46.2vw 17.3vh 0.3px 0.0px rgb(255 255 255 / 0.63),
+        90.9vw 1.0vh 0.3px 0.0px rgb(255 255 255 / 0.73),
+        3.5vw 78.2vh 0.3px 0.0px rgb(255 255 255 / 0.68),
+        81.8vw 69.0vh 0.3px 0.0px rgb(255 255 255 / 0.69),
+        45.2vw 67.0vh 0.3px 0.0px rgb(255 255 255 / 0.65),
+        34.9vw 47.3vh 0.3px 0.0px rgb(255 255 255 / 0.51),
+        55.9vw 75.9vh 0.3px 0.0px rgb(255 255 255 / 0.64),
+        14.9vw 92.1vh 0.3px 0.0px rgb(255 255 255 / 0.69);
+    }
+    @keyframes shimmer { to { opacity: 0.6; } }
+    @keyframes lights { from { opacity: 0; } }
+    @keyframes drift { to { transform: translate3d(var(--dx), var(--dy), 0); } }
+    @keyframes breathe { to { opacity: calc(var(--o) * 0.4); } }
+
+    @media (max-width: 759px) {
+      :root { --logo-h: 18px; }
+      .brand {
+        left: max(1rem, env(safe-area-inset-left));
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      h1 .w { animation: none; }
+      .motes,
+      .motes i,
+      .dust { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="brand" href="index.html" aria-label="GridX home"><img src="assets/gridX_logo.png" alt=""></a>
+
+  <div class="motes" aria-hidden="true">
+    <i style="--x:14%; --y:22%; --s:120px; --o:.22; --d:34s; --dl:-6s;  --dx:40px;  --dy:-26px"></i>
+    <i style="--x:78%; --y:30%; --s:90px;  --o:.26; --d:28s; --dl:-14s; --dx:-34px; --dy:22px"></i>
+    <i style="--x:62%; --y:78%; --s:140px; --o:.18; --d:40s; --dl:-20s; --dx:30px;  --dy:-30px"></i>
+    <i style="--x:26%; --y:70%; --s:70px;  --o:.3;  --d:31s; --dl:-3s;  --dx:-22px; --dy:-18px"></i>
+    <i style="--x:90%; --y:84%; --s:100px; --o:.2;  --d:37s; --dl:-11s; --dx:-28px; --dy:-20px"></i>
+    <i style="--x:36%; --y:16%; --s:22px;  --o:.5;  --d:24s; --dl:-9s;  --dx:26px;  --dy:18px"></i>
+    <i style="--x:70%; --y:12%; --s:16px;  --o:.55; --d:21s; --dl:-4s;  --dx:-18px; --dy:24px"></i>
+    <i style="--x:8%;  --y:52%; --s:26px;  --o:.42; --d:27s; --dl:-16s; --dx:20px;  --dy:-22px"></i>
+    <i style="--x:54%; --y:64%; --s:14px;  --o:.5;  --d:23s; --dl:-7s;  --dx:-24px; --dy:-14px"></i>
+    <i style="--x:84%; --y:58%; --s:20px;  --o:.46; --d:26s; --dl:-12s; --dx:16px;  --dy:20px"></i>
+    <i style="--x:44%; --y:88%; --s:18px;  --o:.48; --d:29s; --dl:-2s;  --dx:22px;  --dy:-16px"></i>
+    <b class="dust dust--near"></b>
+    <b class="dust dust--mid"></b>
+    <b class="dust dust--far"></b>
+  </div>
+
+  <h1><span class="w" style="--i:0">We</span> <span class="w" style="--i:1">are</span> <span class="w" style="--i:2">better</span> <span class="w" style="--i:3">than</span> <span class="w" style="--i:4">that.</span></h1>
+</body>
+</html>

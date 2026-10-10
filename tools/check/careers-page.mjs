@@ -668,7 +668,7 @@ try {
       mail: document.querySelector('[data-notice] a[href^="mailto:"]')?.getAttribute('href'),
       tape: getComputedStyle(document.querySelector('.tl-bar')).visibility,
     }));
-    report('empty: a warm word, the open application and the careers email, no tape', e.empty && e.title === 'No open roles right now.' && e.apply && e.mail === 'mailto:careers@gridxenergy.in' && e.tape === 'hidden', JSON.stringify(e), problems);
+    report('empty: a warm word, the open application and the careers email, no tape', e.empty && e.title === 'No open roles right now.' && e.apply && e.mail === 'mailto:info@gridxenergy.in' && e.tape === 'hidden', JSON.stringify(e), problems);
     await reset();
     await refresh(page);
     await settled(page);

@@ -20,6 +20,9 @@
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Reaching for DevTools gets a joke instead of the site (assets/guard.js). Ahead of the
+       page scripts, so it is in place before any of them runs. -->
+  <script src="assets/guard.js"></script>
   <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
   <script src="assets/perf.js"></script>
 </head>
@@ -29,8 +32,8 @@
   <header class="topbar">
     <div class="brand-lockup">
       <a class="brand" href="index.html" aria-label="GridX home">
-        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
-        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__word"><img src="assets/gridX_logo_dark.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo_dark.png" alt=""></span>
       </a>
       <h1 class="headline"><span class="w" style="--i:0">Legal</span></h1>
     </div>

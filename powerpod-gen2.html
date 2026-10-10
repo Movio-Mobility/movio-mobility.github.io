@@ -24,6 +24,9 @@
     document.documentElement.classList.add('pg2-shell', 'island-click-only', 'is-compact');
   </script>
   <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Reaching for DevTools gets a joke instead of the site (assets/guard.js). Ahead of the
+       page scripts, so it is in place before any of them runs. -->
+  <script src="assets/guard.js"></script>
   <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
   <script src="assets/perf.js"></script>
 </head>
@@ -33,8 +36,8 @@
   <header class="topbar">
     <div class="brand-lockup">
       <a class="brand" href="index.html" aria-label="GridX home">
-        <span class="brand__part brand__word"><img src="assets/gridX_logo.png" alt=""></span>
-        <span class="brand__part brand__mark"><img src="assets/gridX_logo.png" alt=""></span>
+        <span class="brand__part brand__word"><img src="assets/gridX_logo_dark.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo_dark.png" alt=""></span>
       </a>
       <h1 class="headline"><span class="w" style="--i:0">PowerPod</span></h1>
     </div>
@@ -426,14 +429,14 @@
                script from one constant, and from Paddock's own quote once it has one. -->
           <section class="pg2-view" id="view-payment" data-stage="3">
             <div class="pg2-pay" id="pg2-pay-reserve">
-              <h2 class="pg2-step__title" tabindex="-1">Reserve your PowerPod Gen2.</h2>
+              <h2 class="pg2-step__title" tabindex="-1">Pre-book your PowerPod Gen2.</h2>
               <p class="pg2-step__sub">Hold yours today. The rest is paid when your PowerPod is ready for you.</p>
 
               <!-- An action, not a choice: there is only one way to pay, so it is a button that
                    leads to the bill rather than a radio with nothing beside it. -->
               <button class="opt opt--plain opt--go" id="pg2-reserve" type="button">
                 <span class="opt__body">
-                  <span class="opt__title">Reserve Now</span>
+                  <span class="opt__title">Pre-book Now</span>
                   <span class="opt__lede">Hold yours for <span data-money="reserve">₹500</span>.</span>
                   <span class="opt__detail">Deducted from your PowerPod amount when you make the final payment. A small platform fee applies.</span>
                 </span>
@@ -512,6 +515,7 @@
   <script src="assets/grid-bg.js"></script>
   <script src="assets/pod-assets.js"></script>
   <script src="assets/keyboard.js"></script>
+  <script src="assets/launch.js"></script>
   <script src="assets/powerpod-gen2.js"></script>
   <script src="assets/topbar.js"></script>
   <script src="assets/analytics.js" defer></script>
