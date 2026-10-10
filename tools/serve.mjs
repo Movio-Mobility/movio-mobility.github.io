@@ -30,6 +30,7 @@ const TYPES = {
   '.js': 'application/javascript; charset=utf-8',
   '.mjs': 'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
   '.xml': 'application/xml',
@@ -47,7 +48,7 @@ const TYPES = {
   '.wasm': 'application/wasm',
 };
 // What GitHub Pages (Fastly) gzips. Everything else is served as stored.
-const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '.txt', '.xml']);
+const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.webmanifest', '.svg', '.txt', '.xml']);
 
 export function serve({ root, port = 8002, quiet = false } = {}) {
   const base = path.resolve(root || process.cwd());

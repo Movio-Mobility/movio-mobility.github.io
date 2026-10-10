@@ -1,0 +1,28 @@
+{
+  "name": "GridXenergy",
+  "short_name": "GridX",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#121212",
+  "theme_color": "#c4c4c2",
+  "icons": [
+    {
+      "src": "icon-192.png?v=3cc8e0c4b0",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png?v=cdd0da2498",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png?v=507f8e3300",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

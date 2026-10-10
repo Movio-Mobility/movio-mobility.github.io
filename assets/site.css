@@ -201,7 +201,7 @@ html.skip-intro .headline .w {
 }
 
 /* Logo: one image cropped into the GRID wordmark and the X mark (source 2048×256, half
-   scale here: the logo in its own colours, sage GRID and cream X, as it is made for dark
+   scale here: the logo in its own colours, sage letters and a cream X, as made for dark
    grounds). It sits on a translucent black pill, so it reads the same on every page and over
    anything behind it. The pill is as wide as what it holds, so it springs with the wordmark
    and the X as they fold (--rubber); its padding covers the X's overshoot. */
