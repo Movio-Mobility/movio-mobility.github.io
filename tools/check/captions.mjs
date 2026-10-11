@@ -39,9 +39,9 @@ const VIEWPORTS = {
   ultra: { width: 2560, height: 1080, deviceScaleFactor: 1 },
 };
 // Each caption's beat, at a moment it is fully in.
-const BEATS = { 0: 1.45, 1: 2.7, 2: 3.95, 3: 5.6, 4: 8.45, 5: 12.5, 6: 13.6, 7: 15.95 };
+const BEATS = { 0: 1.45, 1: 2.7, 2: 3.95, 3: 5.5, 4: 7.4, 5: 10.25, 6: 14.3, 7: 15.4, 8: 17.75 };
 // The pod's own beats, where it is on its own or in a drawing.
-const POD_AT = [1.45, 2.7, 3.95, 5.0, 6.6];
+const POD_AT = [1.45, 2.7, 3.95, 5.3, 6.8, 8.4];
 const INK = {
   pod: { l: 0.1877, t: 0.0049, r: 0.8123, b: 0.8852 },
   phone: { l: 0.2511, t: 0.0096, r: 0.7489, b: 0.7636 },
@@ -130,33 +130,34 @@ try {
         if (!r) return;
         if (r.pod > col - 32) wrong.push(`the pod at t ${POD_AT[i]} reaches ${Math.round(r.pod)}`);
         if (i === 0 && r.scooter > col - 32) wrong.push(`the scooter reaches ${Math.round(r.scooter)}`);
+        if (i === 0 && r.close > col - 32) wrong.push(`the close-up dock reaches ${Math.round(r.close)}`);
         if (i === 0 && r.lift > col - 32) wrong.push(`the lift reaches ${Math.round(r.lift)}`);
       });
-      await scrollTo(tab, 8.45);
+      await scrollTo(tab, 10.25);
       const phone = await tab.evaluate(box, '.phone');
       if (phone.r > col - 32) wrong.push(`the phone reaches ${Math.round(phone.r)}`);
-      await scrollTo(tab, 13.6);
+      await scrollTo(tab, 15.4);
       const pair = await tab.evaluate(box, '.film__pair', INK.pair);
       if (pair.r > col - 32) wrong.push(`the two pods reach ${Math.round(pair.r)}`);
-      await scrollTo(tab, 15.95, 2200);
+      await scrollTo(tab, 17.75, 2200);
       const still = await tab.evaluate(box, '.film__still', INK.phone);
       const row = await tab.evaluate(box, '.film__prebook');
       if (still.r > col - 32) wrong.push(`the finale's phone reaches ${Math.round(still.r)}`);
       if (row.r > col - 16) wrong.push(`the pre-book row reaches ${Math.round(row.r)}`);
     } else {
       const line = first.y;
-      for (const t of [1.45, 2.7, 3.95]) {
+      for (const t of [1.45, 2.7, 3.95, 5.3]) {
         await scrollTo(tab, t, 2000);
         const b = await darkBottom(tab);
         if (b > line - 8) wrong.push(`the pod at t ${t} comes down to ${Math.round(b)}`);
       }
-      await scrollTo(tab, 8.45);
-      const row = await tab.evaluate(box, '.film__tap[data-beat="4"] .film__points');
+      await scrollTo(tab, 10.25);
+      const row = await tab.evaluate(box, '.film__tap[data-beat="5"] .film__points');
       if (row.b > line - 8) wrong.push(`the phone's row comes down to ${Math.round(row.b)}`);
-      await scrollTo(tab, 13.6);
+      await scrollTo(tab, 15.4);
       const pair = await tab.evaluate(box, '.film__pair', INK.pair);
       if (pair.b > line - 8) wrong.push(`the two pods come down to ${Math.round(pair.b)}`);
-      await scrollTo(tab, 15.95, 2200);
+      await scrollTo(tab, 17.75, 2200);
       const prebook = await tab.evaluate(box, '.film__prebook');
       if (prebook.b > line - 8) wrong.push(`the pre-book row comes down to ${Math.round(prebook.b)}`);
     }
@@ -164,7 +165,7 @@ try {
 
     // A reload straight onto a beat: in place from the first frame.
     if (wide) {
-      for (const beat of [1, 4, 6, 7]) {
+      for (const beat of [1, 5, 7, 8]) {
         await scrollTo(tab, BEATS[beat], 600);
         await tab.reload({ waitUntil: 'domcontentloaded' });
         await tab.waitForSelector('.film__caption');

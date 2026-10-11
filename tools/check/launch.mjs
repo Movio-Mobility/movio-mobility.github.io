@@ -93,7 +93,9 @@ async function finish(name, page, errors) {
 }
 
 // ---------------------------------------------------------------- home page, before the launch
-const LINE = 'Pre-booking opens 12 October, 12 PM. Shipping across India.';
+// 300000 seconds before the launch is 83 hours and 20 minutes; the page is read within a minute.
+const LINE = /^Pre-booking opens in 83 hours, (19|20) minutes$/;
+const SHIP = 'Shipping across India, starting 9th November';
 const placement = (page) => page.evaluate(() => {
   const r = (el) => el.getBoundingClientRect();
   const launch = document.querySelector('.launch');
@@ -116,6 +118,7 @@ const placement = (page) => page.evaluate(() => {
     sideways: document.documentElement.scrollWidth > innerWidth,
     opacity: shown.map((el) => Number(getComputedStyle(el).opacity)),
     text: launch.querySelector('[data-launch-note]').textContent,
+    ship: launch.querySelector('[data-launch-ship]').textContent,
   };
 });
 
@@ -124,7 +127,7 @@ for (const [name, viewport] of Object.entries(VIEWPORTS)) {
   await until(page, () => document.querySelector('.headline').classList.contains('is-revealed'), 8000);
   await wait(1800);
   const p = await placement(page);
-  report(`${name}: says when`, p.text === LINE, p.text);
+  report(`${name}: counts down to it`, LINE.test(p.text) && p.ship === SHIP, `${p.text} / ${p.ship}`);
   report(`${name}: in with the headline`, p.opacity.every((o) => o > 0.99), p.opacity.join(', '));
   report(`${name}: under the headline`, p.top >= p.headline + 6 && p.top <= p.headline + 40,
     `headline ends ${Math.round(p.headline)}, line starts ${Math.round(p.top)}`);
@@ -169,14 +172,16 @@ for (const name of ['phone', 'small', 'desktop', 'landscape']) {
       height: Math.round(r.height),
       hit: document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === a,
       focused: document.activeElement === a,
-      note: document.querySelector('[data-launch-note]').textContent,
+      label: a.textContent.trim(),
+      countGone: getComputedStyle(document.querySelector('[data-launch-note]')).display === 'none',
+      ship: document.querySelector('[data-launch-ship]').textContent,
       news: document.querySelector('[data-launch-news]').textContent,
       href: a.getAttribute('href'),
     };
   });
   report(`${name}: the button is in`, cta.shown && cta.hit && cta.focused, JSON.stringify(cta));
   report(`${name}: the button is big enough`, cta.height >= (name === 'landscape' ? 40 : 52), `${cta.height}px`);
-  report(`${name}: says pre-booking is open`, cta.note === 'Pre-booking is now open. Shipping across India.' && cta.news === 'Pre-booking is open.', `${cta.note} / ${cta.news}`);
+  report(`${name}: the count has turned into the button, the shipping line under it`, cta.label === 'Pre-book now at ₹399' && cta.countGone && cta.ship === SHIP && cta.news === 'Pre-booking is open.', `${cta.label} / ${cta.ship} / ${cta.news}`);
   report(`${name}: goes to the configurator`, cta.href === 'powerpod-gen2.html', cta.href);
   const p = await placement(page);
   report(`${name}: open, clear of the island`, p.bottom <= p.floor - 12 && !p.sideways, `ends ${Math.round(p.bottom)}, island at ${Math.round(p.floor)}`);
@@ -218,7 +223,7 @@ for (const [label, before] of [
   const { page, errors } = await open('index.html?check&launch=-300000', { before, ignore: /WebGLRenderer|WebGL context/ });
   await wait(1800);
   const p = await placement(page);
-  report(`${label}: the line, under the headline`, p.text === LINE && p.opacity.every((o) => o > 0.99) && p.top >= p.headline + 8,
+  report(`${label}: the line, under the headline`, LINE.test(p.text) && p.opacity.every((o) => o > 0.99) && p.top >= p.headline + 8,
     `${p.text} / ${p.opacity.join(', ')} / ${Math.round(p.top)} after ${Math.round(p.headline)}`);
   if (label === 'reduced motion') await page.screenshot({ path: path.join(OUT, 'launch-reduced.png') });
   await finish(label, page, errors);
@@ -241,9 +246,7 @@ for (const [label, before] of [
 
 // ---------------------------------------------------------------- configurator
 async function toPayment(page) {
-  for (const [group, value] of [['vehicle', 'no'], ['charger', '6a'], ['adapter', 'no'], ['dock', 'no']]) {
-    await page.click(`label.opt[data-group="${group}"][data-value="${value}"]`);
-  }
+  await page.click('label.opt[data-group="vehicle"][data-value="no"]');
   await page.click('#pg2-next');
   await wait(400);
   for (const [id, value] of [['#f-name', 'Asha Menon'], ['#f-phone', '9876543210'], ['#f-email', 'asha@example.com'], ['#f-city', 'Bengaluru'], ['#f-pin', '560001']]) {

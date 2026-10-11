@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * The warranty beat ("5 years, covered.") and its two pods, the studio render that stands in for
+ * The warranty beat ("5 years warranty.") and its two pods, the studio render that stands in for
  * the 3D pod there (.film__pair in index.html), checked in headless Chrome.
  *
  *   node tools/check/warranty.mjs                  every width
@@ -60,7 +60,7 @@ const STATE = (pods) => {
     t: b.top + pods.top * b.height, b: b.top + pods.bottom * b.height,
   };
   const cs = getComputedStyle(pair);
-  const words = [...document.querySelectorAll('.film__caption[data-beat="6"] > *')].map((el) => el.getBoundingClientRect());
+  const words = [...document.querySelectorAll('.film__caption[data-beat="7"] > *')].map((el) => el.getBoundingClientRect());
   const caption = { l: Math.min(...words.map((w) => w.left)), t: Math.min(...words.map((w) => w.top)) };
   const logo = document.querySelector('.topbar__logo, .brand, header img, .topbar');
   return {
@@ -70,7 +70,7 @@ const STATE = (pods) => {
     ink,
     caption,
     logoBottom: logo ? logo.getBoundingClientRect().bottom : 0,
-    title: document.querySelector('.film__caption[data-beat="6"] .film__title').textContent.trim(),
+    title: document.querySelector('.film__caption[data-beat="7"] .film__title').textContent.trim(),
     overflowX: document.documentElement.scrollWidth > innerWidth + 1,
     vw: innerWidth,
     vh: innerHeight,
@@ -99,17 +99,17 @@ try {
     report(`${name}: not fetched with the page`, !fetched.length);
     // Through the film to the first app beat, which lays out the captions on the way.
     await scrollTo(tab, 4.0);
-    await scrollTo(tab, 8.45);
+    await scrollTo(tab, 10.25);
     report(`${name}: not fetched before the app beats`, !fetched.length);
     let st = await tab.evaluate(STATE, PODS);
     report(`${name}: hidden before its beat`, st.hidden);
 
-    await scrollTo(tab, 13.6);
+    await scrollTo(tab, 15.4);
     st = await tab.evaluate(STATE, PODS);
     const wrong = [];
     if (!st.shown) wrong.push('not shown');
     if (!st.loaded) wrong.push('picture not loaded');
-    if (st.title !== '5 years, covered.') wrong.push(`title "${st.title}"`);
+    if (st.title !== '5 years warranty.') wrong.push(`title "${st.title}"`);
     if (st.ink.l < 0 || st.ink.r > st.vw || st.ink.t < 0 || st.ink.b > st.vh) wrong.push('pods run off screen');
     if (st.overflowX) wrong.push('the page scrolls sideways');
     if (wide) {
@@ -122,7 +122,7 @@ try {
     report(`${name}: in its beat, shown and placed`, !wrong.length, wrong.join('; '));
     report(`${name}: fetched once`, fetched.length === 1, `${fetched.length} requests`);
 
-    for (const t of [12.5, 15.8]) {
+    for (const t of [14.3, 17.6]) {
       await scrollTo(tab, t);
       st = await tab.evaluate(STATE, PODS);
       report(`${name}: hidden at t ${t}`, st.hidden);

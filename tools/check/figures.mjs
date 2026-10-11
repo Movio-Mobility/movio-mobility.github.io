@@ -46,9 +46,10 @@ const VIEWPORTS = {
 // Film positions, in viewport heights of scroll (the beats in index.html).
 const SCENES = [
   ['hand on the grip', 2.95],
-  ['dock and scooter', 5.2],
-  ['her, at the lift', 6.4],
-  ['the ride', 7.3],
+  ['the dock, close up', 5.4],
+  ['dock and scooter', 7.0],
+  ['her, at the lift', 8.2],
+  ['the ride', 9.1],
 ];
 
 // The page's clock, made virtual and deterministic, as in tools/check/hand.mjs.

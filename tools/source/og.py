@@ -9,7 +9,7 @@
   assets/og/adapter.jpg        adapter.html        the portable charging adapter
   assets/og/vehicle-dock.jpg   vehicle-dock.html   the dock with a pod seated in it
   assets/og/brand.jpg          chargers (no cut-out render exists), journey, dealers,
-                               support and both policies: the X mark alone
+                               support, both policies and the warranty terms: the X mark alone
 
 The look is the site's own studio: the light grey the pages stand in (site.css's gradient),
 with the subject on a drawn shadow and the X from the logo as the mark, in the logo's own dark

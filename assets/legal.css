@@ -1,6 +1,7 @@
 /*
- * The legal page: the Terms and Conditions and the Customer Privacy Policy, which are one
- * document, as they were on the old site. Both footer links land here.
+ * The legal pages: the Terms and Conditions and the Customer Privacy Policy, which are one
+ * document, as they were on the old site (both footer links land there), the subscription
+ * policy, and the PowerPod warranty terms.
  *
  * It sits in .store, the inner page container, for the top bar and nav island clearances
  * and for footer.js, which dims .store with the room. The text is set like the FAQ answers
@@ -72,6 +73,20 @@
   color: rgb(20 20 20 / 0.42);
   font-weight: 600;
 }
+
+/* A part's label over its first section (the warranty terms: the plain-words chapters, then the
+   terms in full), set small and spaced, a step back like the numbers. */
+.legal__body .legal__part {
+  margin: 2.75rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(20 20 20 / 0.42);
+}
+.legal__body .legal__part:first-child { margin-top: 0; }
+.legal__part + .legal__section { margin-top: 0.75rem; }
 
 .legal__body strong {
   font-weight: 600;
@@ -167,6 +182,17 @@
     font-weight: 500;
     color: rgb(20 20 20 / 0.35);
   }
+  /* The parts' labels in the index, over the sections of each. */
+  .legal__index .legal__group {
+    margin: 1.1rem 0 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(20 20 20 / 0.4);
+  }
+  .legal__index .legal__group:first-child { margin-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

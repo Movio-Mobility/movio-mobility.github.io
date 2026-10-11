@@ -36,8 +36,8 @@ function loadLiftFilm(file) {
 const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 const remap01 = (t, a, b) => Math.min(1, Math.max(0, (t - a) / Math.max(1e-6, b - a)));
 const LIFTCUT = {
-  transfer: [5.45, 5.90], gather: [5.70, 5.95], count: [5.95, 6.28], ding: [6.26, 6.40], open: [6.30, 6.55],
-  walk: [6.55, 6.95], close: [6.95, 7.10], ride: [7.18, 7.50], rise: [7.45, 7.72], release: [7.68, 7.92],
+  transfer: [7.25, 7.70], gather: [7.50, 7.75], count: [7.75, 8.08], ding: [8.06, 8.20], open: [8.10, 8.35],
+  walk: [8.35, 8.75], close: [8.75, 8.90], ride: [8.98, 9.30], rise: [9.25, 9.52], release: [9.48, 9.72],
 };
 const inCut = (t, r) => remap01(t, r[0], r[1]);
 const rideSpeed = (t) => smoother(inCut(t, LIFTCUT.ride)) * (1 - smoother(inCut(t, LIFTCUT.release)));
@@ -74,8 +74,8 @@ function states() {
     out.push(liftState(t, clock));
   }
   for (let i = 0; i < 240; i++) {
-    clock += (1 / 60) * (0.12 + 1.5 * rideSpeed(7.4));
-    out.push(liftState(7.4, clock));
+    clock += (1 / 60) * (0.12 + 1.5 * rideSpeed(9.2));
+    out.push(liftState(9.2, clock));
   }
   return out;
 }

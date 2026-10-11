@@ -15,7 +15,7 @@ const opt = (name, fallback) => {
   return i >= 0 ? args[i + 1] : fallback;
 };
 const root = path.resolve(opt('root', '.'));
-const pages = opt('pages', 'index,journey,store,powerpod-gen2,adapter,vehicle-dock,chargers,support,careers,dealers,privacy_policy').split(',');
+const pages = opt('pages', 'index,journey,store,powerpod-gen2,adapter,vehicle-dock,chargers,support,careers,dealers,privacy_policy,warranty_terms').split(',');
 const wait = Number(opt('wait', 4000));
 const query = opt('query', '');
 const port = 8091;

@@ -125,7 +125,7 @@ const PROBE = () => {
 // per frame at a fixed speed, so a slow main thread shows up as a slow, stepped scroll.
 const SCENARIOS = {
   // The whole film at a reading pace, with a hold on the lift ride (its animation keeps running).
-  index: { idle: 1500, legs: [[0, 7.4, 0.55], ['hold', 2500], [7.4, 'end', 0.55]], cap: 40000 },
+  index: { idle: 1500, legs: [[0, 9.2, 0.55], ['hold', 2500], [9.2, 'end', 0.55]], cap: 45000 },
   journey: { idle: 1500, legs: [[0, 'end', 1.2]], cap: 22000 },
   default: { idle: 4000, legs: [[0, 'end', 1.0]], cap: 12000 },
 };

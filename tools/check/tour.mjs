@@ -46,14 +46,14 @@ const VIEWPORTS = {
 // The points, in the film's viewports, and what should be true there. `page` is the tab in the
 // phone (-1 Charging, 0 Home, 1 PowerPod); `press` that the finger is down on the pill.
 const POINTS = [
-  { t: 8.45, label: 'before', touring: false },
-  { t: 9.5, label: 'grown', touring: true, page: 0 },
-  { t: 9.70, label: 'press', touring: true, page: 0, press: true },
-  { t: 9.97, label: 'powerpod', touring: true, page: 1 },
-  { t: 10.42, label: 'home', touring: true, page: 0 },
-  { t: 10.87, label: 'charging', touring: true, page: -1 },
-  { t: 11.32, label: 'home again', touring: true, page: 0 },
-  { t: 12.5, label: 'after', touring: false },
+  { t: 10.25, label: 'before', touring: false },
+  { t: 11.3, label: 'grown', touring: true, page: 0 },
+  { t: 11.50, label: 'press', touring: true, page: 0, press: true },
+  { t: 11.77, label: 'powerpod', touring: true, page: 1 },
+  { t: 12.22, label: 'home', touring: true, page: 0 },
+  { t: 12.67, label: 'charging', touring: true, page: -1 },
+  { t: 13.12, label: 'home again', touring: true, page: 0 },
+  { t: 14.3, label: 'after', touring: false },
 ];
 
 let failed = 0;
@@ -183,7 +183,7 @@ try {
     // One hand, never two: through each part of a press and flick on the pill.
     {
       const doubled = [];
-      for (const t of [9.62, 9.65, 9.68, 9.72, 9.76, 9.78, 9.80, 10.10, 10.20, 10.25, 10.55, 10.65, 11.00, 11.12]) {
+      for (const t of [11.42, 11.45, 11.48, 11.52, 11.56, 11.58, 11.60, 11.90, 12.00, 12.05, 12.35, 12.45, 12.80, 12.92]) {
         await scrollTo(tab, t);
         const st = await tab.evaluate(STATE);
         if (st.hands.filter((o) => o > 0.01).length > 1) doubled.push(t);
@@ -192,7 +192,7 @@ try {
     }
 
     // The pod is gone after the lift: once the film settles anywhere past it, its loop sleeps.
-    for (const t of [8.45, 10.0, 12.5, 13.6]) {
+    for (const t of [10.25, 11.8, 14.3, 15.4]) {
       await scrollTo(tab, t);
       await sleep(600);
       const before = await tab.evaluate(() => window.__podFrames);
@@ -244,7 +244,7 @@ try {
       }, iso);
       await tab.goto('http://localhost:8143/index.html?check', { waitUntil: 'load' });
       await sleep(1500);
-      await scrollTo(tab, 8.45);
+      await scrollTo(tab, 10.25);
       const text = await tab.evaluate(() => [...document.querySelectorAll('.app__slot')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()));
       await sleep(3500);
       const later = await tab.evaluate(() => [...document.querySelectorAll('.app__slot')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()));

@@ -45,10 +45,10 @@ const shotsWanted = opt('shots', '');
 // Film positions (viewports down the home page) worth looking at, from index.html's beats.
 const SHOTS = page === 'index'
   ? [['hero', 0], ['haze', 0.55], ['reveal', 1.0], ['grip', 2.4], ['hand-held', 2.74], ['hand-lift', 3.02], ['hand-gone', 3.4],
-    ['overhead', 3.6], ['dock', 5.0],
-    ['lift-wait', 6.1], ['lift-walk', 6.75], ['ride', 7.35], ['app', 8.6],
-    ['tour-centre', 9.5], ['tour-powerpod', 9.97], ['tour-charging', 10.87], ['app-live', 12.5], ['warranty', 13.6],
-    ['pull-back', 14.4], ['phone-in', 15.1], ['finale', 15.95], ['footer', 17.1]]
+    ['overhead', 3.6], ['close', 5.3], ['zoom', 6.45], ['dock', 6.8],
+    ['lift-wait', 7.9], ['lift-walk', 8.55], ['ride', 9.15], ['app', 10.4],
+    ['tour-centre', 11.3], ['tour-powerpod', 11.77], ['tour-charging', 12.67], ['app-live', 14.3], ['warranty', 15.4],
+    ['pull-back', 16.2], ['phone-in', 16.9], ['finale', 17.75], ['footer', 18.9]]
   : [['top', 0], ['middle', 0.5], ['bottom', 1]];
 
 const VIRTUAL = (seed) => {

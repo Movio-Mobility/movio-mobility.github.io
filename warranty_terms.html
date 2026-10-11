@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en" class="skip-intro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Warranty Terms | GridXenergy</title>
+  <meta name="description" content="GridX PowerPod limited product warranty: what is covered, what to expect, what is not covered, and the full terms for the battery, charger and vehicle dock.">
+  <meta name="theme-color" content="#c4c4c2">
+  <!-- The site's icons (tools/source/favicons.py): the tab's three sizes in one file, then the
+       home screen's for iOS and for Android. -->
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="assets/icons/site.webmanifest">
+  <link rel="canonical" href="https://gridxenergy.in/warranty_terms.html">
+
+  <!-- DM Sans is self-hosted (assets/fonts, declared in the stylesheet): the same files Google
+       Fonts serves, without the two extra connections and the render-blocking stylesheet that
+       used to stand in front of them. Not preloaded: on a slow connection a preload competes with
+       the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/store.css">
+  <link rel="stylesheet" href="assets/sheet.css">
+  <link rel="stylesheet" href="assets/legal.css">
+  <link rel="stylesheet" href="assets/footer.css">
+
+  <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
+  <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
+  <noscript><style>.headline .w, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
+  <!-- Reaching for DevTools gets a joke instead of the site (assets/guard.js). Ahead of the
+       page scripts, so it is in place before any of them runs. -->
+  <script src="assets/guard.js"></script>
+  <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
+  <script src="assets/perf.js"></script>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <a class="brand" href="index.html" aria-label="GridX home">
+        <span class="brand__part brand__word"><img src="assets/gridX_logo_dark.png" alt=""></span>
+        <span class="brand__part brand__mark"><img src="assets/gridX_logo_dark.png" alt=""></span>
+      </a>
+      <h1 class="headline"><span class="w" style="--i:0">Legal</span></h1>
+    </div>
+
+    <div class="island-wrap">
+      <nav class="island" aria-label="Primary">
+        <div class="island__thumb" aria-hidden="true"></div>
+        <ul class="island__list">
+          <li>
+            <a class="island__link" href="index.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+              <span class="island__label">Home</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="store.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+              <span class="island__label">Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="dealers.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+              <span class="island__label">Dealers</span>
+            </a>
+          </li>
+          <li>
+            <a class="island__link" href="support.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5m5 5L18 18m0-12-3.5 3.5m-5 5L6 18"/></svg>
+              <span class="island__label">Support</span>
+            </a>
+          </li>
+          <!-- The fifth slot is the page's own. Like Careers, this page is reached from the
+               footer, not the nav, so it joins the island only while it is open (see topbar.js). -->
+          <li class="island__context">
+            <a class="island__link" href="warranty_terms.html" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H7.5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V7z"/><path d="M14 3.5V7h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+              <span class="island__label">Legal</span>
+            </a>
+          </li>
+        </ul>
+        <!-- Collapsed state: just the current page's icon, the same glyph as its own tab. -->
+        <div class="island__compact" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M14 3.5H7.5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V7z"/><path d="M14 3.5V7h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- The PowerPod Limited Product Warranty and Guarantee, version 1.0, as signed off in the B2C
+       sale model SOP. The first four sections say what it means in plain words, the way the SOP
+       explains it to a customer; the warranty in full follows, word for word apart from its
+       setting (sentence-case headings, the lettered lists as lists, the SOP's two "to be decided"
+       policy lines left out). Change the wording here only with the legal text signed off. -->
+  <main class="store legal">
+    <article class="legal__layout">
+      <h2 class="store-kicker legal__title" style="--i:0">PowerPod Limited Product Warranty and Guarantee</h2>
+
+      <nav class="legal__index" aria-label="Sections" style="--i:2">
+        <ol>
+          <li class="legal__group">In plain words</li>
+          <li><a href="#promise"><span class="legal__n">I.</span><span>What is covered</span></a></li>
+          <li><a href="#experience"><span class="legal__n">II.</span><span>What to expect</span></a></li>
+          <li><a href="#exclusions"><span class="legal__n">III.</span><span>What is not covered</span></a></li>
+          <li><a href="#onus"><span class="legal__n">IV.</span><span>Our responsibility</span></a></li>
+          <li class="legal__group">The warranty in full</li>
+          <li><a href="#definitions"><span class="legal__n">1.</span><span>Definitions</span></a></li>
+          <li><a href="#products"><span class="legal__n">2.</span><span>Products covered</span></a></li>
+          <li><a href="#period"><span class="legal__n">3.</span><span>Warranty period</span></a></li>
+          <li><a href="#commencement"><span class="legal__n">4.</span><span>Commencement of warranty</span></a></li>
+          <li><a href="#covered"><span class="legal__n">5.</span><span>What is covered</span></a></li>
+          <li><a href="#capacity"><span class="legal__n">6.</span><span>Battery capacity warranty</span></a></li>
+          <li><a href="#connector"><span class="legal__n">7.</span><span>Connector coverage</span></a></li>
+          <li><a href="#display"><span class="legal__n">8.</span><span>OLED display</span></a></li>
+          <li><a href="#charger-dock"><span class="legal__n">9.</span><span>Fast charger and vehicle dock</span></a></li>
+          <li><a href="#remedy"><span class="legal__n">10.</span><span>Warranty remedy</span></a></li>
+          <li><a href="#labour"><span class="legal__n">11.</span><span>Labour and parts</span></a></li>
+          <li><a href="#installation"><span class="legal__n">12.</span><span>Installation requirements</span></a></li>
+          <li><a href="#compatibility"><span class="legal__n">13.</span><span>Vehicle compatibility</span></a></li>
+          <li><a href="#transfer-vehicles"><span class="legal__n">14.</span><span>Transfer between vehicles</span></a></li>
+          <li><a href="#commercial"><span class="legal__n">15.</span><span>Commercial use</span></a></li>
+          <li><a href="#range"><span class="legal__n">16.</span><span>Range and vehicle performance</span></a></li>
+          <li><a href="#excluded"><span class="legal__n">17.</span><span>Exclusions</span></a></li>
+          <li><a href="#tampering"><span class="legal__n">18.</span><span>Tampering and unauthorised access</span></a></li>
+          <li><a href="#charging"><span class="legal__n">19.</span><span>Charging and storage</span></a></li>
+          <li><a href="#safety"><span class="legal__n">20.</span><span>Battery safety</span></a></li>
+          <li><a href="#third-party"><span class="legal__n">21.</span><span>Vehicle and third-party components</span></a></li>
+          <li><a href="#data"><span class="legal__n">22.</span><span>Data and diagnostics</span></a></li>
+          <li><a href="#software"><span class="legal__n">23.</span><span>Software and firmware</span></a></li>
+          <li><a href="#claims"><span class="legal__n">24.</span><span>Warranty claim process</span></a></li>
+          <li><a href="#deadline"><span class="legal__n">25.</span><span>Warranty claim deadline</span></a></li>
+          <li><a href="#transfer"><span class="legal__n">26.</span><span>Warranty transfer</span></a></li>
+          <li><a href="#registration"><span class="legal__n">27.</span><span>Warranty registration</span></a></li>
+          <li><a href="#manufacturer"><span class="legal__n">28.</span><span>Manufacturer responsibility</span></a></li>
+          <li><a href="#geography"><span class="legal__n">29.</span><span>Geographical limitation</span></a></li>
+          <li><a href="#limitation-remedy"><span class="legal__n">30.</span><span>Limitation of remedy</span></a></li>
+          <li><a href="#liability"><span class="legal__n">31.</span><span>Limitation of liability</span></a></li>
+          <li><a href="#no-other"><span class="legal__n">32.</span><span>No other warranty</span></a></li>
+          <li><a href="#amendments"><span class="legal__n">33.</span><span>Amendments and product improvements</span></a></li>
+          <li><a href="#governing-law"><span class="legal__n">34.</span><span>Governing law and jurisdiction</span></a></li>
+          <li><a href="#acknowledgement"><span class="legal__n">35.</span><span>Customer acknowledgement</span></a></li>
+        </ol>
+      </nav>
+
+      <div class="legal__body" style="--i:1">
+        <section class="legal__section" id="scope">
+          <p><strong>Version 1.0. For PowerPod products bought in India through an Authorised PowerPod Dealer.</strong></p>
+          <p>This Limited Product Warranty and Guarantee is provided by Movio Technologies Private Limited, operating under the brand name GridXenergy ("GridX", "we", "us" or "our"). It covers the PowerPod Battery, the PowerPod Fast Charger and the PowerPod Vehicle Dock, on the terms, conditions, exclusions and limitations set out here.</p>
+          <p>The first four sections say what the warranty means in plain words. The warranty in full follows them, and where the two read differently, the full terms apply.</p>
+          <p>To raise a claim, start with your Authorised Dealer (<a class="story__link" href="dealers.html">find one near you</a>), or reach us through <a class="story__link" href="support.html">Support</a>.</p>
+        </section>
+
+        <p class="legal__part">In plain words</p>
+        <section class="legal__section" id="promise">
+          <h3><span class="legal__n">I.</span><span>What is covered: the promise</span></h3>
+          <p>This is what you get with the 3-year standard warranty, and with the 5-year cover (3 + 2) if you add the extension when you buy.</p>
+          <ul class="legal__points">
+            <li><strong>Manufacturing defects.</strong> We cover any failure caused by how the battery was built. If the internal spot welding, the thermal management or the Battery Management System (BMS) fails under normal use, it is on us.</li>
+            <li><strong>Performance degradation.</strong> Batteries naturally lose a little capacity over time. If your PowerPod's maximum capacity drops below 70% of its original rating during the warranty period, we repair or replace it.</li>
+            <li><strong>Connector integrity.</strong> The hot-swappable connector is covered when it fails through normal mating cycles, not through forced physical damage.</li>
+            <li><strong>Labour and parts.</strong> Internal cell replacements, the electronics and the labour to fix them are fully covered. You pay nothing out of pocket for a valid claim.</li>
+          </ul>
+        </section>
+
+        <section class="legal__section" id="experience">
+          <h3><span class="legal__n">II.</span><span>What to expect: the experience</span></h3>
+          <p>How it goes when something goes wrong.</p>
+          <ul class="legal__points">
+            <li><strong>Data-driven diagnostics.</strong> The PowerPod's BMS keeps telemetry logs, so we can diagnose an issue from the data without making you jump through hoops.</li>
+            <li><strong>Quick resolution.</strong> A faulty pod gets a streamlined repair or a direct swap for a working pod, to get you back on the road.</li>
+            <li><strong>Hassle-free transfers.</strong> If you sell your vehicle or hand over your energy subscription, the warranty goes with the pod to the new user.</li>
+            <li><strong>Firmware updates.</strong> Over-the-air and service-centre updates keep improving the battery's software, for efficiency and for safety.</li>
+          </ul>
+        </section>
+
+        <section class="legal__section" id="exclusions">
+          <h3><span class="legal__n">III.</span><span>What is not covered: the exclusions</span></h3>
+          <p>Damage from outside the pack, and what the PowerPod was never meant to go through.</p>
+          <ul class="legal__points">
+            <li><strong>Physical abuse and accidents.</strong> Damage from dropping the PowerPod, vehicle crashes or severe external impact.</li>
+            <li><strong>Tampering and unauthorised access.</strong> Opening the casing, breaking the tamper seals or attempting to modify the internal circuit boards or cell configuration ends the warranty.</li>
+            <li><strong>Improper charging.</strong> Using non-approved, third-party chargers, or modifying the charging cables.</li>
+            <li><strong>Extreme neglect.</strong> Leaving the battery completely drained, at 0%, for a long period (over 30 days, for example), which chemically damages lithium-ion cells.</li>
+            <li><strong>Environmental damage.</strong> Submersion in water beyond the pod's IP rating, or exposure to external fires or natural disasters.</li>
+          </ul>
+        </section>
+
+        <section class="legal__section" id="onus">
+          <h3><span class="legal__n">IV.</span><span>Our responsibility: the manufacturer's onus</span></h3>
+          <p>We design, engineer and manufacture these packs from the ground up, so these are our commitments.</p>
+          <ul class="legal__points">
+            <li><strong>Design integrity.</strong> We own the safety of the pack. If a thermal event or a failure is caused by a flaw in our layout or our choice of materials, we take full responsibility for replacing the hardware.</li>
+            <li><strong>Accurate telemetry.</strong> We are responsible for the BMS reporting state of charge (SoC) and state of health (SoH) accurately. If the software gives you fundamentally false readings, we must correct it.</li>
+            <li><strong>Supply chain quality.</strong> If a batch of lithium-ion cells from our supplier is faulty, it is on us to replace your pod. The dispute with the supplier is ours to handle.</li>
+          </ul>
+        </section>
+
+        <p class="legal__part">The warranty in full</p>
+        <section class="legal__section" id="definitions">
+          <h3><span class="legal__n">1.</span><span>Definitions</span></h3>
+          <p>For the purposes of this Warranty:</p>
+          <p>"PowerPod™" means the PowerPod™ battery system and associated components supplied by GridX.</p>
+          <p>"Battery" means the PowerPod™ battery pack, including its cells, Battery Management System (BMS), internal electronics, thermal management system, enclosure and other components supplied as part of the battery.</p>
+          <p>"Fast Charger" means the GridX-approved charger supplied for charging the PowerPod™ Battery.</p>
+          <p>"Dock" means the GridX-approved vehicle dock supplied for installation and electrical integration of the PowerPod™ Battery with a compatible vehicle.</p>
+          <p>"Authorised Dealer" means a dealer, distributor, service partner or other entity formally authorised by GridX to sell, install or service PowerPod™ products.</p>
+          <p>"Warranty Period" means the applicable period stated in Section 3 of this Warranty.</p>
+          <p>"Manufacturing Defect" means a defect in materials, components, design, assembly or workmanship attributable to the manufacture or supply of the applicable PowerPod™ product and which is determined by GridX, through its applicable inspection or diagnostic process, to have existed independently of misuse, accident, improper installation, normal wear and tear or another excluded circumstance.</p>
+        </section>
+
+        <section class="legal__section" id="products">
+          <h3><span class="legal__n">2.</span><span>Products covered</span></h3>
+          <p>This Warranty applies to PowerPod™ products purchased from an Authorised Dealer in India.</p>
+          <p>The products covered are:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>PowerPod™ Battery;</span></li>
+            <li><span class="legal__n">b.</span><span>PowerPod™ Fast Charger; and</span></li>
+            <li><span class="legal__n">c.</span><span>PowerPod™ Vehicle Dock.</span></li>
+          </ol>
+          <p>Any accessory, component, software, service, vehicle or third-party product not expressly covered by this Warranty shall not be considered covered merely because it is used together with PowerPod™.</p>
+        </section>
+
+        <section class="legal__section" id="period">
+          <h3><span class="legal__n">3.</span><span>Warranty period</span></h3>
+          <p>The applicable warranty periods are as follows:</p>
+          <ul class="legal__points legal__points--tight">
+            <li>PowerPod™ Battery: 3 years from the date of purchase.</li>
+            <li>PowerPod™ Fast Charger: 1 year from the date of purchase.</li>
+            <li>PowerPod™ Vehicle Dock: 1 year from the date of purchase.</li>
+          </ul>
+          <p>The optional 2-year Extended Battery Warranty may be purchased only at the time of the original purchase of the PowerPod™ Battery. Where purchased, the Battery shall have a maximum total warranty period of 5 years from the original purchase date.</p>
+          <p>The Extended Battery Warranty is subject to the same terms, conditions, exclusions and limitations as the standard Battery Warranty unless expressly stated otherwise.</p>
+          <p>Any warranty extension or additional coverage offered after the original purchase, if any, shall be governed by separate pricing and terms determined by GridX.</p>
+        </section>
+
+        <section class="legal__section" id="commencement">
+          <h3><span class="legal__n">4.</span><span>Commencement of warranty</span></h3>
+          <p>The Warranty Period begins on the date of purchase from the Authorised Dealer, as recorded on the original purchase invoice.</p>
+          <p>Activation, registration, installation or first use shall not postpone or extend the Warranty Period.</p>
+          <p>The customer shall retain the original purchase invoice and PowerPod™ serial number as evidence of the purchase date and warranty eligibility.</p>
+        </section>
+
+        <section class="legal__section" id="covered">
+          <h3><span class="legal__n">5.</span><span>What is covered</span></h3>
+          <p>Subject to this Warranty, GridX warrants the PowerPod™ Battery against Manufacturing Defects during the applicable Warranty Period.</p>
+          <p>This includes Manufacturing Defects attributable to components or systems including, where applicable:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>battery cells;</span></li>
+            <li><span class="legal__n">b.</span><span>internal electrical connections;</span></li>
+            <li><span class="legal__n">c.</span><span>Battery Management System (BMS);</span></li>
+            <li><span class="legal__n">d.</span><span>internal electronics;</span></li>
+            <li><span class="legal__n">e.</span><span>thermal management components;</span></li>
+            <li><span class="legal__n">f.</span><span>protection and safety systems;</span></li>
+            <li><span class="legal__n">g.</span><span>internal assembly and workmanship; and</span></li>
+            <li><span class="legal__n">h.</span><span>other components forming part of the PowerPod™ Battery supplied by GridX.</span></li>
+          </ol>
+          <p>Where GridX determines that a Manufacturing Defect exists, GridX shall, at its discretion and subject to applicable law, repair the affected component, replace the affected component, replace the Battery, or undertake another appropriate corrective action.</p>
+        </section>
+
+        <section class="legal__section" id="capacity">
+          <h3><span class="legal__n">6.</span><span>Battery capacity warranty</span></h3>
+          <p>Battery capacity naturally changes over time and with use.</p>
+          <p>During the applicable Battery Warranty Period, where the maximum measured usable capacity of the PowerPod™ Battery falls below 70% of its original rated capacity, GridX will assess the Battery through its applicable diagnostic and testing process.</p>
+          <p>Where GridX confirms that the applicable capacity threshold has been reached and the condition is covered under this Warranty, GridX shall, at its discretion, repair or replace the affected Battery or relevant components.</p>
+          <p>The capacity assessment shall be conducted using GridX's applicable testing methodology, diagnostic equipment, BMS data and/or other technical information considered appropriate by GridX.</p>
+          <p>The capacity threshold shall not be determined solely on the basis of the customer's observed vehicle range or distance travelled per charge.</p>
+          <p>Battery capacity and performance may be affected by usage, charging patterns, storage conditions, operating temperature, vehicle configuration, load, riding conditions and other factors. Accordingly, the 70% capacity provision is not a guarantee of vehicle range or kilometres per charge.</p>
+        </section>
+
+        <section class="legal__section" id="connector">
+          <h3><span class="legal__n">7.</span><span>Connector coverage</span></h3>
+          <p>The PowerPod™ connector is designed for repeated insertion and removal during intended use.</p>
+          <p>Failure of the connector attributable to normal intended mating and de-mating cycles may be covered under the applicable Battery Warranty.</p>
+          <p>Connector damage resulting from forced insertion or removal, impact, bending, crushing, contamination, misuse, improper installation, unauthorised modification or other physical damage is not covered.</p>
+          <p>GridX shall determine, based on inspection and/or diagnostic assessment, whether a connector issue is attributable to Manufacturing Defect, intended usage, normal wear and tear or an excluded circumstance.</p>
+        </section>
+
+        <section class="legal__section" id="display">
+          <h3><span class="legal__n">8.</span><span>OLED display</span></h3>
+          <p>The PowerPod™ OLED display is covered against Manufacturing Defects during the applicable Battery Warranty Period.</p>
+          <p>Normal wear and tear, cosmetic deterioration, scratches, physical damage, impact damage, misuse, liquid damage or damage caused by external circumstances are not covered.</p>
+          <p>Where GridX determines that an OLED display failure is attributable to a Manufacturing Defect, the applicable repair or replacement shall be covered under this Warranty.</p>
+        </section>
+
+        <section class="legal__section" id="charger-dock">
+          <h3><span class="legal__n">9.</span><span>Fast charger and vehicle dock</span></h3>
+          <p>The PowerPod™ Fast Charger and Vehicle Dock are covered for one (1) year from the date of purchase against Manufacturing Defects in materials and workmanship.</p>
+          <p>Where GridX determines that a Manufacturing Defect exists, GridX may, at its discretion, repair or replace the affected component.</p>
+          <p>Normal wear and tear, physical damage, improper installation, misuse, unauthorised modification, use with non-approved equipment, electrical faults originating from the vehicle or other excluded circumstances are not covered.</p>
+        </section>
+
+        <section class="legal__section" id="remedy">
+          <h3><span class="legal__n">10.</span><span>Warranty remedy</span></h3>
+          <p>For a valid warranty claim, GridX shall determine the appropriate remedy.</p>
+          <p>GridX may:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>repair the affected component;</span></li>
+            <li><span class="legal__n">b.</span><span>replace the affected component;</span></li>
+            <li><span class="legal__n">c.</span><span>replace the PowerPod™ Battery;</span></li>
+            <li><span class="legal__n">d.</span><span>provide an equivalent or functionally equivalent component; or</span></li>
+            <li><span class="legal__n">e.</span><span>undertake another corrective action considered appropriate by GridX.</span></li>
+          </ol>
+          <p>The choice of remedy shall rest with GridX, subject always to rights that cannot legally be excluded under applicable law.</p>
+          <p>A replacement component or Battery supplied under Warranty shall carry only the remaining portion of the original Warranty Period and shall not restart a new warranty period.</p>
+          <p>Except where otherwise required by applicable law, this Warranty does not provide for replacement of the entire vehicle.</p>
+        </section>
+
+        <section class="legal__section" id="labour">
+          <h3><span class="legal__n">11.</span><span>Labour and parts</span></h3>
+          <p>For a warranty claim that GridX has determined to be valid, GridX shall cover the necessary parts and reasonable labour directly required to carry out the approved warranty repair or replacement through an Authorised Dealer or authorised service channel.</p>
+          <p>This coverage does not extend to unrelated vehicle repairs, third-party components, transportation costs, vehicle recovery, loss of income, business interruption or other costs not directly forming part of the approved warranty remedy, except where required by applicable law.</p>
+        </section>
+
+        <section class="legal__section" id="installation">
+          <h3><span class="legal__n">12.</span><span>Installation requirements</span></h3>
+          <p>PowerPod™ must be installed only by an Authorised Dealer or GridX-authorised technician.</p>
+          <p>Installation must be carried out in accordance with the applicable GridX PowerPod™ Installation SOP and approved installation requirements.</p>
+          <p>The Authorised Dealer is responsible for assessing vehicle compatibility before installation.</p>
+          <p>The customer must not request or permit installation of PowerPod™ on an unapproved vehicle or configuration.</p>
+          <p>Installation on an unapproved vehicle or configuration shall not be covered under this Warranty unless expressly approved by GridX in writing.</p>
+        </section>
+
+        <section class="legal__section" id="compatibility">
+          <h3><span class="legal__n">13.</span><span>Vehicle compatibility</span></h3>
+          <p>PowerPod™ compatibility may depend on the complete vehicle system, including but not limited to:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>vehicle architecture;</span></li>
+            <li><span class="legal__n">b.</span><span>motor;</span></li>
+            <li><span class="legal__n">c.</span><span>motor controller;</span></li>
+            <li><span class="legal__n">d.</span><span>electrical system;</span></li>
+            <li><span class="legal__n">e.</span><span>wiring and harness;</span></li>
+            <li><span class="legal__n">f.</span><span>battery interface;</span></li>
+            <li><span class="legal__n">g.</span><span>charging system;</span></li>
+            <li><span class="legal__n">h.</span><span>mounting arrangement;</span></li>
+            <li><span class="legal__n">i.</span><span>vehicle electronics; and</span></li>
+            <li><span class="legal__n">j.</span><span>other technical parameters specified by GridX.</span></li>
+          </ol>
+          <p>The presence of a physically compatible battery compartment or electrical connector does not by itself establish PowerPod™ compatibility.</p>
+          <p>Only vehicle configurations identified as compatible by GridX or expressly approved by GridX in writing shall be considered approved configurations.</p>
+        </section>
+
+        <section class="legal__section" id="transfer-vehicles">
+          <h3><span class="legal__n">14.</span><span>Transfer between vehicles</span></h3>
+          <p>PowerPod™ must not be transferred or installed onto another vehicle without confirmation that the receiving vehicle is an approved PowerPod™ compatible configuration.</p>
+          <p>Any unauthorised transfer, modification or installation may result in the applicable warranty claim being rejected.</p>
+        </section>
+
+        <section class="legal__section" id="commercial">
+          <h3><span class="legal__n">15.</span><span>Commercial use</span></h3>
+          <p>The Warranty remains applicable to PowerPod™ products used for personal or commercial purposes, including delivery, rental, fleet and other permitted mobility applications.</p>
+          <p>Commercial use does not create any separate guarantee of range, distance per charge, charging duration, battery performance or vehicle performance.</p>
+          <p>The PowerPod™ must nevertheless be operated within its specified technical, environmental and safety conditions.</p>
+        </section>
+
+        <section class="legal__section" id="range">
+          <h3><span class="legal__n">16.</span><span>Range and vehicle performance</span></h3>
+          <p>PowerPod™ is an energy storage and delivery system integrated with a compatible electric vehicle. Actual vehicle range, distance per charge, charging duration and overall vehicle performance may vary depending on factors including, without limitation:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>vehicle configuration;</span></li>
+            <li><span class="legal__n">b.</span><span>motor and controller characteristics;</span></li>
+            <li><span class="legal__n">c.</span><span>rider and passenger load;</span></li>
+            <li><span class="legal__n">d.</span><span>riding style;</span></li>
+            <li><span class="legal__n">e.</span><span>vehicle speed;</span></li>
+            <li><span class="legal__n">f.</span><span>terrain;</span></li>
+            <li><span class="legal__n">g.</span><span>traffic conditions;</span></li>
+            <li><span class="legal__n">h.</span><span>tyre condition;</span></li>
+            <li><span class="legal__n">i.</span><span>ambient temperature;</span></li>
+            <li><span class="legal__n">j.</span><span>charging conditions;</span></li>
+            <li><span class="legal__n">k.</span><span>battery usage;</span></li>
+            <li><span class="legal__n">l.</span><span>vehicle condition;</span></li>
+            <li><span class="legal__n">m.</span><span>electrical system efficiency; and</span></li>
+            <li><span class="legal__n">n.</span><span>other operating conditions.</span></li>
+          </ol>
+          <p>Accordingly, range, kilometres per charge, charging duration and overall vehicle performance are indicative operating parameters and are not independently warranted under this Warranty.</p>
+          <p>Nothing in this Warranty shall be interpreted as a guarantee of a specific range or distance per charge.</p>
+        </section>
+
+        <section class="legal__section" id="excluded">
+          <h3><span class="legal__n">17.</span><span>Exclusions</span></h3>
+          <p>This Warranty does not cover damage, failure or malfunction caused by or attributable to:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>accident, collision, crash or severe impact;</span></li>
+            <li><span class="legal__n">b.</span><span>dropping, crushing or physical abuse;</span></li>
+            <li><span class="legal__n">c.</span><span>improper handling or transportation;</span></li>
+            <li><span class="legal__n">d.</span><span>improper storage;</span></li>
+            <li><span class="legal__n">e.</span><span>unauthorised or incorrect installation;</span></li>
+            <li><span class="legal__n">f.</span><span>installation on an unapproved vehicle;</span></li>
+            <li><span class="legal__n">g.</span><span>incorrect wiring or electrical integration;</span></li>
+            <li><span class="legal__n">h.</span><span>incorrect polarity or electrical connection;</span></li>
+            <li><span class="legal__n">i.</span><span>use of non-approved chargers, connectors, controllers, wiring or other equipment;</span></li>
+            <li><span class="legal__n">j.</span><span>opening, dismantling or disassembly of the PowerPod™ Battery;</span></li>
+            <li><span class="legal__n">k.</span><span>tampering with the BMS, firmware, safety systems or internal electronics;</span></li>
+            <li><span class="legal__n">l.</span><span>unauthorised software or firmware modification;</span></li>
+            <li><span class="legal__n">m.</span><span>modification of the Battery enclosure, connector, Dock or internal components;</span></li>
+            <li><span class="legal__n">n.</span><span>unauthorised repair or servicing;</span></li>
+            <li><span class="legal__n">o.</span><span>operation outside the specified technical, environmental or safety conditions;</span></li>
+            <li><span class="legal__n">p.</span><span>failure to follow applicable charging, storage, handling, safety or operating instructions;</span></li>
+            <li><span class="legal__n">q.</span><span>prolonged storage in a fully discharged or critically low state resulting from failure to follow applicable storage instructions;</span></li>
+            <li><span class="legal__n">r.</span><span>water or liquid ingress caused by misuse, improper installation or operation outside specified conditions;</span></li>
+            <li><span class="legal__n">s.</span><span>fire, explosion or overheating caused by an external source or external event;</span></li>
+            <li><span class="legal__n">t.</span><span>electrical faults originating in the vehicle;</span></li>
+            <li><span class="legal__n">u.</span><span>chemical exposure or contamination;</span></li>
+            <li><span class="legal__n">v.</span><span>natural disasters or other external events beyond GridX's reasonable control;</span></li>
+            <li><span class="legal__n">w.</span><span>normal wear and tear;</span></li>
+            <li><span class="legal__n">x.</span><span>cosmetic deterioration that does not affect functional operation;</span></li>
+            <li><span class="legal__n">y.</span><span>physical damage to the OLED display or connector;</span></li>
+            <li><span class="legal__n">z.</span><span>use outside India; or</span></li>
+            <li><span class="legal__n">aa.</span><span>any other circumstance that GridX reasonably determines is inconsistent with the intended use, installation, operation or maintenance of the PowerPod™.</span></li>
+          </ol>
+        </section>
+
+        <section class="legal__section" id="tampering">
+          <h3><span class="legal__n">18.</span><span>Tampering and unauthorised access</span></h3>
+          <p>The PowerPod™ Battery is a sealed electrical and energy-storage product.</p>
+          <p>The customer must not open, dismantle, modify, repair or otherwise access the internal battery assembly.</p>
+          <p>Any unauthorised opening, modification, repair, tampering or alteration of the Battery, BMS, electronics, firmware, cells, enclosure, connector or safety systems may result in rejection of the applicable warranty claim.</p>
+          <p>This restriction does not prevent an Authorised Dealer or GridX-authorised service technician from performing an authorised inspection or repair.</p>
+        </section>
+
+        <section class="legal__section" id="charging">
+          <h3><span class="legal__n">19.</span><span>Charging and storage</span></h3>
+          <p>The customer must use only GridX-approved charging equipment and follow the applicable charging and storage instructions.</p>
+          <p>The customer must not modify the charger, charging cable, charging connector or charging system.</p>
+          <p>Damage caused by non-approved charging equipment, modified charging equipment, improper charging, prolonged neglect, inappropriate storage or failure to follow applicable charging and storage instructions shall not be covered.</p>
+        </section>
+
+        <section class="legal__section" id="safety">
+          <h3><span class="legal__n">20.</span><span>Battery safety</span></h3>
+          <p>The customer must immediately stop using the PowerPod™ Battery and contact an Authorised Dealer or GridX if the Battery shows signs of:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>swelling;</span></li>
+            <li><span class="legal__n">b.</span><span>smoke;</span></li>
+            <li><span class="legal__n">c.</span><span>fire;</span></li>
+            <li><span class="legal__n">d.</span><span>leakage;</span></li>
+            <li><span class="legal__n">e.</span><span>unusual odour;</span></li>
+            <li><span class="legal__n">f.</span><span>abnormal heating;</span></li>
+            <li><span class="legal__n">g.</span><span>physical deformation;</span></li>
+            <li><span class="legal__n">h.</span><span>repeated fault conditions; or</span></li>
+            <li><span class="legal__n">i.</span><span>other abnormal behaviour.</span></li>
+          </ol>
+          <p>The customer must not attempt to open, puncture, dismantle, repair or modify the Battery.</p>
+        </section>
+
+        <section class="legal__section" id="third-party">
+          <h3><span class="legal__n">21.</span><span>Vehicle and third-party components</span></h3>
+          <p>This Warranty applies only to PowerPod™ products supplied by GridX.</p>
+          <p>It does not constitute a warranty for the vehicle or any third-party component, including the motor, motor controller, drivetrain, brakes, suspension, chassis, vehicle wiring, vehicle harness, vehicle electronics or other third-party components.</p>
+          <p>GridX shall not be responsible for a vehicle-side failure merely because the vehicle uses PowerPod™.</p>
+          <p>Where a vehicle-side issue is directly and demonstrably caused by a Manufacturing Defect in a PowerPod™ component, the applicable PowerPod™ component shall be handled under this Warranty.</p>
+        </section>
+
+        <section class="legal__section" id="data">
+          <h3><span class="legal__n">22.</span><span>Data and diagnostics</span></h3>
+          <p>PowerPod™ may collect, store and transmit technical and operational information through its BMS, telemetry and connected systems.</p>
+          <p>GridX may use such information for purposes including:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>warranty assessment;</span></li>
+            <li><span class="legal__n">b.</span><span>fault diagnosis;</span></li>
+            <li><span class="legal__n">c.</span><span>battery health assessment;</span></li>
+            <li><span class="legal__n">d.</span><span>safety monitoring;</span></li>
+            <li><span class="legal__n">e.</span><span>product improvement;</span></li>
+            <li><span class="legal__n">f.</span><span>predictive maintenance;</span></li>
+            <li><span class="legal__n">g.</span><span>service support; and</span></li>
+            <li><span class="legal__n">h.</span><span>product reliability analysis.</span></li>
+          </ol>
+          <p>GridX may rely on available product telemetry, BMS data and diagnostic information when assessing a warranty claim.</p>
+          <p>Where required, the customer shall reasonably cooperate with GridX and its Authorised Dealer to facilitate diagnosis.</p>
+        </section>
+
+        <section class="legal__section" id="software">
+          <h3><span class="legal__n">23.</span><span>Software and firmware</span></h3>
+          <p>PowerPod™ may contain software and firmware necessary for the operation, monitoring, safety and performance of the product.</p>
+          <p>GridX may provide software or firmware updates from time to time for purposes including safety, security, diagnostics, reliability, functionality and product improvement.</p>
+          <p>Software or firmware updates may modify, improve or discontinue particular features where reasonably required for product operation, safety, compliance or technical improvement.</p>
+        </section>
+
+        <section class="legal__section" id="claims">
+          <h3><span class="legal__n">24.</span><span>Warranty claim process</span></h3>
+          <p>Warranty claims must initially be raised through an Authorised Dealer or another warranty channel designated by GridX.</p>
+          <p>The customer may be required to provide:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>original purchase invoice;</span></li>
+            <li><span class="legal__n">b.</span><span>PowerPod™ serial number;</span></li>
+            <li><span class="legal__n">c.</span><span>vehicle details;</span></li>
+            <li><span class="legal__n">d.</span><span>installation details;</span></li>
+            <li><span class="legal__n">e.</span><span>description of the reported issue; and</span></li>
+            <li><span class="legal__n">f.</span><span>other information reasonably required for diagnosis.</span></li>
+          </ol>
+          <p>GridX may require:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>physical inspection;</span></li>
+            <li><span class="legal__n">b.</span><span>diagnostic testing;</span></li>
+            <li><span class="legal__n">c.</span><span>photographs;</span></li>
+            <li><span class="legal__n">d.</span><span>videos;</span></li>
+            <li><span class="legal__n">e.</span><span>telemetry;</span></li>
+            <li><span class="legal__n">f.</span><span>BMS data;</span></li>
+            <li><span class="legal__n">g.</span><span>vehicle information;</span></li>
+            <li><span class="legal__n">h.</span><span>charging information; or</span></li>
+            <li><span class="legal__n">i.</span><span>other technical information.</span></li>
+          </ol>
+          <p>GridX shall determine, based on the available evidence and applicable diagnostic process, whether the reported issue is covered under this Warranty.</p>
+          <p>A claim may be rejected where the available evidence indicates that the issue resulted from misuse, improper installation, unauthorised modification, unapproved vehicle configuration, vehicle-side fault, normal wear and tear or another excluded circumstance.</p>
+          <p>No specific warranty claim resolution period is guaranteed under this Warranty.</p>
+        </section>
+
+        <section class="legal__section" id="deadline">
+          <h3><span class="legal__n">25.</span><span>Warranty claim deadline</span></h3>
+          <p>A warranty claim must be raised within the applicable Warranty Period.</p>
+          <p>Claims submitted after expiry of the applicable Warranty Period shall not be covered under this Warranty, subject to any rights that cannot legally be excluded under applicable law.</p>
+        </section>
+
+        <section class="legal__section" id="transfer">
+          <h3><span class="legal__n">26.</span><span>Warranty transfer</span></h3>
+          <p>Transfer of the Warranty to a subsequent owner or user shall be subject to the transfer policy prescribed by GridX at the applicable time.</p>
+          <p>Any permitted transfer shall not extend or restart the original Warranty Period.</p>
+        </section>
+
+        <section class="legal__section" id="registration">
+          <h3><span class="legal__n">27.</span><span>Warranty registration</span></h3>
+          <p>Warranty registration requirements, if any, shall be determined by GridX.</p>
+          <p>Any registration or activation process shall not alter the original warranty commencement date, which shall remain the date of purchase from the Authorised Dealer.</p>
+        </section>
+
+        <section class="legal__section" id="manufacturer">
+          <h3><span class="legal__n">28.</span><span>Manufacturer responsibility</span></h3>
+          <p>GridX is responsible for addressing Manufacturing Defects attributable to the design, materials, assembly or workmanship of PowerPod™ products covered by this Warranty.</p>
+          <p>Where a defect is identified in a component supplied to GridX by an external supplier, GridX shall remain responsible for the applicable customer warranty remedy in accordance with this Warranty.</p>
+          <p>The customer shall not be required to pursue a supplier, cell manufacturer or other third party separately for a valid GridX warranty claim.</p>
+          <p>GridX may independently pursue any supplier, manufacturing or supply-chain remedy available to it.</p>
+        </section>
+
+        <section class="legal__section" id="geography">
+          <h3><span class="legal__n">29.</span><span>Geographical limitation</span></h3>
+          <p>This Warranty applies to PowerPod™ products purchased in India and used within India.</p>
+          <p>Warranty support for products used outside India shall not be provided unless expressly agreed by GridX in writing.</p>
+        </section>
+
+        <section class="legal__section" id="limitation-remedy">
+          <h3><span class="legal__n">30.</span><span>Limitation of remedy</span></h3>
+          <p>The customer's remedy under this Warranty shall, subject to applicable law, be limited to the repair or replacement of the affected PowerPod™ component or Battery as determined by GridX.</p>
+          <p>This Warranty does not create any entitlement to replacement of the customer's vehicle.</p>
+        </section>
+
+        <section class="legal__section" id="liability">
+          <h3><span class="legal__n">31.</span><span>Limitation of liability</span></h3>
+          <p>To the maximum extent permitted by applicable law, GridX's liability under this Warranty shall be limited to the applicable warranty remedy expressly stated herein.</p>
+          <p>GridX shall not be liable for indirect, incidental, special, punitive or consequential losses arising from the use of, or inability to use, the PowerPod™ system, including loss of vehicle use, loss of income, loss of business, business interruption, loss of productivity, transportation costs or other associated expenses, to the extent permitted by applicable law.</p>
+          <p>Nothing in this Warranty shall exclude, restrict or limit any right, remedy, liability or obligation that cannot legally be excluded, restricted or limited under applicable law.</p>
+        </section>
+
+        <section class="legal__section" id="no-other">
+          <h3><span class="legal__n">32.</span><span>No other warranty</span></h3>
+          <p>Except for the express warranties specifically stated in this document, GridX does not provide any additional express or implied warranty, representation or guarantee concerning the PowerPod™ product, including any implied guarantee concerning range, suitability for a particular vehicle or particular application, merchantability, performance or uninterrupted operation, except to the extent such warranty, representation or guarantee cannot legally be excluded.</p>
+          <p>No statement made by a dealer, salesperson, employee, distributor or other person shall create an additional warranty or obligation on behalf of GridX unless expressly authorised by GridX in writing.</p>
+        </section>
+
+        <section class="legal__section" id="amendments">
+          <h3><span class="legal__n">33.</span><span>Amendments and product improvements</span></h3>
+          <p>GridX may modify, improve or update PowerPod™ products, components, software, firmware, specifications or manufacturing processes from time to time.</p>
+          <p>Such modifications or updates shall not, by themselves, alter the applicable Warranty Period for products already purchased.</p>
+        </section>
+
+        <section class="legal__section" id="governing-law">
+          <h3><span class="legal__n">34.</span><span>Governing law and jurisdiction</span></h3>
+          <p>This Warranty shall be governed by and construed in accordance with the laws of India.</p>
+          <p>Subject to applicable law, disputes arising out of or in connection with this Warranty shall be subject to the jurisdiction of the competent courts in Delhi, India.</p>
+        </section>
+
+        <section class="legal__section" id="acknowledgement">
+          <h3><span class="legal__n">35.</span><span>Customer acknowledgement</span></h3>
+          <p>By purchasing the PowerPod™ system, the customer acknowledges that:</p>
+          <ol class="legal__list">
+            <li><span class="legal__n">a.</span><span>the PowerPod™ has been purchased from an Authorised Dealer;</span></li>
+            <li><span class="legal__n">b.</span><span>the applicable warranty periods have been communicated;</span></li>
+            <li><span class="legal__n">c.</span><span>the PowerPod™ has to be installed by an Authorised Dealer or authorised technician;</span></li>
+            <li><span class="legal__n">d.</span><span>the PowerPod™ must be installed only on a GridX-approved compatible vehicle;</span></li>
+            <li><span class="legal__n">e.</span><span>the Warranty applies to the PowerPod™ products expressly covered herein and does not constitute a warranty for the customer's vehicle or third-party vehicle components;</span></li>
+            <li><span class="legal__n">f.</span><span>range, kilometres per charge, charging duration and overall vehicle performance are not independently guaranteed;</span></li>
+            <li><span class="legal__n">g.</span><span>the customer has received or has been provided access to applicable PowerPod™ safety, charging, storage and operating instructions;</span></li>
+            <li><span class="legal__n">h.</span><span>the customer understands the warranty exclusions and conditions; and</span></li>
+            <li><span class="legal__n">i.</span><span>the customer agrees to reasonably cooperate with GridX and its Authorised Dealers for inspection and diagnosis of warranty claims.</span></li>
+          </ol>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
+       the dark. Copied into every page the way the island nav is: the address and the sitemap
+       belong in the HTML, not in a script. The only per-page difference is aria-current. -->
+  <footer class="credits">
+    <div class="credits__stage">
+      <h2 class="credits__line">
+        <span class="credits__seg">
+          <span class="w" style="--i:0">Designed</span>
+          <span class="w" style="--i:1">and</span>
+          <span class="w" style="--i:2">Developed</span>
+        </span>
+        <span class="credits__seg">
+          <span class="w" style="--i:3">in-house</span>
+          <span class="w" style="--i:4">at</span>
+        </span>
+        <span class="credits__seg credits__seg--name">
+          <span class="w" style="--i:5">GridXenergy</span>
+        </span>
+      </h2>
+
+      <div class="credits__colophon">
+        <div class="credits__cols">
+          <div class="credits__col">
+            <h3 class="credits__label">Pages</h3>
+            <ul class="credits__list credits__list--pages">
+              <li><a class="credits__link" href="index.html">Home</a></li>
+              <li><a class="credits__link" href="store.html">Store</a></li>
+              <li><a class="credits__link" href="dealers.html">Dealers</a></li>
+              <li><a class="credits__link" href="support.html">Support</a></li>
+              <li><a class="credits__link" href="journey.html">Journey</a></li>
+              <li><a class="credits__link" href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+
+          <div class="credits__col">
+            <h3 class="credits__label">Connect</h3>
+            <ul class="credits__list credits__list--social">
+              <li>
+                <a class="credits__link" href="https://wa.me/919220199098" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+                  <span class="credits__social-label">WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://instagram.com/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4.2"/><path d="M16.9 7.1h.01"/></svg>
+                  <span class="credits__social-label">Instagram</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://youtube.com/@gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10.2 9.6 5.4 2.9-5.4 2.9z"/></svg>
+                  <span class="credits__social-label">YouTube</span>
+                </a>
+              </li>
+              <li>
+                <a class="credits__link" href="https://linkedin.com/company/gridxenergy" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 7.9h.01"/><path d="M8 10.6v5.8"/><path d="M11.7 16.4v-5.8"/><path d="M11.7 13.1a2.35 2.35 0 0 1 4.7 0v3.3"/></svg>
+                  <span class="credits__social-label">LinkedIn</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="credits__col credits__col--mark">
+            <h3 class="credits__label">Address</h3>
+            <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
+            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+          </div>
+        </div>
+
+        <!-- One document is both the Terms and Conditions and the Privacy Policy, so both links
+             go to it, as they did on the old site. -->
+        <div class="credits__legal">
+          <a href="privacy_policy.html">Terms &amp; Conditions</a>
+          <a href="privacy_policy.html">Privacy Policy</a>
+          <a href="warranty_terms.html" aria-current="page">Warranty Terms</a>
+          <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/grid-bg.js"></script>
+  <script src="assets/topbar.js"></script>
+  <script src="assets/footer.js"></script>
+  <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
+  <script src="assets/gridx-api.js"></script>
+  <script src="assets/analytics.js" defer></script>
+</body>
+</html>

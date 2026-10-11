@@ -10,7 +10,8 @@
  *   The title      The big year over an open panel. Switching years rolls its digits like an
  *                  odometer while the tape glides over.
  *   The review     The current year opens with its photos as one drifting rectangle, its own
- *                  chapters folded away beneath until it is opened.
+ *                  chapters folded away beneath until it is opened. A few photos belong to the
+ *                  review alone (template.review-extra in the year's panel).
  *   Photos         Strips that a mouse can drag, arrows either side, and a lightbox.
  *   Founders       Hovering one, focusing one or pressing one brings the halo to their card.
  */
@@ -64,7 +65,11 @@
 
   // This year's own chapters, then the review over their photos, then the three parts.
   const ownTitles = [...current.querySelectorAll('.chapter__title')].map((t) => t.textContent.trim());
-  const reviewPhotos = [...current.querySelectorAll('.frame img')];
+  // Its chapters' photos, and the ones kept for the review alone (inert in a template).
+  const reviewPhotos = [
+    ...current.querySelectorAll('.frame img'),
+    ...[...current.querySelectorAll('template.review-extra')].flatMap((t) => [...t.content.querySelectorAll('img')]),
+  ];
   if (reviewPhotos.length) {
     // The year's own chapters fold away under the review until it is opened.
     const heading = current.querySelector('.tl-panel__year');
@@ -189,9 +194,10 @@
   //
   // Each page is the rectangle's width and is cut by guillotine splits (always split the largest
   // tile, across its longer side, somewhere between 38% and 62%), so the tiles vary in size but
-  // always fill the rectangle exactly. Photos go to the tiles whose shape suits them best. The
-  // pages are laid out twice in a row, and the track slides left by exactly one copy before it
-  // starts over, so the loop never shows a seam.
+  // always fill the rectangle exactly. Photos go to the tiles whose shape suits them best. A
+  // photo marked data-portrait is never left to chance: its page cuts it an upright tile of its
+  // own shape first. The pages are laid out twice in a row, and the track slides left by exactly
+  // one copy before it starts over, so the loop never shows a seam.
   function buildReview(imgs, year) {
     const review = document.createElement('div');
     review.className = 'review';
@@ -217,6 +223,7 @@
     review.photos = imgs.map((img) => ({
       src: img.getAttribute('src'),
       aspect: (Number(img.getAttribute('width')) || 4) / (Number(img.getAttribute('height')) || 3),
+      portrait: img.hasAttribute('data-portrait'),
     }));
     return review;
   }
@@ -248,8 +255,23 @@
     });
   }
 
-  function partition(count, aspect) {
-    const tiles = [{ x: 0, y: 0, w: 1, h: 1 }];
+  // With hold (an upright photo's aspect), that photo's tile is cut first and kept apart: a
+  // column on either side, as wide as the usual split allows while staying that shape, then cut
+  // short at the top or the bottom to exactly that shape (left full height when only two photos
+  // share the page, so the rest stays one tile). The other tiles are split from what is left.
+  function partition(count, aspect, hold) {
+    let tiles = [{ x: 0, y: 0, w: 1, h: 1 }];
+    let held = null;
+    if (hold && count > 1) {
+      const w = Math.min(0.38 + Math.random() * 0.24, hold / aspect);
+      const h = count > 2 ? Math.min(1, (w * aspect) / hold) : 1;
+      const x = Math.random() < 0.5 ? 0 : 1 - w;
+      const y = Math.random() < 0.5 ? 0 : 1 - h;
+      held = { x, y, w, h };
+      tiles = [{ x: x ? 0 : w, y: 0, w: 1 - w, h: 1 }];
+      if (h < 1) tiles.push({ x, y: y ? 0 : h, w, h: 1 - h });
+      count -= 1;
+    }
     while (tiles.length < count) {
       let k = 0;
       for (let i = 1; i < tiles.length; i++) if (tiles[i].w * tiles[i].h > tiles[k].w * tiles[k].h) k = i;
@@ -261,7 +283,7 @@
         tiles.push({ x: t.x, y: t.y, w: t.w, h: t.h * at }, { x: t.x, y: t.y + t.h * at, w: t.w, h: t.h * (1 - at) });
       }
     }
-    return tiles;
+    return { tiles, held };
   }
 
   let reviewAspect = 0;
@@ -282,15 +304,22 @@
       const j = Math.floor(Math.random() * (i + 1));
       [photos[i], photos[j]] = [photos[j], photos[i]];
     }
+    // Without the drift only the first page is ever seen, so the upright photos start there.
+    if (reduceMotion) photos.sort((a, b) => b.portrait - a.portrait);
     const pageCount = Math.max(1, Math.round(photos.length / 5));
     const pages = [];
     for (let p = 0; p < pageCount; p++) {
       const share = photos.slice(Math.floor((p * photos.length) / pageCount), Math.floor(((p + 1) * photos.length) / pageCount));
-      const tiles = partition(share.length, aspect);
-      // Widest photos to the widest tiles, tallest to the tallest.
+      const upright = share.find((ph) => ph.portrait);
+      const { tiles, held } = partition(share.length, aspect, upright && upright.aspect);
+      // Widest photos to the widest tiles, tallest to the tallest; an upright one to its own.
       const byShape = (list, f) => list.slice().sort((a, b) => f(a) - f(b));
       const tilesSorted = byShape(tiles, (t) => (t.w * aspect) / t.h);
-      const photosSorted = byShape(share, (ph) => ph.aspect);
+      const photosSorted = byShape(held ? share.filter((ph) => ph !== upright) : share, (ph) => ph.aspect);
+      if (held) {
+        tilesSorted.push(held);
+        photosSorted.push(upright);
+      }
       const page = document.createElement('div');
       page.className = 'review__page';
       tilesSorted.forEach((t, i) => {
@@ -299,7 +328,7 @@
         tile.style.cssText = `left:${(t.x * 100).toFixed(3)}%;top:${(t.y * 100).toFixed(3)}%;width:${(t.w * 100).toFixed(3)}%;height:${(t.h * 100).toFixed(3)}%`;
         const img = document.createElement('img');
         // Lazy: the review is built when its year opens, which on arrival is usually below the
-        // fold, and its 26 photos (twice, for the loop) need not compete with the page above.
+        // fold, and its photos (twice, for the loop) need not compete with the page above.
         img.loading = 'lazy';
         img.src = photosSorted[i].src;
         img.alt = '';

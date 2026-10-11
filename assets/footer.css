@@ -133,6 +133,13 @@ html:not(.gl) .credits::before {
 
 /* ---------------------------------------------------------------- the credit */
 .credits__line {
+  /* The name's size, which everything else on the card is measured against. */
+  --credits-name: clamp(2.15rem, 9.9vw, 5.25rem);
+  /* The two lines above it: sized so "Designed and Developed" is exactly as wide as the name,
+     its first D over the G and its last d over the y. The ratio here is the font's at a
+     desktop size; footer.js measures the two lines and sets the exact value, which the font's
+     optical sizing moves a little from size to size (0.46 to 0.48). */
+  --credits-made: calc(var(--credits-name) * 0.48);
   display: grid;
   align-content: center;
   justify-items: center;
@@ -146,14 +153,12 @@ html:not(.gl) .credits::before {
 
 /* Each segment is its own line at every width, so the break is designed rather than
    discovered. Phones were the reason: "in-house at GridXenergy" is exactly the kind of
-   phrase a browser breaks in the wrong place.
-
-   "Designed and Developed" runs about 11.2 times its own font size, so the floor is set by
-   the narrowest phone: at 320px that is 250px inside a 272px column. The vw term takes over
-   from 350px up, and both sizes hold a constant 1.54 ratio to the name below. */
+   phrase a browser breaks in the wrong place. Each is as wide as its words and centred by the
+   grid, so its box is what footer.js measures. */
 .credits__seg {
   display: block;
-  font-size: clamp(1.4rem, 6.4vw, 3.4rem);
+  width: fit-content;
+  font-size: var(--credits-made);
   color: var(--credit-dim);
 }
 
@@ -161,7 +166,7 @@ html:not(.gl) .credits::before {
    store sheet's headline, where the second line steps back. */
 .credits__seg--name {
   margin-top: 0.12em;
-  font-size: clamp(2.15rem, 9.9vw, 5.25rem);
+  font-size: var(--credits-name);
   letter-spacing: -0.035em;
   color: var(--credit-bright);
 }

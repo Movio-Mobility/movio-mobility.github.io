@@ -1,9 +1,9 @@
 /*
- * When PowerPod Gen2 pre-booking opens, for every page that has to know: the home page says when
- * under its headline and, from that moment, shows the button to pre-book one, and the
- * configurator holds its payment step until it. One instant, 12:00 PM IST on 12 October 2026,
- * compared in epoch milliseconds, so the visitor's time zone never matters, only whether their
- * clock is right.
+ * When PowerPod Gen2 pre-booking opens, for every page that has to know: the home page counts
+ * down to it under its headline (and under the finale's pod and phone), to the minute, and from
+ * that moment shows the button to pre-book one in the count's place, and the configurator holds
+ * its payment step until it. One instant, 12:00 PM IST on 12 October 2026, compared in epoch
+ * milliseconds, so the visitor's time zone never matters, only whether their clock is right.
  *
  * Paddock holds the same instant (lib/website/launch.js) and refuses an early order whatever a
  * browser believes, so a wrong clock here can only make the page look early or late, never let
@@ -13,6 +13,7 @@
  *   gridLaunch.at              the instant, in epoch ms
  *   gridLaunch.when            the instant in words, "12 October, 12 PM" (IST)
  *   gridLaunch.now()           Date.now(), corrected
+ *   gridLaunch.left()          how long is left, in words: "26 hours, 12 minutes"
  *   gridLaunch.isOpen()
  *   gridLaunch.subscribe(fn)   fn(open) now, then again the moment pre-booking opens, including
  *                              on a page left open across it. Returns a function that
@@ -42,8 +43,30 @@
   let wasOpen = isOpen();
   let timer = 0;
 
-  // Wakes at the launch, or within the hour before it, and looks again: worked out from the
-  // clock every time rather than counted down, so a late timer never drifts.
+  // How long is left, in hours and minutes, the minute rounded up so the count never says a
+  // minute that has already gone: "26 hours, 12 minutes", "1 hour, 1 minute", "40 minutes".
+  function left() {
+    const minutes = Math.max(1, Math.ceil((AT - now()) / MINUTE));
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    const unit = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+    return h ? `${unit(h, 'hour')}, ${unit(m, 'minute')}` : unit(m, 'minute');
+  }
+
+  // The count, written into every line on the page that carries it (the home page's hero and
+  // its finale), and the "in" that turns "Pre-booking opens" into a count.
+  const counts = [...document.querySelectorAll('[data-launch-count]')];
+  const leads = [...document.querySelectorAll('[data-launch-lead]')];
+  function paint() {
+    if (!counts.length || isOpen()) return;
+    const words = left();
+    for (const el of counts) if (el.textContent !== words) el.textContent = words;
+    for (const el of leads) if (el.textContent !== 'Pre-booking opens in') el.textContent = 'Pre-booking opens in';
+  }
+
+  // Wakes at the launch, and every minute before it as the count changes, and looks again:
+  // worked out from the clock every time rather than counted down, so a late timer never
+  // drifts, and a page woken late simply shows the right minute.
   function tick() {
     clearTimeout(timer);
     const open = isOpen();
@@ -51,7 +74,13 @@
       wasOpen = open;
       listeners.forEach((fn) => fn(open));
     }
-    if (!open) timer = setTimeout(tick, Math.min(AT - now(), HOUR) + 15);
+    paint();
+    if (!open) {
+      const toGo = AT - now();
+      // The count changes when what is left crosses a whole minute.
+      const change = (toGo % MINUTE) || MINUTE;
+      timer = setTimeout(tick, Math.min(toGo, change) + 15);
+    }
   }
 
   // A background tab or a sleeping phone holds timers back: catch up the moment it is seen.
@@ -86,6 +115,7 @@
     at: AT,
     when: WHEN,
     now,
+    left,
     isOpen,
     subscribe(fn) {
       listeners.add(fn);
@@ -99,12 +129,12 @@
   if (box) underHeadline(box);
 
   // ---------------------------------------------------------------- the home page's line
-  // Under the headline: when pre-booking opens, and from that moment the button to pre-book one.
+  // Under the headline: the count until pre-booking opens, and from that moment, in its place,
+  // the button to pre-book one.
   function underHeadline(box) {
     const hero = box.parentElement;
     const headline = hero.querySelector('.headline');
     const cta = box.querySelector('.launch__cta');
-    const note = box.querySelector('[data-launch-note]');
     const news = box.querySelector('[data-launch-news]');
 
     // Just under the headline, as its subline. Laid out in an idle moment after the first
@@ -140,7 +170,7 @@
       const first = loading;
       loading = false;
       if (!open || box.classList.contains('is-open')) return;
-      // Opened in front of the reader: the line changes and the button rises in after it.
+      // Opened in front of the reader: the count goes and the button rises in its place.
       // Otherwise the button is simply there, arriving with the headline.
       const watching = !first && !document.hidden && headline.classList.contains('is-revealed') && !away();
       box.classList.add('is-open');
@@ -148,16 +178,6 @@
         box.classList.add('is-opening');
         setTimeout(() => box.classList.remove('is-opening'), 1500);
       }
-      // In phrases, as the line before it is, so a break only ever falls between them.
-      const strong = document.createElement('strong');
-      strong.textContent = 'now open.';
-      const phrase = (...parts) => {
-        const span = document.createElement('span');
-        span.className = 'ph';
-        span.append(...parts);
-        return span;
-      };
-      note.replaceChildren(phrase('Pre-booking is ', strong), ' ', phrase('Shipping across India.'));
       if (!first && news) news.textContent = 'Pre-booking is open.';
     });
   }

@@ -37,7 +37,7 @@ const report = (label, ok, detail = '') => {
 const ORIGIN = 'https://gridxenergy.in';
 const INDEXABLE = ['index.html', 'store.html', 'powerpod-gen2.html', 'chargers.html', 'adapter.html',
   'vehicle-dock.html', 'journey.html', 'dealers.html', 'support.html', 'careers.html',
-  'privacy_policy.html', 'subscription_policy.html'];
+  'privacy_policy.html', 'subscription_policy.html', 'warranty_terms.html'];
 const NOINDEX = ['404.html', 'interview.html', 'better.html'];
 const CARDS = ['home.jpg', 'powerpod-gen2.jpg', 'store.jpg', 'adapter.jpg', 'vehicle-dock.jpg', 'brand.jpg'];
 

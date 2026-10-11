@@ -7,7 +7,7 @@
  * everything else FROM those, so the head stays the single source and nothing here can say
  * something the page does not. The pictures are the committed cards from tools/source/og.py.
  *
- * Which pages: the eleven root pages keyed in PAGES below. careers.html and the job pages are
+ * Which pages: the twelve root pages keyed in PAGES below. careers.html and the job pages are
  * served by tools/careers.mjs (tools/check/careers-build.mjs pins their tags, so they are
  * never touched here), and 404.html, interview.html and better.html are noindex and stay bare.
  *
@@ -285,6 +285,7 @@ const PAGES = {
   },
   'privacy_policy.html': { image: 'brand.jpg', alt: 'The GridX mark' },
   'subscription_policy.html': { image: 'brand.jpg', alt: 'The GridX mark' },
+  'warranty_terms.html': { image: 'brand.jpg', alt: 'The GridX mark' },
 };
 
 /** The share card tags, in the shape tools/careers.mjs shareTags writes them. */

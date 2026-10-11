@@ -131,11 +131,11 @@
       text-align: center;
     }
 
-    /* The film track. Its captions ride this: the reveal, then design, portability, the app,
-       the warranty and the finale. The real height is set from the FINALE table on load so the
-       two can never drift; this value is the no-JS fallback and should match TRACK * 100. */
+    /* The film track. Its captions ride this: the reveal, then design, the connector, portability,
+       the app, the warranty and the finale. The real height is set from the FINALE table on load
+       so the two can never drift; this value is the no-JS fallback and should match TRACK * 100. */
     .hero-scroll {
-      height: 1610vh;
+      height: 1790vh;
       pointer-events: none;
     }
 
@@ -183,7 +183,9 @@
     }
     .film__line .ph { display: inline-block; }
 
-    /* The app beat's three labels. Named outcomes, not a spec list. */
+    /* The app beat's three labels. Named outcomes, not a spec list. Set in near-full ink and a
+       little heavier than the line above them: they are the things to click, and they have
+       to read as such against the studio's grey. */
     .film__points {
       display: flex;
       flex-wrap: wrap;
@@ -192,8 +194,9 @@
       padding: 0;
       list-style: none;
       font-size: clamp(0.78rem, 0.3vw + 0.7rem, 0.86rem);
+      font-weight: 500;
       letter-spacing: 0.01em;
-      color: rgb(20 20 20 / 0.45);
+      color: rgb(20 20 20 / 0.82);
     }
 
     /* A name a line leans on (the PowerPod Platform): in full ink, with its mark set small at its
@@ -210,9 +213,9 @@
     }
 
     /* The finale's way to pre-book, a row under the pod and the phone, centred on them
-       (layoutFinale places it): the hero's line, and once pre-booking opens the hero's button
-       (.launch__cta, below, dresses both), in a place kept for it from the start, so nothing
-       moves when it arrives. It comes and goes with the finale's words. */
+       (layoutFinale places it): the hero's count until pre-booking opens, and from that instant
+       the hero's button (.launch__cta, below, dresses both) in the same slot, the shipping line
+       under either, so nothing moves at the instant. It comes and goes with the finale's words. */
     .film__prebook {
       position: absolute;
       top: 0;
@@ -224,6 +227,12 @@
       text-align: center;
       will-change: opacity, transform;
     }
+    .film__prebook-slot {
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      min-height: 52px;
+    }
     .film__prebook-note {
       margin: 0;
       font-size: clamp(0.9375rem, 0.4vw + 0.8rem, 1.125rem);
@@ -234,23 +243,20 @@
       color: rgb(20 20 20 / 0.72);
     }
     .film__prebook-note .ph { display: inline-block; }
-    /* "Shipping across India." on a line of its own in both states, so the row is the same
-       height before and after pre-booking opens, and nothing above it moves at the instant. */
-    .film__prebook-note .ph:last-child { display: block; }
     .film__prebook-note strong {
       font-weight: 600;
       color: var(--ink);
     }
+    .film__prebook.is-open .film__prebook-note { display: none; }
     /* Under the film's own rules, ahead of the hero's that dress it, so these win: an invisible
        button anywhere on the page must never take a tap meant for what is under it. */
     .film__prebook .film__prebook-cta {
-      display: inline-flex;
-      visibility: hidden;
-      margin-top: 0.9rem;
+      display: none;
+      margin-top: 0;
       pointer-events: none;
       transition: transform 0.2s var(--ease-out);
     }
-    .film__prebook.is-open .film__prebook-cta { visibility: visible; }
+    .film__prebook.is-open .film__prebook-cta { display: inline-flex; }
     .film__prebook .film__prebook-cta.is-reachable { pointer-events: auto; }
     .film__prebook .film__prebook-cta:active { transform: scale(0.985); }
 
@@ -1259,8 +1265,15 @@
       color: rgb(255 255 255 / 0.38);
     }
 
-    /* The PowerPod page scrolls under the status bar's safe area, never into it. */
-    .app__slot--powerpod { clip-path: inset(54px 0 0 0); }
+    /* The PowerPod page scrolls under the status bar's safe area, never into it. The clip is on
+       the page's own scroller, not on the slot, so the slot's background still reaches the top
+       of the screen the way Home's and Charging's do: the tour shows the three side by side, and
+       a slot clipped whole showed the darker screen behind it as a band across its top. */
+    .app__safe {
+      position: absolute;
+      inset: 0;
+      clip-path: inset(54px 0 0 0);
+    }
 
     /* "Last 30 days", opened (owner_energy_card.dart _MonthDetail): closed to nothing until a
        demo opens it. A 120 point chart, one 4 point bar a day on a scale to 1.25 times the most,
@@ -1477,7 +1490,7 @@
       margin: 0;
       font-size: clamp(0.72rem, 0.25vw + 0.64rem, 0.8rem);
       letter-spacing: 0.01em;
-      color: rgb(20 20 20 / 0.45);
+      color: rgb(20 20 20 / 0.7);
     }
     .film__try + .film__points { margin-top: 0.3rem; }
     .film__point {
@@ -1493,7 +1506,7 @@
       text-decoration: underline;
       text-decoration-thickness: 1px;
       text-underline-offset: 0.28em;
-      text-decoration-color: rgb(20 20 20 / 0.22);
+      text-decoration-color: rgb(20 20 20 / 0.45);
       -webkit-tap-highlight-color: transparent;
       transition: color 0.25s var(--ease-out), text-decoration-color 0.25s var(--ease-out);
     }
@@ -1505,6 +1518,28 @@
       text-decoration-color: currentColor;
     }
     .film__point:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 4px;
+      border-radius: 3px;
+    }
+    /* The warranty beat's link to the terms, set like the points above, in its line's own colour.
+       Reachable (tabbable, taking the pointer) only while its caption is in: is-reachable, from the
+       script, as the finale's pre-book button. */
+    .film__more {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.28em;
+      text-decoration-color: rgb(20 20 20 / 0.22);
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.25s var(--ease-out), text-decoration-color 0.25s var(--ease-out);
+    }
+    .film__more.is-reachable { pointer-events: auto; }
+    .film__more:hover {
+      color: var(--ink);
+      text-decoration-color: currentColor;
+    }
+    .film__more:focus-visible {
       outline: 2px solid var(--ink);
       outline-offset: 4px;
       border-radius: 3px;
@@ -2884,9 +2919,18 @@
       transition-delay: 0s;
     }
 
+    /* The line and the button share one slot, the button's height: the one turns into the
+       other at the instant, and the shipping line under them never moves. */
+    .launch__slot {
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      min-height: 52px;
+    }
+
     /* A subline to the headline: the same ink, a size that reads at a glance on a phone, and
-       the date at full strength. It breaks only between its phrases, so a phone never leaves
-       "12" at the end of a line. */
+       the count at full strength. It breaks only between its phrases, so a phone never leaves
+       a number at the end of a line. */
     .launch__note {
       margin: 0;
       max-width: 26em;
@@ -2903,16 +2947,37 @@
       font-weight: 600;
       color: var(--ink);
     }
+    .launch.is-open .launch__note { display: none; }
 
-    /* The button, from the launch on: solid, as on the product pages, and only in the page
-       once it can be pressed. */
+    /* Under the slot: where it ships, and from when. The ordinal's letters sit small, at the
+       top right of the day. */
+    .launch__ship,
+    .film__prebook-ship {
+      margin: 1rem 0 0;
+      font-size: clamp(0.9375rem, 0.4vw + 0.8rem, 1.0625rem);
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      text-align: center;
+      color: rgb(20 20 20 / 0.62);
+    }
+    .launch__ship sup,
+    .film__prebook-ship sup {
+      font-size: 0.58em;
+      line-height: 0;
+      vertical-align: 0.62em;
+      margin-right: 0.06em;
+    }
+
+    /* The button, from the launch on: solid, as the configurator's Continue, and only in the
+       page once it can be pressed. */
     .launch__cta,
     .film__prebook-cta {
       display: none;
       align-items: center;
       justify-content: center;
       min-height: 52px;
-      margin-top: 1.1rem;
+      margin-top: 0;
       padding: 0 1.9rem;
       border-radius: 999px;
       font-size: 1rem;
@@ -2926,20 +2991,9 @@
       -webkit-tap-highlight-color: transparent;
     }
     .launch.is-open .launch__cta { display: inline-flex; }
-    /* Its transform is its own, for the press, so it comes and goes with the headline by fading. */
-    .launch > .launch__cta {
-      transform: none;
-      filter: none;
-      transition:
-        opacity 0.9s var(--ease-out),
-        transform 0.2s var(--ease-out);
-    }
-    .headline.is-revealed ~ .launch > .launch__cta { transition-delay: 0.35s, 0s; }
-    .headline.is-revealed ~ .launch > .launch__cta:active { transform: scale(0.985); }
-    .headline.is-leaving ~ .launch > .launch__cta {
-      transform: none;
-      filter: none;
-    }
+    /* Its transform is its own, for the press: the slot carries the reveal. */
+    .launch .launch__cta { transition: transform 0.2s var(--ease-out); }
+    .launch .launch__cta:active { transform: scale(0.985); }
     /* Opened in front of the reader: the button rises in once the line has changed. */
     .launch.is-opening .launch__cta { animation: launch-in 0.9s var(--ease-out) 0.25s both; }
     @keyframes launch-in {
@@ -2963,25 +3017,28 @@
     }
 
     @media (min-width: 760px) {
+      .launch__slot { min-height: 56px; }
       .launch__cta {
         min-height: 56px;
-        margin-top: 1.5rem;
         padding: 0 2.25rem;
         font-size: 1.0625rem;
       }
+      .launch__ship { margin-top: 1.15rem; }
     }
 
-    /* Landscape phones: the line on one line, and once pre-booking opens the button beside it
-       rather than under it, so the two stay clear of the island. */
+    /* Landscape phones: the slot and the shipping line side by side rather than stacked, so
+       the two stay clear of the island. */
     @media (max-height: 480px) {
-      .launch__note { font-size: 0.9375rem; max-width: none; }
-      .launch.is-open {
+      .launch {
         grid-auto-flow: column;
         justify-content: center;
         align-items: center;
-        column-gap: 1rem;
+        column-gap: 1.25rem;
       }
-      .launch__cta { min-height: 40px; margin-top: 0; font-size: 0.9375rem; }
+      .launch__slot { min-height: 40px; }
+      .launch__note { font-size: 0.9375rem; max-width: none; }
+      .launch__ship { margin-top: 0; font-size: 0.9375rem; }
+      .launch__cta { min-height: 40px; font-size: 0.9375rem; }
     }
 
     /* Without JavaScript nothing keeps the time: the line, in the hero's flow under the headline. */
@@ -3384,14 +3441,21 @@
     </h1>
     <!-- When PowerPod Gen2's pre-booking opens, under the headline, and from that moment the
          button to pre-book one. assets/launch.js keeps the time and swaps the two. -->
+    <!-- Until pre-booking opens, how long is left, to the minute (assets/launch.js keeps the
+         clock and writes the count into [data-launch-count], and "in" into [data-launch-lead]);
+         from that instant the button, in the same slot, with the shipping line under both. The
+         line as written here is what a reader gets with JavaScript off. -->
     <div class="launch" data-launch>
-      <p class="launch__note" data-launch-note><span class="ph">Pre-booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span> <span class="ph">Shipping across India.</span></p>
-      <a class="launch__cta" href="powerpod-gen2.html">Pre-book yours</a>
+      <div class="launch__slot">
+        <p class="launch__note" data-launch-note><span class="ph" data-launch-lead>Pre-booking opens</span> <span class="ph"><strong data-launch-count>12 October, 12 PM.</strong></span></p>
+        <a class="launch__cta" href="powerpod-gen2.html">Pre-book now at ₹399</a>
+      </div>
+      <p class="launch__ship" data-launch-ship>Shipping across India, starting 9<sup>th</sup> November</p>
       <p class="sr-only" role="status" data-launch-news></p>
     </div>
   </main>
   <!-- Caption copy for the film. One block per camera beat, timed by the CAPTIONS table in the
-       script below. They stay in the DOM at opacity 0 so all seven read in order to a screen
+       script below. They stay in the DOM at opacity 0 so all nine read in order to a screen
        reader, which is also what a reader gets with JavaScript off.
        In each line, a sentence is a .ln and gets a line of its own. A sentence that may not fit a
        narrow box (a phone, or the slim column beside the scooter) is two .ph halves split where
@@ -3400,7 +3464,7 @@
     <div class="film__caption" data-beat="0">
       <h2 class="film__title">Meet the PowerPod Gen2.</h2>
       <p class="film__line">
-        <span class="ln">Engineered with intent.</span>
+        <span class="ln"><span class="ph">A smarter, lighter,</span> <span class="ph">more portable EV battery,</span> <span class="ph">engineered with intent.</span></span>
         <span class="ln"><span class="ph">Built on the</span> <span class="ph"><strong>PowerPod Platform<sup>™</sup></strong>.</span></span>
       </p>
     </div>
@@ -3408,23 +3472,35 @@
     <div class="film__caption" data-beat="1">
       <h2 class="film__title">Made to be lifted.</h2>
       <p class="film__line">
-        <span class="ln"><span class="ph">11% lighter than Gen1,</span> <span class="ph">and every stair will thank you.</span></span>
-        <span class="ln">The grip is bolted into the cap.</span>
-        <span class="ln"><span class="ph">Your hand finds it</span> <span class="ph">without looking.</span></span>
+        <span class="ln">Less weight. More thought.</span>
+        <span class="ln"><span class="ph">11% lighter than Gen1,</span> <span class="ph">in the same form factor.</span></span>
       </p>
     </div>
 
     <!-- The camera is almost straight down by the time this one is readable: the grip resolves
          into the GridX mark, with the display sitting where the two curves cross. -->
     <div class="film__caption" data-beat="2">
-      <h2 class="film__title">Now look straight down.</h2>
+      <h2 class="film__title">Everything, at a glance.</h2>
       <p class="film__line">
         <span class="ln">The grip is our mark. It always was.</span>
         <span class="ln"><span class="ph">The display sits</span> <span class="ph">where the two curves cross,</span> <span class="ph">so the pod can tell you where it stands</span> <span class="ph">before your phone does.</span></span>
       </p>
     </div>
 
+    <!-- The connector: the field draws the vehicle dock close up, the pod slides into it, and then
+         turns on its own axis by itself, a quarter turn to the right, another, and two back, to
+         show that it seats whichever way round it goes in. Scrolling on pulls back into the
+         scooter, which forms around the dock (the next beat). -->
     <div class="film__caption" data-beat="3">
+      <h2 class="film__title">You’ll always be right.</h2>
+      <p class="film__line">
+        <span class="ln">A rotationally symmetric connector,</span>
+        <span class="ln">designed to make insertion simpler.</span>
+        <span class="ln">One less thing to think about.</span>
+      </p>
+    </div>
+
+    <div class="film__caption" data-beat="4">
       <h2 class="film__title">It comes with you.</h2>
       <p class="film__line">
         <span class="ln"><span class="ph">Under the seat</span> <span class="ph">while you ride.</span></span>
@@ -3435,53 +3511,55 @@
     </div>
 
     <!-- The pod and the app as one: GPS and theft protection in the pod, location shared from
-         the phone, and every reading kept in step between them, through our servers and over
+         the phone, and everything kept in step between them, over the internet and over
          Bluetooth. -->
-    <div class="film__caption" data-beat="4">
+    <div class="film__caption" data-beat="5">
       <h2 class="film__title">Hardware and software, as one.</h2>
       <p class="film__line">
         <span class="ln"><span class="ph">GPS in the pod,</span> <span class="ph">and theft protection around it.</span></span>
         <span class="ln"><span class="ph">Your live location,</span> <span class="ph">shared in a tap.</span></span>
-        <span class="ln"><span class="ph">Synced to our servers,</span> <span class="ph">and to your phone over Bluetooth.</span></span>
+        <span class="ln"><span class="ph">Everything, synced to your phone,</span> <span class="ph">over internet and via Bluetooth.</span></span>
       </p>
     </div>
     <!-- The beat's demos, set just below the phone rather than in the caption, and read straight
          after it. Kept short enough for one row on a 320px phone. Each plays itself on the phone,
          under a hand (phoneDemo in the script below). -->
-    <div class="film__tap" data-beat="4">
+    <div class="film__tap" data-beat="5">
       <p class="film__try">Click to experience</p>
       <ul class="film__points">
-        <li><button class="film__point" type="button" data-demo="live" aria-pressed="false" tabindex="-1">Live location</button></li>
-        <li><button class="film__point" type="button" data-demo="share" aria-pressed="false" tabindex="-1">Location sharing</button></li>
+        <li><button class="film__point" type="button" data-demo="live" aria-pressed="false" tabindex="-1">Live Location</button></li>
+        <li><button class="film__point" type="button" data-demo="share" aria-pressed="false" tabindex="-1">Location Sharing</button></li>
         <li><button class="film__point" type="button" data-demo="sos" aria-pressed="false" tabindex="-1">Emergency SOS</button></li>
       </ul>
       <p class="sr-only" role="status" data-demo-status></p>
     </div>
 
-    <!-- Gen1 sent 26 readings every 3 seconds, Gen2 sends 82: three times the insight, about 2.36
-         million readings a day. -->
-    <div class="film__caption" data-beat="5">
-      <h2 class="film__title">Three times the insight.</h2>
+    <!-- What the pod reports, four times what Gen1 did (82 readings every 3 seconds against 26),
+         and where it all ends up: in the app, every ride, every charge, every little detail. -->
+    <div class="film__caption" data-beat="6">
+      <h2 class="film__title">Smart enough to talk to you.</h2>
       <p class="film__line">
-        <span class="ln"><span class="ph">82 readings every 3 seconds,</span> <span class="ph">where Gen1 sent 26.</span></span>
-        <span class="ln"><span class="ph">Every ride, every charge, every cell,</span> <span class="ph">at your fingertips.</span></span>
+        <span class="ln">4x more insights than Gen1.</span>
+        <span class="ln"><span class="ph">Every ride, every charge, every little detail,</span> <span class="ph">at your fingertips.</span></span>
       </p>
     </div>
     <!-- And what that insight looks like on the phone, played the same way as the row above. -->
-    <div class="film__tap" data-beat="5">
+    <div class="film__tap" data-beat="6">
       <p class="film__try">Click to experience</p>
       <ul class="film__points">
-        <li><button class="film__point" type="button" data-demo="crash" aria-pressed="false" tabindex="-1">Crash detection</button></li>
+        <li><button class="film__point" type="button" data-demo="crash" aria-pressed="false" tabindex="-1">Crash Detection</button></li>
         <li><button class="film__point" type="button" data-demo="energy" aria-pressed="false" tabindex="-1">Energy per ride</button></li>
-        <li><button class="film__point" type="button" data-demo="insights" aria-pressed="false" tabindex="-1">Riding insights</button></li>
+        <li><button class="film__point" type="button" data-demo="insights" aria-pressed="false" tabindex="-1">Riding Insights</button></li>
       </ul>
     </div>
 
-    <div class="film__caption" data-beat="6">
-      <h2 class="film__title">5 years, covered.</h2>
+    <div class="film__caption" data-beat="7">
+      <h2 class="film__title">5 years warranty.</h2>
       <p class="film__line">
-        <span class="ln"><span class="ph">A 5-year warranty,</span> <span class="ph">with at least 70% of its capacity</span> <span class="ph">still there at the end of it.</span></span>
-        <span class="ln"><span class="ph">We meant it about</span> <span class="ph">the only one you will ever need.</span></span>
+        <span class="ln"><span class="ph">3 years of standard warranty,</span> <span class="ph">extend it by 2 more if you need.</span></span>
+        <!-- The terms, on their own page. Reachable only while this caption is in (the script
+             toggles is-reachable), like the finale's pre-book button. -->
+        <span class="ln"><a class="film__more" href="warranty_terms.html" tabindex="-1">Read the warranty terms</a></span>
       </p>
     </div>
     <!-- The warranty beat's pods: the studio render, not the 3D pod, which goes with the lift.
@@ -3497,16 +3575,19 @@
          under the hero headline, word for word (the script copies it from there; assets/
          launch.js keeps the time), and from that instant the button too, in the place kept
          for it from the start. -->
-    <div class="film__caption film__caption--finale" data-beat="7">
+    <div class="film__caption film__caption--finale" data-beat="8">
       <h2 class="film__title">Made in India. Every inch of it.</h2>
       <p class="film__line">
         <span class="ln"><span class="ph">Designed, engineered and tested</span> <span class="ph">in India, by Indians.</span></span>
         <span class="ln"><span class="ph">Every curve, every circuit,</span> <span class="ph">every line of code.</span></span>
       </p>
     </div>
-    <div class="film__prebook" data-beat="7">
-      <p class="film__prebook-note" data-prebook-note><span class="ph">Pre-booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span> <span class="ph">Shipping across India.</span></p>
-      <a class="film__prebook-cta" href="powerpod-gen2.html" tabindex="-1">Pre-book Gen2</a>
+    <div class="film__prebook" data-beat="8">
+      <div class="film__prebook-slot">
+        <p class="film__prebook-note" data-prebook-note><span class="ph" data-launch-lead>Pre-booking opens</span> <span class="ph"><strong data-launch-count>12 October, 12 PM.</strong></span></p>
+        <a class="film__prebook-cta" href="powerpod-gen2.html" tabindex="-1">Pre-book now at ₹399</a>
+      </div>
+      <p class="film__prebook-ship">Shipping across India, starting 9<sup>th</sup> November</p>
     </div>
     <!-- Its pictures, fetched by the film script while the warranty beat is up, never with the
          page: the pod (tools/source/stills.py) and the phone, a still of the film's own CSS phone
@@ -3687,6 +3768,8 @@
                    extended warranty, 41 days in. The week strip is Saturday to Thursday: today's
                    row is only written at midnight, as in the app. -->
               <div class="app__slot app__slot--powerpod">
+                <!-- The scroller's clip (.app__safe), so the page scrolls under the status bar. -->
+                <div class="app__safe">
                 <div class="tab">
                   <div class="app__head">
                     <div class="app__hello"><p class="app__greet">OWNERSHIP</p><p class="app__title">PowerPod</p></div>
@@ -3749,6 +3832,7 @@
                     <span class="own__navtext"><b>Riding Insights</b><span>Ride scores, efficiency and weekly summaries</span></span>
                     <svg class="own__go"><use href="#app-i-chevron-right"/></svg>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
@@ -4062,6 +4146,7 @@
         <div class="credits__legal">
           <a href="privacy_policy.html">Terms &amp; Conditions</a>
           <a href="privacy_policy.html">Privacy Policy</a>
+          <a href="warranty_terms.html">Warranty Terms</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
       </div>
@@ -6093,13 +6178,13 @@
     // arrive the moment it is set down. They stay: the film ends on them, and the credits take
     // the lights down after.
     const FINALE = {
-      pairOut: [14.05, 14.45],  // the two pods shrink away as their caption leaves
-      podIn: [14.20, 14.55],    // the one pod fades in where they stood,
-      pull: [14.10, 14.80],     // settling from 1.3 times its size, as the camera pulls back
-      glide: [14.85, 15.40],    // it moves to its place as the phone slides in from the right
-      phone: [14.85, 15.40],
-      words: [15.40, 15.70],    // the words, as the phone lands
-      end: 16.10,               // and the track ends on them
+      pairOut: [15.85, 16.25],  // the two pods shrink away as their caption leaves
+      podIn: [16.00, 16.35],    // the one pod fades in where they stood,
+      pull: [15.90, 16.60],     // settling from 1.3 times its size, as the camera pulls back
+      glide: [16.65, 17.20],    // it moves to its place as the phone slides in from the right
+      phone: [16.65, 17.20],
+      words: [17.20, 17.50],    // the words, as the phone lands
+      end: 17.90,               // and the track ends on them
     };
     // The finale's layout (layoutFinale) and, on phones, the text line (layoutText), which the pod
     // block fits its shots to once it is up (refitShots).
@@ -6114,33 +6199,34 @@
       { beat: 0, in: [0.85, 1.20], out: [1.70, 2.00] },  // the reveal
       { beat: 1, in: [2.15, 2.45], out: [2.95, 3.25] },  // the grip
       { beat: 2, in: [3.40, 3.70], out: [4.20, 4.50] },  // the mark and the screen, from overhead
-      { beat: 3, in: [4.65, 4.95], out: [7.45, 7.75] },  // portability: the dock, then the lift
-      { beat: 4, in: [7.90, 8.20], out: [8.70, 9.00] },  // the app: what it knows
-      // (9.00 to 11.85: the tour of the app's tabs, TOUR below)
-      { beat: 5, in: [11.95, 12.25], out: [12.75, 13.05] }, // the app: what it learns
-      { beat: 6, in: [13.20, 13.50], out: [14.05, 14.35] }, // warranty
+      { beat: 3, in: [4.65, 4.95], out: [6.05, 6.35] },  // the connector: the dock close up, the spin
+      { beat: 4, in: [6.45, 6.75], out: [9.25, 9.55] },  // portability: the scooter, then the lift
+      { beat: 5, in: [9.70, 10.00], out: [10.50, 10.80] },  // the app: what it knows
+      // (10.80 to 13.65: the tour of the app's tabs, TOUR below)
+      { beat: 6, in: [13.75, 14.05], out: [14.55, 14.85] }, // the app: what it learns
+      { beat: 7, in: [15.00, 15.30], out: [15.85, 16.15] }, // warranty
       // The finale's words never leave: the film ends on them. (Out past the track's end, so the
       // fade stays a plain number.)
-      { beat: 7, in: FINALE.words, out: [FINALE.end + 10, FINALE.end + 11] },
+      { beat: 8, in: FINALE.words, out: [FINALE.end + 10, FINALE.end + 11] },
     ];
     // The phone is held across both app beats, and the tour between them, rather than fading
     // with any one, so it arrives once and leaves once.
-    const DEVICE = { in: CAPTIONS[4].in, out: CAPTIONS[5].out };
+    const DEVICE = { in: CAPTIONS[5].in, out: CAPTIONS[6].out };
     // Between the two app beats the phone tours the app's three tabs (driveTour): it comes to the
     // middle and grows, the pages either side of Home come out from behind it, a hand flicks the
     // pill across to PowerPod, back, across to Charging and back, and it all goes home again.
     // Positions on the track, in viewports, like the captions'.
     const TOUR = {
-      grow: [9.00, 9.40],      // to the middle, larger; the side screens come out
-      reach: [9.40, 9.55],     // the hand comes up to the pill
+      grow: [10.80, 11.20],    // to the middle, larger; the side screens come out
+      reach: [11.20, 11.35],   // the hand comes up to the pill
       swipes: [                // one page per flick, as the app's pill does: a left flick
-        { at: [9.60, 9.95], to: 1 },    // brings in the page to the right (PowerPod),
-        { at: [10.05, 10.40], to: 0 },  // a right flick the one to the left
-        { at: [10.50, 10.85], to: -1 }, // (Charging)
-        { at: [10.95, 11.30], to: 0 },
+        { at: [11.40, 11.75], to: 1 },  // brings in the page to the right (PowerPod),
+        { at: [11.85, 12.20], to: 0 },  // a right flick the one to the left
+        { at: [12.30, 12.65], to: -1 }, // (Charging)
+        { at: [12.75, 13.10], to: 0 },
       ],
-      leave: [11.30, 11.45],   // the hand goes
-      shrink: [11.45, 11.85],  // the side screens go back behind it, and it goes back
+      leave: [13.10, 13.25],   // the hand goes
+      shrink: [13.25, 13.65],  // the side screens go back behind it, and it goes back
     };
     // The film ends on the finale's words, held, before the credits start lifting into view.
     const TRACK = FINALE.end;
@@ -6182,7 +6268,7 @@
     const deviceEl = document.querySelector('.film__device');
     const pairEl = document.querySelector('.film__pair');
     // The warranty beat's pods come and go with its caption.
-    const PAIR = CAPTIONS[6];
+    const PAIR = CAPTIONS[7];
     const fadeAt = (c, t) => smoother(remap01(t, c.in[0], c.in[1])) * (1 - smoother(remap01(t, c.out[0], c.out[1])));
 
     // The scroll spacer is derived from the table above so the CSS fallback can never drift
@@ -6218,10 +6304,10 @@
 
     // After the lift the film belongs to the phone, and the pod's part is over: it fades out while
     // the lift carries it out of the top of the frame and does not come back, for the app, the
-    // warranty or the credits. It has to be gone by 7.74, before the camera turns back toward
+    // warranty or the credits. It has to be gone by 9.54, before the camera turns back toward
     // where the pod would be. At 0 the pod's loop draws nothing and sleeps once the scroll
     // settles, which leaves the app beats to the phone and the field alone.
-    const podDipAt = (t) => 1 - smoother(remap01(t, 7.64, 7.74));
+    const podDipAt = (t) => 1 - smoother(remap01(t, 9.44, 9.54));
 
     // ---------------------------------------------------------------- the dock shot
     // The portability beat: the particle field gathers into a side-on scooter and the pod
@@ -6254,20 +6340,45 @@
       // read as a dock rather than as a smudge on the pod's edge. Wider than this and the
       // cradle's rear corner starts closing on the rear wheel arch.
       cradle: { from: -0.20, to: -0.05, halfW: 0.085, lip: 0.022, plug: 0.032 },
-      // How far back along its own axis the pod slides in from. This is deliberately short:
-      // it only has to clear the cradle's mouth, which is 0.10 above the pod's base, and
-      // anything much beyond that swings the pod out of frame. The offset is applied in figure
-      // units but lands in NDC, where a narrow phone divides x by an aspect near 0.46 and so
-      // more than doubles the sideways throw: at 0.55 the pod left the composition entirely on
-      // a phone before coming back, which read as it vanishing.
-      entry: 0.24,
-      // These are absolute positions on the track, not offsets from the caption, so they move
-      // whenever a beat is inserted ahead of the dock shot. They last moved +1.25 when the grip
-      // and the overhead beat went in before it.
-      gather: [4.40, 4.85],         // particles assemble into the scooter
-      settle: [4.70, 5.10],         // pod descends and lands
-      release: [5.45, 5.70],        // field lets the scooter go; the lift follows (LIFTCUT)
+      // An absolute position on the track, not an offset from the caption, so it moves whenever
+      // a beat is inserted ahead of the dock shot. It last moved +1.80 when the connector beat
+      // (CLOSE below) went in before it. The scooter itself gathers over ZOOM, below.
+      release: [7.25, 7.50],        // field lets the scooter go; the lift follows (LIFTCUT)
     };
+
+    // The connector beat, ahead of the scooter: the same dock, close up and on its own. The field
+    // draws the cradle large, the pod slides in and lands, and then turns on its own axis (the
+    // pod block's spin). Positions on the track, in viewports, like DOCK's.
+    const CLOSE = {
+      gather: [4.40, 4.85],   // the cradle forms, close up, once the camera has come down from overhead
+      settle: [4.55, 4.95],   // the pod slides in along its axis (entry) and lands, before its caption does
+      // How far back along its own axis the pod slides in from. Short: it only has to clear the
+      // cradle's mouth, 0.10 above its base, and at this scale every bit of it is a long way on
+      // screen. The offset is applied in figure units but lands in NDC, where a narrow phone
+      // divides x by an aspect near 0.46 and so more than doubles the sideways throw; and on a
+      // desktop the pod starts out toward the captions' column, which its caption is arriving in.
+      entry: 0.12,
+      // The sleeve true to the pod at this scale: DOCK.cradle.halfW is widened for the scooter's
+      // scale (see there), and at four times the size that read as a loose box round the pod.
+      halfW: 0.056,
+      // The pod's long side as a share of the viewport height, on a wide screen (closeView). A
+      // narrow one gets `narrow`, much smaller: the pod lies on the slant, so its footprint is
+      // nearly as wide as it is tall, and the whole dock has to be on screen with room round it
+      // for the turn to read as a pod in a dock. By the viewport's width, not the device's
+      // pointer: a narrowed desktop window is a narrow screen too.
+      frame: 0.55,
+      narrow: 0.26,
+      // On a phone the shot sits in the room between the top bar and the text line (closeView
+      // reads textLine); until the line is laid out, this far above the centre of the frame, in NDC.
+      lift: 0.13,
+      // How tall the pod stands on its slant, in frames: its long side and a cap's width, both
+      // at 45 degrees: (0.5 + 132 / 391 / 2) * 2 * 0.707.
+      tall: 0.95,
+    };
+    // The zoom out: the cradle shrinks into the scooter's boot as the scooter forms around it,
+    // the pod docked throughout. The pod's framing (BEATS) and the field's view (viewAt) both run
+    // on this one window, so the two cannot drift apart on the way.
+    const ZOOM = [6.20, 6.70];
 
     // How the drawing is framed, which depends on the screen it has to fit on. Wide screens
     // give the caption the right third, so the scooter shifts left and gets a narrower box.
@@ -6286,7 +6397,7 @@
       const whole = Math.min(DOCK.maxScale, fitW * a / DOCK.whole.span);
       const view = whole >= DOCK.minWhole ? DOCK.whole : DOCK.crop;
       const scale = view === DOCK.whole ? whole : Math.min(DOCK.maxScale, fitW * a / view.span);
-      return { scale, mid: view.mid, shiftX };
+      return { scale, mid: view.mid, shiftX, centreY: DOCK.centreY };
     }
 
     // `frame` is already "share of viewport height the pod's long side fills", and rolling the
@@ -6294,24 +6405,73 @@
     // the pod is upright or on the slant.
     const dockFrame = (aspect) => DOCK.pod.len * dockView(aspect).scale;
 
+    // The connector beat's framing: the cradle alone, large, centred on the pod rather than on
+    // the scooter, with the pod's long side filling CLOSE.frame of the viewport height. On desktop
+    // it keeps left of the captions' column as the scooter does; on a phone it sits in the room
+    // above the text line. The same figure units as the scooter's, so the zoom out is one view
+    // sliding into the other (viewAt) and nothing is ever redrawn in a different place.
+    function closeView(aspect) {
+      const wide = wideNow();
+      const W = filmEl ? filmEl.clientWidth : window.innerWidth;
+      const H = (textLine && textLine.H) || filmVh || window.innerHeight;
+      // Phones, and anything as narrow: the small frame. In between (a tablet, a half-width
+      // window) the shot is sized to its width. Whatever the screen, the whole composition,
+      // dock and pod, keeps inside 70% of the width.
+      let frame = wide ? CLOSE.frame : W < 600 ? CLOSE.narrow : CLOSE.frame;
+      frame = Math.min(frame, 0.70 * W / (CLOSE.tall * H));
+      let lift = CLOSE.lift;
+      // On a narrow screen the pod is centred in the room between the top bar and the text
+      // line, and shrunk if the room is short of it (a 320 by 640 phone), so it never comes
+      // into the text.
+      if (!wide && textLine) {
+        frame = Math.min(frame, textLine.room / (CLOSE.tall * textLine.H));
+        lift = 1 - 2 * textLine.subjectY / textLine.H;
+      }
+      const scale = frame / DOCK.pod.len;
+      return {
+        scale,
+        mid: DOCK.pod.x,
+        shiftX: wide ? -0.40 : 0,
+        centreY: DOCK.pod.y - (wide ? 0 : lift / (2 * scale)),
+      };
+    }
+    const closeFrame = (aspect) => DOCK.pod.len * closeView(aspect).scale;
+    // How far the zoom out has gone: 0 the close-up, 1 the scooter's own framing.
+    const zoomK = (t) => smoother(remap01(t, ZOOM[0], ZOOM[1]));
+    // The view at t: the close-up, the scooter's, or the one on its way to the other.
+    function viewAt(t, aspect) {
+      const k = zoomK(t);
+      if (k <= 0) return closeView(aspect);
+      if (k >= 1) return dockView(aspect);
+      const a = closeView(aspect);
+      const b = dockView(aspect);
+      return {
+        scale: mix(a.scale, b.scale, k),
+        mid: mix(a.mid, b.mid, k),
+        shiftX: mix(a.shiftX, b.shiftX, k),
+        centreY: mix(a.centreY, b.centreY, k),
+      };
+    }
+
     // Under reduced motion the particle field never gathers (setPod is a no-op there), so the
     // scooter is never drawn. Returning 0 here takes the rest of the dock shot down with it:
     // no shrunk pod, no lens offset, no descent. The beat becomes a plain product shot with
     // its caption, which is the right thing to show when there is nothing to dock into.
     const dockFadeAt = (t) => (reduceMotion ? 0
-      : smoother(remap01(t, DOCK.gather[0], DOCK.gather[1]))
+      : smoother(remap01(t, CLOSE.gather[0], CLOSE.gather[1]))
         * (1 - smoother(remap01(t, DOCK.release[0], DOCK.release[1]))));
 
     // Figure units to normalised device coords. y is scaled by the figure's share of the
     // viewport; x divides by aspect because the world mapping below multiplies it back, which
     // is what keeps the drawing from stretching on wide screens. `v` is passed in when a
-    // caller is mapping many points and does not want the view recomputed for each one.
+    // caller is mapping many points and does not want the view recomputed for each one, or
+    // wants another view than the scooter's (closeView, viewAt).
     function figureToNdc(fx, fy, aspect, v) {
       const view = v || dockView(aspect);
       const u = 2 * view.scale;
       return [
         (fx - view.mid) * u / Math.max(0.2, aspect) + view.shiftX,
-        (fy - DOCK.centreY) * u,
+        (fy - (view.centreY === undefined ? DOCK.centreY : view.centreY)) * u,
       ];
     }
 
@@ -6319,7 +6479,7 @@
     // rather than written into the stroke table so the two can never drift apart: move the pod
     // and its dock moves with it. Open at the mouth, because the pod has to visibly go into it
     // and a closed fourth side would only sit behind the pod anyway.
-    function dockCradle() {
+    function dockCradle(halfW = DOCK.cradle.halfW) {
       const P = DOCK.pod;
       const C = DOCK.cradle;
       const th = P.tilt * (Math.PI / 180);
@@ -6327,7 +6487,7 @@
       const pe = [-Math.sin(th), Math.cos(th)];       // across it
       const at = (a, b) => [P.x + ax[0] * a + pe[0] * b, P.y + ax[1] * a + pe[1] * b];
       const seg = (a1, b1, a2, b2) => ['line', ...at(a1, b1), ...at(a2, b2)];
-      const w = C.halfW;
+      const w = halfW;
       // A bracket hangs vertically in figure space, not along the pod's axis.
       const foot = (a, drop) => {
         const [x, y] = at(a, -w);
@@ -6351,47 +6511,109 @@
       ];
     }
 
-    // The scooter as particle targets, in the field's world space at the ribbon depth.
-    function scooterTargets() {
+    // Whether a point of the cradle is on one of its two bracket feet: hanging below the lower
+    // wall (b past -halfW, across the pod) near the base end (a well short of the mouth, along
+    // it). Their drop goes to the scooter's underside, so close up they hang into nothing and
+    // are hidden until the scooter is there to take them.
+    function cradleFoot(p, halfW) {
+      const th = DOCK.pod.tilt * (Math.PI / 180);
+      const dx = p[0] - DOCK.pod.x;
+      const dy = p[1] - DOCK.pod.y;
+      const a = dx * Math.cos(th) + dy * Math.sin(th);
+      const b = -dx * Math.sin(th) + dy * Math.cos(th);
+      return a < -0.10 && b < -halfW - 0.002;
+    }
+
+    // The dock as particle targets, in the field's world space at the ribbon depth: the cradle
+    // close up (the connector beat), the scooter with the cradle in its boot (the portability
+    // beat), or the one on its way to the other (the zoom out, ZOOM). One layout for all three,
+    // so no slot ever changes hands: the scooter's share of the buffer draws the cradle too while
+    // the shot is close, densely, and streams out onto the scooter's lines as the view pulls back,
+    // while the cradle's own share stays on the cradle as it shrinks. The buffer, its samples and
+    // its lead state are kept between frames: on the way the targets are rewritten every frame.
+    let dockBuf = null;
+    function dockTargets(t) {
       const bg = window.gridBG;
       if (!bg || !bg.sampleVehicle || !bg.dockScooter) return null;
       const proj = bg.projection();
       const count = bg.capacity || 8000;
-      // The cradle is sampled separately rather than appended to the scooter's stroke list.
-      // Shared out by length it would take about 5% of the points and wear the same scatter as
-      // the bodywork, and it would read as more of the same scribble. It is a machined part
-      // among hand-drawn panels, so it gets a bigger share and a third of the jitter, which is
-      // what makes it read as hardware the pod sits in rather than as another outline.
-      const nCradle = Math.round(count * 0.14);
-      const points = bg.sampleVehicle(bg.dockScooter, count - nCradle)
-        .map((p) => [p[0], p[1], 1])
-        .concat(bg.sampleVehicle({ height: 1, wheels: [], strokes: dockCradle() }, nCradle)
-          .map((p) => [p[0], p[1], 0.35]));
-      const halfH = proj.depth * proj.tanHalfY;
-      const xyz = new Float32Array(count * 3);
-
-      // The field draws only its first `activeCount` particles, and that count drops on slower
-      // devices, so any prefix of this buffer has to read as the whole drawing. The sampler
-      // walks the strokes in order, which would put the whole front of the scooter and both
-      // wheels in the tail of the buffer and quietly drop them. Stepping the points with a
-      // stride coprime to their number spreads every prefix across the entire figure instead.
-      const gcd = (a, b) => (b ? gcd(b, a % b) : a);
-      let stride = Math.max(1, Math.round(points.length * 0.6180339887));
-      while (gcd(stride, points.length) !== 1) stride++;
-
-      const view = dockView(proj.aspect);
-      for (let i = 0; i < count; i++) {
-        const p = points[(i * stride) % points.length];
-        // A hair of scatter off the line, so it reads as drawn rather than plotted. p[2] is
-        // the scale on it: 1 for the scooter's own lines, less for the cradle.
-        const jx = (((i * 73) % 100) / 100 - 0.5) * 0.008 * p[2];
-        const jy = (((i * 47) % 100) / 100 - 0.5) * 0.008 * p[2];
-        const [nx, ny] = figureToNdc(p[0] + jx, p[1] + jy, proj.aspect, view);
-        xyz[i * 3] = nx * halfH * proj.aspect;
-        xyz[i * 3 + 1] = ny * halfH;
-        xyz[i * 3 + 2] = -proj.depth;
+      if (!dockBuf || dockBuf.count !== count) {
+        // The cradle is sampled separately rather than appended to the scooter's stroke list.
+        // Shared out by length it would take about 5% of the points and wear the same scatter as
+        // the bodywork, and it would read as more of the same scribble. It is a machined part
+        // among hand-drawn panels, so it gets a bigger share and a third of the jitter, which is
+        // what makes it read as hardware the pod sits in rather than as another outline.
+        const nCradle = Math.round(count * 0.14);
+        const nScooter = count - nCradle;
+        const cradle = (halfW, n) => bg.sampleVehicle({ height: 1, wheels: [], strokes: dockCradle(halfW) }, n);
+        // The field draws only its first `activeCount` particles, and that count drops on slower
+        // devices, so any prefix of this buffer has to read as the whole drawing. The sampler
+        // walks the strokes in order, which would put the whole front of the scooter and both
+        // wheels in the tail of the buffer and quietly drop them. Stepping the points with a
+        // stride coprime to their number spreads every prefix across the entire figure instead.
+        const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+        let stride = Math.max(1, Math.round(count * 0.6180339887));
+        while (gcd(stride, count) !== 1) stride++;
+        const far = cradle(DOCK.cradle.halfW, nCradle);
+        const dense = cradle(CLOSE.halfW, nScooter);
+        dockBuf = {
+          count, stride, nScooter,
+          scooter: bg.sampleVehicle(bg.dockScooter, nScooter),
+          // The cradle at its two sleeve widths, point for point: the same strokes, the same count.
+          near: cradle(CLOSE.halfW, nCradle),
+          far,
+          farFoot: far.map((p) => cradleFoot(p, DOCK.cradle.halfW)),
+          // And densely, for the scooter's share of the slots while the shot is close.
+          dense,
+          denseFoot: dense.map((p) => cradleFoot(p, CLOSE.halfW)),
+          xyz: new Float32Array(count * 3), vis: new Float32Array(count),
+          // Where each point was last time, its smoothed velocity, and when, for the lead.
+          was: new Float32Array(count * 3), vel: new Float32Array(count * 3), at: 0,
+        };
       }
-      return xyz;
+      const { stride, nScooter, scooter, near, far, farFoot, dense, denseFoot, vis } = dockBuf;
+      const k = zoomK(t);
+      const view = viewAt(t, proj.aspect);
+      const halfH = proj.depth * proj.tanHalfY;
+      const now = performance.now();
+      const dt = dockBuf.at ? (now - dockBuf.at) / 1000 : 0;
+      dockBuf.at = now;
+      // On the way the targets are sent ahead along their own motion (ahead, trailOf): the field
+      // holds the dock on its loose spring, and without the lead the cradle would trail the pod,
+      // which is placed from the scroll with no lag at all, by a third of a second. Only frame to
+      // frame: after a pause or the first upload the points start from where they are.
+      const lead = k > 0 && k < 1 && dt > 0 && dt < 0.1 ? trailOf(22) : 0;
+      const limit = 0.35 * halfH;
+      // A hair of scatter off the line, so it reads as drawn rather than plotted: the same hair
+      // on screen whatever the scale, so in figure units it shrinks as the view grows.
+      const jit = 0.008 * dockView(proj.aspect).scale / view.scale;
+      for (let i = 0; i < count; i++) {
+        const m = (i * stride) % count;
+        let fx, fy, j, v;
+        if (m >= nScooter) {
+          const a = near[m - nScooter];
+          const b = far[m - nScooter];
+          fx = mix(a[0], b[0], k);
+          fy = mix(a[1], b[1], k);
+          j = 0.35;
+          v = farFoot[m - nScooter] ? k : 1;
+        } else {
+          const a = dense[m];
+          const b = scooter[m];
+          fx = mix(a[0], b[0], k);
+          fy = mix(a[1], b[1], k);
+          // The scooter's lines wear the full scatter; the cradle a third of it. Close up, with
+          // every particle on the cradle, each is drawn fainter or the lines over-ink.
+          j = mix(0.35, 1, k);
+          v = mix(denseFoot[m] ? 0 : 0.25, 1, k);
+        }
+        const jx = (((i * 73) % 100) / 100 - 0.5) * jit * j;
+        const jy = (((i * 47) % 100) / 100 - 0.5) * jit * j;
+        const [nx, ny] = figureToNdc(fx + jx, fy + jy, proj.aspect, view);
+        ahead(dockBuf, i * 3, nx * halfH * proj.aspect, ny * halfH, -proj.depth, dt, lead, limit);
+        vis[i] = v;
+      }
+      return { xyz: dockBuf.xyz, vis };
     }
 
     const liftFilm = (() => {
@@ -7265,18 +7487,18 @@
     //   7  the ride      the floors count up faster and faster, motes stream up, light runs down the pod
     //   8  up and away   the car, with her and the pod, lifts out of the top of the frame
     const LIFTCUT = {
-      transfer: [5.45, 5.90],
-      gather: [5.70, 5.95],
-      count: [5.95, 6.28],
-      ding: [6.26, 6.40],
-      open: [6.30, 6.55],
-      walk: [6.55, 6.95],
-      close: [6.95, 7.10],
-      ride: [7.18, 7.50],
-      rise: [7.45, 7.72],
+      transfer: [7.25, 7.70],
+      gather: [7.50, 7.75],
+      count: [7.75, 8.08],
+      ding: [8.06, 8.20],
+      open: [8.10, 8.35],
+      walk: [8.35, 8.75],
+      close: [8.75, 8.90],
+      ride: [8.98, 9.30],
+      rise: [9.25, 9.52],
       // The field lets the scene go once the car has carried her out of the top of the frame,
       // not on the way: until then the pod is in her hand and her drawing is held to it.
-      release: [7.68, 7.92],
+      release: [9.48, 9.72],
     };
     const inCut = (t, r) => remap01(t, r[0], r[1]);
     // How firmly the field holds her and the lift, and how little drift is left in the hold.
@@ -7300,7 +7522,7 @@
     const liftFadeAt = (t) => (reduceMotion ? 0
       : smoother(inCut(t, LIFTCUT.gather)) * (1 - smoother(inCut(t, LIFTCUT.release))));
     const podDockAt = (t) => (reduceMotion ? 0
-      : smoother(inCut(t, DOCK.gather)) * (1 - smoother(inCut(t, LIFTCUT.transfer))));
+      : smoother(inCut(t, CLOSE.gather)) * (1 - smoother(inCut(t, LIFTCUT.transfer))));
     // It leaves her hand only once the car has carried it out of the top of the frame, so it never
     // drifts back down into view; it comes back, faint, behind the app's phone.
     const podHandAt = (t) => (reduceMotion ? 0
@@ -7310,8 +7532,8 @@
     // the pod comes into it at the end of the hand-over, its fingers closing over a moment, and
     // goes when she does. Under reduced motion, and without the pod, there is nothing to hold.
     const carryAt = (t) => (reduceMotion || !podLoopActive ? 0
-      : smoother(remap01(t, 5.86, 5.97)) * (1 - smoother(inCut(t, LIFTCUT.release))));
-    const carryWrapAt = (t) => remap01(t, 5.88, 6.00);
+      : smoother(remap01(t, 7.66, 7.77)) * (1 - smoother(inCut(t, LIFTCUT.release))));
+    const carryWrapAt = (t) => remap01(t, 7.68, 7.80);
     const carryOn = (t) => carryAt(t) > 0;
 
     // The motes and the light passing over the pod run on real time once the ride is under way,
@@ -8473,13 +8695,20 @@
     // nothing is uploaded yet, or a resize threw it away.
     let targetShape = null;
     let drawnLift = '';
+    let drawnDock = '';
     function ensureShape(t) {
       if (t > 3.85 && t < LIFTCUT.gather[0]) {
-        if (targetShape === 'scooter') return;
-        const xyz = scooterTargets();
-        if (!xyz) return;
-        window.gridBG.setPodTargets(xyz);
-        targetShape = 'scooter';
+        // The dock: close up until the zoom out, the scooter after it, and between the two
+        // rewritten every frame the view moves. Sent straight away: unlike the lift it does not
+        // depend on where the camera is.
+        const k = zoomK(t);
+        const key = k <= 0 ? 'close' : k >= 1 ? 'scooter' : `zoom:${t.toFixed(4)}`;
+        if (targetShape === 'dock' && key === drawnDock) return;
+        const next = dockTargets(t);
+        if (!next) return;
+        window.gridBG.setPodTargets(next.xyz, next.vis);
+        targetShape = 'dock';
+        drawnDock = key;
         return;
       }
       if (t >= LIFTCUT.gather[0] && t < LIFTCUT.release[1] + 0.3) {
@@ -8526,7 +8755,7 @@
     // ---------------------------------------------------------------- the warranty beat's pods
     // Fetched once the film is into the app beats (PAIR_FETCH, in viewports), in idle time, never
     // with the page: at the size they are shown, with the pixel ratio capped as the hands' is.
-    const PAIR_FETCH = 11;
+    const PAIR_FETCH = 12.8;
     let pairFetched = false;
     function fetchPair() {
       pairFetched = true;
@@ -8684,7 +8913,7 @@
 
     // Fetched once the warranty beat is up, in idle time, never with the page: the pictures at
     // the size they are shown, with the pixel ratio capped as the hands' is, and decoded ahead.
-    const FINALE_FETCH = 13;
+    const FINALE_FETCH = 14.8;
     let finaleFetched = false;
     function fetchFinale() {
       finaleFetched = true;
@@ -8722,19 +8951,21 @@
       setStyle(stillEl, 'transform', `translateX(${(reduceMotion ? 0 : finale.phoneFrom * (1 - landing(p))).toFixed(1)}px)`);
     }
 
-    // The finale's line is the hero's, word for word, and its button arrives with the hero's at
-    // the instant. assets/launch.js keeps the time, and runs after this script (deferred).
+    // The finale's row opens with the hero's: assets/launch.js keeps the time, writes the count
+    // into both lines, and runs after this script (deferred).
     const prebookCta = prebookRow && prebookRow.querySelector('.film__prebook-cta');
-    let prebookReachable = null;
+    // The film's two links, the finale's pre-book button and the warranty beat's terms, can be
+    // reached (tabbed to, clicked) only while their own caption is up.
+    const moreLink = document.querySelector('.film__more');
+    const reachables = [
+      prebookCta && { el: prebookCta, c: CAPTIONS[8], was: null },
+      moreLink && { el: moreLink, c: PAIR, was: null },
+    ].filter(Boolean);
     function followLaunch() {
       const launch = window.gridLaunch;
-      const heroNote = document.querySelector('[data-launch-note]');
-      const note = prebookRow && prebookRow.querySelector('[data-prebook-note]');
-      if (!launch || !note) return;
-      launch.subscribe((open) => {
-        prebookRow.classList.toggle('is-open', open);
-        if (heroNote) note.replaceChildren(...[...heroNote.childNodes].map((n) => n.cloneNode(true)));
-      });
+      if (!launch) return;
+      // The count itself is written by assets/launch.js, into the finale's line as into the hero's.
+      launch.subscribe((open) => prebookRow.classList.toggle('is-open', open));
     }
     if (prebookRow) {
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', followLaunch, { once: true });
@@ -8831,14 +9062,13 @@
       }
 
       driveFinale(t);
-      if (prebookCta) {
-        const reachable = fadeAt(CAPTIONS[7], t) > 0.5;
-        if (reachable !== prebookReachable) {
-          prebookReachable = reachable;
-          if (reachable) prebookCta.removeAttribute('tabindex');
-          else prebookCta.setAttribute('tabindex', '-1');
-          prebookCta.classList.toggle('is-reachable', reachable);
-        }
+      for (const r of reachables) {
+        const reachable = fadeAt(r.c, t) > 0.5;
+        if (reachable === r.was) continue;
+        r.was = reachable;
+        if (reachable) r.el.removeAttribute('tabindex');
+        else r.el.setAttribute('tabindex', '-1');
+        r.el.classList.toggle('is-reachable', reachable);
       }
     }
     let phoneDemo = null;
@@ -8910,7 +9140,7 @@
     // from wherever it is in 300 ms.
     function makePhoneDemo() {
       // The two rows of demos, each live while its own beat's caption is in.
-      const rows = [4, 5].map((beat) => ({ el: rowFor(beat), caption: CAPTIONS[beat] })).filter((r) => r.el);
+      const rows = [5, 6].map((beat) => ({ el: rowFor(beat), caption: CAPTIONS[beat] })).filter((r) => r.el);
       const tapEl = rows.length ? rows[0].el : null;
       const buttons = rows.flatMap((r) => [...r.el.querySelectorAll('.film__point')]);
       const rowOf = (name) => rows.find((r) => r.el.querySelector(`[data-demo="${name}"]`)) || rows[0];
@@ -9570,7 +9800,7 @@
             else b.setAttribute('tabindex', '-1');
           }
         }
-        if (t > 7.4) prepare();
+        if (t > 9.2) prepare();
         if (active && !leaving) {
           const c = rowOf(active.name).caption;
           const away = t < c.in[1] - 0.06 || t > c.out[0] + 0.06 || active.wide !== wideNow();
@@ -9824,7 +10054,7 @@
 
       // The rest of the tour, every frame the film moves.
       function drive(t) {
-        if (!built && t > 8.6 && t < CAPTIONS[5].out[1]) {
+        if (!built && t > 10.4 && t < CAPTIONS[6].out[1]) {
           built = true;
           if (perf && perf.idle) perf.idle(build, 800);
           else build();
@@ -10568,21 +10798,48 @@
           // az 0 looks straight down +Z and squares the logo to the lens. The handheld drift
           // keeps that from looking locked off.
           // `frame` here is owned by the dock geometry and rewritten by resize(), never by hand.
-          { at: 4.80, az: 0, el: 0.04, frame: dockFrame(1.78), target: 0, dock: true },
+          // First the connector beat, the dock close up (CLOSE): the camera is down and level by
+          // the time the cradle starts to form (the move from overhead shrinks the pod on the way,
+          // which keeps it out of the captions' column on a laptop), holds through the spin, and
+          // the pod's framing then pulls back over ZOOM exactly as the field's view does, because
+          // shotAt blends consecutive beats on the same curve.
+          { at: 4.40, az: 0, el: 0.04, frame: closeFrame(1.78), target: 0, dock: true, close: true },
+          { at: ZOOM[0], az: 0, el: 0.04, frame: closeFrame(1.78), target: 0, dock: true, close: true },
+          { at: ZOOM[1], az: 0, el: 0.04, frame: dockFrame(1.78), target: 0, dock: true },
           // Held until the pod leaves the boot, so it does not turn while it is docked.
-          { at: 5.45, az: 0, el: 0.04, frame: dockFrame(1.78), target: 0, dock: true },
+          { at: 7.25, az: 0, el: 0.04, frame: dockFrame(1.78), target: 0, dock: true },
           // Into the lift: turned so the grip bar lies across the frame the way it lies in her hand,
           // which also shows the logo face at 45 degrees, and looking down a little, as anyone
           // standing would at a pod carried at the hip. Level, the cap's near wall would hide her
           // fingers where they wrap the bar inside its dish. While the pod is in her hand its
           // size follows the scene's own push-ins (see place()); `frame` here is only where the
           // hand-over starts from, and resize() rewrites it.
-          { at: 5.95, az: -Math.PI / 4, el: 0.26, frame: liftFrame(1.78, 5.95), target: 0, lift: true },
-          { at: 7.45, az: -Math.PI / 4, el: 0.26, frame: liftFrame(1.78, 7.45), target: 0, lift: true },
+          { at: 7.75, az: -Math.PI / 4, el: 0.26, frame: liftFrame(1.78, 7.75), target: 0, lift: true },
+          { at: 9.25, az: -Math.PI / 4, el: 0.26, frame: liftFrame(1.78, 9.25), target: 0, lift: true },
           // Out of the lift the pod starts back and aside, small, for the phone, and is gone by
-          // 7.74 (podDipAt), so this is only the way it leaves: there is no pod after the lift.
-          { at: 8.05, az: -0.22, el: 0.26, frame: phone ? 0.22 : 0.40, target: 0 },
+          // 9.54 (podDipAt), so this is only the way it leaves: there is no pod after the lift.
+          { at: 9.85, az: -0.22, el: 0.26, frame: phone ? 0.22 : 0.40, target: 0 },
         ];
+
+        // The connector beat's spin: once the pod has landed in the dock it turns on its own long
+        // axis, a quarter turn to the right, another, then two back to the left, and rests on the
+        // logo face. On a clock rather than on the scroll (the pod does this itself); the loop
+        // runs the clock from the moment the pod lands and winds it back once the film has left
+        // the shot either way, so it plays again on the way back. Positive y turns the face the
+        // camera sees toward its right: the stand-up (pod.rotation.z) is applied first, so this
+        // is about world Y, which is the pod's long axis.
+        let spinClock = 0;
+        const SPIN = { wait: 0.5, turn: 0.7, hold: 0.35 };
+        function spinAt(clock) {
+          let at = SPIN.wait;
+          let angle = 0;
+          for (const dir of [1, 1, -1, -1]) {
+            if (clock < at) return angle;
+            angle += dir * (Math.PI / 2) * smoother(remap01(clock, at, at + SPIN.turn));
+            at += SPIN.turn + SPIN.hold;
+          }
+          return angle;
+        }
 
         let rafId = 0;
         let filmT = 0;      // smoothed film position, in viewports
@@ -10706,12 +10963,15 @@
             camera.rotateZ(DOCK.pod.tilt * (Math.PI / 180) * dock);
 
             // It slides in along its own axis, out past the top right corner of the bay, so
-            // the movement reads as docking rather than as dropping in from overhead.
-            const away = DOCK.entry * (1 - smoother(remap01(filmT, DOCK.settle[0], DOCK.settle[1])));
+            // the movement reads as docking rather than as dropping in from overhead. Placed
+            // through the same view the field draws the cradle with (viewAt), close up, in the
+            // scooter, or on the way between the two.
+            const away = CLOSE.entry * (1 - smoother(remap01(filmT, CLOSE.settle[0], CLOSE.settle[1])));
             const [nx, ny] = figureToNdc(
               DOCK.pod.x + away * Math.SQRT1_2,
               DOCK.pod.y + away * Math.SQRT1_2,
               camera.aspect,
+              viewAt(filmT, camera.aspect),
             );
             lensX += (-nx / 2) * dock;
             lensY += (ny / 2) * dock;
@@ -10801,7 +11061,8 @@
           // aspect, so the pod's size for those beats is recomputed here rather than written
           // into BEATS. Under reduced motion there is no drawing and they are product shots.
           for (const b of BEATS) {
-            if (b.dock) b.frame = reduceMotion ? (phone ? 0.44 : 0.55) : dockFrame(camera.aspect);
+            if (b.close) b.frame = reduceMotion ? (phone ? 0.44 : 0.55) : closeFrame(camera.aspect);
+            else if (b.dock) b.frame = reduceMotion ? (phone ? 0.44 : 0.55) : dockFrame(camera.aspect);
             if (b.lift) b.frame = reduceMotion ? (phone ? 0.44 : 0.55) : liftFrame(camera.aspect, b.at);
           }
 
@@ -10851,13 +11112,16 @@
           const width = podW;
           const heldT = filmT;
           const heldFade = captionFade;
+          const heldSpin = pod.rotation.y;
           filmT = t;
           captionFade = fade;
+          pod.rotation.y = 0;
           place(shotAt(t), 0, 0);
           filmT = heldT;
           captionFade = heldFade;
           camera.updateMatrixWorld();
           pod.updateMatrixWorld();
+          pod.rotation.y = heldSpin;
           // Only clip x and w are needed, so the projection is written out rather than run
           // through Vector3.project for each of a few thousand points.
           const e = toClip.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
@@ -10893,6 +11157,22 @@
           }
           return right;
         }
+        // And the close-up cradle's (the connector beat), through its own view.
+        let cradlePoints = null;
+        function closeRight() {
+          const bg = window.gridBG;
+          const field = document.getElementById('bg');
+          if (!bg || !bg.sampleVehicle || !field) return NaN;
+          if (!cradlePoints) cradlePoints = bg.sampleVehicle({ height: 1, wheels: [], strokes: dockCradle(CLOSE.halfW) }, 400);
+          const width = field.clientWidth;
+          const aspect = width / Math.max(1, field.clientHeight);
+          const view = closeView(aspect);
+          let right = -Infinity;
+          for (const p of cradlePoints) {
+            right = Math.max(right, (figureToNdc(p[0], p[1], aspect, view)[0] * 0.5 + 0.5) * width);
+          }
+          return right;
+        }
 
         // ---------------------------------------------------------------- fitting shots, on phones
         // On a phone every caption starts on the text line (textLine), so while the pod is on its
@@ -10924,14 +11204,17 @@
         function podBoxAt(t, fit) {
           const heldT = filmT;
           const heldFade = captionFade;
+          const heldSpin = pod.rotation.y;
           filmT = t;
           captionFade = fadeOfCaptionsAt(t);
+          pod.rotation.y = 0;
           const shot = { ...shotAt(t), fit };
           place(shot, 0, 0);
           filmT = heldT;
           captionFade = heldFade;
           camera.updateMatrixWorld();
           pod.updateMatrixWorld();
+          pod.rotation.y = heldSpin;
           const e = toClip.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
             .multiply(mesh.matrixWorld).elements;
           let lo = Infinity;
@@ -10954,8 +11237,9 @@
             const floor = textLine.top - 16;
             const need = [];
             for (let t = 0; t <= FIT_END + FIT_STEP / 2; t += FIT_STEP) {
-              // Only where its caption is up does the text claim the room under the pod.
-              if (fadeOfCaptionsAt(t) < 0.02) { need.push(1); continue; }
+              // Only where its caption is up does the text claim the room under the pod, and
+              // never once the pod is in the dock: the drawn scenes are framed by their drawings.
+              if (fadeOfCaptionsAt(t) < 0.02 || podDockAt(t) > 0.001) { need.push(1); continue; }
               let f = 1;
               // Twice: standing back is close to a scale about the aim point, not exactly one.
               for (let pass = 0; pass < 2; pass++) {
@@ -10981,6 +11265,11 @@
             const last = fitTable.length - 1;
             for (let i = Math.max(0, last - reach); i <= last; i++) fitTable[i] = mix(fitTable[i], 1, smoother((i - (last - reach)) / reach));
           }
+          // The close-up is framed from the text line too (closeView), so its beats and the
+          // cradle drawn around the pod follow the line whenever it is laid out again.
+          for (const b of BEATS) if (b.close) b.frame = reduceMotion ? (phone ? 0.44 : 0.55) : closeFrame(camera.aspect);
+          targetShape = null;
+          ensureShape(filmT);
           place(shotAt(filmT), 0, 0);
           drawnAt = null;
         }
@@ -10993,7 +11282,7 @@
             const pod = podRightAt(t, 1);
             place(shotAt(filmT), 0, 0);
             drawnAt = null;
-            return { pod, scooter: scooterRight(), lift: liftRight(filmEl.clientWidth, filmEl.clientHeight) };
+            return { pod, scooter: scooterRight(), close: closeRight(), lift: liftRight(filmEl.clientWidth, filmEl.clientHeight) };
           };
         }
 
@@ -11063,6 +11352,7 @@
           || Math.abs(a.exposure - b.exposure) > 1 / 512
           || Math.abs(a.sweep - b.sweep) > 1 / 512
           || Math.abs(a.grip - b.grip) > 1 / 512
+          || Math.abs((a.spin || 0) - (b.spin || 0)) > 1e-4
           || a.gripKey !== b.gripKey;
 
         function wouldDiffer(fade, look) {
@@ -11190,6 +11480,16 @@
             look.sweepGain = 0.8 * riding;
           }
           haze = look.haze;
+          // The connector beat's spin (spinAt, SPIN): eased out by the zoom, so the pod meets the
+          // scooter on its logo face however far round it was. Written here and not in place():
+          // the measuring helpers (podRightAt, podBoxAt) call place() for other moments and want
+          // the pod unturned. A turn with the camera still would not redraw on its own, so it is
+          // part of the look the frame test reads.
+          if (filmT < CLOSE.settle[0] || filmT > ZOOM[1]) spinClock = 0;
+          else if (filmT >= CLOSE.settle[1]) spinClock += dt;
+          const spin = reduceMotion ? 0 : spinAt(spinClock) * podDockAt(filmT) * (1 - zoomK(filmT));
+          pod.rotation.y = spin;
+          look.spin = spin;
           place(shotAt(filmT), driftAz, driftEl);
           // A hand on the grip, reaching for it in the grip beat or hers carrying it in the lift:
           // its window's strength, and where it is, which can change with the camera standing
@@ -11232,6 +11532,12 @@
         // not mistaken for an outline out of step with its window.
         if (/[?&]check(&|$)/.test(location.search)) {
           window.__gripCheck = { window: handWindow, redraw: () => { drawnAt = null; } };
+          // And the connector beat's spin: where its clock is and the turn it has the pod at, and
+          // a way to set the clock, so a still can be taken at a known turn whatever the frame rate.
+          window.__spin = {
+            at: () => ({ clock: spinClock, angle: pod.rotation.y, total: SPIN.wait + 4 * SPIN.turn + 3 * SPIN.hold }),
+            seek: (s) => { spinClock = s; drawnAt = null; },
+          };
         }
 
         function start() {

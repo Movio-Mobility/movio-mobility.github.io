@@ -40,7 +40,7 @@ const VIEWPORTS = {
   desktop: { width: 1440, height: 900, deviceScaleFactor: 2 },
   wide: { width: 1920, height: 1080, deviceScaleFactor: 1 },
 };
-const HOLD = 15.95;
+const HOLD = 17.75;
 const FILES = /perspective-front|phone-home/;
 
 let failed = 0;
@@ -58,7 +58,7 @@ async function scrollTo(tab, t, wait = 2000) {
 }
 // Through the film on the way, as a visitor comes.
 async function toHold(tab) {
-  for (const t of [4.0, 8.45, 13.6]) await scrollTo(tab, t, 1200);
+  for (const t of [4.0, 10.25, 15.4]) await scrollTo(tab, t, 1200);
   await scrollTo(tab, HOLD, 2600);
 }
 
@@ -82,11 +82,11 @@ const STATE = () => {
   const loaded = (el) => { const i = el.querySelector('img'); return i.complete && i.naturalWidth > 0; };
   const solo = document.querySelector('.film__solo');
   const still = document.querySelector('.film__still');
-  const cap = document.querySelector('.film__caption[data-beat="7"]');
+  const cap = document.querySelector('.film__caption[data-beat="8"]');
   const row = document.querySelector('.film__prebook');
   const cta = row.querySelector('.film__prebook-cta');
   const words = [...cap.querySelectorAll('.film__title, .film__line')].map(rect);
-  const ctaShown = getComputedStyle(cta).visibility === 'visible';
+  const ctaShown = getComputedStyle(cta).display !== 'none' && getComputedStyle(cta).visibility === 'visible';
   let ctaHit = false;
   if (ctaShown) {
     const r = cta.getBoundingClientRect();
@@ -111,6 +111,8 @@ const STATE = () => {
     ctaHref: cta.getAttribute('href'),
     ctaHit,
     note: row.querySelector('[data-prebook-note]').textContent.replace(/\s+/g, ' ').trim(),
+    noteShown: getComputedStyle(row.querySelector('[data-prebook-note]')).display !== 'none',
+    ship: row.querySelector('.film__prebook-ship').textContent.replace(/\s+/g, ' ').trim(),
     heroNote: document.querySelector('[data-launch-note]').textContent.replace(/\s+/g, ' ').trim(),
     brand: rect(document.querySelector('.brand')),
     island: rect(document.querySelector('.island')),
@@ -140,9 +142,9 @@ try {
     await tab.goto('http://localhost:8145/index.html?check&launch=-3600', { waitUntil: 'load' });
     await sleep(1500);
     report(`${name}: nothing of the finale fetched with the page`, !fetched.length, fetched.join(', '));
-    for (const t of [4.0, 8.45, 12.5]) await scrollTo(tab, t, 1200);
+    for (const t of [4.0, 10.25, 14.3]) await scrollTo(tab, t, 1200);
     report(`${name}: nothing fetched before the warranty beat`, !fetched.length, fetched.join(', '));
-    await scrollTo(tab, 13.6, 1500);
+    await scrollTo(tab, 15.4, 1500);
     await scrollTo(tab, HOLD, 2600);
     let st = await tab.evaluate(STATE);
     const before = st.row;
@@ -176,7 +178,7 @@ try {
       }
       if (st.overflowX) wrong.push('the page scrolls sideways');
       report(`${name}: the final frame, before pre-booking opens`, !wrong.length, wrong.join('; '));
-      report(`${name}: says what the hero says, with no button`, st.note === st.heroNote && !st.cta && /^Pre-booking opens/.test(st.note), `"${st.note}" / "${st.heroNote}"`);
+      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && /^Pre-booking opens in \d+ hours?, \d+ minutes?$/.test(st.note) && st.ship === 'Shipping across India, starting 9th November', `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
     }
     const counts = {};
     for (const f of fetched) {
@@ -186,7 +188,7 @@ try {
     report(`${name}: each fetched once`, Object.keys(counts).length === 2 && Object.values(counts).every((c) => c === 1), JSON.stringify(counts));
 
     // Scrolling back: the warranty shot, and nothing of the finale on screen.
-    await scrollTo(tab, 13.6, 2200);
+    await scrollTo(tab, 15.4, 2200);
     st = await tab.evaluate(STATE);
     report(`${name}: back to the warranty shot`, st.pairShown && st.hidden.every(Boolean), JSON.stringify({ pair: st.pairShown, hidden: st.hidden }));
 
@@ -203,7 +205,7 @@ try {
       const wrong = [];
       if (!st.cta) wrong.push('no button');
       else {
-        if (st.ctaText !== 'Pre-book Gen2') wrong.push(`button "${st.ctaText}"`);
+        if (st.ctaText !== 'Pre-book now at ₹399') wrong.push(`button "${st.ctaText}"`);
         if (st.ctaHref !== 'powerpod-gen2.html') wrong.push(`goes to ${st.ctaHref}`);
         if (!st.ctaHit) wrong.push('does not take a tap');
         for (const [n, r] of [['pod', st.pod], ['phone', st.phone], ['island', st.island], ...st.words.map((w, i) => [`words ${i}`, w])]) {
@@ -212,10 +214,11 @@ try {
         }
         if (st.cta.b > st.vh || st.cta.r > st.vw || st.cta.l < 0) wrong.push('button off screen');
       }
-      if (st.note !== st.heroNote || !/now open/.test(st.note)) wrong.push(`"${st.note}" / "${st.heroNote}"`);
+      if (st.noteShown) wrong.push('the count is still there');
+      if (st.ship !== 'Shipping across India, starting 9th November') wrong.push(`"${st.ship}"`);
       if (Math.abs(st.row.t - before.t) > 1 || Math.abs((st.row.l + st.row.r) / 2 - (before.l + before.r) / 2) > 1) wrong.push('the row moved when pre-booking opened');
       if (st.overflowX) wrong.push('the page scrolls sideways');
-      report(`${name}: once open, the hero's line and a Pre-book Gen2 button, in the same place`, !wrong.length, wrong.join('; '));
+      report(`${name}: once open, the button in the count's place, the shipping line under it`, !wrong.length, wrong.join('; '));
     }
 
     // Reduced motion: the same final frame.

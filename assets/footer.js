@@ -253,7 +253,31 @@
   // room that is still dark wakes it wherever the page is: the loop rests once the night has
   // settled, and a jump back to the top (Home, a fling, a link) must still bring the lights up.
   const wake = () => { if (!rafId && (inPlay() || night > 0 || haloState.weight > 0.002)) start(); };
-  const relayout = () => { if (!rafId) measure(); wake(); };
+
+  // The credit's first two lines are sized so that "Designed and Developed" is exactly as wide
+  // as the name under it, its first D over the G and its last d over the y (footer.css,
+  // --credits-made). Measured here rather than written as a ratio, because the font's optical
+  // sizing changes the glyphs' widths with their size, so no one ratio is exact at every
+  // width. Two passes, since the first changes the size the second measures at. The segments
+  // are as wide as their words (fit-content), so their boxes are the measure; the words' own
+  // reveal transforms do not move them.
+  const made = line ? line.querySelector('.credits__seg') : null;
+  const name = line ? line.querySelector('.credits__seg--name') : null;
+  function fitCredit() {
+    if (!made || !name || made === name) return;
+    line.style.removeProperty('--credits-made');
+    let size = parseFloat(getComputedStyle(made).fontSize);
+    for (let pass = 0; pass < 2; pass++) {
+      const want = name.getBoundingClientRect().width;
+      const have = made.getBoundingClientRect().width;
+      if (!(want > 0 && have > 0 && size > 0)) return;
+      size *= want / have;
+      line.style.setProperty('--credits-made', `${size.toFixed(2)}px`);
+    }
+  }
+  fitCredit();
+
+  const relayout = () => { fitCredit(); if (!rafId) measure(); wake(); };
   window.addEventListener('scroll', wake, { passive: true });
   window.addEventListener('resize', relayout);
   if ('ResizeObserver' in window) new ResizeObserver(() => relayout()).observe(document.body);

@@ -136,7 +136,7 @@ async function press(tab, sel) {
   await tab.mouse.click(r[0], r[1]);
 }
 
-async function toBeat(tab, at = 8.45) {
+async function toBeat(tab, at = 10.25) {
   await tab.evaluate((t) => {
     const vh = document.getElementById('bg').clientHeight || innerHeight;
     window.scrollTo({ top: t * vh, behavior: 'instant' });
@@ -164,7 +164,7 @@ try {
     await sleep(1200);
 
     // Before the beat: the points can't be tapped.
-    await toBeat(tab, 6.9);
+    await toBeat(tab, 8.7);
     const before = await tab.evaluate(() => [...document.querySelectorAll('.film__point')].every((b) => b.getAttribute('tabindex') === '-1' && getComputedStyle(b).pointerEvents === 'none'));
     report(`${name}: the points are not tappable before their beat`, before);
 
@@ -187,11 +187,11 @@ try {
         return { beat: row.dataset.beat, mid: mid.left + mid.width / 2 - cx, label: label.left + label.width / 2 - cx };
       });
     };
-    await toBeat(tab, 12.5);
-    const second = await tab.evaluate(TAPPABLE, 5);
+    await toBeat(tab, 14.3);
+    const second = await tab.evaluate(TAPPABLE, 6);
     report(`${name}: the second row is tappable in its beat, the first is not`, second.every((d) => d.ok), second.filter((d) => !d.ok).map((d) => `${d.demo} (${d.mine ? `lands on ${d.hit}` : 'live out of its beat'})`).join('; '));
     await toBeat(tab);
-    const during = await tab.evaluate(TAPPABLE, 4);
+    const during = await tab.evaluate(TAPPABLE, 5);
     report(`${name}: the points are tappable in their beat`, during.every((d) => d.ok), during.filter((d) => !d.ok).map((d) => `${d.demo} (${d.mine ? `lands on ${d.hit}` : 'live out of its beat'})`).join('; '));
     const middles = await tab.evaluate(MIDDLES);
     report(`${name}: each row's middle label and its "Click to experience" sit on the phone's centre`, middles.every((m) => Math.abs(m.mid) <= 1 && Math.abs(m.label) <= 1),
@@ -202,9 +202,9 @@ try {
     const PLACES = () => {
       const r = (s) => document.querySelector(s).getBoundingClientRect();
       const phone = r('.phone');
-      const words = [...document.querySelectorAll('.film__tap[data-beat="4"] .film__try, .film__tap[data-beat="4"] .film__point')].map((el) => el.getBoundingClientRect());
+      const words = [...document.querySelectorAll('.film__tap[data-beat="5"] .film__try, .film__tap[data-beat="5"] .film__point')].map((el) => el.getBoundingClientRect());
       const row = { l: Math.min(...words.map((w) => w.left)), r: Math.max(...words.map((w) => w.right)), t: Math.min(...words.map((w) => w.top)), b: Math.max(...words.map((w) => w.bottom)) };
-      const caption = [...document.querySelectorAll('.film__caption[data-beat="4"] > *')].map((el) => el.getBoundingClientRect());
+      const caption = [...document.querySelectorAll('.film__caption[data-beat="5"] > *')].map((el) => el.getBoundingClientRect());
       const overlaps = caption.some((c) => c.left < row.r && c.right > row.l && c.top < row.b && c.bottom > row.t);
       return { phone: { l: phone.left, t: phone.top, b: phone.bottom, cx: phone.left + phone.width / 2, h: phone.height }, row, overlaps, vh: innerHeight };
     };
@@ -223,7 +223,7 @@ try {
     // Every demo, held at its moments.
     const stills = [];
     for (const [demo, moments] of Object.entries(MOMENTS)) {
-      await toBeat(tab, SECOND_ROW.has(demo) ? 12.5 : 8.45);
+      await toBeat(tab, SECOND_ROW.has(demo) ? 14.3 : 10.25);
       for (const [label, ms, want] of moments) {
         await tab.evaluate((d, t) => window.__phoneDemo.seek(d, t), demo, ms);
         await sleep(650); // the screens' own short transitions (the SOS faces, captions)
@@ -255,7 +255,7 @@ try {
 
     // One hand, never two: Riding insights (flicks, taps) held every 40 ms of its length.
     {
-      await toBeat(tab, 12.5);
+      await toBeat(tab, 14.3);
       const doubled = await tab.evaluate((end) => {
         const bad = [];
         for (let ms = 0; ms <= end; ms += 40) {
@@ -271,7 +271,7 @@ try {
     }
 
     // Played for real: Crash detection to its end, then back at rest.
-    await toBeat(tab, 12.5);
+    await toBeat(tab, 14.3);
     await press(tab, '[data-demo="crash"]');
     await sleep(lengths.crash + 1200);
     {
@@ -299,7 +299,7 @@ try {
     // Scrolling away ends it.
     await tab.evaluate(() => {
       const vh = document.getElementById('bg').clientHeight || innerHeight;
-      window.scrollTo({ top: 12.5 * vh, behavior: 'instant' });
+      window.scrollTo({ top: 14.3 * vh, behavior: 'instant' });
     });
     await sleep(1500);
     rest = await tab.evaluate(SNAPSHOT);

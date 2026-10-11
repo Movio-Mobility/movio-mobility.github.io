@@ -533,7 +533,7 @@ const YEARS = [
   { label: '2022', theme: 'Software, and a grant' },
   { label: '2023', theme: 'Delhi, a team, a product' },
   { label: '2024', theme: 'Out in the world' },
-  { label: '2025', theme: 'Out of the garage' },
+  { label: '2025', theme: 'Out of the NCR' },
   { label: '2026', theme: 'From prototype to the road' },
 ];
 

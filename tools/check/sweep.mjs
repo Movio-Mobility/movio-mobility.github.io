@@ -221,13 +221,13 @@ for (const name of ['journey', 'store']) {
 {
   const { page, errors } = await open('index', { viewport: { width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true } });
   await sleep(4500);
-  await page.evaluate(() => window.scrollTo({ top: innerHeight * 5.0, behavior: 'instant' }));
+  await page.evaluate(() => window.scrollTo({ top: innerHeight * 6.8, behavior: 'instant' }));
   await sleep(2000);
   await page.setViewport({ width: 844, height: 390, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   await sleep(1000);
   // The same scroll in pixels is much further down the film in landscape, past the lift, where
   // the pod has no part any more; back to the dock shot, so the pod is on screen to be measured.
-  await page.evaluate(() => window.scrollTo({ top: innerHeight * 5.0, behavior: 'instant' }));
+  await page.evaluate(() => window.scrollTo({ top: innerHeight * 6.8, behavior: 'instant' }));
   await sleep(2000);
   const st = await page.evaluate(() => {
     // The pod's density on this phone, at the governor's current step (assets/perf.js).

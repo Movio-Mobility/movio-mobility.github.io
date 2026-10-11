@@ -243,7 +243,7 @@ function wrapSweep(G, grip) {
 // holds the pod) are from the targets sent that frame, in CSS pixels.
 async function motion(tab, name, report) {
   const HAND_SHARE = 0.16;
-  for (const [label, from, to, lift] of [['grip beat', 2.52, 3.24, false], ['lift', 6.0, 7.66, true]]) {
+  for (const [label, from, to, lift] of [['grip beat', 2.52, 3.24, false], ['lift', 7.8, 9.46, true]]) {
     const worst = await tab.evaluate(async (from, to, lift, share) => {
       const vh = document.getElementById('bg').clientHeight || innerHeight;
       // Scroll events are the browser's to fire between frames, and none fire inside this one
@@ -351,7 +351,7 @@ async function browser() {
   const HAND_SHARE = 0.16;
   const only_t = process.argv.find((a) => a.startsWith('--at='));
   // The grip beat: reaching, holding at a slant, rolling, and lifting with the knuckles up.
-  const AT = only_t ? only_t.slice(5).split(',').map(Number) : process.argv.includes('--quick') ? [3.0, 6.75] : [2.62, 2.74, 2.86, 3.0, 6.10, 6.75, 7.35];
+  const AT = only_t ? only_t.slice(5).split(',').map(Number) : process.argv.includes('--quick') ? [3.0, 8.55] : [2.62, 2.74, 2.86, 3.0, 7.90, 8.55, 9.15];
 
   const port = 8133;
   const rootArg = process.argv.find((a) => a.startsWith('--root='));
@@ -429,7 +429,7 @@ async function browser() {
             pts.push([(x * 0.5 + 0.5) * w * devicePixelRatio, (0.5 - y * 0.5) * h * devicePixelRatio]);
           }
           return { pts, dpr: devicePixelRatio };
-        }, t > 5, HAND_SHARE);
+        }, t > 7, HAND_SHARE);
 
         // The pod on its own over magenta: its own pixels are grey, the window over it is
         // magenta at the window's strength, and the rest is magenta.
