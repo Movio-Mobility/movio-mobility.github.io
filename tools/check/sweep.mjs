@@ -3,7 +3,7 @@
  * Regression sweep: the situations that only show up off the happy path.
  *   node tools/check/sweep.mjs [--root dir]
  *
- *   reduced motion · no WebGL2 · the footer's night · order sheet → Razorpay on demand ·
+ *   reduced motion · no WebGL2 · the footer's night · accessory flow → Razorpay on demand ·
  *   the journey lightbox · rotating a phone · hiding and showing the tab · losing and
  *   restoring both WebGL contexts · opening the pages straight from disk (file://)
  *
@@ -156,23 +156,29 @@ for (const name of ['journey', 'store']) {
   await page.close();
 }
 
-// 4. Order sheet: opening it fetches Razorpay's script; the page itself never loads it.
+// 4. Buying an accessory: Razorpay's script is fetched on the first touch of the panel,
+//    never with the page, and the Buy button walks the staged flow in place: no dialog
+//    anywhere (the order sheet it replaced was one).
 {
   const { page, errors } = await open('adapter');
   const requested = [];
   page.on('request', (r) => { if (/checkout\.razorpay\.com\/v1\/checkout\.js/.test(r.url())) requested.push(r.url()); });
   await sleep(2500);
   const atLoad = requested.length;
-  const opened = await page.evaluate(() => {
-    const hit = document.querySelector('[data-order-sku]');
-    if (!hit) return false;
-    hit.click();
-    return true;
-  });
-  await sleep(2500);
-  const st = await page.evaluate(() => ({ dialogOpen: !!document.querySelector('dialog[open]'), razorpay: typeof window.Razorpay }));
-  report('order sheet loads Razorpay on demand', opened && atLoad === 0 && requested.length === 1,
-    `at load ${atLoad}, after opening ${requested.length}, ${JSON.stringify(st)}`, errors);
+  await page.click('#pg2-panel').catch(() => {});
+  await sleep(1500);
+  const afterTouch = requested.length;
+  await page.evaluate(() => document.getElementById('product-buy').click());
+  await sleep(800);
+  const st = await page.evaluate(() => ({
+    stage2: Boolean(document.querySelector('.pg2-view[data-stage="2"].is-active')),
+    stage1: Boolean(document.querySelector('.pg2-view[data-stage="1"].is-active')),
+    dialog: Boolean(document.querySelector('dialog[open]')),
+    anyDialog: document.querySelectorAll('dialog').length,
+  }));
+  report('accessory flow: Razorpay on first touch, Buy advances to details in place',
+    atLoad === 0 && afterTouch === 1 && st.stage2 && !st.stage1 && !st.dialog,
+    `at load ${atLoad}, after touch ${afterTouch}, ${JSON.stringify(st)}`, errors);
   await page.close();
 }
 {

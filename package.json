@@ -10,6 +10,7 @@
     "check": "node tools/check/model.mjs && node tools/check/analytics.mjs && node tools/check/smoke.mjs && node tools/check/sweep.mjs && node tools/check/support.mjs",
     "check:analytics": "node tools/check/analytics.mjs",
     "check:support": "node tools/check/support.mjs",
+    "check:purchase": "node tools/check/purchase.mjs",
     "check:dealers": "node tools/check/hours-unit.mjs && node tools/check/dealers-unit.mjs && node tools/check/dealers.mjs",
     "check:careers": "node tools/check/careers.mjs",
     "check:careers-build": "node tools/check/careers-build.mjs",

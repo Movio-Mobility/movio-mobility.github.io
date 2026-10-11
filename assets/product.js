@@ -1,16 +1,14 @@
 /*
- * Accessory product pages: the gallery in the stage, the quantity, and the foot.
+ * Accessory product pages: the gallery in the stage, and nothing else.
  *
  * Shared by adapter.html, vehicle-dock.html and chargers.html. Nothing here names a
- * product; everything specific to one is in that page's markup.
- *
- * The page is the PowerPod Gen2 shell, so the parts behave the way they do there: a choice
- * is an .opt card whose state lives on data-selected, and the foot carries the running
- * total and the one action. What this file adds is the gallery, which stands where the 3D
- * pod stands on that page.
+ * product; everything specific to one is in that page's markup. The quantity, the variant
+ * cards and the foot used to live here too; they belong to the purchase and moved into
+ * assets/accessory-flow.js with the rest of it.
  *
  * THE IMAGES ARE IN THE HTML, not built here, so the first is discoverable by the preload
- * scanner before this script runs and a page with no renders simply has no gallery.
+ * scanner before this script runs and a page with no renders simply has no gallery: the
+ * chargers page is exactly that, and buildNav and buildArrows both bail on it.
  */
 (() => {
   'use strict';
@@ -25,6 +23,7 @@
   const images = frame ? [...frame.querySelectorAll('.gallery__img')] : [];
 
   let active = 0;
+  let arrows = [];
 
   /*
    * The stage is inert, exactly as on the configurator: grid-bg.js treats wheel and
@@ -52,9 +51,48 @@
     });
   }
 
+  /*
+   * Chevrons at the stage's edges, for the mouse that a scroller and a row of lines both
+   * underserve. Outside .gallery__frame, so they do not ride along with the slides. An
+   * arrow at its end of the line fades out (is-edge, product.css) rather than greying:
+   * the lines underneath already say where you are.
+   */
+  function buildArrows() {
+    if (!stage || images.length < 2) return;
+    const CHEVRONS = {
+      prev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>',
+      next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>',
+    };
+    arrows = [['prev', 'Previous image', -1], ['next', 'Next image', 1]].map(([dir, label, step]) => {
+      const b = document.createElement('button');
+      b.className = `gallery__arrow gallery__arrow--${dir}`;
+      b.type = 'button';
+      b.setAttribute('aria-label', label);
+      b.innerHTML = CHEVRONS[dir]; // a constant above, never anything dynamic
+      b.addEventListener('click', () => {
+        if (b.getAttribute('aria-disabled') === 'true') return;
+        show(active + step);
+      });
+      stage.appendChild(b);
+      return b;
+    });
+    syncArrows();
+  }
+
+  /** The arrows follow the active image: at either end, that side rests and fades. */
+  function syncArrows() {
+    if (!arrows.length) return;
+    const atEdge = [active <= 0, active >= images.length - 1];
+    arrows.forEach((b, i) => {
+      b.setAttribute('aria-disabled', atEdge[i] ? 'true' : 'false');
+      b.classList.toggle('is-edge', atEdge[i]);
+    });
+  }
+
   function setActive(i) {
     if (i === active || i < 0 || i >= images.length) return;
     active = i;
+    syncArrows();
     if (!nav) return;
     [...nav.children].forEach((b, n) => b.setAttribute('aria-current', n === i ? 'true' : 'false'));
   }
@@ -120,68 +158,8 @@
   }
 
   buildNav();
+  buildArrows();
   watchScroll();
   keys();
   keepFramed();
-
-  // ---------------------------------------------------------------- choice and quantity
-  if (!window.gridCatalogue) return;
-  const { MAX_QTY, money, grossUp, priceOf } = window.gridCatalogue;
-
-  const cta = document.getElementById('product-buy');
-  const totalAmount = document.getElementById('product-total');
-  const totalLabel = document.getElementById('product-total-label');
-  const count = document.getElementById('product-qty');
-  const unitLine = document.querySelector('.qty-row__unit');
-  if (!cta) return;
-
-  /*
-   * Most pages sell one thing and the SKU is fixed on the button. The chargers page sells
-   * two that differ only by rating, so it carries .opt cards instead and the SKU follows
-   * whichever is chosen. Selection state lives on data-selected, not on :checked, which is
-   * how every choice on this shell works.
-   */
-  const variants = [...document.querySelectorAll('.opt__input[name="variant"]')];
-  const skuNow = () => {
-    const picked = variants.find((r) => r.checked);
-    return picked ? picked.value : cta.dataset.orderSku;
-  };
-
-  let qty = 1;
-
-  function render() {
-    const sku = skuNow();
-    cta.dataset.orderSku = sku;
-
-    for (const radio of variants) {
-      const label = radio.closest('.opt');
-      if (label) label.dataset.selected = radio.checked ? 'true' : 'false';
-    }
-
-    if (count) count.value = String(qty);
-    for (const b of document.querySelectorAll('.qty-row .stepper__btn')) {
-      const step = Number(b.dataset.step || 0);
-      const atBound = step < 0 ? qty <= 1 : qty >= MAX_QTY;
-      b.setAttribute('aria-disabled', atBound ? 'true' : 'false');
-    }
-
-    const unit = priceOf(sku);
-    if (unitLine) unitLine.textContent = `${money(unit)} each`;
-    if (totalLabel) totalLabel.textContent = 'Total';
-    if (totalAmount) totalAmount.textContent = money(grossUp(unit * qty));
-  }
-
-  const qtyRow = document.querySelector('.qty-row');
-  if (qtyRow) {
-    qtyRow.addEventListener('click', (event) => {
-      const b = event.target.closest('.stepper__btn');
-      if (!b || b.getAttribute('aria-disabled') === 'true') return;
-      qty = Math.min(MAX_QTY, Math.max(1, qty + Number(b.dataset.step || 0)));
-      render();
-    });
-  }
-
-  for (const radio of variants) radio.addEventListener('change', render);
-
-  render();
 })();

@@ -462,10 +462,12 @@
 
             <p class="pg2-status" id="pg2-status" role="status" aria-live="polite"></p>
 
-            <!-- Shown once Razorpay reports success. It says the receipt is on its way
-                 rather than that it has arrived, because the document is generated and
-                 sent server side from the webhook, moments after this appears. -->
+            <!-- Shown once Razorpay reports success. assets/pay-confirm.js then asks Paddock
+                 whether the webhook has landed and fills this card in: the spinning ring
+                 while it waits (in the mark below), then the confirmed pre-booking, or the
+                 quiet keep-an-eye-out version if the webhook is still on its way. -->
             <div class="pg2-done" id="pg2-done" hidden>
+              <div class="pg2-done__mark" aria-hidden="true"></div>
               <h3 class="pg2-done__title" tabindex="-1">You are all set.</h3>
               <p class="pg2-done__body">
                 <span id="pg2-done-where">Your order is confirmed. We have sent your receipt to </span>
@@ -479,6 +481,7 @@
                 Keep this reference handy. Quote it in any message to us and we will find your
                 order straight away.
               </p>
+              <a class="pg2-done__link" href="support.html#track">Track this order</a>
               <a class="pg2-done__link" href="store.html">Back to the store</a>
             </div>
           </section>
@@ -516,6 +519,8 @@
        catalogue.js lends the page its money arithmetic: the gateway fee and the rounding Paddock
        uses, so the bill prints what Razorpay will ask for. -->
   <script src="assets/gridx-api.js"></script>
+  <!-- The payment confirmation (the poll and the tick), before the page script that mounts it. -->
+  <script src="assets/pay-confirm.js"></script>
   <script src="assets/catalogue.js"></script>
   <script src="assets/gstin.js"></script>
   <script src="assets/grid-bg.js"></script>

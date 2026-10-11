@@ -21,8 +21,6 @@
   <link rel="stylesheet" href="assets/store.css">
   <link rel="stylesheet" href="assets/sheet.css">
   <link rel="stylesheet" href="assets/contact.css">
-  <link rel="stylesheet" href="assets/fields.css">
-  <link rel="stylesheet" href="assets/order-sheet.css">
   <link rel="stylesheet" href="assets/footer.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
@@ -209,9 +207,6 @@
       </div>
     </dialog>
 
-    <!-- The accessories order sheet is not here: assets/order-sheet.js builds it and
-         appends it, so the four pages that can order share one copy rather than four.
-         See the note at the top of that file. -->
   </main>
 
   <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
@@ -296,17 +291,14 @@
     </div>
   </footer>
 
-  <!-- Order matters. gridx-api.js first: order-sheet.js and analytics.js both reach Paddock
-       through it. catalogue.js and sheet.js before order-sheet.js, which reads the prices
-       from one and takes its behaviour from the other. Razorpay's own script is
-       fetched on demand (gridx-api.js loadRazorpay), since nothing needs it until Pay. -->
+  <!-- Order matters. gridx-api.js first: analytics.js reaches Paddock through it.
+       sheet.js before store.js, which takes the Gen1 story and questions sheets from it.
+       Ordering itself lives on the product pages now (assets/accessory-flow.js), so this
+       page carries no catalogue, no GSTIN check and nothing that loads Razorpay. -->
   <script src="assets/gridx-api.js"></script>
-  <script src="assets/gstin.js"></script>
   <script src="assets/grid-bg.js"></script>
-  <script src="assets/catalogue.js"></script>
   <script src="assets/sheet.js"></script>
   <script src="assets/store.js"></script>
-  <script src="assets/order-sheet.js"></script>
   <script src="assets/topbar.js"></script>
   <script src="assets/footer.js"></script>
   <!-- First party, cookieless analytics. What it collects, and what it never does: see the top

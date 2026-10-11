@@ -8,7 +8,7 @@
  * THESE PRICES ARE FOR DISPLAY ONLY. The browser never sends a price. It posts which SKUs
  * and how many; Paddock prices the order, records it, and answers with the Razorpay order
  * to open. A stale figure here shows a wrong subtotal for a moment and still charges the
- * right amount, and order-sheet.js reconciles against the server's own numbers before
+ * right amount, and accessory-flow.js reconciles against the server's own numbers before
  * Razorpay opens. Paddock's pricing.test.mjs pins these values against its catalogue, so
  * changing one there fails a test naming this file.
  *

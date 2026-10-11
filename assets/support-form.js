@@ -19,7 +19,7 @@
  * WHAT IS KEPT. A draft of the answers lives in sessionStorage while the tab is open, so a
  * closed sheet or a reload loses nothing; the consent box is never part of it, and a sent
  * request clears it. The order reference may be offered from gridx.lastOrder, which
- * order-sheet.js writes to sessionStorage (this tab only) after a payment.
+ * pay-confirm.js writes to sessionStorage (this tab only) after a payment.
  *
  * QUIET SAFEGUARDS. A hidden field (company_website) that only a script fills, and the time
  * since the form first opened (elapsedMs): Paddock answers either with a believable success

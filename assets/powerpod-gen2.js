@@ -361,6 +361,9 @@
 
   let paid = false;
   let busy = false;
+  // Razorpay's window has closed happily and the webhook's word is being waited on
+  // (assets/pay-confirm.js). Busy stays true with it, so nothing takes a second press.
+  let confirming = false;
   // The payment stage has two beats: the offer ('reserve'), then the bill ('review').
   let payStep = 'reserve';
 
@@ -419,6 +422,7 @@
     // Primary action. On the bill it names the exact amount Razorpay is about to ask for.
     nextBtn.setAttribute('aria-disabled', String(!canAdvance(stage)));
     if (stage !== LAST_STAGE) nextLabel.textContent = 'Continue';
+    else if (confirming) nextLabel.textContent = 'Confirming';
     else nextLabel.textContent = payStep === 'review' ? `Pay ${money(r.chargedInr)}` : 'Pre-book Now';
 
     // Before the launch the offer says when, in place of its usual line, and its card rests.
@@ -634,6 +638,8 @@
 
   backBtn.addEventListener('click', () => {
     if (stage === 1) { location.assign('store.html'); return; }
+    // While the payment is being confirmed there is nothing to go back to.
+    if (confirming) return;
     if (stage === LAST_STAGE && payStep === 'review' && !paid && !busy) {
       goToPayStep('reserve', 'back');
       return;
@@ -1249,13 +1255,7 @@
         render();
         return openCheckout(created);
       })
-      .then((created) => {
-        paid = true;
-        busy = false;
-        if (status) status.textContent = '';
-        showConfirmation(created);
-        render();
-      })
+      .then((created) => confirmPayment(created))
       .catch((err) => {
         busy = false;
         if (status) status.textContent = err.message;
@@ -1264,10 +1264,53 @@
   }
 
   /**
-   * The customer is done. The receipt is generated and sent server side from the webhook,
-   * so this says it is on its way rather than pretending to have sent it.
+   * Razorpay's window closed happily. The webhook is what actually marks the pre-booking
+   * paid, so the page now waits for its word (assets/pay-confirm.js), the ring spinning in
+   * the done card, and only then says so. If pay-confirm.js is somehow missing (a cached
+   * page mid-deploy), this behaves exactly as it always did: the display-only confirmation,
+   * so a partial deploy can never break a payment.
    */
-  function showConfirmation(created) {
+  function confirmPayment(created) {
+    if (status) status.textContent = '';
+    if (!window.gridPayConfirm) {
+      paid = true;
+      busy = false;
+      showConfirmation(created, null);
+      render();
+      return undefined;
+    }
+
+    // Still busy, with the segment held at the bill's 50 and the button resting on
+    // "Confirming": nothing can take a second press while the poll runs.
+    confirming = true;
+    if (payReserve) payReserve.hidden = true;
+    if (payReview) payReview.hidden = true;
+    scroller.scrollTop = 0;
+    nextBtn.hidden = true;
+    const done = document.getElementById('pg2-done');
+    if (done) {
+      window.gridPayConfirm.showPending(done, {
+        pending: 'Payment received. We are confirming your pre-booking.',
+      });
+    }
+    render();
+
+    return window.gridPayConfirm.confirm(created.orderNumber, details.phone).then((result) => {
+      if (result && result.cancelled) return;
+      paid = true;
+      busy = false;
+      confirming = false;
+      showConfirmation(created, result);
+      render();
+    });
+  }
+
+  /**
+   * The customer is done. With pay-confirm.js on the page the card's contents are its:
+   * the confirmed pre-booking once the webhook has answered, or the quiet keep-an-eye-out
+   * version if it outran the wait. Without it, the old display-only card, word for word.
+   */
+  function showConfirmation(created, result) {
     const view = views[LAST_STAGE - 1];
     if (!view) return;
     // The offer and the bill have both been acted on. The confirmation carries its own title.
@@ -1277,17 +1320,28 @@
 
     const done = document.getElementById('pg2-done');
     if (done) {
-      done.hidden = false;
-      const ref = document.getElementById('pg2-done-ref');
-      if (ref) ref.textContent = created.orderNumber;
-      const where = document.getElementById('pg2-done-where');
-      if (where) {
-        where.textContent = 'Your pre-booking is confirmed. We have sent your receipt voucher to ';
+      if (window.gridPayConfirm && result) {
+        const opts = {
+          reference: created.orderNumber,
+          email: details.email,
+          phone: details.phone,
+          nouns: { thing: 'pre-booking', doc: 'receipt voucher' },
+        };
+        if (result.paid) window.gridPayConfirm.showPaid(done, opts);
+        else window.gridPayConfirm.showTimeout(done, opts);
+      } else {
+        done.hidden = false;
+        const ref = document.getElementById('pg2-done-ref');
+        if (ref) ref.textContent = created.orderNumber;
+        const where = document.getElementById('pg2-done-where');
+        if (where) {
+          where.textContent = 'Your pre-booking is confirmed. We have sent your receipt voucher to ';
+        }
+        const to = document.getElementById('pg2-done-to');
+        if (to) to.textContent = `${details.email} and on WhatsApp to ${details.phone}.`;
+        const heading = done.querySelector('h3');
+        if (heading) heading.focus?.();
       }
-      const to = document.getElementById('pg2-done-to');
-      if (to) to.textContent = `${details.email} and on WhatsApp to ${details.phone}.`;
-      const heading = done.querySelector('h3');
-      if (heading) heading.focus?.();
     }
     nextBtn.hidden = true;
   }

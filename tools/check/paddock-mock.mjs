@@ -28,8 +28,21 @@
  *                                     anything else is 404 invalid_link
  *   POST support                      by name: "Forbidden" 403, "Rate Limited" 429,
  *                                     "Unavailable" 503; honeypot: a fake 201; 400 with fields
+ *   POST orders                       kind 'accessories' (items priced from the site's own
+ *                                     catalogue; the customer must carry a street address,
+ *                                     as Paddock demands for anything shipped) or the
+ *                                     configurator's build (a ₹500 reservation); answers
+ *                                     201 with the Razorpay order the page would open
+ *   POST orders/confirm               the webhook's word, polled by pay-confirm.js. By
+ *                                     modes.confirm: 'ok' pays on the third poll per
+ *                                     reference (counts reset by /__mock/reset), 'slow'
+ *                                     never pays, 'down' is 503, 'rate' is 429 with
+ *                                     Retry-After 5; an unknown reference or phone is the
+ *                                     same uniform 404 whatever the reason
  *   POST orders/track                 GX-COLLECT1 with 9876543210 (collect from a dealer),
- *                                     GX-SHIPPED1 with 9876543210 (on its way); else 404
+ *                                     GX-SHIPPED1 (on its way), GX-CANCEL1 (cancelled,
+ *                                     refund initiated) and GX-REFUND1 (cancelled and
+ *                                     refunded), all with 9876543210; else 404
  *   POST pageview, event, live        text/plain JSON (or application/json), always 204;
  *                                     events are checked against the allowlist, 20 at most
  *
@@ -37,6 +50,7 @@
  *
  *   POST /__mock/state   { modes: { careers: 'ok'|'error'|'slow'|'invalid'|'html', dealers: ...,
  *                                   apply|support|track|schedule: 'ok'|'down',
+ *                                   confirm: 'ok'|'slow'|'down'|'rate',
  *                                   beacons: 'ok'|'rate', cors: 'ok'|'deny',
  *                                   latencyMs, slowMs },
  *                          careers: <whole document>, dealers: <whole document>,
@@ -76,6 +90,7 @@ const DEFAULT_MODES = {
   schedule: 'ok',
   support: 'ok',
   track: 'ok',
+  confirm: 'ok',
   beacons: 'ok',
   cors: 'ok',
   latencyMs: 0,
@@ -134,6 +149,8 @@ function freshState() {
     seq: 0,
     bookings: new Map(), // schedule token -> booked slot, for the tokens that can book
     takenRevealed: false,
+    orders: new Map(), // order number -> the ten digit phone it was placed with
+    confirmPolls: new Map(), // order number -> how many times its confirmation was asked for
   };
 }
 
@@ -504,6 +521,114 @@ async function support(state, req, res, log) {
   return send(res, 201, { success: true, reference: ref('GXS') }, h);
 }
 
+// ---------------------------------------------------------------- orders
+// The prices the site's catalogue.js shows and Paddock's fee arithmetic (pricing.js), so
+// the mock's figures agree with the page's to the paisa.
+const PRICES = { adapter: 499, dock: 2999, chg6a: 2199, chg10a: 2699 };
+const GATEWAY_FEE_RATE = 0.024184309;
+const round2 = (x) => Math.sign(x) * Math.round(Math.abs(x) * 100) / 100;
+const grossUp = (net) => round2(net / (1 - GATEWAY_FEE_RATE));
+const RESERVE_INR = 500;
+
+async function createOrder(state, req, res, log) {
+  const h = corsHeaders(state, req);
+  const body = parseJson((await readBody(req, { limit: 16384 })).buffer);
+  if (!body || typeof body !== 'object') {
+    return send(res, 400, { success: false, error: 'That request could not be read.', code: 'invalid' }, h);
+  }
+  const customer = body.customer && typeof body.customer === 'object' ? body.customer : {};
+  log.body = { // as Paddock would log it: never the number or the address
+    kind: body.kind || (body.build ? 'build' : 'unknown'),
+    items: body.items,
+    build: body.build,
+    customer: { name: customer.name, phone: customer.phone ? 'given' : 'missing', address: customer.address ? 'given' : 'missing' },
+    recaptcha: body.recaptcha && body.recaptcha.token ? 'given' : 'missing',
+  };
+
+  const bad = {};
+  if (String(customer.name || '').trim().length < 2) bad['customer.name'] = 'Please enter your name.';
+  if (!/^(\+?91)?[6-9]\d{9}$/.test(String(customer.phone || '').replace(/[\s-]/g, ''))) {
+    bad['customer.phone'] = 'Enter a 10 digit Indian mobile number.';
+  }
+  if (!isEmail(String(customer.email || '').trim())) bad['customer.email'] = 'Enter a valid email address.';
+  if (String(customer.city || '').trim().length < 2) bad['customer.city'] = 'Please enter your city.';
+  if (!/^\d{6}$/.test(String(customer.pincode || '').trim())) bad['customer.pincode'] = 'Enter a 6 digit pincode.';
+
+  let itemsInr = 0;
+  let orderNumber;
+  if (body.kind === 'accessories') {
+    // An accessory ships, so Paddock demands a street address of at least 6 characters.
+    if (String(customer.address || '').trim().length < 6) {
+      bad['customer.address'] = 'Please enter the address to deliver to.';
+    }
+    const items = Array.isArray(body.items) ? body.items : [];
+    if (!items.length) bad.items = 'Choose at least one accessory.';
+    for (const line of items) {
+      const qty = Number(line && line.qty);
+      if (!line || !PRICES[line.sku] || !Number.isInteger(qty) || qty < 1 || qty > 10) {
+        bad.items = 'Those items could not be read.';
+        break;
+      }
+      itemsInr += PRICES[line.sku] * qty;
+    }
+    orderNumber = 'GX-MOCKAA1';
+  } else if (body.build && typeof body.build === 'object') {
+    // The configurator: whatever was chosen, today's payment is the ₹500 reservation.
+    itemsInr = RESERVE_INR;
+    orderNumber = 'GX-MOCKPP1';
+  } else {
+    return send(res, 400, { success: false, error: 'Unknown order kind.', code: 'invalid' }, h);
+  }
+  if (Object.keys(bad).length) {
+    return send(res, 400, { success: false, error: 'Some details need another look.', code: 'invalid', fields: fieldList(bad) }, h);
+  }
+
+  const chargedInr = grossUp(itemsInr);
+  const feeInr = round2(chargedInr - itemsInr);
+  state.orders.set(orderNumber, String(customer.phone || '').replace(/\D/g, '').slice(-10));
+  state.confirmPolls.delete(orderNumber);
+  return send(res, 201, {
+    success: true,
+    orderNumber,
+    razorpayOrderId: `order_mock_${orderNumber}`,
+    amountPaise: Math.round(chargedInr * 100),
+    chargedInr,
+    itemsInr,
+    feeInr,
+    keyId: 'rzp_test_mock',
+    customerId: 'cust_mock1',
+    customer: {
+      name: String(customer.name || '').trim(),
+      email: String(customer.email || '').trim(),
+      phone: String(customer.phone || '').trim(),
+    },
+  }, h);
+}
+
+// ---------------------------------------------------------------- orders/confirm
+// The contract pay-confirm.js polls: success carries paid and status, every failure is the
+// same uniform 404 (so nothing can probe which references exist), and 429 says how long to
+// stay away. In 'ok' mode the webhook "lands" on the third poll per reference.
+async function confirmOrder(state, req, res, log) {
+  const h = corsHeaders(state, req);
+  const body = parseJson((await readBody(req, { limit: 4096 })).buffer) || {};
+  log.body = { reference: body.reference, phone: body.phone ? 'given' : 'missing' };
+  const mode = state.modes.confirm;
+  if (mode === 'down') return send(res, 503, { success: false, error: 'Could not check that just now.' }, h);
+  if (mode === 'rate') {
+    return send(res, 429, { success: false, error: 'Too many checks for now.', retryAfterSec: 5 }, { ...h, 'Retry-After': '5' });
+  }
+  const reference = String(body.reference || '').trim().toUpperCase();
+  const phone = String(body.phone || '').replace(/\D/g, '').slice(-10);
+  const placedWith = state.orders.get(reference);
+  if (!placedWith || placedWith !== phone) return send(res, 404, NOT_FOUND, h);
+  if (mode === 'slow') return send(res, 200, { success: true, paid: false, status: 'pending' }, h);
+  const polls = (state.confirmPolls.get(reference) || 0) + 1;
+  state.confirmPolls.set(reference, polls);
+  const paid = polls > 2;
+  return send(res, 200, { success: true, paid, status: paid ? 'paid' : 'pending' }, h);
+}
+
 // ---------------------------------------------------------------- orders/track
 const NOT_FOUND = { success: false, error: 'We could not find an order with those details.' };
 
@@ -539,6 +664,36 @@ function trackedOrder(reference) {
         { key: 'packed', label: 'Packed', done: true, at: at(2) },
         { key: 'shipped', label: 'Shipped', done: true, at: at(3) },
         { key: 'delivered', label: 'Delivered', done: false, at: null },
+      ],
+      collectFrom: null,
+    };
+  }
+  // Cancelled orders, as Paddock's tracking.js now words them: the delivery steps are gone,
+  // refundedInr carries the figure, and refund_processed is the one step still waiting.
+  if (reference === 'GX-CANCEL1') {
+    return {
+      reference, headline: 'Cancelled, refund on its way', summary: 'Adapter and 6A Charger', kind: 'accessories',
+      delivery: 'ship', chargedInr: 2759.86, refundedInr: 2759.86, courier: null,
+      steps: [
+        { key: 'placed', label: 'Order placed', done: true, at: at(1) },
+        { key: 'paid', label: 'Paid', done: true, at: at(1) },
+        { key: 'cancelled', label: 'Cancelled', done: true, at: at(2) },
+        { key: 'refund_initiated', label: 'Refund initiated', done: true, at: at(2) },
+        { key: 'refund_processed', label: 'Refund processed', done: false, at: null },
+      ],
+      collectFrom: null,
+    };
+  }
+  if (reference === 'GX-REFUND1') {
+    return {
+      reference, headline: 'Cancelled and refunded', summary: 'Adapter and 6A Charger', kind: 'accessories',
+      delivery: 'ship', chargedInr: 2759.86, refundedInr: 2759.86, courier: null,
+      steps: [
+        { key: 'placed', label: 'Order placed', done: true, at: at(1) },
+        { key: 'paid', label: 'Paid', done: true, at: at(1) },
+        { key: 'cancelled', label: 'Cancelled', done: true, at: at(2) },
+        { key: 'refund_initiated', label: 'Refund initiated', done: true, at: at(2) },
+        { key: 'refund_processed', label: 'Refund processed', done: true, at: at(4) },
       ],
       collectFrom: null,
     };
@@ -704,6 +859,8 @@ export async function startMock({ port = 3000, quiet = false } = {}) {
         if (route === 'careers/apply') return await apply(state, req, res, entry);
         if (route === 'careers/schedule') return await schedule(state, req, res, entry);
         if (route === 'support') return await support(state, req, res, entry);
+        if (route === 'orders') return await createOrder(state, req, res, entry);
+        if (route === 'orders/confirm') return await confirmOrder(state, req, res, entry);
         if (route === 'orders/track') return await track(state, req, res, entry);
         if (route === 'pageview' || route === 'event' || route === 'live') return await beacon(state, req, res, entry, route);
       }

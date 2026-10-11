@@ -1,10 +1,11 @@
 /*
  * Accessory product pages.
  *
- * These ARE the PowerPod Gen2 page: same app shell, same white sheet, same foot, same type.
- * powerpod-gen2.css does all of that and is loaded as-is rather than reimplemented, so the
- * two cannot drift. Everything below is only what that file has no reason to know about:
- * a slidable gallery standing where the 3D pod stands, and a quantity row.
+ * These ARE the PowerPod Gen2 page: same app shell, same white sheet, same foot, same type,
+ * same three stage flow (assets/accessory-flow.js). powerpod-gen2.css does all of that and
+ * is loaded as-is rather than reimplemented, so the two cannot drift. Everything below is
+ * only what that file has no reason to know about: a slidable gallery standing where the 3D
+ * pod stands, its indicators and arrows, and a quantity row.
  *
  * The stage paints no background, so the particle field shows straight through it and the
  * product floats on the field exactly as the pod does.
@@ -13,8 +14,8 @@
 /* ---------------------------------------------------------------- gallery */
 /*
  * A horizontal scroller filling the stage. Swiping is native scroll, so it is smooth and
- * interruptible on a phone and needs no JavaScript; the dots underneath are real buttons,
- * which is how it is driven with a mouse or a keyboard.
+ * interruptible on a phone and needs no JavaScript; the lines underneath and the arrows
+ * beside it are real buttons, which is how it is driven with a mouse or a keyboard.
  */
 .gallery__frame {
   position: absolute;
@@ -25,6 +26,7 @@
   overscroll-behavior: contain;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+  transition: opacity 0.5s var(--ease-out), visibility 0s;
 }
 
 .gallery__frame::-webkit-scrollbar { display: none; }
@@ -34,14 +36,12 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  /* Clear of the stage's top scrim, which keeps the brand legible, and of the dots. */
+  /* Clear of the stage's top scrim, which keeps the brand legible, and of the lines. */
   padding: calc(var(--bar-h) * 0.55) 7% 2.1rem;
-  /* The renders carry their own studio backdrop, so each is a plate rather than a cut-out
-     like the pod. Rounding makes that read as a deliberate card instead of the squared-off
-     edge of a screenshot. A fixed radius, not a percentage: object-fit letterboxes inside
-     the element box, so a percentage resolves against a box the image may not fill and the
-     corners stop matching between one viewport and the next. */
-  border-radius: 16px;
+  /* The renders are transparent cut-outs, standing on the field as the pod does. The
+     shadow is what grounds them: cast well below and soft, so it reads as the field's
+     light rather than a sticker outline. */
+  filter: drop-shadow(0 22px 44px rgb(20 20 20 / 0.20));
   scroll-snap-align: center;
   scroll-snap-stop: always;
 }
@@ -64,9 +64,9 @@
 }
 
 /*
- * Dots, not a thumbnail rail: the stage is short on a phone and a rail would eat it. Each
- * is 8px of visible ink inside a 40px target, because an 8px button is not tappable and
- * shrinking the target to match the ink is the usual way this gets broken.
+ * Lines, not a thumbnail rail: the stage is short on a phone and a rail would eat it. Each
+ * is a few pixels of visible ink inside a 40px target, because a 3px button is not tappable
+ * and shrinking the target to match the ink is the usual way this gets broken.
  */
 .gallery__nav {
   position: absolute;
@@ -77,6 +77,7 @@
   display: flex;
   justify-content: center;
   gap: 0.1rem;
+  transition: opacity 0.5s var(--ease-out), visibility 0s;
 }
 
 .gallery__nav:empty { display: none; }
@@ -95,22 +96,108 @@
 
 .gallery__thumb::after {
   content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
   background: rgb(20 20 20 / 0.24);
-  transition: background-color 0.25s var(--ease-out), transform 0.25s var(--spring);
+  transition: background-color 0.25s var(--ease-out), width 0.3s var(--spring);
 }
 
 .gallery__thumb[aria-current="true"]::after {
   background: var(--ink);
-  transform: scale(1.2);
+  width: 30px;
 }
 
 .gallery__thumb:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
   border-radius: 12px;
+}
+
+/* ---------------------------------------------------------------- arrows */
+/*
+ * Built by product.js only when there are two images or more. On a phone they sit in the
+ * same bottom band as the lines, bare chevrons at the stage's edges; on the split desktop
+ * layout they ride mid-height on a quiet disc. An arrow with nowhere to go fades out
+ * rather than greying: the lines already say where you are.
+ */
+.gallery__arrow {
+  position: absolute;
+  z-index: 3;
+  bottom: 0.2rem;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgb(20 20 20 / 0.55);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity 0.25s var(--ease-out),
+    visibility 0s,
+    color 0.2s var(--ease-out),
+    background-color 0.2s var(--ease-out);
+}
+
+.gallery__arrow--prev { left: max(0.75rem, env(safe-area-inset-left)); }
+.gallery__arrow--next { right: max(0.75rem, env(safe-area-inset-right)); }
+
+.gallery__arrow svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gallery__arrow:hover,
+.gallery__arrow:active { color: var(--ink); }
+
+.gallery__arrow:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+/* The end of the line: nothing to press, so nothing to show. */
+.gallery__arrow.is-edge {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+}
+
+@media (min-width: 1025px) {
+  .gallery__arrow {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgb(20 20 20 / 0.05);
+  }
+
+  .gallery__arrow:hover { background: rgb(20 20 20 / 0.1); }
+  .gallery__arrow--prev { left: clamp(0.5rem, 1.6vw, 1.5rem); }
+  .gallery__arrow--next { right: clamp(0.5rem, 1.6vw, 1.5rem); }
+}
+
+/* ---------------------------------------------------------------- scenes */
+/* On the details and payment stages the stage belongs to the particle drawing
+   (accessory-flow.js sets data-scene), so the gallery steps aside, the way the pod does
+   on the configurator. */
+.pg2__stage[data-scene]:not([data-scene="gallery"]) .gallery__frame,
+.pg2__stage[data-scene]:not([data-scene="gallery"]) .gallery__nav,
+.pg2__stage[data-scene]:not([data-scene="gallery"]) .gallery__arrow {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease-out), visibility 0s linear 0.5s;
 }
 
 /* ---------------------------------------------------------------- quantity */
@@ -133,6 +220,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gallery__frame { scroll-behavior: auto; }
+  /* The colour still changes; the width simply is what it is, nothing slides. */
   .gallery__thumb::after { transition: background-color 0.2s ease; }
-  .gallery__thumb[aria-current="true"]::after { transform: none; }
 }

@@ -19,9 +19,6 @@
        the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/powerpod-gen2.css">
-  <link rel="stylesheet" href="assets/sheet.css">
-  <link rel="stylesheet" href="assets/fields.css">
-  <link rel="stylesheet" href="assets/order-sheet.css">
   <link rel="stylesheet" href="assets/product.css">
 
   <!-- The same three opt-ins powerpod-gen2.html sets. pg2-shell says JavaScript is on, so
@@ -90,29 +87,61 @@
 
   <main class="pg2">
     <!-- The stage paints no background of its own, so the particle field on #bg shows
-         through it and the product floats on the field, exactly as the pod does. -->
-    <div class="pg2__stage" id="pg2-stage">
-      <!-- No renders for the chargers yet. The outline mark stands in, and
-           product.js adds no dots because there are no images. Drop files into
-           assets/productImages/charger/ and re-run the build script. -->
+         through it and the product floats on the field, exactly as the pod does.
+         data-scene says what it is showing: the gallery on stage 1, then the drawing the
+         particle field gathers into, a profile for details and a rupee at payment
+         (assets/accessory-flow.js, the same scenes as the configurator). -->
+    <div class="pg2__stage" id="pg2-stage" data-scene="gallery">
+      <!-- No renders for the chargers yet. The outline mark stands in, and product.js adds
+           no indicators or arrows because there are no images. Drop files into
+           assets/productImages/charger/ and re-run tools/source/cutouts.py. -->
       <div class="gallery__frame gallery__frame--empty">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5V7m6-3.5V7"/><path d="M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z"/><path d="M12 16v4.5"/></svg>
       </div>
       <div class="gallery__nav"></div>
+      <!-- Stand-ins for the particle drawings, for a device without the WebGL field or one
+           that asks for reduced motion. Copied from powerpod-gen2.html. -->
+      <svg class="pg2__glyph" data-glyph="profile" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="21"/><circle cx="24" cy="19" r="6.5"/>
+        <path d="M11.6 37.6c2.7-5.3 7.2-8.2 12.4-8.2s9.7 2.9 12.4 8.2"/>
+      </svg>
+      <svg class="pg2__glyph" data-glyph="rupee" viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M15 10h18M15 17h18M20 10a7 7 0 0 1 0 14h-5l15 14"/>
+      </svg>
     </div>
 
     <div class="pg2__panel" id="pg2-panel">
       <div class="pg2__bar">
+        <!-- An anchor, not a button: with no JavaScript it is simply the way back to the
+             store. accessory-flow.js intercepts it past stage 1 and steps back instead. -->
         <a class="pg2-back" href="store.html" aria-label="Back to the store">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
         </a>
+
+        <ol class="pg2-progress" id="af-progress">
+          <li class="pg2-progress__seg" data-stage="1">
+            <span class="pg2-progress__fill"></span>
+            <span class="pg2-progress__name">Product</span>
+          </li>
+          <li class="pg2-progress__seg" data-stage="2">
+            <span class="pg2-progress__fill"></span>
+            <span class="pg2-progress__name">Details</span>
+          </li>
+          <li class="pg2-progress__seg" data-stage="3">
+            <span class="pg2-progress__fill"></span>
+            <span class="pg2-progress__name">Payment</span>
+          </li>
+        </ol>
       </div>
 
       <div class="pg2__scroll" id="pg2-scroll">
         <!-- .pg2-config is what carries the reading measure on this shell: the bar, this
              column and the foot all cap to 36rem with padding rather than max-width, so
-             rules and borders still run the full width of the panel. -->
-        <div class="pg2-config">
+             rules and borders still run the full width of the panel. Three stage views,
+             one shown at a time (assets/accessory-flow.js); without JavaScript every view
+             is visible and the page reads as one document, as on powerpod-gen2.html. -->
+        <form class="pg2-config" id="af-form" novalidate>
+          <section class="pg2-view is-active" data-stage="1">
           <article class="pg2-step" data-copy="draft">
             <h2 class="pg2-step__title" tabindex="-1">Select your charger</h2>
             <p class="pg2-step__sub">Both charge your PowerPod fully. One just gets there faster.</p>
@@ -195,7 +224,115 @@
               </div>
             </div>
           </article>
-        </div>
+          </section>
+
+          <!-- ------------------------------------------------ stage 2: details -->
+          <!-- The configurator's details form (powerpod-gen2.html), plus the street
+               address, which only a shipped accessory needs. -->
+          <section class="pg2-view" data-stage="2">
+            <h2 class="pg2-step__title" tabindex="-1">Your details.</h2>
+            <p class="pg2-step__sub">So we can deliver your order and send your invoice.</p>
+
+            <div class="field">
+              <label class="field__label" for="af-name">Full name</label>
+              <input class="field__input" id="af-name" name="name" enterkeyhint="next" type="text"
+                     autocomplete="name" autocapitalize="words" spellcheck="false"
+                     aria-describedby="ea-name">
+              <p class="field__err" id="ea-name"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="af-phone">Phone number</label>
+              <input class="field__input" id="af-phone" name="phone" enterkeyhint="next" type="tel"
+                     inputmode="tel" autocomplete="tel" placeholder="10 digit mobile number"
+                     aria-describedby="ea-phone">
+              <p class="field__err" id="ea-phone"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="af-email">Email</label>
+              <input class="field__input" id="af-email" name="email" enterkeyhint="next" type="email"
+                     inputmode="email" autocomplete="email" spellcheck="false"
+                     aria-describedby="ea-email">
+              <p class="field__err" id="ea-email"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="af-address">Address</label>
+              <input class="field__input" id="af-address" name="address" enterkeyhint="next" type="text"
+                     autocomplete="street-address" autocapitalize="words"
+                     placeholder="Flat, building, street" maxlength="200"
+                     aria-describedby="ea-address">
+              <p class="field__err" id="ea-address"></p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field__label" for="af-city">City</label>
+                <input class="field__input" id="af-city" name="city" enterkeyhint="next" type="text"
+                       autocomplete="address-level2" autocapitalize="words"
+                       aria-describedby="ea-city">
+                <p class="field__err" id="ea-city"></p>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="af-pin">Pincode</label>
+                <input class="field__input" id="af-pin" name="pincode" enterkeyhint="next" type="text"
+                       inputmode="numeric" autocomplete="postal-code" maxlength="6"
+                       aria-describedby="ea-pin">
+                <p class="field__err" id="ea-pin"></p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="af-gstin">
+                GSTIN <span class="field__opt">optional</span>
+              </label>
+              <!-- maxlength is 18, not 15, for the same reason as on powerpod-gen2.html:
+                   a pasted GSTIN often carries spaces, and a tight cap would clip the
+                   check digit off the end before the script could strip them. -->
+              <input class="field__input" id="af-gstin" name="gstin" enterkeyhint="go" type="text"
+                     inputmode="text" autocomplete="off" spellcheck="false"
+                     maxlength="18" placeholder="22AAAAA0000A1Z5"
+                     aria-describedby="ea-gstin ha-gstin">
+              <p class="field__hint" id="ha-gstin">Buying through a business? Add your GSTIN and it will appear on your tax invoice.</p>
+              <p class="field__err" id="ea-gstin"></p>
+            </div>
+          </section>
+
+          <!-- ------------------------------------------------ stage 3: payment -->
+          <section class="pg2-view" data-stage="3">
+            <div class="pg2-pay" id="af-pay">
+              <h2 class="pg2-step__title" tabindex="-1">Review and pay.</h2>
+              <p class="pg2-step__sub">Everything you are paying for, before the payment window opens.</p>
+              <div class="bill" id="af-bill"></div>
+              <!-- Google's terms for hiding the reCAPTCHA badge, which would otherwise sit on
+                   top of the Pay button on a phone: say so where the check happens. -->
+              <p class="bill__legal">Protected by reCAPTCHA: Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply. Payments are processed by Razorpay.</p>
+            </div>
+
+            <p class="pg2-status" id="af-status" role="status" aria-live="polite"></p>
+
+            <!-- Shown once Razorpay hands back. assets/pay-confirm.js owns what it says:
+                 the tick in the mark below, then the confirmed order or the quiet
+                 keep-an-eye-out version if the webhook is still on its way. -->
+            <div class="pg2-done" id="af-done" hidden>
+              <div class="pg2-done__mark" aria-hidden="true"></div>
+              <h3 class="pg2-done__title" tabindex="-1">You are all set.</h3>
+              <p class="pg2-done__body">
+                <span id="af-done-where"></span>
+                <span id="af-done-to"></span>
+              </p>
+              <p class="pg2-done__ref">
+                <span class="pg2-done__reflabel">Order reference</span>
+                <span id="af-done-ref"></span>
+              </p>
+              <p class="pg2-done__note">Keep this reference handy. Quote it in any message to us and we will find your order straight away.</p>
+              <a class="pg2-done__link" href="support.html#track">Track this order</a>
+              <a class="pg2-done__link" href="store.html">Back to the store</a>
+            </div>
+          </section>
+        </form>
       </div>
 
       <div class="pg2__foot">
@@ -206,10 +343,8 @@
           </p>
           <p class="pg2-foot__tax">(inclusive of all taxes)</p>
         </div>
-        <button class="pg2-next" id="product-buy" type="button"
-                data-order-sku="chg6a" data-qty-from="product-qty"
-                aria-haspopup="dialog" aria-controls="order-sheet">
-          <span>Buy</span>
+        <button class="pg2-next" id="product-buy" type="button" data-order-sku="chg6a">
+          <span id="af-next-label">Continue</span>
         </button>
       </div>
 
@@ -221,9 +356,10 @@
     </div>
   </main>
 
-  <!-- Order matters. gridx-api.js first: order-sheet.js reaches Paddock through it.
-       catalogue.js and sheet.js before order-sheet.js, which reads the prices from one and
-       takes its behaviour from the other. Razorpay's own script is fetched on demand
+  <!-- Order matters. gridx-api.js first: accessory-flow.js reaches Paddock through it.
+       catalogue.js carries the prices, keyboard.js the typing panel and pay-confirm.js the
+       payment confirmation, all before accessory-flow.js, which uses the three. product.js
+       after it: the gallery is its own concern. Razorpay's own script is fetched on demand
        (gridx-api.js loadRazorpay), since nothing needs it until Pay. No footer.js: like the
        configurator, this shell never scrolls as a document, so there is nowhere for a
        footer to live. -->
@@ -231,8 +367,9 @@
   <script src="assets/gstin.js"></script>
   <script src="assets/grid-bg.js"></script>
   <script src="assets/catalogue.js"></script>
-  <script src="assets/sheet.js"></script>
-  <script src="assets/order-sheet.js"></script>
+  <script src="assets/keyboard.js"></script>
+  <script src="assets/pay-confirm.js"></script>
+  <script src="assets/accessory-flow.js"></script>
   <script src="assets/product.js"></script>
   <script src="assets/topbar.js"></script>
   <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->

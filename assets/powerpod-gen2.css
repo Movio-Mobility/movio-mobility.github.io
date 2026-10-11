@@ -770,11 +770,11 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 .review__note a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
 
 /* ---------------------------------------------------------------- 9. form fields */
-/* The site's shared fields are assets/fields.css, which every other form links. This page
-   keeps its own block because its inputs sit on flat white rather than on glass, so they rest
-   on a faint ink tint (below) where those rest on a white wash. The accessory pages load both,
-   fields.css second, so the wash wins there. Change a shared property in one, change it in
-   the other: a buyer must never meet two different text fields. */
+/* The site's shared fields are assets/fields.css, which the glass-backed forms link. This
+   page keeps its own block because its inputs sit on flat white rather than on glass, so
+   they rest on a faint ink tint (below) where those rest on a white wash. The accessory
+   pages are this same shell and use this block as-is. Change a shared property in one,
+   change it in the other: a buyer must never meet two different text fields. */
 .field { margin-bottom: 0.9rem; }
 
 .field__label {
@@ -1195,8 +1195,95 @@ html:not(.pg2-shell) .pg2-next {
 
 .pg2-done__link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
 
+/* Two ways on from a finished order: track it, or back to the store. */
+.pg2-done__link + .pg2-done__link { margin-left: 1.1rem; }
+
+/* The tick (assets/pay-confirm.js). One ring and one check, both with pathLength=1, so the
+   draw is a dash offset running 1 to 0 whatever their real lengths: the ring first, the
+   check as it lands, then the whole mark settles from a touch small. While the webhook is
+   still being waited on the same ring spins as an indeterminate arc instead, and a
+   confirmation that outran the wait shows it resting, muted, drawn without ceremony. */
+.pg2-done__mark { margin: 0 0 0.65rem; }
+.pg2-done__mark:empty { display: none; }
+
+.pay-tick {
+  display: block;
+  width: 56px;
+  height: 56px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: pay-tick-settle 0.5s var(--ease-out) 0.75s both;
+}
+
+.pay-tick circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: pay-tick-draw 0.6s var(--ease-out) forwards;
+}
+
+.pay-tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: pay-tick-draw 0.35s var(--ease-out) 0.45s forwards;
+}
+
+@keyframes pay-tick-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes pay-tick-settle {
+  from { transform: scale(0.96); }
+}
+
+/* Waiting on the webhook: the check stays unwritten and the ring runs as a quiet arc. */
+.pay-tick--pending {
+  stroke: rgb(20 20 20 / 0.45);
+  animation: none;
+}
+
+.pay-tick--pending path { display: none; }
+
+.pay-tick--pending circle {
+  stroke-dasharray: 0.22 0.78;
+  stroke-dashoffset: 0;
+  transform-origin: 50% 50%;
+  animation: pay-tick-spin 1.2s linear infinite;
+}
+
+@keyframes pay-tick-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* The wait ran out: a full ring, muted and still. Never a cross; nothing has failed. */
+.pay-tick--wait {
+  stroke: rgb(20 20 20 / 0.35);
+  animation: none;
+}
+
+.pay-tick--wait path { display: none; }
+
+.pay-tick--wait circle {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pg2-done { animation: pg2-view-fade 0.3s ease both; }
+
+  /* The tick is simply there; the pending ring is a static three-quarter arc. */
+  .pay-tick,
+  .pay-tick circle,
+  .pay-tick path {
+    animation: none;
+  }
+
+  .pay-tick circle,
+  .pay-tick path { stroke-dashoffset: 0; }
+
+  .pay-tick--pending circle { stroke-dasharray: 0.75 0.25; }
 }
 
 /* ---------------------------------------------------------------- 15. payment and the bill */

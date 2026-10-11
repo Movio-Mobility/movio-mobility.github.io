@@ -10,9 +10,10 @@
  *    a swipe down all dismiss it.
  * 3. The Gen2 card goes to its order page, holding the gather through the navigation.
  *
- * Three sheets open over this page: the Gen1 story, the questions picker and the accessories
- * order. How a sheet behaves lives in sheet.js and what is inside the order one lives in
- * order-sheet.js; this file opens the first two and lets the field follow whichever is up.
+ * Two sheets open over this page: the Gen1 story and the questions picker. How a sheet
+ * behaves lives in sheet.js; this file opens both and lets the field follow whichever is
+ * up. Ordering an accessory lives on its product page now (accessory-flow.js and
+ * pay-confirm.js), so nothing here opens a checkout.
  *
  * Does not call setPod (that path damps scroll).
  *

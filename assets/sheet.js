@@ -2,8 +2,8 @@
  * Bottom sheets.
  *
  * One dialog's worth of behaviour, for any page that has one. This used to live inside
- * store.js, which meant a product page wanting a sheet had to load the whole store page's
- * script to get it. Now store.js, order-sheet.js and product.js all take it from here.
+ * store.js, which meant a page wanting a sheet had to load the whole store page's script
+ * to get it. Now store.js, support-form.js and apply-sheet.js all take it from here.
  *
  * What a sheet does: opens modally, locks the page behind it, slides up, and dismisses four
  * ways (the close button, Esc, a tap on the backdrop, a swipe down on a phone). Closing
