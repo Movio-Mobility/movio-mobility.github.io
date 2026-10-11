@@ -393,6 +393,10 @@
       height: 956px;
       border-radius: 62px;
       overflow: hidden;
+      /* Clipped again at composite time, so Web Animations layers and every scale keep the
+         rounded corners: no square leak, no sub-pixel hairline at the rim. */
+      -webkit-clip-path: inset(0 round 62px);
+      clip-path: inset(0 round 62px);
       background: #222;
       isolation: isolate;
     }
@@ -657,21 +661,21 @@
     }
 
     /* The PowerPod row, in use: the pod, the flow and what it is powering, in a 400 point box
-       (home_page.dart _buildPodStatusRow). */
+       (home_page.dart _buildPodStatusRow). Three columns whose outer pair are equal, so the
+       flow sits exactly on the screen's centre line at every viewport. */
     .app__pod {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       align-items: center;
       width: 400px;
       height: 363.28px;
       margin: 10px auto 0;
     }
-    .app__gap { flex: 4 1 0; }
-    .app__gap + .app__flow + .app__gap { flex-grow: 5; }
     .app__podbox {
       position: relative;
       display: grid;
       place-items: center;
-      flex: none;
+      justify-self: start;
       width: 96px;
       height: 334.6px;
       margin-left: 12px;
@@ -693,9 +697,8 @@
     }
     .app__flow {
       position: relative;
-      flex: none;
-      width: 120px;
-      height: 86.04px;
+      width: 108px;
+      height: 77.43px;
     }
     .app__flow svg {
       position: absolute;
@@ -726,7 +729,7 @@
        larger and carried out toward the screen's edge, so the scooter reads at a glance. The
        image is the app's own drawing at 3x (tools/source/scooter.py). */
     .app__ride {
-      flex: none;
+      justify-self: end;
       width: 150px;
       height: 334.6px;
       margin-right: -14px;
@@ -1400,16 +1403,17 @@
       height: 956px;
       overflow: hidden;
       border-radius: 62px;
-      background: #222;
+      -webkit-clip-path: inset(0 round 62px);
+      clip-path: inset(0 round 62px);
+      background: #111;
     }
     .side__slot * { animation: none !important; transition: none !important; }
-    .side__dim {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      background: #000;
-      opacity: 0.28;
-    }
+    /* Each side screen is the page itself, twice: a sharp copy under a blurred twin, whose
+       opacity is all the tour drives, a light frost rather than a black dim. The descendant
+       selector outweighs the slots' own left offsets, so both copies fill their screen. */
+    .side__slot .app__slot { top: 0; left: 0; }
+    .side__soft { z-index: 2; opacity: 0; filter: blur(10px) saturate(0.85); }
+    .side__soft::after { content: ''; position: absolute; inset: 0; background: rgb(255 255 255 / 0.06); }
     /* The tour's own hand, the demos' right hand (the same two images, loaded once). */
     .film__tourhand {
       position: absolute;
@@ -1431,7 +1435,7 @@
     @media (max-width: 859px) {
       .film__device.is-touring { top: calc(50% - 26px); }
     }
-    .film__device.is-touring :is(.film__side, .side__slot, .side__dim, .app__pager, .film__tourhand, .film__tourhand .film__hand--press, .app__navhi, .app__nav > span, .app__lock) {
+    .film__device.is-touring :is(.film__side, .side__slot, .side__soft, .app__pager, .film__tourhand, .film__tourhand .film__hand--press, .app__navhi, .app__nav > span, .app__lock) {
       will-change: transform, opacity;
     }
 
@@ -3449,7 +3453,7 @@
       <ul class="film__points">
         <li><button class="film__point" type="button" data-demo="live" aria-pressed="false" tabindex="-1">Live location</button></li>
         <li><button class="film__point" type="button" data-demo="share" aria-pressed="false" tabindex="-1">Location sharing</button></li>
-        <li><button class="film__point" type="button" data-demo="sos" aria-pressed="false" tabindex="-1">SOS</button></li>
+        <li><button class="film__point" type="button" data-demo="sos" aria-pressed="false" tabindex="-1">Emergency SOS</button></li>
       </ul>
       <p class="sr-only" role="status" data-demo-status></p>
     </div>
@@ -3628,7 +3632,6 @@
                   <p class="app__sync">syncing actively</p>
                   <div class="app__pod">
                     <span class="app__podbox"><img src="assets/productImages/store/gen2.webp" alt="" width="335" height="1000" decoding="async"></span>
-                    <span class="app__gap"></span>
                     <span class="app__flow">
                       <svg viewBox="0 0 640 360"><path d="M12.75 101.75 89.25 180 12.75 258.25 M147.75 101.75 224.25 180 147.75 258.25 M281.75 101.75 358.25 180 281.75 258.25 M416.75 101.75 493.25 180 416.75 258.25 M550.75 101.75 627.25 180 550.75 258.25"/></svg>
                           <svg viewBox="0 0 640 360" style="--i: 0"><path d="M12.75 101.75 89.25 180 12.75 258.25"/></svg>
@@ -3637,7 +3640,6 @@
                           <svg viewBox="0 0 640 360" style="--i: 3"><path d="M416.75 101.75 493.25 180 416.75 258.25"/></svg>
                           <svg viewBox="0 0 640 360" style="--i: 4"><path d="M550.75 101.75 627.25 180 550.75 258.25"/></svg>
                     </span>
-                    <span class="app__gap"></span>
                     <img class="app__ride" src="assets/app/scooter.webp" alt="" width="480" height="1122" decoding="async">
                   </div>
                   <div class="app__cards">
@@ -8576,6 +8578,15 @@
       if (refitShots) refitShots();
     }
 
+    // While the tour holds the phone in its tour box, a layout would measure the film mid-move:
+    // it is put off until the tour lets go (applyCaptions flushes it as the tour ends). The
+    // first layout and the fonts arriving still call layoutText directly.
+    let layoutPending = false;
+    function requestLayoutText() {
+      if (tour && tour.touring) { layoutPending = true; return; }
+      layoutText();
+    }
+
     // ---------------------------------------------------------------- the finale
     // The pod and the phone beside it (FINALE), then the pre-book row under them. Each is laid
     // out in px from the viewport, on resize only (layoutFinale); every frame after that is
@@ -8663,9 +8674,9 @@
 
     if (filmEl) {
       layoutText();
-      window.addEventListener('resize', layoutText);
+      window.addEventListener('resize', requestLayoutText);
       if ('ResizeObserver' in window) {
-        const ro = new ResizeObserver(layoutText);
+        const ro = new ResizeObserver(requestLayoutText);
         for (const el of [...captionEls, ...tapEls, prebookRow]) if (el) ro.observe(el);
       }
       if (document.fonts) document.fonts.ready.then(layoutText);
@@ -8802,6 +8813,7 @@
         driveApp(t, deviceFade);
         if (phoneDemo) phoneDemo.follow(t);
         if (tour) tour.drive(t);
+        if (layoutPending && !(tour && tour.touring)) { layoutPending = false; layoutText(); }
       }
 
       // The warranty beat's pods arrive the way the phone does, rising a little as they fade in.
@@ -9318,7 +9330,6 @@
           tl.key(crash, tap.down, { opacity: 1 }).key(crash, tap.down + 220, { opacity: 0 }, E.out);
           tl.cue(tap.down, () => say('Marked as okay.'));
           close(tl, tap.down + 240, crash);
-          tl.key(crash, tap.down + 260, { opacity: 1 });
           f.leave(tap.up + 120);
           return tl;
         },
@@ -9680,27 +9691,32 @@
           const s = document.createElement('div');
           s.className = 'side__slot';
           s.style.left = `${15.5 + (i - 1) * P}px`;
-          for (const child of slot.children) s.append(child.cloneNode(true));
-          const dim = document.createElement('span');
-          dim.className = 'side__dim';
-          s.append(dim);
+          // The page itself, twice: a sharp copy, then a blurred twin over it. Cloning the
+          // whole slot keeps its modifiers, so the preview is exactly the page that arrives
+          // in the phone, its clipped band included.
+          s.append(slot.cloneNode(true));
+          const soft = slot.cloneNode(true);
+          soft.classList.add('side__soft');
+          s.append(soft);
           side.append(s);
-          return { el: s, dim };
+          return { el: s, soft };
         });
       }
       function syncHome() {
         const copy = sideSlots[1].el;
         for (const field of slots[1].querySelectorAll('[data-app]')) {
-          const twin = copy.querySelector(`[data-app="${field.dataset.app}"]`);
-          if (twin && twin.textContent !== field.textContent) twin.textContent = field.textContent;
+          for (const twin of copy.querySelectorAll(`[data-app="${field.dataset.app}"]`)) {
+            if (twin.textContent !== field.textContent) twin.textContent = field.textContent;
+          }
         }
         const live = slots[1].querySelector('.app__live');
-        const twin = copy.querySelector('.app__live');
-        if (live && twin) twin.dataset.state = live.dataset.state;
+        if (live) for (const twin of copy.querySelectorAll('.app__live')) twin.dataset.state = live.dataset.state;
       }
 
       // The phone's two boxes, rest and tour, measured once (and after a resize), never per frame.
       let box = null;
+      let boxStale = false;
+      let lastW = window.innerWidth;
       const centre = (touring) => {
         deviceEl.classList.toggle('is-touring', touring);
         const w = deviceEl.offsetWidth, h = deviceEl.offsetHeight;
@@ -9717,7 +9733,15 @@
         deviceEl.classList.toggle('is-touring', was);
         box = { rest, tour: tourBox, wide: wideNow() };
       }
-      window.addEventListener('resize', () => { box = null; });
+      // Mid-tour the box is never nulled: the per-frame path reads it. The width changing
+      // (rotation, a real resize) remeasures at once; the height alone changing (the URL bar
+      // sliding in or out) keeps the stale box, which is safe: at full tour the transform is
+      // exactly translate(-50%, -50%) scale(1), so the phone follows the bar via layout alone.
+      window.addEventListener('resize', () => {
+        if (!touring) { box = null; lastW = window.innerWidth; return; }
+        if (window.innerWidth !== lastW) { lastW = window.innerWidth; measure(); return; }
+        boxStale = true;
+      });
 
       // Where each thing is at t.
       function pageAt(t) {
@@ -9779,7 +9803,7 @@
         if (now !== touring) {
           if (now) {
             build();
-            if (!box || box.wide !== wide) measure();
+            if (!box || boxStale || box.wide !== wide) { measure(); boxStale = false; }
             syncHome();
           }
           touring = now;
@@ -9789,6 +9813,7 @@
           deviceEl.style.setProperty('--k', String((now ? box.tour.h : box.rest.h) / PHONE_HEIGHT));
         }
         if (!touring) return null;
+        if (!box) measure();
         // From the rest box to the tour box: the tour box drawn back at the rest box's size and
         // place, and let go as p comes up.
         const s = mix(box.rest.h / box.tour.h, 1, p);
@@ -9823,7 +9848,7 @@
           const pos = (i - 1) - pg - (i - 1) * (1 - p); // in pages, from the phone
           setStyle(slot.el, 'transform', `translateX(${(-out).toFixed(2)}px)`);
           setStyle(slot.el, 'visibility', Math.abs(pos) < 0.02 ? 'hidden' : '');
-          setStyle(slot.dim, 'opacity', (0.28 * Math.min(1, Math.abs(pos))).toFixed(3));
+          setStyle(slot.soft, 'opacity', Math.min(1, Math.abs(pos)).toFixed(3));
         });
         setStyle(navHi, 'transform', `translateX(${(70 * (1 + hi)).toFixed(2)}px)`);
         navIcons.forEach((icon, i) => {
@@ -9854,7 +9879,7 @@
       if (/[?&]check(&|$)/.test(location.search)) {
         window.__tour = { pageAt, fingerAt, get touring() { return touring; } };
       }
-      return { deviceTransform, drive };
+      return { deviceTransform, drive, get touring() { return touring; } };
     }
     tour = makeTour();
 
