@@ -11,10 +11,10 @@
  *   - a vehicle: the step shows, the footer starts at ₹59,999 (the floor), the stage says
  *     data-vehicle="yes" and, with the field, the pod rides into the scooter (a screenshot
  *     lands in tools/check/out/); X1 and X3 move the footer to ₹59,999 and ₹69,999
- *   - the 3D view: nothing under assets/vehicles/ is requested before a tap; the tap on the
- *     X1 picture puts exactly one frame on the page, the X1's, and nothing else; the X takes
- *     it out again with the radios and the footer as they were; Escape and the back button
- *     close it too, and each opening is one request
+ *   - the picture up close: no large picture is requested before a tap; the tap on the X1
+ *     card puts exactly one picture on the page, the X1's large one, and nothing else; the X
+ *     takes it out again with the radios and the footer as they were; Escape and the back
+ *     button close it too, and each opening is one request
  *   - the button says Pay ₹399 with its tag on the configure and details stages
  *   - no page errors
  */
@@ -60,7 +60,7 @@ const report = (label, ok, detail = '') => {
 const PHONE = { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 const DESK = { width: 1440, height: 900, deviceScaleFactor: 1 };
 
-/** The page, its calls to Paddock answered by the mock, every request to the vehicles noted. */
+/** The page, its calls to Paddock answered by the mock, every request for a large picture noted. */
 async function open(viewport) {
   const page = await browser.newPage();
   await page.setViewport(viewport);
@@ -71,7 +71,7 @@ async function open(viewport) {
   await page.setRequestInterception(true);
   page.on('request', async (req) => {
     const url = req.url();
-    if (/\/assets\/vehicles\//.test(url)) vehicles.push(url);
+    if (/komaki-x[13]-large\.webp/.test(url)) vehicles.push(url);
     if (/^https:\/\/(www\.(google|gstatic)\.com\/recaptcha|checkout\.razorpay\.com)\//.test(url)) { req.abort(); return; }
     if (!url.startsWith(`${PADDOCK}/`)) { req.continue(); return; }
     const cors = { 'Access-Control-Allow-Origin': SITE, 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
@@ -104,7 +104,7 @@ const state = (page) => page.evaluate(() => ({
   review: document.getElementById('pg2-review').textContent,
   checked: [...document.querySelectorAll('.opt__input:checked')].map((r) => `${r.name}=${r.value}`),
   viewerOpen: !document.getElementById('pg2-viewer').hidden,
-  frames: [...document.querySelectorAll('#pg2-viewer-frame iframe')].map((f) => f.getAttribute('src')),
+  frames: [...document.querySelectorAll('#pg2-viewer-pic img')].map((f) => f.getAttribute('src')),
   loaded: document.getElementById('pg2-viewer').dataset.loaded,
   viewing: document.documentElement.classList.contains('is-viewing'),
   title: document.getElementById('pg2-viewer-title').textContent,
@@ -159,49 +159,50 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
     && Math.abs(ride.roll - Math.PI / 4) < 1e-6,
     JSON.stringify(ride));
 
-  report(`${label}: nothing under assets/vehicles/ was fetched before a tap`, vehicles.length === 0, vehicles.join(', '));
+  report(`${label}: no large picture was fetched before a tap`, vehicles.length === 0, vehicles.join(', '));
 
-  // Open the X1 in 3D, with the X3 chosen: the choice must survive the view.
-  await page.evaluate(() => document.querySelector('[data-view3d="x1"]').click());
-  const opened = await until(page, () => !document.getElementById('pg2-viewer').hidden && document.querySelector('#pg2-viewer-frame iframe'));
+  // Open the X1 up close, with the X3 chosen: the choice must survive the view.
+  await page.evaluate(() => document.querySelector('[data-view="x1"]').click());
+  const opened = await until(page, () => !document.getElementById('pg2-viewer').hidden && document.querySelector('#pg2-viewer-pic img'));
   s = await state(page);
-  report(`${label}: the tap opens exactly one frame, the X1's, over the page`,
-    opened && s.viewerOpen && s.frames.length === 1 && /assets\/vehicles\/komaki-x1\.html/.test(s.frames[0])
-    && s.viewing && s.title === 'Komaki X1 in 3D' && s.checked.includes('model=x3'),
+  report(`${label}: the tap opens exactly one picture, the X1's, over the page`,
+    opened && s.viewerOpen && s.frames.length === 1 && /komaki-x1-large\.webp/.test(s.frames[0])
+    && s.viewing && s.title === 'Komaki X1' && s.checked.includes('model=x3'),
     JSON.stringify({ open: s.viewerOpen, frames: s.frames, title: s.title, checked: s.checked }));
   const loaded = await until(page, () => document.getElementById('pg2-viewer').dataset.loaded === 'true');
-  report(`${label}: the frame loads and the ring gives way to it`, loaded);
-  await sleep(600); // past the fade, so the picture is the view and not the page through it
+  report(`${label}: the picture loads and the ring gives way to it`, loaded);
+  await sleep(700); // past the fade, so the picture is the view and not the page through it
   await shoot(page, `gen2-viewer-${label}`);
-  report(`${label}: the tap fetched the X1 page and nothing else`,
-    vehicles.length === 1 && /komaki-x1\.html/.test(vehicles[0]), vehicles.join(', '));
+  report(`${label}: the tap fetched the X1's large picture and nothing else`,
+    vehicles.length === 1 && /komaki-x1-large\.webp/.test(vehicles[0]), vehicles.join(', '));
 
   await page.evaluate(() => document.getElementById('pg2-viewer-close').click());
-  const closed = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-frame iframe'));
+  const closed = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-pic img'));
   s = await state(page);
-  report(`${label}: the X closes it, the frame is gone, the choices and the footer stand`,
+  report(`${label}: the X closes it, the picture is gone, the choices and the footer stand`,
     closed && !s.viewerOpen && s.frames.length === 0 && !s.viewing && s.checked.includes('model=x3')
     && s.checked.includes('vehicle=yes') && s.amount === '₹69,999' && s.vehicle === 'yes',
     JSON.stringify({ closed, frames: s.frames, checked: s.checked, amount: s.amount }));
 
   // Escape closes it too.
-  await page.evaluate(() => document.querySelector('[data-view3d="x3"]').click());
+  await page.evaluate(() => document.querySelector('[data-view="x3"]').click());
   await until(page, () => document.getElementById('pg2-viewer').dataset.loaded === 'true');
   await page.keyboard.press('Escape');
-  const escaped = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-frame iframe'));
+  const escaped = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-pic img'));
   report(`${label}: Escape closes it`, escaped);
 
   // And so does going back, the way a phone's back gesture does.
-  await page.evaluate(() => document.querySelector('[data-view3d="x3"]').click());
+  await page.evaluate(() => document.querySelector('[data-view="x3"]').click());
   await until(page, () => document.getElementById('pg2-viewer').dataset.loaded === 'true');
   await page.goBack();
-  const back = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-frame iframe'));
+  const back = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-pic img'));
   s = await state(page);
   report(`${label}: the back button closes it and the page is still the page`,
     back && s.stage === 1 && s.checked.includes('model=x3') && s.amount === '₹69,999',
     JSON.stringify({ back, stage: s.stage, checked: s.checked }));
-  report(`${label}: each opening is one request, three in all`,
-    vehicles.length === 3 && /x1/.test(vehicles[0]) && /x3/.test(vehicles[1]) && /x3/.test(vehicles[2]),
+  // The browser may serve the second X3 from its cache without a request, so two or three.
+  report(`${label}: each opening is a request for that picture and no other`,
+    vehicles.length >= 2 && vehicles.length <= 3 && /x1/.test(vehicles[0]) && vehicles.slice(1).every((u) => /x3/.test(u)),
     vehicles.map((u) => u.split('/').pop()).join(', '));
 
   // On to the details: the same words on the button.

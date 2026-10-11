@@ -243,24 +243,20 @@
 
           <!-- ------------------------------------------------ 3. Komaki -->
           <!-- Only with a vehicle: the script hides it otherwise. The picture is a button that
-               opens the model in 3D (assets/vehicles/, fetched on that tap and never before);
-               the rest of the card chooses it. The pictures are stand-ins until the product
-               photos land in assets/productImages/store/. -->
+               opens the model full size (the large file is fetched on that tap and never
+               before); the rest of the card chooses it. -->
             <article class="pg2-step" id="step-model" data-step="3" data-group="model">
               <h2 class="pg2-step__title" tabindex="-1">Choose your Komaki.</h2>
-              <p class="pg2-step__sub">Two to choose from. Tap a picture to see it in 3D.</p>
+              <p class="pg2-step__sub">Two to choose from. Tap a picture to see it up close.</p>
 
               <fieldset class="pg2-step__options">
                 <legend class="pg2-sr">Choose a Komaki model</legend>
 
                 <label class="opt opt--model" data-group="model" data-value="x1" data-selected="false">
                   <input class="opt__input pg2-sr" type="radio" name="model" value="x1" aria-label="Komaki X1">
-                  <button class="opt__art opt__art--3d" type="button" data-view3d="x1" aria-label="See the Komaki X1 in 3D">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="5.5" cy="17" r="3.2"/><circle cx="18.5" cy="17" r="3.2"/>
-                      <path d="M8.7 17h6.6"/><path d="m5.5 17 2.6-7.4h4l3.6 5.6"/><path d="M12.1 9.6h3.4L17 5.6h2.2"/>
-                    </svg>
-                    <span class="opt__3d" aria-hidden="true">View in 3D</span>
+                  <button class="opt__art opt__art--zoom" type="button" data-view="x1" aria-label="See the Komaki X1 up close">
+                    <img src="assets/productImages/store/komaki-x1.webp" alt="Komaki X1" width="640" height="640" decoding="async" loading="lazy">
+                    <span class="opt__zoom" aria-hidden="true">Tap to expand</span>
                   </button>
                   <span class="opt__body">
                     <span class="opt__title">Komaki X1</span>
@@ -271,12 +267,9 @@
 
                 <label class="opt opt--model" data-group="model" data-value="x3" data-selected="false">
                   <input class="opt__input pg2-sr" type="radio" name="model" value="x3" aria-label="Komaki X3">
-                  <button class="opt__art opt__art--3d" type="button" data-view3d="x3" aria-label="See the Komaki X3 in 3D">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="5.5" cy="17" r="3.2"/><circle cx="18.5" cy="17" r="3.2"/>
-                      <path d="M8.7 17h6.6"/><path d="m5.5 17 2.6-7.4h4l3.6 5.6"/><path d="M12.1 9.6h3.4L17 5.6h2.2"/>
-                    </svg>
-                    <span class="opt__3d" aria-hidden="true">View in 3D</span>
+                  <button class="opt__art opt__art--zoom" type="button" data-view="x3" aria-label="See the Komaki X3 up close">
+                    <img src="assets/productImages/store/komaki-x3.webp" alt="Komaki X3" width="640" height="640" decoding="async" loading="lazy">
+                    <span class="opt__zoom" aria-hidden="true">Tap to expand</span>
                   </button>
                   <span class="opt__body">
                     <span class="opt__title">Komaki X3</span>
@@ -437,21 +430,21 @@
 
     </div>
 
-    <!-- A Komaki in 3D (assets/vehicles/). Empty until a picture is tapped: the script puts the
-         model's page in a frame here then, and takes it out again on the X, so nothing about the
-         model is fetched or held before someone asks for it. The ring (assets/pay-confirm.js's
-         tick, drawn by the CSS) spins until the frame has loaded. -->
+    <!-- A Komaki up close. Empty until a picture is tapped: the script puts the model's large
+         picture here then, and takes it out again on the X, so nothing is fetched before someone
+         asks for it. The ring (assets/pay-confirm.js's tick, drawn by the CSS) spins until the
+         picture has loaded. -->
     <div class="pg2-viewer" id="pg2-viewer" role="dialog" aria-modal="true" aria-labelledby="pg2-viewer-title" data-loaded="false" hidden>
       <div class="pg2-viewer__bar">
-        <p class="pg2-viewer__title" id="pg2-viewer-title">Komaki in 3D</p>
-        <button class="pg2-viewer__close" id="pg2-viewer-close" type="button" aria-label="Close the 3D view">
+        <p class="pg2-viewer__title" id="pg2-viewer-title">Komaki</p>
+        <button class="pg2-viewer__close" id="pg2-viewer-close" type="button" aria-label="Close the picture">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
       </div>
       <div class="pg2-viewer__wait" aria-hidden="true">
         <svg class="pay-tick pay-tick--pending" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" pathLength="1"/><path d="m21 33.5 8 8L43.5 25" pathLength="1"/></svg>
       </div>
-      <div class="pg2-viewer__frame" id="pg2-viewer-frame"></div>
+      <div class="pg2-viewer__pic" id="pg2-viewer-pic"></div>
     </div>
   </main>
 

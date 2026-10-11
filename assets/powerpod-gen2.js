@@ -21,16 +21,16 @@
  * 4. The 3D pod:      1.8 MB of Three.js and mesh data, loaded on idle. The flow is fully
  *                     usable before any of it arrives, and stays usable if none does. It
  *                     only draws on the configure stage, and is not even built off it.
- * 5. The Komaki in 3D: each model has its own page under assets/vehicles/, opened in an
- *                     overlay on a tap and on nothing else: no prefetch, no preload. The
- *                     frame is created on the tap and removed on the X, so the model's
- *                     memory goes with it, and the page's own canvases sleep meanwhile.
+ * 5. The Komaki, up close: each model's picture, full size over everything, on a tap and
+ *                     on nothing else: the large file is fetched then, not with the page,
+ *                     and the image is removed again on the X. The page's own canvases
+ *                     sleep meanwhile.
  * 6. Payment:         one way to pay, a ₹399 hold, on one page that says everything:
  *                     what is pre-booked, what is paid now and why, what is left and when.
  * 7. The keyboard:    while an on-screen keyboard is up the panel fits itself above it and
  *                     keeps the field being typed in on screen.
  * 8. Analytics:       each step the buyer reaches (configurator_step, a short slug, once a
- *                     page), a Komaki opened in 3D, the hold going in (order_submit: the SKU,
+ *                     page), a Komaki opened up close, the hold going in (order_submit: the SKU,
  *                     the model, and whether it is collected or shipped) and what Razorpay's
  *                     window did. Nothing typed.
  */
@@ -1080,16 +1080,16 @@
   window.addEventListener('resize', onResize);
   if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(stageEl);
 
-  // ---------------------------------------------------------------- the Komaki in 3D
-  // Each model's page is its own file, shown in a frame over everything. Nothing about it
-  // loads until the tap: the frame is created then, and removed on the X, so a 3D model's
-  // memory and its GL context go with it. The page's own canvases sleep while it is open.
+  // ---------------------------------------------------------------- the Komaki, up close
+  // Each model's picture, full size over everything, on a tap and on nothing else: the large
+  // file is fetched then, not with the page, and the image is removed again on the X. The
+  // page's own canvases sleep while it is up.
   const VIEWER_SRC = {
-    x1: 'assets/vehicles/komaki-x1.html',
-    x3: 'assets/vehicles/komaki-x3.html',
+    x1: 'assets/productImages/store/komaki-x1-large.webp',
+    x3: 'assets/productImages/store/komaki-x3-large.webp',
   };
   const viewer = document.getElementById('pg2-viewer');
-  const viewerFrame = document.getElementById('pg2-viewer-frame');
+  const viewerPic = document.getElementById('pg2-viewer-pic');
   const viewerTitle = document.getElementById('pg2-viewer-title');
   const viewerClose = document.getElementById('pg2-viewer-close');
   let viewerOpen = false;
@@ -1100,21 +1100,23 @@
   let viewerPushed = false;
 
   function openViewer(model, trigger) {
-    if (!viewer || !viewerFrame || !VIEWER_SRC[model] || viewerOpen) return;
+    if (!viewer || !viewerPic || !VIEWER_SRC[model] || viewerOpen) return;
     viewerOpen = true;
     viewerTrigger = trigger || null;
-    if (viewerTitle) viewerTitle.textContent = `${MODELS[model]} in 3D`;
+    if (viewerTitle) viewerTitle.textContent = MODELS[model];
     viewer.dataset.loaded = 'false';
     viewer.dataset.model = model;
 
-    const frame3d = document.createElement('iframe');
-    frame3d.className = 'pg2-viewer__iframe';
-    frame3d.title = `${MODELS[model]} in 3D`;
-    frame3d.setAttribute('loading', 'eager');
-    frame3d.setAttribute('allow', 'fullscreen');
-    frame3d.addEventListener('load', () => { viewer.dataset.loaded = 'true'; });
-    frame3d.src = VIEWER_SRC[model];
-    viewerFrame.replaceChildren(frame3d);
+    const pic = document.createElement('img');
+    pic.className = 'pg2-viewer__img';
+    pic.alt = MODELS[model];
+    pic.decoding = 'async';
+    // Either way the ring goes: a picture that failed is a blank, never a spinner for good.
+    const shown = () => { viewer.dataset.loaded = 'true'; };
+    pic.addEventListener('load', shown);
+    pic.addEventListener('error', shown);
+    pic.src = VIEWER_SRC[model];
+    viewerPic.replaceChildren(pic);
 
     viewer.hidden = false;
     root.classList.add('is-viewing');
@@ -1138,11 +1140,7 @@
     }
     viewerPushed = false;
     viewerOpen = false;
-    const frame3d = viewerFrame ? viewerFrame.firstElementChild : null;
-    if (frame3d) {
-      frame3d.src = 'about:blank';
-      frame3d.remove();
-    }
+    if (viewerPic) viewerPic.replaceChildren();
     viewer.hidden = true;
     root.classList.remove('is-viewing');
     if (window.gridBG && typeof window.gridBG.resume === 'function') window.gridBG.resume();
@@ -1152,12 +1150,12 @@
   }
 
   form.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-view3d]');
+    const button = event.target.closest('[data-view]');
     if (!button) return;
     // The button sits inside the card's label: the tap opens the view and leaves the radio
     // exactly as it was.
     event.preventDefault();
-    openViewer(button.dataset.view3d, button);
+    openViewer(button.dataset.view, button);
   });
   if (viewerClose) viewerClose.addEventListener('click', () => closeViewer(false));
   document.addEventListener('keydown', (event) => {

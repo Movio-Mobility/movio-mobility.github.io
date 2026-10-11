@@ -484,19 +484,19 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 
 .opt[data-selected="true"] .opt__art svg { stroke: var(--ink); }
 
-/* The Komaki cards. The picture is a button that opens the model in 3D, so it is a button
-   wearing the art column: wider than an accessory's, a soft well behind it, and a pill that
-   says what a tap does. The radio is the rest of the card. */
+/* The Komaki cards. The picture is a button that opens the model up close, so it is a
+   button wearing the art column: wider than an accessory's, a soft well behind it, and a
+   pill that says what a tap does. The radio is the rest of the card. */
 .opt--model .opt__art { width: clamp(88px, 34cqi, 156px); }
 
-.opt__art--3d {
+.opt__art--zoom {
   position: relative;
   grid-area: art;
   display: grid;
   place-items: center;
   aspect-ratio: 4 / 3;
   margin: 0;
-  padding: 0.4rem 0.4rem 1.6rem;
+  padding: 0.3rem 0.3rem 1.9rem;
   border: 0;
   border-radius: 12px;
   background: rgb(20 20 20 / 0.045);
@@ -508,21 +508,21 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
   transition: background-color 0.28s var(--ease-out), transform 0.4s var(--spring);
 }
 
-.opt__art--3d img {
+.opt__art--zoom img {
   width: 100%;
   height: 100%;
   max-height: none;
   object-fit: contain;
 }
 
-.opt__art--3d:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.opt__art--3d:active { transform: scale(0.97); }
+.opt__art--zoom:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.opt__art--zoom:active { transform: scale(0.97); }
 
 @media (hover: hover) {
-  .opt__art--3d:hover { background: rgb(20 20 20 / 0.08); }
+  .opt__art--zoom:hover { background: rgb(20 20 20 / 0.08); }
 }
 
-.opt__3d {
+.opt__zoom {
   position: absolute;
   left: 50%;
   bottom: 6px;
@@ -1449,13 +1449,13 @@ html.is-typing .pg2__foot { padding-bottom: 0.75rem; }
   .topbar { transition: none; }
   html.pg2-shell .pg2-pay:not([hidden]) { animation: pg2-view-fade 0.25s ease both; }
   .pg2-viewer { animation: none; }
-  .pg2-viewer__iframe { transition: none; }
+  .pg2-viewer__img { transition: none; }
 }
 
-/* ---------------------------------------------------------------- 17. the Komaki in 3D */
-/* A frame over everything (powerpod-gen2.js, the Komaki in 3D), on the stage's own grey so
-   the model's page can open on the same colour. The X sits at the top right inside the safe
-   area at every width; the ring spins until the frame has loaded, then fades under it. */
+/* ---------------------------------------------------------------- 17. the Komaki up close */
+/* The model's picture over everything (powerpod-gen2.js, the Komaki up close), on the stage's
+   own grey. The X sits at the top right inside the safe area at every width; the ring spins
+   until the picture has loaded, then fades under it. */
 .pg2-viewer {
   position: fixed;
   inset: 0;
@@ -1518,22 +1518,30 @@ html.is-typing .pg2__foot { padding-bottom: 0.75rem; }
 .pg2-viewer__close:active { transform: scale(0.94); }
 .pg2-viewer__close:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
-.pg2-viewer__frame {
+.pg2-viewer__pic {
   position: relative;
+  display: grid;
+  place-items: center;
   min-height: 0;
+  padding: 0 max(1rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
-.pg2-viewer__iframe {
+.pg2-viewer__img {
   display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: transparent;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 1100px);
+  max-height: 100%;
+  object-fit: contain;
   opacity: 0;
-  transition: opacity 0.4s var(--ease-out);
+  transform: scale(0.97);
+  transition: opacity 0.4s var(--ease-out), transform 0.5s var(--spring);
 }
 
-.pg2-viewer[data-loaded="true"] .pg2-viewer__iframe { opacity: 1; }
+.pg2-viewer[data-loaded="true"] .pg2-viewer__img {
+  opacity: 1;
+  transform: none;
+}
 
 .pg2-viewer__wait {
   position: absolute;
