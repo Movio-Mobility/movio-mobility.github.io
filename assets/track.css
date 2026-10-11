@@ -144,6 +144,15 @@
   color: rgb(20 20 20 / 0.62);
 }
 
+/* The refund sentence on a cancelled order: the figure and the 5 to 7 working days, worded
+   by track.js from the server's refundedInr. Same voice as the delivery line. */
+.track__refund {
+  margin: 0.55rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgb(20 20 20 / 0.62);
+}
+
 /* ---------------------------------------------------------------- timeline */
 /*
  * A filled dot for what has happened and a hollow one for what has not, joined by a line
@@ -217,6 +226,16 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+
+/* The cancelled step carries the form fields' error red (--bad, set on .track), so the one
+   step that ends an order reads differently from the ones that advanced it. After the done
+   rules on purpose: same specificity, and this one must win. */
+.track__step--cancelled.track__step--done::before {
+  background: var(--bad);
+  box-shadow: none;
+}
+
+.track__step--cancelled .track__step-label { color: var(--bad); }
 
 /* ---------------------------------------------------------------- courier */
 

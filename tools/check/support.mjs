@@ -484,6 +484,40 @@ async function fill(page, { name = 'Asha Verma', phone = '98765 43210', message 
   await page.evaluate(() => document.getElementById('track-go').click());
   report('track_lookup not_found sent', Boolean(await seen(eventSeen('track_lookup', (p) => p.result === 'not_found'), since)));
 
+  // A cancelled order: its own flow, not the delivery one. No "paid", no delivery sentence,
+  // no Collect from; the refund sentence carries the figure and the 5 to 7 working days.
+  const lookup = async (reference) => {
+    await page.$eval('#t-ref', (el) => { el.value = ''; });
+    await page.type('#t-ref', reference);
+    await page.evaluate(() => { document.getElementById('track-result').hidden = true; document.getElementById('track-go').click(); });
+    await page.waitForFunction(() => !document.getElementById('track-result').hidden, { timeout: 6000 }).catch(() => {});
+    return page.evaluate(() => ({
+      headline: document.querySelector('.track__headline')?.textContent,
+      paid: Boolean(document.querySelector('.track__paid')),
+      refund: document.querySelector('.track__refund')?.textContent || '',
+      delivery: Boolean(document.querySelector('.track__delivery')),
+      collect: Boolean(document.querySelector('.track__collect')),
+      cancelledStep: Boolean(document.querySelector('.track__step--cancelled.track__step--done')),
+      steps: [...document.querySelectorAll('.track__step')].map((li) => ({
+        label: li.querySelector('.track__step-label')?.textContent, done: li.classList.contains('track__step--done'),
+      })),
+    }));
+  };
+  const cancel = await lookup('GX-CANCEL1');
+  report('cancelled: the refund flow, no paid suffix, no delivery line, no Collect from',
+    cancel.headline === 'Cancelled, refund on its way' && !cancel.paid && !cancel.delivery && !cancel.collect
+    && cancel.cancelledStep, JSON.stringify({ headline: cancel.headline, paid: cancel.paid, delivery: cancel.delivery }));
+  report('cancelled: refund initiated sentence with the figure and 5 to 7 working days',
+    cancel.refund.includes('2,760') && cancel.refund.includes('is on its way') && cancel.refund.includes('5 to 7 working days'),
+    cancel.refund);
+  report('cancelled: Refund processed still waiting on the timeline',
+    cancel.steps.some((s) => s.label === 'Refund initiated' && s.done)
+    && cancel.steps.some((s) => s.label === 'Refund processed' && !s.done), JSON.stringify(cancel.steps));
+  const refunded = await lookup('GX-REFUND1');
+  report('refunded: processed sentence and a completed timeline',
+    refunded.headline === 'Cancelled and refunded' && refunded.refund.includes('has been processed')
+    && refunded.steps.every((s) => s.done), JSON.stringify({ headline: refunded.headline, refund: refunded.refund.slice(0, 60) }));
+
   // A map link that is not Google's own, and a phone that is not a number: neither is shown.
   const order = (mapsUrl, e164) => ({
     status: 200,

@@ -41,7 +41,7 @@
   const note = document.getElementById('track-note');
   const result = document.getElementById('track-result');
 
-  /** The key order-sheet.js writes on a successful payment, in this tab only. */
+  /** The key pay-confirm.js writes on a successful payment, in this tab only. */
   const LAST_REF = 'gridx.lastOrder';
 
   // Through the queue gridx-api.js sets up, so it is never lost to analytics.js arriving late.
@@ -141,6 +141,9 @@
    */
   function deliveryLine(order) {
     const done = (key) => (order.steps || []).some((s) => s.key === key && s.done);
+    // A cancelled order is not going anywhere; promising a parcel under a "Cancelled"
+    // headline is the one sentence here that must never appear.
+    if (done('cancelled')) return '';
     if (done('delivered') || done('collected') || done('shipped') || done('ready')) return '';
     if (order.delivery === 'dealership') {
       return 'You will collect this from your dealership. We will tell you when it is ready.';
@@ -252,8 +255,30 @@
     return line;
   }
 
+  /**
+   * What the money is doing on a cancelled order, or nothing.
+   *
+   * The timeline says "Refund initiated" or "Refund processed"; this sentence adds the two
+   * things the steps cannot carry: the figure to check against a bank statement, and how
+   * long banks take. The server owns whether a refund exists (refundedInr is null until one
+   * does), so this only words what it was given.
+   */
+  function refundLine(order) {
+    const amount = rupees(order.refundedInr);
+    if (!amount) return '';
+    const done = (key) => (order.steps || []).some((s) => s.key === key && s.done);
+    if (done('refund_processed')) {
+      return `A refund of ${amount} has been processed to your original payment method. `
+        + 'It usually shows in your bank account within 5 to 7 working days.';
+    }
+    return `A refund of ${amount} is on its way to your original payment method. `
+      + 'It usually reaches your bank account within 5 to 7 working days.';
+  }
+
   function paint(order) {
     result.textContent = '';
+
+    const cancelled = (order.steps || []).some((s) => s.key === 'cancelled' && s.done);
 
     const head = el('h3', 'track__headline', order.headline);
     head.tabIndex = -1;
@@ -261,14 +286,19 @@
 
     if (order.summary) result.append(el('p', 'track__summary', order.summary));
 
-    // Reference and amount on one line: the two things someone cross-checks.
+    // Reference and amount on one line: the two things someone cross-checks. On a cancelled
+    // order the figure that matters is the refund, which gets its own sentence; "paid" next
+    // to "Cancelled" would read as a contradiction.
     const ref = el('p', 'track__ref', `Order reference ${order.reference}`);
     const paid = rupees(order.chargedInr);
-    if (paid) {
+    if (paid && !cancelled) {
       ref.append(document.createTextNode(' \u00b7 '));
       ref.append(el('span', 'track__paid', `${paid} paid`));
     }
     result.append(ref);
+
+    const refund = refundLine(order);
+    if (refund) result.append(el('p', 'track__refund', refund));
 
     const delivery = deliveryLine(order);
     if (delivery) result.append(el('p', 'track__delivery', delivery));
@@ -279,7 +309,8 @@
 
     const list = el('ol', 'track__steps');
     for (const step of order.steps || []) {
-      const li = el('li', `track__step${step.done ? ' track__step--done' : ''}`);
+      const mods = `${step.done ? ' track__step--done' : ''}${step.key === 'cancelled' ? ' track__step--cancelled' : ''}`;
+      const li = el('li', `track__step${mods}`);
       li.append(el('span', 'track__step-label', step.label));
       const at = when(step.at);
       if (at) li.append(el('span', 'track__step-at', at));
