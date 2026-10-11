@@ -88,7 +88,11 @@
       // A whisper of haze in the backdrop's own grey, so the pod's far side melts into the
       // page instead of cutting out against it. Range follows the shot (see place()).
       scene.fog = new THREE.Fog(fogColor, 900, 3000);
-      const camera = new THREE.PerspectiveCamera(fov, 1, 5, 6000);
+      // The far plane is well past the home page's 6000: in a vehicle's bay the pod is a
+      // tenth of the stage tall (powerpod-gen2.js, the ride), which puts the camera 6,000 to
+      // 8,000 units out, and a pod on the far plane draws as a dot. Depth precision is not
+      // at stake at this ratio, and the fog (place) follows the distance either way.
+      const camera = new THREE.PerspectiveCamera(fov, 1, 5, 24000);
 
       // The page's backdrop puts its key hotspot upper-left just above the horizon, a bright
       // band strongest on the right, and a bright floor below. The pod reads its blacks almost
@@ -360,6 +364,10 @@
           dist * Math.cos(el) * Math.cos(az),
         );
         camera.lookAt(0, shot.target, 0);
+        // Roll about the view axis, in radians: the pod laid on its slant in a vehicle's bay
+        // (powerpod-gen2.js, the ride). The scene is not rotated, only the camera, so the
+        // light stays where the studio put it, as on the home page's dock shot.
+        if (shot.roll) camera.rotateZ(shot.roll);
 
         // Lens shift in fractions of the canvas box. Positive y lifts the subject in frame,
         // negative drops it. Pages use it to keep the pod clear of overlaid chrome.

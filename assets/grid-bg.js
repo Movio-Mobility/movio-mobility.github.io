@@ -2153,6 +2153,15 @@
       if (Number.isFinite(px)) driftPx += px;
     },
     projection,
+    // Sleep and wake, for a page that covers the field with something heavier (the Gen2
+    // page's 3D vehicle view): the same stop and start the tab's visibility uses.
+    pause() {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    },
+    resume() {
+      if (gpu && !rafId && !document.hidden) start();
+    },
     // The home page's dock shot samples this profile into pod targets. Exported rather
     // than duplicated so the stroke table has exactly one home.
     dockScooter: DOCK_SCOOTER,

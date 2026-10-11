@@ -31,8 +31,11 @@
  *   POST orders                       kind 'accessories' (items priced from the site's own
  *                                     catalogue; the customer must carry a street address,
  *                                     as Paddock demands for anything shipped) or the
- *                                     configurator's build (a ₹500 reservation); answers
- *                                     201 with the Razorpay order the page would open
+ *                                     configurator's build ({ vehicle, model, pay }: a
+ *                                     ₹399 hold, with the model required with a vehicle
+ *                                     and refused without one, as Paddock's validateBuild);
+ *                                     answers 201 with the Razorpay order the page would
+ *                                     open, and the pre-booking's starts-at and balance
  *   POST orders/confirm               the webhook's word, polled by pay-confirm.js. By
  *                                     modes.confirm: 'ok' pays on the third poll per
  *                                     reference (counts reset by /__mock/reset), 'slow'
@@ -102,12 +105,13 @@ const DEFAULT_MODES = {
 const EVENTS = {
   store_view: [],
   order_sheet_open: ['sku'],
-  order_submit: ['sku', 'intent', 'delivery'],
+  order_submit: ['sku', 'intent', 'delivery', 'model'],
   payment_open: [],
   payment_success: [],
   payment_dismissed: [],
   payment_failed: [],
   configurator_step: ['step'],
+  vehicle_view: ['model'],
   careers_view: [],
   role_view: ['slug'],
   apply_open: ['slug'],
@@ -528,7 +532,9 @@ const PRICES = { adapter: 499, dock: 2999, chg6a: 2199, chg10a: 2699 };
 const GATEWAY_FEE_RATE = 0.024184309;
 const round2 = (x) => Math.sign(x) * Math.round(Math.abs(x) * 100) / 100;
 const grossUp = (net) => round2(net / (1 - GATEWAY_FEE_RATE));
-const RESERVE_INR = 500;
+// The hold and the "starts at" figures, as Paddock's pricing.js has them.
+const RESERVE_INR = 399;
+const STARTS_AT = { pod: 29999, x1: 59999, x3: 69999 };
 
 async function createOrder(state, req, res, log) {
   const h = corsHeaders(state, req);
@@ -556,6 +562,7 @@ async function createOrder(state, req, res, log) {
 
   let itemsInr = 0;
   let orderNumber;
+  let quote = null;
   if (body.kind === 'accessories') {
     // An accessory ships, so Paddock demands a street address of at least 6 characters.
     if (String(customer.address || '').trim().length < 6) {
@@ -573,7 +580,15 @@ async function createOrder(state, req, res, log) {
     }
     orderNumber = 'GX-MOCKAA1';
   } else if (body.build && typeof body.build === 'object') {
-    // The configurator: whatever was chosen, today's payment is the ₹500 reservation.
+    // The configurator: whatever was chosen, today's payment is the ₹399 hold. The shape is
+    // checked as Paddock checks it: a vehicle answer, a Komaki with a vehicle and none without.
+    const b = body.build;
+    if (!['yes', 'no'].includes(b.vehicle)) bad['build.vehicle'] = 'vehicle must be one of yes, no';
+    if (b.vehicle === 'yes' && !STARTS_AT[b.model] && b.model !== 'pod') bad['build.model'] = 'model must be one of x1, x3';
+    if (b.vehicle === 'no' && b.model != null) bad['build.model'] = 'model must be empty without a vehicle';
+    if (b.pay !== 'reserve') bad['build.pay'] = 'pay must be one of reserve';
+    const startsAtInr = b.vehicle === 'yes' ? STARTS_AT[b.model] || STARTS_AT.x1 : STARTS_AT.pod;
+    quote = { startsAtInr, balanceFromInr: startsAtInr - RESERVE_INR };
     itemsInr = RESERVE_INR;
     orderNumber = 'GX-MOCKPP1';
   } else {
@@ -595,6 +610,7 @@ async function createOrder(state, req, res, log) {
     chargedInr,
     itemsInr,
     feeInr,
+    ...(quote || {}),
     keyId: 'rzp_test_mock',
     customerId: 'cust_mock1',
     customer: {

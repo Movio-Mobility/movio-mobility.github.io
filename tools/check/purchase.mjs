@@ -19,7 +19,8 @@
  *   - Pay: the pending ring and copy, then (the mock's webhook landing on the third poll)
  *     the drawn tick, the confirmed order, GX-MOCKAA1 in sessionStorage for the tracker
  * Then the payment leg again on powerpod-gen2.html (?check&launch=60, so pre-booking is
- * open), with Gen2's own pending line and nouns; and once more on adapter.html with the
+ * open): a Komaki X3 chosen, the payment page naming it, the hold and the balance, then
+ * Gen2's own pending line and nouns; and once more on adapter.html with the
  * mock's confirm mode 'slow' and a 6 second deadline (?check&confirm=6), which must end in
  * the calm "we are checking" card, never a failure.
  */
@@ -213,10 +214,19 @@ for (const [label, viewport] of [['phone', PHONE], ['desk', DESK]]) {
   await fetch(`${mock.url}/__mock/reset`, { method: 'POST' });
   const { page, errors } = await open('powerpod-gen2.html?check&launch=60');
   await sleep(800);
-  for (const [name, value] of [['vehicle', 'no'], ['charger', '6a'], ['adapter', 'no'], ['dock', 'no']]) {
+  for (const [name, value] of [['vehicle', 'yes'], ['model', 'x3']]) {
     await page.evaluate(([n, v]) => document.querySelector(`input[name="${n}"][value="${v}"]`).click(), [name, value]);
     await sleep(150);
   }
+  const foot = await page.evaluate(() => ({
+    label: document.getElementById('pg2-total-label').textContent,
+    amount: document.getElementById('pg2-total').textContent,
+    next: document.getElementById('pg2-next-label').textContent,
+    tag: document.getElementById('pg2-next-tag').textContent,
+  }));
+  report('gen2: the footer starts at the Komaki X3 bundle and the button says what today costs',
+    foot.label === 'Starts at' && foot.amount === '₹69,999' && foot.next === 'Pay ₹399' && foot.tag === 'Fully refundable',
+    JSON.stringify(foot));
   await page.evaluate(() => document.getElementById('pg2-next').click());
   await sleep(600);
   for (const [sel, value] of [
@@ -227,8 +237,20 @@ for (const [label, viewport] of [['phone', PHONE], ['desk', DESK]]) {
   }
   await page.evaluate(() => document.getElementById('pg2-next').click());
   await sleep(600);
-  await page.evaluate(() => document.getElementById('pg2-reserve').click());
-  await sleep(600);
+  const billed = await page.evaluate(() => ({
+    title: document.getElementById('pg2-pay-title').textContent,
+    text: document.getElementById('pg2-bill').textContent,
+    label: document.getElementById('pg2-total-label').textContent,
+    amount: document.getElementById('pg2-total').textContent,
+    fee: document.getElementById('pg2-foot-tax').textContent,
+  }));
+  report('gen2: the payment page names the Komaki, the hold, the fee and the balance',
+    billed.title === 'Pre-book your PowerPod Gen2 with Komaki X3.' && /Komaki X3/.test(billed.text)
+    && /Pre-booking amount/.test(billed.text) && /₹399/.test(billed.text) && /from ₹69,600/.test(billed.text)
+    && /Total payable now₹408\.89/.test(billed.text) && /fully refundable/i.test(billed.text) && /not refunded/.test(billed.text)
+    && billed.label === 'Pay now' && billed.amount === '₹399' && /platform fee, ₹408\.89 in all/.test(billed.fee),
+    JSON.stringify(billed).slice(0, 400));
+  await shoot(page, 'purchase-gen2-bill');
   await page.evaluate(() => document.getElementById('pg2-next').click());
 
   await page.waitForFunction(

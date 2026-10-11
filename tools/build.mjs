@@ -207,7 +207,8 @@ const CSP_SOURCES = {
   'img-src': ["'self'", 'data:', 'blob:', 'https://cdn.razorpay.com'],
   'font-src': ["'self'", 'https://fonts.gstatic.com'],
   'connect-src': ["'self'", 'https://paddockgridx.app', 'http://localhost:3000', 'https://api.razorpay.com', 'https://lumberjack.razorpay.com', 'https://lumberjack-cx.razorpay.com', 'https://www.google.com/recaptcha/'],
-  'frame-src': ['https://api.razorpay.com', 'https://checkout.razorpay.com', 'https://www.google.com/recaptcha/', 'https://recaptcha.google.com/recaptcha/'],
+  // 'self': the Gen2 page shows each Komaki's 3D page (assets/vehicles/) in a frame of its own.
+  'frame-src': ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com', 'https://www.google.com/recaptcha/', 'https://recaptcha.google.com/recaptcha/'],
   'worker-src': ["'self'", 'blob:'],
   'manifest-src': ["'self'"],
   'media-src': ["'self'"],

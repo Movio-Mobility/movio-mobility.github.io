@@ -253,30 +253,26 @@ async function toPayment(page) {
   await wait(500);
 }
 const payState = (page) => page.evaluate(() => ({
-  offer: document.querySelector('#pg2-pay-reserve .pg2-step__sub').textContent,
-  card: document.getElementById('pg2-reserve').getAttribute('aria-disabled'),
+  offer: document.getElementById('pg2-pay-sub').textContent,
   next: document.getElementById('pg2-next').getAttribute('aria-disabled'),
   hint: document.getElementById('pg2-hint').textContent,
   status: document.getElementById('pg2-status').textContent,
-  bill: !document.getElementById('pg2-pay-review').hidden,
+  bill: !document.getElementById('pg2-pay').hidden && document.getElementById('pg2-bill').textContent.length > 0,
 }));
 {
   const { page, errors } = await open('powerpod-gen2.html?check&launch=-6', { viewport: VIEWPORTS.phone });
   await toPayment(page);
   let s = await payState(page);
-  report('configurator: the offer says when', s.offer === NOT_OPEN, s.offer);
-  report('configurator: the card and the button rest', s.card === 'true' && s.next === 'true', JSON.stringify(s));
+  report('configurator: the payment page says when', s.offer === NOT_OPEN && s.bill, s.offer);
+  report('configurator: the button rests', s.next === 'true', JSON.stringify(s));
   await page.click('#pg2-next');
-  await page.click('#pg2-reserve');
   s = await payState(page);
-  report('configurator: a press says when, and stays put', s.hint === NOT_OPEN && s.status === NOT_OPEN && !s.bill, JSON.stringify(s));
+  report('configurator: a press says when, and stays put', s.hint === NOT_OPEN && s.status === NOT_OPEN && s.bill, JSON.stringify(s));
   await page.screenshot({ path: path.join(OUT, 'launch-configurator-before.png') });
-  const opened = await until(page, () => document.getElementById('pg2-reserve').getAttribute('aria-disabled') === 'false', 9000);
+  const opened = await until(page, () => document.getElementById('pg2-next').getAttribute('aria-disabled') === 'false', 9000);
   s = await payState(page);
   report('configurator: opens at the instant, no reload', opened >= 0 && s.offer !== NOT_OPEN && s.hint === '' && s.status === '', JSON.stringify(s));
-  await page.click('#pg2-reserve');
-  s = await payState(page);
-  report('configurator: then the bill', s.bill, JSON.stringify(s));
+  report('configurator: the page then says what today costs', /₹399 today/.test(s.offer) && s.bill, s.offer);
   await finish('configurator', page, errors);
 }
 {
@@ -308,8 +304,6 @@ const payState = (page) => page.evaluate(() => ({
     },
   });
   await toPayment(page);
-  await page.click('#pg2-reserve');
-  await wait(300);
   await page.click('#pg2-next');
   const shown = await until(page, (text) => document.getElementById('pg2-status').textContent === text, 15000, refusal);
   const s = await payState(page);

@@ -61,12 +61,12 @@ export const OFFICE = {
 };
 export const PHONE = '+919220199098';
 
-// PowerPod Gen2: the price assets/powerpod-gen2.js prints, and the launch instant
-// assets/launch.js holds (12 October 2026, 12:00 PM IST). When Gen2 ships, availability
-// becomes 'InStock' and availabilityStarts goes.
+// PowerPod Gen2: the "starts at" price assets/powerpod-gen2.js prints (PRICES.pod, the pod on
+// its own), and the launch instant assets/launch.js holds (12 October 2026, 12:00 PM IST).
+// When Gen2 ships, availability becomes 'InStock' and availabilityStarts goes.
 export const GEN2 = {
   name: 'PowerPod Gen2',
-  price: 24999,
+  price: 29999,
   availability: 'PreOrder',
   availabilityStarts: '2026-10-12T12:00:00+05:30',
 };

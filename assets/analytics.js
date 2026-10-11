@@ -230,12 +230,14 @@
     // Store
     store_view: {},
     order_sheet_open: { sku },
-    order_submit: { sku, intent: oneOf('reserve', 'full'), delivery: oneOf('dealership', 'ship') },
+    order_submit: { sku, intent: oneOf('reserve', 'full'), delivery: oneOf('dealership', 'ship'), model: oneOf('x1', 'x3', 'none') },
     payment_open: {},
     payment_success: {},
     payment_dismissed: {},
     payment_failed: {},
     configurator_step: { step: slugOf(/^[a-z0-9_-]{1,24}$/) },
+    // A Komaki opened in 3D on the Gen2 page.
+    vehicle_view: { model: oneOf('x1', 'x3') },
     // Careers
     careers_view: {},
     role_view: { slug: role },

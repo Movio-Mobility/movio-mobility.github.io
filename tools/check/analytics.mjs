@@ -337,7 +337,7 @@ const events = (tab) => beacons(tab, 'event').flatMap((b) => b.body.events);
   const SAMPLE = {
     sku: 'adapter', intent: 'full', delivery: 'ship', step: 'charger', slug: 'battery-engineer',
     channel: 'call', page: '/support', topic: 'order', id: 'how-long-does-a-charge-take',
-    result: 'found', kind: 'city', action: 'call', dealerId: 'dlr_0001',
+    result: 'found', kind: 'city', action: 'call', dealerId: 'dlr_0001', model: 'x3',
   };
   const tab = freshTab();
   const p = page(tab);
