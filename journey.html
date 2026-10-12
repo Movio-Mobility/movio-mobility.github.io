@@ -30,6 +30,29 @@
   <script src="assets/guard.js"></script>
   <!-- Paces every canvas on the page (assets/perf.js). First, so the field and the pod can ask it. -->
   <script src="assets/perf.js"></script>
+  <!-- The Meta Pixel (ads measurement, pixel 1776828556771890): Meta's own snippet, the same in
+       every public page. Last in the head, so guard.js and perf.js stay ahead of every page
+       script; fbevents.js loads async and holds nothing up. Off on localhost and file:, like
+       guard.js, so the checks' headless loads and a page opened from disk send Meta nothing;
+       there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
+       The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
+  <script>
+  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1776828556771890');
+  fbq('track', 'PageView');
+  }
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1776828556771890&ev=PageView&noscript=1"
+  /></noscript>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>

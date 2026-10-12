@@ -193,6 +193,10 @@ export function transformSource(name, html) {
 //   - Razorpay Checkout: its script, the frames it opens, and the endpoints it reports to
 //   - reCAPTCHA Enterprise, which Paddock checks before it creates an order
 //   - Google Fonts, the fallback copy of DM Sans (assets/site.css)
+//   - the Meta Pixel, in every public page's head: fbevents.js and its per-pixel config
+//     from connect.facebook.net, the events it reports to www.facebook.com (as an image, a
+//     beacon or a fetch, so img-src and connect-src both), and the frame Events Manager's
+//     event setup tool opens on the page
 // Inline scripts are allowed one by one, by hash. A script injected into a page by anyone
 // else, or a page framed by another site to trick a click, gets nowhere.
 //
@@ -202,12 +206,12 @@ export function transformSource(name, html) {
 const CSP_SOURCES = {
   'default-src': ["'self'"],
   // cdn.razorpay.com: Checkout loads its fraud-detection script from there into the page.
-  'script-src': ["'self'", 'https://checkout.razorpay.com', 'https://cdn.razorpay.com', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/'],
+  'script-src': ["'self'", 'https://checkout.razorpay.com', 'https://cdn.razorpay.com', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/', 'https://connect.facebook.net'],
   'style-src': ["'self'", "'unsafe-inline'"],
-  'img-src': ["'self'", 'data:', 'blob:', 'https://cdn.razorpay.com'],
+  'img-src': ["'self'", 'data:', 'blob:', 'https://cdn.razorpay.com', 'https://www.facebook.com'],
   'font-src': ["'self'", 'https://fonts.gstatic.com'],
-  'connect-src': ["'self'", 'https://paddockgridx.app', 'http://localhost:3000', 'https://api.razorpay.com', 'https://lumberjack.razorpay.com', 'https://lumberjack-cx.razorpay.com', 'https://www.google.com/recaptcha/'],
-  'frame-src': ['https://api.razorpay.com', 'https://checkout.razorpay.com', 'https://www.google.com/recaptcha/', 'https://recaptcha.google.com/recaptcha/'],
+  'connect-src': ["'self'", 'https://paddockgridx.app', 'http://localhost:3000', 'https://api.razorpay.com', 'https://lumberjack.razorpay.com', 'https://lumberjack-cx.razorpay.com', 'https://www.google.com/recaptcha/', 'https://www.facebook.com', 'https://connect.facebook.net'],
+  'frame-src': ['https://api.razorpay.com', 'https://checkout.razorpay.com', 'https://www.google.com/recaptcha/', 'https://recaptcha.google.com/recaptcha/', 'https://www.facebook.com'],
   'worker-src': ["'self'", 'blob:'],
   'manifest-src': ["'self'"],
   'media-src': ["'self'"],
