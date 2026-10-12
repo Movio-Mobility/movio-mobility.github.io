@@ -194,9 +194,11 @@ export function transformSource(name, html) {
 //   - reCAPTCHA Enterprise, which Paddock checks before it creates an order
 //   - Google Fonts, the fallback copy of DM Sans (assets/site.css)
 //   - the Meta Pixel, in every public page's head: fbevents.js and its per-pixel config
-//     from connect.facebook.net, the events it reports to www.facebook.com (as an image, a
-//     beacon or a fetch, so img-src and connect-src both), and the frame Events Manager's
-//     event setup tool opens on the page
+//     from connect.facebook.net, and the events it reports to www.facebook.com. A small
+//     event goes as an image, a larger one (a page with product data, where the pixel also
+//     sends what it read) as a fetch or beacon, or as a form posted into a hidden frame of
+//     its own: so img-src, connect-src, form-action and frame-src all name it. The frame is
+//     also what Events Manager's event setup tool opens on the page.
 // Inline scripts are allowed one by one, by hash. A script injected into a page by anyone
 // else, or a page framed by another site to trick a click, gets nowhere.
 //
@@ -217,7 +219,7 @@ const CSP_SOURCES = {
   'media-src': ["'self'"],
   'object-src': ["'none'"],
   'base-uri': ["'self'"],
-  'form-action': ["'self'"],
+  'form-action': ["'self'", 'https://www.facebook.com'],
 };
 
 const FRAME_GUARD = 'if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.style.display="none"}}';
