@@ -141,7 +141,10 @@ async function open(url, { viewport = DESKTOP, js = true, before, at, tz, ignore
   page.on('request', (r) => {
     const u = r.url();
     outbound.push(`${u} ${r.postData() || ''}`);
-    if (r.resourceType() === 'image' && !u.startsWith('data:') && !u.startsWith(new URL(url).origin)) offSite.push(u);
+    // The one exception is the Meta Pixel's own no-script beacon (in every page's head since the
+    // pixel went in), which the page's policy allows by name.
+    const pixel = /^https:\/\/www\.facebook\.com\/tr\?id=\d+&ev=PageView&noscript=1$/.test(u);
+    if (r.resourceType() === 'image' && !u.startsWith('data:') && !u.startsWith(new URL(url).origin) && !pixel) offSite.push(u);
     if (u.startsWith('http://localhost:3000/')) r.continue({ url: u.replace('http://localhost:3000', MOCK) });
     else r.continue();
   });

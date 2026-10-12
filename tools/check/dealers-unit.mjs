@@ -7,7 +7,8 @@
  * hours, services, ids and slugs), the card (escaping, no phone number as text, the links),
  * the JSON-LD, JSON that is safe inside a <script>, the page transform, the photo download
  * (its size cap, WebP only, partial and total failure, never throwing), the finder's
- * arithmetic, and buildPage's prefix for a nested page.
+ * arithmetic, the join sheet's town naming and message (placeNear over assets/data/
+ * india-towns.json, joinMessage), and buildPage's prefix for a nested page.
  *
  * Each check prints PASS or FAIL; exits 1 if any failed.
  */
@@ -254,6 +255,79 @@ const quiet = () => {
   const chips = D.renderCities(data.cities, 'delhi');
   check('chips: All first, the chosen one pressed, twins named with their state', chips.startsWith('<button class="dealers-city" type="button" data-city="" aria-pressed="false">All</button>')
     && chips.includes('data-city="delhi" aria-pressed="true">Delhi') && chips.includes('>Aurangabad, Bihar <') && chips.includes('>Aurangabad, Maharashtra <'));
+}
+
+// ---------------------------------------------------------------- joining the network
+// gridDealers.placeNear over the committed town list, and joinMessage's every wording: what
+// the join sheet (assets/dealer-join.js) writes into the WhatsApp message.
+{
+  const { gridDealers: D } = loadShared();
+  const towns = JSON.parse(fs.readFileSync(path.join(HERE, '../../assets/data/india-towns.json'), 'utf8'));
+  check('towns: thousands of them, every state and territory, the shape placeNear reads',
+    towns.towns.length > 5000 && towns.states.length === 36 && towns.towns.every((t) => typeof t[0] === 'string' && t.length === 5 && Number.isInteger(t[1]) && towns.states[t[4]]),
+    `${towns.towns.length} towns, ${towns.states.length} states`);
+  const spots = [
+    // Cities, their suburbs, and the census towns inside them.
+    ['Indore, Rajwada', 22.7186, 75.8553, 'Indore', 'Madhya Pradesh'],
+    ['Indore, Vijay Nagar', 22.7533, 75.8937, 'Indore', 'Madhya Pradesh'],
+    ['Saket', 28.5245, 77.2066, 'Delhi', 'Delhi'],
+    ['Okhla Phase 1', 28.5262, 77.2808, 'Delhi', 'Delhi'],
+    ['Narela', 28.853, 77.093, 'Delhi', 'Delhi'],
+    ['Najafgarh', 28.609, 76.98, 'Delhi', 'Delhi'],
+    ['Andheri', 19.1136, 72.8697, 'Mumbai', 'Maharashtra'],
+    ['Whitefield', 12.9698, 77.75, 'Bengaluru', 'Karnataka'],
+    ['Kochi', 9.98, 76.28, 'Kochi', 'Kerala'],
+    // Cities of their own beside a bigger one, and towns just over a state border.
+    ['Noida Sector 18', 28.5708, 77.3261, 'Noida', 'Uttar Pradesh'],
+    ['Gurugram, Cyber City', 28.495, 77.0895, 'Gurugram', 'Haryana'],
+    ['Ghaziabad', 28.669, 77.454, 'Ghaziabad', 'Uttar Pradesh'],
+    ['Kundli', 28.87, 77.12, 'Kundli', 'Haryana'],
+    ['Howrah', 22.595, 88.263, 'Howrah', 'West Bengal'],
+    // The two Aurangabads, a hill town, an island capital and a renamed one.
+    ['Aurangabad, Maharashtra', 19.876, 75.343, 'Aurangabad', 'Maharashtra'],
+    ['Aurangabad, Bihar', 24.752, 84.374, 'Aurangabad', 'Bihar'],
+    ['Leh', 34.1526, 77.5771, 'Leh', 'Ladakh'],
+    ['Port Blair', 11.6234, 92.7265, 'Port Blair', 'Andaman and Nicobar Islands'],
+    ['Panaji', 15.4909, 73.8278, 'Panaji', 'Goa'],
+    ['Near Sehore, rural', 23.15, 77.2, 'Sehore', 'Madhya Pradesh'],
+  ];
+  const wrong = spots.filter(([, lat, lng, town, state]) => {
+    const p = D.placeNear(towns, { lat, lng });
+    return !p || p.town !== town || p.state !== state;
+  }).map(([label, lat, lng]) => `${label} -> ${JSON.stringify(D.placeNear(towns, { lat, lng }))}`);
+  check('placeNear: cities, suburbs, census towns, borders and the far corners', !wrong.length, wrong.join('; ') || `${spots.length} places`);
+  check('placeNear: far from any town, only the state', JSON.stringify(D.placeNear(towns, { lat: 23.9, lng: 69.8 })) === '{"town":null,"state":"Gujarat"}');
+  check('placeNear: over the border or out at sea, no place at all',
+    D.placeNear(towns, { lat: 27.7172, lng: 85.324 }) === null && D.placeNear(towns, { lat: 15, lng: 65 }) === null && D.placeNear(towns, { lat: 51.5, lng: -0.12 }) === null);
+  check('placeNear: no list, a broken list or no position is null, never a throw',
+    D.placeNear(null, { lat: 22.7, lng: 75.8 }) === null && D.placeNear({ towns: [[1, 2]], states: [] }, { lat: 22.7, lng: 75.8 }) === null
+    && D.placeNear(towns, null) === null && D.placeNear(towns, { lat: 'x', lng: 75.8 }) === null);
+
+  const at = { town: 'Indore', state: 'Madhya Pradesh' };
+  const said = [
+    D.joinMessage({ name: 'Ramesh Kumar', shop: 'Shree Auto Works', planning: false, place: at }),
+    D.joinMessage({ name: 'Ramesh Kumar', planning: true, place: at }),
+    D.joinMessage({ name: 'Asha', planning: true, place: { town: null, state: 'Madhya Pradesh' } }),
+    D.joinMessage({ name: 'Asha', shop: 'Verma Motors', planning: false, place: null }),
+    D.joinMessage({ name: 'Asha', planning: true, place: { town: 'Delhi', state: 'Delhi' } }),
+    D.joinMessage({}),
+    D.joinMessage({ name: '  Asha \n  Verma ', shop: '  Verma\tMotors  ', planning: false, place: at }),
+  ];
+  const want = [
+    'Hi GridX, I am Ramesh Kumar. I run Shree Auto Works near Indore, Madhya Pradesh, and I would like to join the GridX Dealership Network.',
+    'Hi GridX, I am Ramesh Kumar. I am planning to open a dealership near Indore, Madhya Pradesh, and I would like to join the GridX Dealership Network.',
+    'Hi GridX, I am Asha. I am planning to open a dealership in Madhya Pradesh, and I would like to join the GridX Dealership Network.',
+    'Hi GridX, I am Asha. I run Verma Motors, and I would like to join the GridX Dealership Network.',
+    'Hi GridX, I am Asha. I am planning to open a dealership near Delhi, and I would like to join the GridX Dealership Network.',
+    'Hi GridX, I would like to join the GridX Dealership Network.',
+    'Hi GridX, I am Asha Verma. I run Verma Motors near Indore, Madhya Pradesh, and I would like to join the GridX Dealership Network.',
+  ];
+  const off = said.map((s, i) => (s === want[i] ? null : `#${i + 1}: ${s}`)).filter(Boolean);
+  check('joinMessage: every wording, tidied, never "near Delhi, Delhi"', !off.length, off.join(' | '));
+  check('joinMessage: a typed name or shop is capped, not passed through whole',
+    D.joinMessage({ name: 'x'.repeat(500), shop: 'y'.repeat(500), planning: false }).length < 240);
+  check('the page\'s no-script link carries the short message exactly',
+    fs.readFileSync(path.join(HERE, '../../dealers.html'), 'utf8').includes(`href="https://wa.me/919220199098?text=${encodeURIComponent(D.joinMessage({}))}"`));
 }
 
 // ---------------------------------------------------------------- buildPage, nested

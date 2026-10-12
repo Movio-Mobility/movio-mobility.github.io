@@ -254,6 +254,8 @@
     // Dealers
     dealer_search: { kind: oneOf('city', 'pincode', 'near_me', 'text') },
     dealer_action: { action: oneOf('call', 'whatsapp', 'directions', 'share'), dealerId },
+    // The join sheet opened (dealer-join.js); its WhatsApp link is a contact_tap like any other.
+    dealer_join_open: {},
   };
 
   /** The event as it may be sent, or null when its name is not on the list. */
@@ -274,7 +276,7 @@
   // Funnel steps count sessions that reached them, so each is sent at most once per tab for
   // the same name and properties: reopening the order sheet for the same SKU is not a new
   // step. Kept in sessionStorage, or for the page alone when storage is blocked.
-  const ONCE = new Set(['store_view', 'order_sheet_open', 'payment_open', 'careers_view', 'apply_open', 'support_form_open']);
+  const ONCE = new Set(['store_view', 'order_sheet_open', 'payment_open', 'careers_view', 'apply_open', 'support_form_open', 'dealer_join_open']);
   const ONCE_KEY = 'gridx.once';
   let onceSeen = null;
   function seenBefore(name, props) {

@@ -46,6 +46,10 @@
  *                                     GX-SHIPPED1 (on its way), GX-CANCEL1 (cancelled,
  *                                     refund initiated) and GX-REFUND1 (cancelled and
  *                                     refunded), all with 9876543210; else 404
+ *   GET  region                       the state the visitor's connection is in, for the
+ *                                     dealers page's join sheet. By modes.region: 'ok' is
+ *                                     { state: 'Madhya Pradesh' }, 'none' { state: null },
+ *                                     'down' 503, 'slow' answers after slowMs
  *   POST pageview, event, live        text/plain JSON (or application/json), always 204;
  *                                     events are checked against the allowlist, 20 at most
  *
@@ -53,6 +57,7 @@
  *
  *   POST /__mock/state   { modes: { careers: 'ok'|'error'|'slow'|'invalid'|'html', dealers: ...,
  *                                   apply|support|track|schedule: 'ok'|'down',
+ *                                   region: 'ok'|'none'|'down'|'slow',
  *                                   confirm: 'ok'|'slow'|'down'|'rate',
  *                                   beacons: 'ok'|'rate', cors: 'ok'|'deny',
  *                                   latencyMs, slowMs },
@@ -94,6 +99,7 @@ const DEFAULT_MODES = {
   support: 'ok',
   track: 'ok',
   confirm: 'ok',
+  region: 'ok',
   beacons: 'ok',
   cors: 'ok',
   latencyMs: 0,
@@ -125,6 +131,7 @@ const EVENTS = {
   track_lookup: ['result'],
   dealer_search: ['kind'],
   dealer_action: ['action', 'dealerId'],
+  dealer_join_open: [],
 };
 const ENUMS = {
   intent: ['reserve', 'full'],
@@ -848,6 +855,13 @@ export async function startMock({ port = 3000, quiet = false } = {}) {
         const doc = route === 'careers' ? state.careers : state.dealers;
         entry.version = doc.version;
         return cacheable(state, req, res, localise(doc, base), doc.version, route === 'careers' ? CAREERS_CACHE : DEALERS_CACHE);
+      }
+
+      if (req.method === 'GET' && route === 'region') {
+        const mode = state.modes.region;
+        if (mode === 'slow') await sleep(state.modes.slowMs);
+        if (mode === 'down') return send(res, 503, { success: false, error: 'Unavailable', code: 'unavailable' }, corsHeaders(state, req));
+        return send(res, 200, { state: mode === 'none' ? null : 'Madhya Pradesh' }, { ...corsHeaders(state, req), 'Cache-Control': 'no-store' });
       }
 
       let m;

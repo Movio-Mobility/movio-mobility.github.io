@@ -62,6 +62,49 @@
   text-wrap: pretty;
 }
 
+/* For would-be dealers: an underlined line under the lede, in its ink, with an arrow that
+   leans in on hover. It opens the join sheet (dealer-join.js), or WhatsApp without a script. */
+.dealers-join { margin: 0.85rem 0 0; }
+
+.dealers-join__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
+  border-radius: 4px;
+  font-size: clamp(0.98rem, 0.2vw + 0.93rem, 1.08rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  text-decoration-color: rgb(20 20 20 / 0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: text-decoration-color 0.25s var(--ease-out);
+}
+
+.dealers-join__link svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.35s var(--spring);
+}
+
+.dealers-join__link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.dealers-join__link:active svg { transform: translateX(2px); }
+
+@media (hover: hover) {
+  .dealers-join__link:hover { text-decoration-color: var(--ink); }
+  .dealers-join__link:hover svg { transform: translateX(3px); }
+}
+
 /* "12 dealers in 5 cities", or what the search found. Holds its line while it is empty. */
 .dealers-count {
   min-height: 1.5em;
@@ -751,13 +794,14 @@ html.is-typing .dealer-dock {
    is-entering is taken off once it has played (dealers.js), so a card the finder moves to
    the top later does not rise a second time. */
 .dealers-lede,
+.dealers-join,
 .dealers-count,
 .dealers-cities,
 .dealer-dock {
   animation: store-rise 0.9s var(--ease-out) backwards;
   animation-delay: calc(80ms + var(--i, 0) * 70ms);
 }
-.dealer-dock { --i: 4; }
+.dealer-dock { --i: 5; }
 
 .dealers.is-entering .dealer:nth-child(-n+2),
 .dealers.is-entering .dealer-ghost {
@@ -824,6 +868,7 @@ html.is-typing .dealer-dock {
 /* ---------------------------------------------------------------- reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .dealers-lede,
+  .dealers-join,
   .dealers-count,
   .dealers-cities,
   .dealer-dock,
@@ -835,6 +880,9 @@ html.is-typing .dealer-dock {
   }
   .dealer:target::before,
   .dealer.is-target::before { animation: none; }
+  .dealers-join__link svg,
+  .dealers-join__link:hover svg,
+  .dealers-join__link:active svg { transition: none; transform: none; }
   .dealer-ghost,
   .dealer-dock__near.is-busy svg,
   .dealers-cities:empty::before,

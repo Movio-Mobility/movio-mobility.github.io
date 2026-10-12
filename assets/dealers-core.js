@@ -12,6 +12,8 @@
  *   gridDealers.renderCities(cities, key)  the city chips
  *   gridDealers.countText(n, context)      the line above the list
  *   gridDealers.textSearch / pincodeSearch / haversine / formatKm   the finder's arithmetic
+ *   gridDealers.placeNear(towns, here)     the town a position is in, from india-towns.json
+ *   gridDealers.joinMessage(answers)       the join sheet's WhatsApp message (dealer-join.js)
  *
  * WHAT NORMALIZE ENFORCES, beyond the contract's shape (Part 0 of the platform plan):
  *   - a pin inside India (Paddock's inIndia bounds), or the dealer is dropped: a card whose
@@ -431,9 +433,104 @@
     return { list: exact.map((t) => t.d).concat(rest.map((t) => t.d)), exact: exact.length, partial: false, anchor };
   }
 
+  // ---------------------------------------------------------------- joining the network
+  // Within TOWN_KM of the nearest town, "near" it; up to LOST_KM, only its state; further
+  // than that from any town (a phone over the border, still inside India's bounding box), no
+  // place at all, and the connection's state stands in.
+  const TOWN_KM = 40;
+  const LOST_KM = 75;
+  // A town with this reach or more (about 100,000 people, see tools/source/india-towns.mjs)
+  // is a city: inside one, the census towns within it are not what anyone would call the place.
+  const CITY_REACH = 5;
+  const BORDER_KM = 3;
+
+  /**
+   * Where a position is, as { town, state }, from assets/data/india-towns.json (made by
+   * tools/source/india-towns.mjs). Each town has a reach that grows with its population. Of
+   * the towns whose reach covers the position, the cities come first, and the one covering it
+   * most snugly (distance over reach) is named: a point in Noida is Noida, one in south Delhi
+   * is Delhi, not the census town next door. Covered by none, the nearest town (see TOWN_KM
+   * and LOST_KM). Null outside India or without the list.
+   */
+  function placeNear(data, here) {
+    if (!isObj(data) || !Array.isArray(data.towns) || !Array.isArray(data.states) || !isObj(here)) return null;
+    if (!inIndia(here.lat, here.lng)) return null;
+    let city = null;
+    let cityScore = Infinity;
+    let town = null;
+    let townScore = Infinity;
+    let nearest = null;
+    let nearestKm = Infinity;
+    for (const t of data.towns) {
+      if (!Array.isArray(t) || t.length < 5) continue;
+      const km = haversine(here, { lat: t[1] / 1000, lng: t[2] / 1000 });
+      const reachKm = Math.max(0.1, t[3] / 10);
+      const score = km / reachKm;
+      if (score <= 1) {
+        if (reachKm >= CITY_REACH && score < cityScore) {
+          city = t;
+          cityScore = score;
+        } else if (reachKm < CITY_REACH && score < townScore) {
+          town = t;
+          townScore = score;
+        }
+      }
+      if (km < nearestKm) {
+        nearest = t;
+        nearestKm = km;
+      }
+    }
+    let covering = city || town;
+    if (!covering && nearestKm > LOST_KM) return null;
+    // At a state border a city's reach spills over it. A town within BORDER_KM knows its own
+    // state better: Kundli, just over Delhi's edge in Haryana, is Kundli, not Delhi.
+    if (covering && nearest && nearestKm <= BORDER_KM && nearest[4] !== covering[4]) covering = nearest;
+    const t = covering || nearest;
+    const state = t ? data.states[t[4]] : null;
+    if (typeof state !== 'string' || !state) return null;
+    const name = (covering || nearestKm <= TOWN_KM) && typeof t[0] === 'string' && t[0] ? t[0] : null;
+    return { town: name, state };
+  }
+
+  // Typed by a visitor and going into a message: one line, no runs of spaces, capped.
+  const clean = (s, max) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, max);
+
+  /**
+   * The message the join sheet hands to WhatsApp. answers: { name, shop, planning, place },
+   * place being { town, state } (from placeNear, or { town: null, state } from the
+   * connection) or null. Without a name it is the short line the page's link carries when
+   * there is no script at all.
+   *
+   *   Hi GridX, I am Ramesh Kumar. I run Shree Auto Works near Indore, Madhya Pradesh, and I
+   *   would like to join the GridX Dealership Network.
+   */
+  function joinMessage({ name, shop, planning, place } = {}) {
+    const who = clean(name, 60);
+    const join = 'I would like to join the GridX Dealership Network.';
+    if (!who) return `Hi GridX, ${join}`;
+    let where = '';
+    if (isObj(place) && typeof place.state === 'string' && place.state) {
+      const state = clean(place.state, 60);
+      const town = clean(place.town, 60);
+      // "near Delhi", not "near Delhi, Delhi".
+      if (town) where = town === state ? ` near ${town}` : ` near ${town}, ${state}`;
+      else where = ` in ${state}`;
+    }
+    const business = clean(shop, 80);
+    const doing = planning || !business
+      ? `I am planning to open a dealership${where}`
+      : `I run ${business}${where}`;
+    return `Hi GridX, I am ${who}. ${doing}, and ${join}`;
+  }
+
   root.gridDealers = {
     SERVICES,
     NEAR_KM,
+    TOWN_KM,
+    LOST_KM,
+    inIndia,
+    placeNear,
+    joinMessage,
     normalize,
     citiesOf,
     renderCard,

@@ -21,6 +21,8 @@
   <link rel="stylesheet" href="assets/store.css">
   <link rel="stylesheet" href="assets/contact.css">
   <link rel="stylesheet" href="assets/dealers.css">
+  <link rel="stylesheet" href="assets/sheet.css">
+  <link rel="stylesheet" href="assets/dealer-join.css">
   <link rel="stylesheet" href="assets/footer.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
@@ -116,12 +118,17 @@
       <header class="dealers-intro">
         <h2 class="store-kicker" id="dealers-title" style="--i:0">Find a dealer</h2>
         <p class="dealers-lede" style="--i:1">Buy a PowerPod, have it fitted or get it serviced at a GridX dealer near you.</p>
-        <p class="dealers-count" id="dealers-count" style="--i:2"><!-- dealers:count --></p>
+        <!-- For would-be dealers. Without a script it is simply a WhatsApp link with a short
+             message; assets/dealer-join.js turns it into the join sheet below. -->
+        <p class="dealers-join" style="--i:2">
+          <a class="dealers-join__link" id="join-open" href="https://wa.me/919220199098?text=Hi%20GridX%2C%20I%20would%20like%20to%20join%20the%20GridX%20Dealership%20Network." target="_blank" rel="noopener" data-topic="dealer join" aria-haspopup="dialog" aria-controls="join-sheet"><span>Join the GridX Dealership Network</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13.5M13.5 7l5 5-5 5"/></svg></a>
+        </p>
+        <p class="dealers-count" id="dealers-count" style="--i:3"><!-- dealers:count --></p>
       </header>
 
       <!-- One chip per city, All first. Filled by the build and redrawn by dealers.js when the
            cities change; only the chosen city is ever written to the address (?city=). -->
-      <div class="dealers-cities" id="dealers-cities" role="group" aria-label="Show dealers in" style="--i:3"><!-- dealers:cities --></div>
+      <div class="dealers-cities" id="dealers-cities" role="group" aria-label="Show dealers in" style="--i:4"><!-- dealers:cities --></div>
 
       <p class="dealers-note" id="dealers-note" hidden></p>
       <p class="sr-only" id="dealers-say" role="status" aria-live="polite"></p>
@@ -193,6 +200,107 @@
     <!-- dealers:data -->
     <!-- dealers:jsonld -->
   </main>
+
+  <!-- Join the GridX Dealership Network (assets/dealer-join.js, assets/dealer-join.css): where
+       they are, their name, whether they already have a dealership and what it is called, then
+       the exact WhatsApp message, which they send us themselves. The shell is the site's sheet
+       (sheet.js, sheet.css), in plain white. One step shows at a time; the foot carries the one
+       action, which on the last step is the WhatsApp link itself. -->
+  <dialog class="story story--join" id="join-sheet" aria-labelledby="join-title-location">
+    <div class="story__grabber" aria-hidden="true"></div>
+    <div class="join__bar">
+      <button class="join__back" type="button" aria-label="Back" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg>
+      </button>
+      <ol class="join__progress" aria-hidden="true">
+        <li data-for="location"></li><li data-for="name"></li><li data-for="dealership"></li><li data-for="send"></li>
+      </ol>
+    </div>
+    <button class="story__close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+
+    <form class="join" id="join-form" novalidate>
+      <div class="story__scroll join__scroll">
+
+        <section class="join__step" data-step="location" aria-labelledby="join-title-location">
+          <div class="join__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+          </div>
+          <p class="join__eyebrow">Join the GridX Dealership Network</p>
+          <h2 class="join__title" id="join-title-location" tabindex="-1">Where are you based?</h2>
+          <p class="join__line">Share your location and we can bring you on board faster, with the GridX team nearest to you.</p>
+          <p class="join__fine">It only goes into your message, and you will see that message before anything is sent.</p>
+          <p class="join__found" id="join-found" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+            <span id="join-found-text"></span>
+          </p>
+          <p class="join__note" id="join-note" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="join__step" data-step="name" aria-labelledby="join-title-name" hidden>
+          <h2 class="join__title" id="join-title-name" tabindex="-1">What is your name?</h2>
+          <p class="join__line">So the team knows who they are speaking to.</p>
+          <div class="field">
+            <label class="field__label" for="join-name">Full name</label>
+            <input class="field__input" id="join-name" name="name" type="text" enterkeyhint="next"
+                   autocomplete="name" autocapitalize="words" spellcheck="false" maxlength="60"
+                   aria-describedby="join-name-err">
+            <p class="field__err" id="join-name-err"></p>
+          </div>
+        </section>
+
+        <section class="join__step" data-step="dealership" aria-labelledby="join-title-dealership" hidden>
+          <h2 class="join__title" id="join-title-dealership" tabindex="-1">Do you already run a dealership?</h2>
+          <p class="join__line">A showroom, a workshop or a service centre all count.</p>
+          <fieldset class="join__options" aria-describedby="join-choice-err">
+            <legend class="sr-only">Do you already run a dealership?</legend>
+            <label class="join-opt">
+              <input class="join-opt__input sr-only" type="radio" name="dealership" value="yes">
+              <span class="join-opt__title">Yes, I have one</span>
+              <span class="join-opt__lede">I want to add GridX to my business.</span>
+              <span class="join-opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+            </label>
+            <label class="join-opt">
+              <input class="join-opt__input sr-only" type="radio" name="dealership" value="no">
+              <span class="join-opt__title">Not yet</span>
+              <span class="join-opt__lede">I am planning to open one.</span>
+              <span class="join-opt__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+            </label>
+          </fieldset>
+          <p class="field__err" id="join-choice-err"></p>
+        </section>
+
+        <section class="join__step" data-step="shop" aria-labelledby="join-title-shop" hidden>
+          <h2 class="join__title" id="join-title-shop" tabindex="-1">What is your shop called?</h2>
+          <p class="join__line">The name customers know it by.</p>
+          <div class="field">
+            <label class="field__label" for="join-shop">Shop name</label>
+            <input class="field__input" id="join-shop" name="shop" type="text" enterkeyhint="next"
+                   autocomplete="organization" autocapitalize="words" spellcheck="false" maxlength="80"
+                   aria-describedby="join-shop-err">
+            <p class="field__err" id="join-shop-err"></p>
+          </div>
+        </section>
+
+        <section class="join__step" data-step="send" aria-labelledby="join-title-send" hidden>
+          <h2 class="join__title" id="join-title-send" tabindex="-1">Ready to send</h2>
+          <p class="join__line">WhatsApp will open with this message. Just tap send, and the GridX team will take it from there.</p>
+          <div class="join__chat">
+            <p class="join__bubble" id="join-message"></p>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="join__foot">
+        <button class="join__primary" id="join-primary" type="submit">Share my location</button>
+        <a class="join__primary" id="join-whatsapp" href="https://wa.me/919220199098" target="_blank" rel="noopener" data-topic="dealer join" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.9a8.4 8.4 0 0 1-12.4 7.4l-4.6 1.2 1.2-4.5A8.4 8.4 0 1 1 20.5 11.9z"/><path d="M9.7 9.5c.2-.4.4-.4.7-.4h.4c.2 0 .4 0 .6.5l.5 1.3c.1.2 0 .4-.1.5l-.4.4c-.1.2-.2.3 0 .5a6 6 0 0 0 2.4 2.1c.2.1.4.1.5-.1l.4-.5c.2-.2.3-.2.5-.1l1.3.6c.2.1.4.2.4.4 0 .4-.3 1-1 1.2-.8.2-2-.2-3.4-1.4a8 8 0 0 1-2.4-3.3c-.2-.7-.1-1.3.2-1.7z"/></svg>
+          <span>Open WhatsApp</span>
+        </a>
+        <button class="join__secondary" id="join-skip" type="button">Not now</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- The end of the film. assets/footer.js takes the lights down; assets/footer.css dresses
        the dark. Copied into every page the way the island nav is: the address and the sitemap
@@ -286,6 +394,8 @@
   <script src="assets/dealers-core.js"></script>
   <script src="assets/keyboard.js"></script>
   <script src="assets/dealers.js"></script>
+  <script src="assets/sheet.js"></script>
+  <script src="assets/dealer-join.js"></script>
   <script src="assets/topbar.js"></script>
   <script src="assets/footer.js"></script>
   <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
