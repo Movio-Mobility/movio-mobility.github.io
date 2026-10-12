@@ -178,7 +178,7 @@ try {
       }
       if (st.overflowX) wrong.push('the page scrolls sideways');
       report(`${name}: the final frame, before pre-booking opens`, !wrong.length, wrong.join('; '));
-      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && /^Pre-booking opens in \d+ hours?, \d+ minutes?$/.test(st.note) && st.ship === 'Shipping across India, starting 9th November', `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
+      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && /^Pre-booking opens in \d+ hours?, \d+ minutes?$/.test(st.note) && st.ship === 'Shipping across India, starting 6th November', `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
     }
     const counts = {};
     for (const f of fetched) {
@@ -215,7 +215,7 @@ try {
         if (st.cta.b > st.vh || st.cta.r > st.vw || st.cta.l < 0) wrong.push('button off screen');
       }
       if (st.noteShown) wrong.push('the count is still there');
-      if (st.ship !== 'Shipping across India, starting 9th November') wrong.push(`"${st.ship}"`);
+      if (st.ship !== 'Shipping across India, starting 6th November') wrong.push(`"${st.ship}"`);
       if (Math.abs(st.row.t - before.t) > 1 || Math.abs((st.row.l + st.row.r) / 2 - (before.l + before.r) / 2) > 1) wrong.push('the row moved when pre-booking opened');
       if (st.overflowX) wrong.push('the page scrolls sideways');
       report(`${name}: once open, the button in the count's place, the shipping line under it`, !wrong.length, wrong.join('; '));

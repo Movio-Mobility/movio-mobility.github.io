@@ -95,7 +95,7 @@ async function finish(name, page, errors) {
 // ---------------------------------------------------------------- home page, before the launch
 // 300000 seconds before the launch is 83 hours and 20 minutes; the page is read within a minute.
 const LINE = /^Pre-booking opens in 83 hours, (19|20) minutes$/;
-const SHIP = 'Shipping across India, starting 9th November';
+const SHIP = 'Shipping across India, starting 6th November';
 const placement = (page) => page.evaluate(() => {
   const r = (el) => el.getBoundingClientRect();
   const launch = document.querySelector('.launch');
