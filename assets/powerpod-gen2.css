@@ -6,9 +6,9 @@
    scrolled past. Only a fixed box with overflow clips in viewport coordinates.
 
    The panel is a three stage flow: a header carrying the back chevron and the progress
-   bar, a content region holding the current stage, and a footer carrying the running
-   total and the primary action. Stage 1 is six steps running vertically, all present at
-   once, with the ones you have not reached lightened rather than hidden. The content
+   bar, a content region holding the current stage, and a footer carrying what pre-booking
+   costs today and the primary action. Stage 1 is four steps running vertically, all present
+   at once, with the ones you have not reached lightened rather than hidden. The content
    region is the only thing on the page that scrolls.
 
    Without JavaScript the pg2-shell class is never added: nothing is fixed, every stage is
@@ -875,6 +875,8 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 .pg2-status:empty { margin: 0; }
 
 /* ---------------------------------------------------------------- 10. footer */
+/* The footer as every order page has it: the running total on the left, the action on the
+   right. The Gen2 page builds on it (.pg2__foot--gen2, after this). */
 .pg2__foot {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -952,16 +954,83 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
     box-shadow 0.28s var(--ease-out);
 }
 
-/* "Fully refundable", under the amount. Gone while the webhook is awaited (Confirming). */
-.pg2-next__tag {
-  font-size: 0.64rem;
-  font-weight: 500;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: rgb(255 255 255 / 0.72);
+/* The Gen2 footer. It says what pre-booking costs today, and has to keep one row, one height
+   and one button width from the first step to Pay, at every width and text size.
+
+   The button's column is sized to the button, so nothing can squeeze or clip it; the money
+   takes what is left and, only at the largest text sizes, wraps rather than run under it.
+   The footer is its own container, so the compact sizes at the end of this section follow
+   its width and not the window's: the narrowest one is not a phone's but the desktop side
+   panel at 1025px, 360px wide with 2rem gutters. */
+.pg2__foot--gen2 {
+  container: pg2-foot / inline-size;
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.pg2-next__tag[hidden] { display: none; }
+/* As tall as the button, and centred in that height as the grid would centre it, so the
+   footer keeps its height when the button goes after payment. */
+.pg2__foot--gen2 .pg2-foot__money {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 50px;
+}
+
+.pg2__foot--gen2 .pg2-foot__total {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
+.pg2__foot--gen2 .pg2-foot__label {
+  font-size: 0.8rem;
+  color: rgb(20 20 20 / 0.6);
+}
+
+.pg2__foot--gen2 .pg2-foot__amount { font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem); }
+
+/* The second line: "(Fully refundable)" until the payment page, the platform fee on it, and
+   where the hold goes once paid. One size and one line height for all three, so the footer
+   keeps its height and the content region above it never jumps between stages. 60% ink is
+   the lightest that still clears 4.5:1 on white at this size. */
+.pg2-foot__note {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: rgb(20 20 20 / 0.6);
+}
+
+/* The fee is a figure the buyer is about to pay, not small print: the amount in full ink,
+   its name a step lighter. */
+.pg2-foot__note--fee { color: rgb(20 20 20 / 0.72); }
+
+.pg2-foot__fee {
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One line of words. Wide enough for "Pay ₹408.89", so the pill keeps its size from Continue
+   to Pay. */
+.pg2__foot--gen2 .pg2-next {
+  flex-direction: row;
+  gap: 0;
+  min-width: 9rem;
+  padding-inline: 1.5rem;
+  font-size: 1rem;
+}
+
+/* A word that changes (Continue to Pay, the fee arriving, Paid) settles in rather than
+   snapping. The script adds .is-new only when the text really changes. */
+.pg2-foot__label.is-new,
+.pg2-foot__amount.is-new,
+.pg2-foot__note.is-new,
+.pg2-next__label.is-new {
+  animation: pg2-foot-swap 0.22s var(--ease-out) both;
+}
+
+@keyframes pg2-foot-swap {
+  from { opacity: 0; transform: translateY(2px); }
+}
 
 .pg2-next:active { transform: scale(0.985); }
 .pg2-next:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
@@ -1016,7 +1085,8 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 
 /* The narrowest phones keep the total and the button on one row, because stacking them
    costs about 60px of the content region, which on a 568px tall screen is the difference
-   between seeing an option and not. They compact instead. */
+   between seeing an option and not. They compact instead. The Gen2 footer keeps its own
+   sizes here and compacts by its own width, below. */
 @media (max-width: 359px) {
   .pg2-next {
     min-width: 0;
@@ -1027,6 +1097,52 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
   .pg2-foot__amount { font-size: 1.05rem; }
   .pg2-foot__label { font-size: 0.72rem; }
   .pg2__foot { gap: 0.4rem 0.6rem; }
+}
+
+/* The Gen2 footer compacts in two steps, by its own width.
+
+   Measured in Chrome with DM Sans: at full size the money needs up to 131px, the button
+   144px and the gap 16px, 291px in all, so full size holds down to a 300px footer with room
+   to spare. That keeps it on the desktop side panel, whose narrowest footer is 305px. Below
+   that (phones of 340px and under) the first step needs 255px, and below 264px (the 280px
+   fold covers) the second step needs 232px. The minimum widths keep the pill the same size
+   from Continue to Pay at every step. */
+@container pg2-foot (max-width: 18.75rem) {
+  .pg2__foot--gen2 .pg2-next {
+    min-width: 8rem;
+    padding-inline: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .pg2__foot--gen2 .pg2-foot__amount { font-size: 1.05rem; }
+  .pg2__foot--gen2 .pg2-foot__label,
+  .pg2-foot__note { font-size: 0.72rem; }
+}
+
+@container pg2-foot (max-width: 16.5rem) {
+  .pg2__foot--gen2 .pg2-next {
+    min-width: 7rem;
+    padding-inline: 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .pg2__foot--gen2 .pg2-foot__amount { font-size: 1rem; }
+  .pg2__foot--gen2 .pg2-foot__label,
+  .pg2-foot__note { font-size: 0.68rem; }
+}
+
+/* Past that, nothing fits on one row: large text in the browser's settings on a narrow
+   window. The money and the button stack, the button full width, rather than the money
+   wrapping word by word beside it. Both span the two columns, the gap included, so the
+   footer's own grid does not have to change. In rem, so it trips at the same point at
+   every text size. */
+@container pg2-foot (max-width: 14.75rem) {
+  .pg2__foot--gen2 .pg2-foot__money,
+  .pg2__foot--gen2 .pg2-next {
+    grid-column: 1 / -1;
+  }
+
+  .pg2__foot--gen2 .pg2-next { justify-self: stretch; }
 }
 
 /* Short viewports, where the stage would otherwise eat a content region that is already
@@ -1094,6 +1210,14 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
     from { opacity: 0; }
   }
 
+  /* The footer's words still fade, but do not rise. */
+  .pg2-foot__label.is-new,
+  .pg2-foot__amount.is-new,
+  .pg2-foot__note.is-new,
+  .pg2-next__label.is-new {
+    animation-name: pg2-view-fade;
+  }
+
   .pg2-step { transition-duration: 0.2s; }
 
   .pg2__scroll { scroll-behavior: auto; }
@@ -1123,7 +1247,7 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 /* ---------------------------------------------------------------- 13. fallbacks */
 /* No JavaScript: pg2-shell is never added, so nothing is fixed, every screen is visible
    and the page is an ordinary scrolling document. The radios still work, and the footer
-   total still reads a true "From" price because nothing ships preselected. */
+   still reads true: what pre-booking costs does not depend on anything chosen. */
 html:not(.pg2-shell) .pg2__stage {
   position: relative;
   inset: auto;
@@ -1444,6 +1568,22 @@ html.is-typing .topbar {
 
 /* The keyboard covers the home indicator, so its inset is not needed above the keys. */
 html.is-typing .pg2__foot { padding-bottom: 0.75rem; }
+
+/* Too little room above the keyboard for the header, the footer and a field between them:
+   a phone on its side (120 to 190px above its keys), or the smallest phones with large text.
+   The header and the footer step aside until the keyboard goes; Next on the keyboard walks
+   the fields and Go on the last one moves the flow on, as the footer's button would. 17.5rem
+   is the header, the footer and one field with its label and error, so it holds at every
+   text size; the panel is the container because its height is the visible area above the
+   keys. The content is pinned to its row, which would otherwise be the first one left.
+   The Gen2 page only, for now: the accessory pages keep their typing as it was. */
+html.pg2-shell .pg2__panel--gen2 { container: pg2-panel / size; }
+
+@container pg2-panel (max-height: 17.5rem) {
+  html.is-typing .pg2__bar,
+  html.is-typing .pg2__foot { display: none; }
+  html.is-typing .pg2__scroll { grid-row: 2; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .topbar { transition: none; }

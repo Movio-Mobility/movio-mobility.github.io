@@ -290,12 +290,11 @@
   const backBtn = document.getElementById('pg2-back');
   const nextBtn = document.getElementById('pg2-next');
   const nextLabel = document.getElementById('pg2-next-label');
-  const nextTag = document.getElementById('pg2-next-tag');
   const totalLabel = document.getElementById('pg2-total-label');
   const totalAmount = document.getElementById('pg2-total');
   const hint = document.getElementById('pg2-hint');
   const status = document.getElementById('pg2-status');
-  const footTax = document.getElementById('pg2-foot-tax');
+  const footNote = document.getElementById('pg2-foot-note');
   const dealerNote = document.getElementById('pg2-dealer');
   const reviewList = document.getElementById('pg2-review');
   const payView = document.getElementById('pg2-pay');
@@ -312,6 +311,26 @@
   // (assets/pay-confirm.js). Busy stays true with it, so nothing takes a second press.
   let confirming = false;
 
+  /**
+   * The footer's words, written only when they change. render() runs on every keystroke in
+   * the details, and rewriting the same text each time would restart the fade for nothing.
+   * A real change (a stage, Confirming, Paid) fades in (.is-new in the stylesheet), so the
+   * swap reads as one deliberate step. The first write is the page's own and does not fade.
+   */
+  function swap(el, key, fill) {
+    if (!el || el.dataset.key === key) return;
+    const first = el.dataset.key === undefined;
+    el.dataset.key = key;
+    fill(el);
+    if (first) return;
+    el.classList.remove('is-new');
+    void el.offsetWidth; // restart the animation if one is still running
+    el.classList.add('is-new');
+  }
+  function swapText(el, text) {
+    swap(el, text, (node) => { node.textContent = text; });
+  }
+
   function render() {
     for (const el of optEls) {
       el.dataset.selected = String(state[el.dataset.group] === el.dataset.value);
@@ -320,21 +339,28 @@
     if (modelStep) modelStep.hidden = !withVehicle();
     stageEl.dataset.vehicle = withVehicle() ? 'yes' : 'no';
 
+    // The footer speaks for today's payment and nothing else, whatever is chosen: the
+    // PowerPod's and the Komaki's prices are the review's to say. On the payment page the
+    // fee that rides on top takes the second line, so the hold and the fee sit side by side
+    // and the button can name their sum. Once Razorpay has taken the money, the total and
+    // where the hold goes: already while the webhook is awaited, because the card above says
+    // "Payment received" and the button has gone, and a footer still asking for ₹399 plus a
+    // fee would read as a second charge.
     const r = reservation();
-    if (stage === LAST_STAGE) {
-      // At payment the footer speaks for today's payment, not the PowerPod's price: the
-      // hold, and under it the fee that rides on top and the exact figure Razorpay asks for.
-      totalLabel.textContent = paid ? 'Paid' : 'Pay now';
-      totalAmount.textContent = money(paid ? r.chargedInr : r.itemsInr);
-      footTax.textContent = paid
-        ? `${money(r.itemsInr)} comes off your final payment`
-        : (r.feeInr > 0 ? `+ ${money(r.feeInr)} platform fee, ${money(r.chargedInr)} in all` : 'No platform fee');
-    } else {
-      // The floor for what is chosen so far. Always "starts at": the vehicle's variant and
-      // its final price are settled at the dealership.
-      totalLabel.textContent = 'Starts at';
-      totalAmount.textContent = money(startsAt());
-      footTax.textContent = '(inclusive of all taxes)';
+    const settled = paid || confirming;
+    const fee = !settled && stage === LAST_STAGE && r.feeInr > 0;
+    swapText(totalLabel, settled ? 'Paid' : 'Pre-book at');
+    swapText(totalAmount, money(settled ? r.chargedInr : r.itemsInr));
+    footNote.classList.toggle('pg2-foot__note--fee', fee);
+    if (settled) swapText(footNote, `${money(r.itemsInr)} comes off your final payment`);
+    else if (!fee) swapText(footNote, '(Fully refundable)');
+    else {
+      swap(footNote, `fee ${r.feeInr}`, (el) => {
+        const figure = document.createElement('span');
+        figure.className = 'pg2-foot__fee';
+        figure.textContent = `+ ${money(r.feeInr)}`;
+        el.replaceChildren(figure, ' (Platform fee)');
+      });
     }
 
     // Steps you have not reached lighten, rather than disappear.
@@ -362,11 +388,10 @@
     // Back: out to the store from the first stage, one stage back from the others.
     backBtn.setAttribute('aria-label', stage === 1 ? 'Back to the store' : 'Back to the previous stage');
 
-    // Primary action. The same words on every stage, because the whole thing costs this:
-    // a tap walks on to the details, then to the payment page, then opens Razorpay.
+    // Primary action. Continue walks on to the details and then to the payment page, where
+    // it names the exact figure Razorpay will ask for, the hold and the fee together.
     nextBtn.setAttribute('aria-disabled', String(!canAdvance(stage)));
-    nextLabel.textContent = confirming ? 'Confirming' : `Pay ${money(r.itemsInr)}`;
-    if (nextTag) nextTag.hidden = confirming;
+    swapText(nextLabel, confirming ? 'Confirming' : (stage === LAST_STAGE ? `Pay ${money(r.chargedInr)}` : 'Continue'));
 
     // Before the launch the payment page says when, in place of its usual line.
     if (paySub) paySub.textContent = launchOpen() ? PAY_LINE : NOT_OPEN;
@@ -1508,6 +1533,28 @@
     });
   }
   goToStep(1, false);
+  // Also only with ?check: open straight on a state, for Safari in the iOS Simulator, which
+  // cannot be scripted. &build=pod|x1|x3 answers the choices through the real radios and
+  // shows the review, and &stage=2 or 3 walks on, the payment page with a made-up buyer in
+  // the details.
+  const checkAt = new URLSearchParams(location.search);
+  if (checkAt.has('check')) {
+    const picks = { pod: { vehicle: 'no' }, x1: { vehicle: 'yes', model: 'x1' }, x3: { vehicle: 'yes', model: 'x3' } }[checkAt.get('build')];
+    for (const [name, value] of Object.entries(picks || {})) {
+      const input = form.querySelector(`input[name="${name}"][value="${value}"]`);
+      if (input) input.click();
+    }
+    const to = clamp(Number(checkAt.get('stage')) || 1, 1, LAST_STAGE);
+    if (to === LAST_STAGE) {
+      const buyer = { name: 'Asha Verma', phone: '9876543210', email: 'asha@example.com', city: 'Raipur', pincode: '492001' };
+      for (const [key, value] of Object.entries(buyer)) {
+        if (fieldEls[key]) fieldEls[key].input.value = value;
+        details[key] = value;
+      }
+    }
+    if (to > 1) goToStage(to, 'fwd', false);
+    else if (picks) goToStep(LAST_STEP, true);
+  }
   counting = true;
   startLoop();
   window.addEventListener('load', () => {

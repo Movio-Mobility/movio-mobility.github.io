@@ -19,8 +19,9 @@
  *   - Pay: the pending ring and copy, then (the mock's webhook landing on the third poll)
  *     the drawn tick, the confirmed order, GX-MOCKAA1 in sessionStorage for the tracker
  * Then the payment leg again on powerpod-gen2.html (?check&launch=60, so pre-booking is
- * open): a Komaki X3 chosen, the payment page naming it, the hold and the balance, then
- * Gen2's own pending line and nouns; and once more on adapter.html with the
+ * open): a Komaki X3 chosen with the footer still Pre-book at ₹399 and Continue, the payment
+ * page naming it, the hold, the platform fee beside it and the balance, Pay naming exactly
+ * what Razorpay is asked for, then Gen2's own pending line and nouns with the footer Paid; and once more on adapter.html with the
  * mock's confirm mode 'slow' and a 6 second deadline (?check&confirm=6), which must end in
  * the calm "we are checking" card, never a failure.
  */
@@ -101,7 +102,7 @@ async function open(name, { viewport = PHONE } = {}) {
   // answers the same way a successful payment does, a moment later.
   await page.evaluateOnNewDocument(() => {
     window.Razorpay = class {
-      constructor(options) { this.options = options; }
+      constructor(options) { this.options = options; window.__razorpayAsked = options.amount; }
       on() {}
       open() { setTimeout(() => this.options.handler({ razorpay_payment_id: 'pay_mock1' }), 400); }
     };
@@ -221,11 +222,13 @@ for (const [label, viewport] of [['phone', PHONE], ['desk', DESK]]) {
   const foot = await page.evaluate(() => ({
     label: document.getElementById('pg2-total-label').textContent,
     amount: document.getElementById('pg2-total').textContent,
+    note: document.getElementById('pg2-foot-note').textContent,
     next: document.getElementById('pg2-next-label').textContent,
-    tag: document.getElementById('pg2-next-tag').textContent,
+    startsAt: document.querySelector('#pg2-review li:last-child')?.textContent,
   }));
-  report('gen2: the footer starts at the Komaki X3 bundle and the button says what today costs',
-    foot.label === 'Starts at' && foot.amount === '₹69,999' && foot.next === 'Pay ₹399' && foot.tag === 'Fully refundable',
+  report('gen2: with the Komaki X3 chosen the footer still says Pre-book at ₹399, the review the price',
+    foot.label === 'Pre-book at' && foot.amount === '₹399' && foot.note === '(Fully refundable)' && foot.next === 'Continue'
+    && foot.startsAt === 'Starts at₹69,999',
     JSON.stringify(foot));
   await page.evaluate(() => document.getElementById('pg2-next').click());
   await sleep(600);
@@ -242,16 +245,23 @@ for (const [label, viewport] of [['phone', PHONE], ['desk', DESK]]) {
     text: document.getElementById('pg2-bill').textContent,
     label: document.getElementById('pg2-total-label').textContent,
     amount: document.getElementById('pg2-total').textContent,
-    fee: document.getElementById('pg2-foot-tax').textContent,
+    fee: document.getElementById('pg2-foot-note').textContent,
+    next: document.getElementById('pg2-next-label').textContent,
+    sub: document.getElementById('pg2-pay-sub').textContent,
   }));
   report('gen2: the payment page names the Komaki, the hold, the fee and the balance',
     billed.title === 'Pre-book your PowerPod Gen2 with Komaki X3.' && /Komaki X3/.test(billed.text)
     && /Pre-booking amount/.test(billed.text) && /₹399/.test(billed.text) && /from ₹69,600/.test(billed.text)
     && /Total payable now₹408\.89/.test(billed.text) && /fully refundable/i.test(billed.text) && /not refunded/.test(billed.text)
-    && billed.label === 'Pay now' && billed.amount === '₹399' && /platform fee, ₹408\.89 in all/.test(billed.fee),
+    && billed.label === 'Pre-book at' && billed.amount === '₹399' && billed.fee === '+ ₹9.89 (Platform fee)'
+    && billed.next === 'Pay ₹408.89' && /^₹399 today plus the platform fee, charged by GridX Energy\./.test(billed.sub),
     JSON.stringify(billed).slice(0, 400));
   await shoot(page, 'purchase-gen2-bill');
   await page.evaluate(() => document.getElementById('pg2-next').click());
+  // The figure on the button is the figure Razorpay was asked for, which is Paddock's.
+  await page.waitForFunction(() => window.__razorpayAsked !== undefined, { timeout: 8000 }).catch(() => {});
+  const asked = await page.evaluate(() => window.__razorpayAsked);
+  report('gen2: Pay ₹408.89 is exactly what Razorpay is asked for', asked === 40889, `amount ${asked} paise`);
 
   await page.waitForFunction(
     () => document.querySelector('.pg2-done__status')?.textContent.includes('confirming your pre-booking'),
@@ -262,10 +272,12 @@ for (const [label, viewport] of [['phone', PHONE], ['desk', DESK]]) {
     line: document.querySelector('.pg2-done__status')?.textContent,
     spinning: Boolean(document.querySelector('.pay-tick--pending')),
     foot: document.getElementById('pg2-next-label')?.textContent,
+    paid: `${document.getElementById('pg2-total-label').textContent} ${document.getElementById('pg2-total').textContent}`,
   }));
-  report('gen2: the pending card says the pre-booking is being confirmed',
+  report('gen2: the pending card says the pre-booking is being confirmed, the footer that it is paid',
     pending.title === 'Confirming your payment.' && pending.spinning
-    && pending.line === 'Payment received. We are confirming your pre-booking.' && pending.foot === 'Confirming',
+    && pending.line === 'Payment received. We are confirming your pre-booking.' && pending.foot === 'Confirming'
+    && pending.paid === 'Paid ₹408.89',
     JSON.stringify(pending));
   await shoot(page, 'purchase-gen2-pending');
 

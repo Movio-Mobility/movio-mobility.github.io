@@ -6,16 +6,19 @@
  *   node tools/check/gen2.mjs [--root dir]
  *
  * At 390x844 and again at 1440x900 (?check&launch=60, so pre-booking is open):
- *   - no vehicle: the Komaki step is hidden, the footer starts at ₹29,999, the review says
- *     "Your own ride"
- *   - a vehicle: the step shows, the footer starts at ₹59,999 (the floor), the stage says
+ *   - the footer says Pre-book at ₹399 (Fully refundable) and Continue from the start, and
+ *     keeps saying it whatever is chosen; the review's Starts at row carries the price, with
+ *     the finance note right under it
+ *   - no vehicle: the Komaki step is hidden, the review starts at ₹29,999 and says "Your
+ *     own ride"
+ *   - a vehicle: the step shows, the review starts at ₹59,999 (the floor), the stage says
  *     data-vehicle="yes" and, with the field, the pod rides into the scooter (a screenshot
- *     lands in tools/check/out/); X1 and X3 move the footer to ₹59,999 and ₹69,999
+ *     lands in tools/check/out/); X1 and X3 move the review to ₹59,999 and ₹69,999
  *   - the picture up close: no large picture is requested before a tap; the tap on the X1
  *     card puts exactly one picture on the page, the X1's large one, and nothing else; the X
- *     takes it out again with the radios and the footer as they were; Escape and the back
+ *     takes it out again with the radios and the review as they were; Escape and the back
  *     button close it too, and each opening is one request
- *   - the button says Pay ₹399 with its tag on the configure and details stages
+ *   - the button says Continue on the configure and details stages
  *   - no page errors
  */
 import net from 'node:net';
@@ -98,9 +101,11 @@ const state = (page) => page.evaluate(() => ({
   vehicle: document.getElementById('pg2-stage').dataset.vehicle,
   label: document.getElementById('pg2-total-label').textContent,
   amount: document.getElementById('pg2-total').textContent,
+  note: document.getElementById('pg2-foot-note').textContent,
+  // The review's last row: "Starts at" and the floor for what is chosen so far.
+  startsAt: document.querySelector('#pg2-review li:last-child .review__value')?.textContent,
+  finance: document.getElementById('pg2-review').nextElementSibling?.textContent,
   next: document.getElementById('pg2-next-label').textContent,
-  tag: document.getElementById('pg2-next-tag').textContent,
-  tagShown: !document.getElementById('pg2-next-tag').hidden,
   review: document.getElementById('pg2-review').textContent,
   checked: [...document.querySelectorAll('.opt__input:checked')].map((r) => `${r.name}=${r.value}`),
   viewerOpen: !document.getElementById('pg2-viewer').hidden,
@@ -123,30 +128,32 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   await sleep(900);
 
   let s = await state(page);
-  report(`${label}: the button says what today costs from the start`,
-    s.next === 'Pay ₹399' && s.tag === 'Fully refundable' && s.tagShown && s.label === 'Starts at' && s.amount === '₹29,999',
-    JSON.stringify({ next: s.next, tag: s.tag, label: s.label, amount: s.amount }));
+  // The footer is what pre-booking costs, the review what the whole thing starts at.
+  const footerSays = (f) => f.label === 'Pre-book at' && f.amount === '₹399' && f.note === '(Fully refundable)' && f.next === 'Continue';
+  report(`${label}: the footer says what pre-booking costs from the start, the review the price`,
+    footerSays(s) && s.startsAt === '₹29,999' && s.finance === 'Finance options available at the time of purchase.',
+    JSON.stringify({ label: s.label, amount: s.amount, note: s.note, next: s.next, startsAt: s.startsAt, finance: s.finance }));
   report(`${label}: the Komaki step is hidden until a vehicle is wanted`, s.modelHidden && s.vehicle === 'no');
 
   await choose(page, 'vehicle', 'no');
   s = await state(page);
   report(`${label}: no vehicle: the step stays hidden, the review says your own ride, ₹29,999`,
-    s.modelHidden && /Your own ride/.test(s.review) && s.amount === '₹29,999' && s.vehicle === 'no',
-    JSON.stringify({ hidden: s.modelHidden, amount: s.amount, review: s.review }));
+    s.modelHidden && /Your own ride/.test(s.review) && s.startsAt === '₹29,999' && footerSays(s) && s.vehicle === 'no',
+    JSON.stringify({ hidden: s.modelHidden, startsAt: s.startsAt, amount: s.amount, review: s.review }));
 
   await choose(page, 'vehicle', 'yes');
   s = await state(page);
   report(`${label}: a vehicle: the step shows, the floor is ₹59,999, the stage knows`,
-    !s.modelHidden && s.amount === '₹59,999' && s.vehicle === 'yes' && /model not chosen/.test(s.review),
-    JSON.stringify({ hidden: s.modelHidden, amount: s.amount, vehicle: s.vehicle }));
+    !s.modelHidden && s.startsAt === '₹59,999' && footerSays(s) && s.vehicle === 'yes' && /model not chosen/.test(s.review),
+    JSON.stringify({ hidden: s.modelHidden, startsAt: s.startsAt, amount: s.amount, vehicle: s.vehicle }));
 
   await choose(page, 'model', 'x1');
   const x1 = await state(page);
   await choose(page, 'model', 'x3');
   s = await state(page);
   report(`${label}: X1 starts at ₹59,999, X3 at ₹69,999, and the review names it`,
-    x1.amount === '₹59,999' && s.amount === '₹69,999' && /Komaki X3/.test(s.review),
-    JSON.stringify({ x1: x1.amount, x3: s.amount }));
+    x1.startsAt === '₹59,999' && s.startsAt === '₹69,999' && /Komaki X3/.test(s.review) && footerSays(x1) && footerSays(s),
+    JSON.stringify({ x1: x1.startsAt, x3: s.startsAt, footer: s.amount }));
   // The ride: give the field its gather and the pod its slide before the picture.
   await sleep(2600);
   await shoot(page, `gen2-ride-${label}`);
@@ -179,10 +186,10 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   await page.evaluate(() => document.getElementById('pg2-viewer-close').click());
   const closed = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-pic img'));
   s = await state(page);
-  report(`${label}: the X closes it, the picture is gone, the choices and the footer stand`,
+  report(`${label}: the X closes it, the picture is gone, the choices and the review stand`,
     closed && !s.viewerOpen && s.frames.length === 0 && !s.viewing && s.checked.includes('model=x3')
-    && s.checked.includes('vehicle=yes') && s.amount === '₹69,999' && s.vehicle === 'yes',
-    JSON.stringify({ closed, frames: s.frames, checked: s.checked, amount: s.amount }));
+    && s.checked.includes('vehicle=yes') && s.startsAt === '₹69,999' && s.vehicle === 'yes',
+    JSON.stringify({ closed, frames: s.frames, checked: s.checked, startsAt: s.startsAt }));
 
   // Escape closes it too.
   await page.evaluate(() => document.querySelector('[data-view="x3"]').click());
@@ -198,7 +205,7 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   const back = await until(page, () => document.getElementById('pg2-viewer').hidden && !document.querySelector('#pg2-viewer-pic img'));
   s = await state(page);
   report(`${label}: the back button closes it and the page is still the page`,
-    back && s.stage === 1 && s.checked.includes('model=x3') && s.amount === '₹69,999',
+    back && s.stage === 1 && s.checked.includes('model=x3') && s.startsAt === '₹69,999',
     JSON.stringify({ back, stage: s.stage, checked: s.checked }));
   // The browser may serve the second X3 from its cache without a request, so two or three.
   report(`${label}: each opening is a request for that picture and no other`,
@@ -209,8 +216,8 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   await page.evaluate(() => document.getElementById('pg2-next').click());
   await sleep(600);
   s = await state(page);
-  report(`${label}: the details stage keeps Pay ₹399 and its tag`, s.stage === 2 && s.next === 'Pay ₹399' && s.tagShown,
-    JSON.stringify({ stage: s.stage, next: s.next }));
+  report(`${label}: the details stage keeps Pre-book at ₹399 and Continue`, s.stage === 2 && footerSays(s),
+    JSON.stringify({ stage: s.stage, label: s.label, amount: s.amount, note: s.note, next: s.next }));
 
   // Back to the configurator: the scooter returns with the choice.
   await page.evaluate(() => document.getElementById('pg2-back').click());

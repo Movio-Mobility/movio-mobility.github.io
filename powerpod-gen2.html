@@ -137,7 +137,7 @@
       </svg>
     </div>
 
-    <div class="pg2__panel" id="pg2-panel">
+    <div class="pg2__panel pg2__panel--gen2" id="pg2-panel">
 
       <!-- ============================================================ header -->
       <!-- The chevron sits on its own row above the bar, and on desktop that row lines up
@@ -172,15 +172,14 @@
 
           <!-- ====================================== stage 1: configure -->
           <!-- One vertical flow. Steps you have not reached yet stay visible but
-               lightened, so what is coming is always in sight. Nothing here carries a
-               price: the footer says what the whole thing starts at, and Paddock prices
-               the order. -->
+               lightened, so what is coming is always in sight. No option carries a price:
+               the review at the end says what the whole thing starts at, the footer what
+               pre-booking costs today, and Paddock prices the order. -->
           <section class="pg2-view is-active" id="view-configure" data-stage="1">
 
+            <!-- No heading of its own: the card below already names the PowerPod, and a title
+                 above it only said the same thing twice. -->
             <article class="pg2-step" id="step-pod" data-step="1">
-              <h2 class="pg2-step__title" tabindex="-1">PowerPod Gen2.</h2>
-              <p class="pg2-step__sub">Power, reimagined.</p>
-
               <!-- Not a control. Someone on this page has already chosen it, so it is presented
                    as settled rather than as a checkbox they could switch off. -->
               <article class="opt opt--locked" data-selected="true">
@@ -308,8 +307,17 @@
               <h2 class="pg2-step__title" tabindex="-1">Your pre-booking.</h2>
               <p class="pg2-step__sub">Everything you have chosen, in one place.</p>
 
-              <ul class="review" id="pg2-review"></ul>
+              <!-- Written out as the script first renders it (renderReview), so the starts-at
+                   price is on the page before any script runs and without one: the Product
+                   offer in the page's structured data claims it (tools/seo.mjs checks). -->
+              <ul class="review" id="pg2-review">
+                <li><span class="review__label">PowerPod Gen2</span><span class="review__value review__value--soft">Included</span></li>
+                <li><span class="review__label">GridX-Pro Pack</span><span class="review__value review__value--soft">Free for the first year</span></li>
+                <li><span class="review__label">Vehicle</span><span class="review__value review__value--soft">Not chosen</span></li>
+                <li><span class="review__label">Starts at</span><span class="review__value">₹29,999</span></li>
+              </ul>
 
+              <p class="review__note" id="pg2-finance">Finance options available at the time of purchase.</p>
               <p class="review__note">GridX-Pro Pack: free for your first year.</p>
               <p class="review__note" id="pg2-dealer" hidden>The model and its specifics can be changed with your GridX dealership before the final order is placed. <a href="dealers.html">Find a dealer</a> near you.</p>
             </article>
@@ -391,7 +399,7 @@
           <section class="pg2-view" id="view-payment" data-stage="3">
             <div class="pg2-pay" id="pg2-pay">
               <h2 class="pg2-step__title" id="pg2-pay-title" tabindex="-1">Pre-book your PowerPod Gen2.</h2>
-              <p class="pg2-step__sub" id="pg2-pay-sub">₹399 today, charged by GridX Energy. The rest only when your order is ready for shipment.</p>
+              <p class="pg2-step__sub" id="pg2-pay-sub">₹399 today plus the platform fee, charged by GridX Energy. The rest only when your order is ready for shipment.</p>
               <div class="bill" id="pg2-bill"></div>
               <!-- Google's terms for hiding the reCAPTCHA badge, which would otherwise sit on top
                    of the Pay button on a phone: say so where the check happens. -->
@@ -429,19 +437,21 @@
       </div>
 
       <!-- ============================================================ footer -->
-      <div class="pg2__foot">
+      <!-- What pre-booking costs today, whatever is chosen: the price of the PowerPod and the
+           Komaki is the review's to say. On the payment page the second line becomes the
+           platform fee and the button names the exact figure Razorpay will ask for. -->
+      <div class="pg2__foot pg2__foot--gen2">
         <div class="pg2-foot__money">
           <p class="pg2-foot__total">
-            <span class="pg2-foot__label" id="pg2-total-label">Starts at</span>
-            <span class="pg2-foot__amount" id="pg2-total">₹29,999</span>
+            <span class="pg2-foot__label" id="pg2-total-label">Pre-book at</span>
+            <span class="pg2-foot__amount" id="pg2-total">₹399</span>
           </p>
-          <p class="pg2-foot__tax" id="pg2-foot-tax">(inclusive of all taxes)</p>
+          <p class="pg2-foot__note" id="pg2-foot-note">(Fully refundable)</p>
         </div>
-        <!-- The same words on every stage, because the whole thing costs this: a tap walks on
-             to the details, then to the payment page, then opens Razorpay. -->
+        <!-- Continue walks on to the details, then to the payment page, where it becomes
+             Pay and opens Razorpay. -->
         <button class="pg2-next" id="pg2-next" type="button" aria-disabled="false" aria-describedby="pg2-hint">
-          <span class="pg2-next__label" id="pg2-next-label">Pay ₹399</span>
-          <span class="pg2-next__tag" id="pg2-next-tag">Fully refundable</span>
+          <span class="pg2-next__label" id="pg2-next-label">Continue</span>
         </button>
         <p class="pg2-foot__hint" id="pg2-hint" role="status" aria-live="polite"></p>
       </div>
