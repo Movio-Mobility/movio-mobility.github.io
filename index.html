@@ -3820,7 +3820,7 @@
                     </div>
                   </div>
                   <!-- Below the fold: the record (_RecordCard) and the way into Riding Insights
-                       (OwnerNavCard), which the Energy per ride demo scrolls to. -->
+                       (OwnerNavCard), which the Riding Insights demo scrolls to. -->
                   <div class="tab__card" style="--a: 128.4deg">
                     <p class="own__eyebrow">OWNERSHIP</p>
                     <p class="own__title">Your record</p>
@@ -3975,7 +3975,7 @@
           </div>
           <!-- Riding Insights (insights/insights_page.dart), pushed from the PowerPod page: its cards
                in the app's order, down to the last ride's (ride_detail_card.dart), which is where
-               the Energy per ride demo scrolls to. One rider, one evening, as everywhere here. -->
+               the Riding Insights demo scrolls to. One rider, one evening, as everywhere here. -->
           <div class="app-layer app-ins">
             <div class="ins__bar">
               <span class="ins__back" data-ins="back"><svg><use href="#app-i-back"/></svg></span>
@@ -9566,7 +9566,7 @@
 
         // The owner's PowerPod page, and "Last 30 days" opened on it (owner_energy_card.dart):
         // the month's chart, a day's tooltip, the average and the most in a day. Then home.
-        insights() {
+        energy() {
           const tl = timeline();
           const f = rightHand(tl);
           const detail = q('[data-own="detail"]');
@@ -9595,10 +9595,10 @@
           return tl;
         },
 
-        // Energy per ride: the PowerPod page scrolled down to Riding Insights, its page pushed in
+        // Riding Insights: the PowerPod page scrolled down to Riding Insights, its page pushed in
         // and scrolled to the last ride (ride_detail_card.dart), whose energy the finger rests
         // on. Then back, and home.
-        energy() {
+        insights() {
           const tl = timeline();
           const f = rightHand(tl);
           const nav = q('[data-own="insights"]');

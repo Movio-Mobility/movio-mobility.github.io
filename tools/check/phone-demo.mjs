@@ -73,11 +73,11 @@ const MOMENTS = {
     ['alert', 1500, { open: ['app-crash'], count: '3:59:59' }],
     ['counting', 3500, { open: ['app-crash'], count: '3:59:57' }],
   ],
-  insights: [
+  energy: [
     ['opened', 3200, { open: [], page: 1, month: true }],
     ['a day', 4400, { open: [], page: 1, month: true, tip: true }],
   ],
-  energy: [
+  insights: [
     ['scrolled', 3600, { open: [], page: 1 }],
     ['insights', 5200, { open: ['app-ins'] }],
     ['last ride', 8300, { open: ['app-ins'], lastRide: true }],
