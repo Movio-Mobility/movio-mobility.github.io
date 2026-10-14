@@ -3,7 +3,10 @@
  * The Gen2 page at every screen size: the footer, the first step and the review fit, with
  * nothing overlapping, clipped, running off screen or wrapping where it should not.
  *
- *   node tools/check/gen2-fit.mjs [--root dir] [--only 390x844,1025x768]
+ *   node tools/check/gen2-fit.mjs [--root dir] [--only 390x844,1025x768] [--lang hi]
+ *
+ * --lang walks the page in that language (/hi/powerpod-gen2.html), expecting each line as its
+ * catalogue says it (tools/i18n.mjs translator): the same rules, in every language.
  *
  * Every size walks the real flow, against the Paddock mock with Razorpay stood in for (as
  * purchase.mjs does), and is measured at each stop:
@@ -35,12 +38,16 @@ import puppeteer from 'puppeteer-core';
 import { serve } from '../serve.mjs';
 import { startMock } from './paddock-mock.mjs';
 import { CHROME, CHROME_ARGS } from '../perf/run.mjs';
+import { translator } from '../i18n.mjs';
 
 const args = process.argv.slice(2);
 const arg = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 const root = path.resolve(arg('--root') || '.');
 const only = arg('--only') ? new Set(arg('--only').split(',')) : null;
-const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'out', 'gen2-fit');
+const LANG = arg('--lang') || 'en';
+const T = translator(LANG, 'powerpod-gen2.html');
+const PAGE_PATH = LANG === 'en' ? '/powerpod-gen2.html' : `/${LANG}/powerpod-gen2.html`;
+const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'out', LANG === 'en' ? 'gen2-fit' : `gen2-fit-${LANG}`);
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -90,7 +97,7 @@ const nameOf = (run) => `${run.viewport.width}x${run.viewport.height}${run.text 
 const runs = RUNS.filter((run) => !only || only.has(nameOf(run)) || only.has(`${run.viewport.width}x${run.viewport.height}`));
 
 // ---------------------------------------------------------------- what each stop must say
-const BEFORE = { label: 'Pre-book at', amount: '₹399', note: '(Fully refundable)', next: 'Continue' };
+const BEFORE = { label: T('Pre-book at'), amount: '₹399', note: T('(Fully refundable)'), next: T('Continue') };
 const EXPECT = {
   's1-top': BEFORE,
   's1-pod': BEFORE,
@@ -98,11 +105,18 @@ const EXPECT = {
   s2: BEFORE,
   's2-hint': BEFORE,
   's2-keys': BEFORE,
-  s3: { label: 'Pre-book at', amount: '₹399', note: '+ ₹9.89 (Platform fee)', next: 'Pay ₹408.89' },
-  's3-confirming': { label: 'Paid', amount: '₹408.89', note: '₹399 comes off your final payment', next: null },
-  paid: { label: 'Paid', amount: '₹408.89', note: '₹399 comes off your final payment', next: null },
+  s3: { label: T('Pre-book at'), amount: '₹399', note: `+ ₹9.89 ${T('(Platform fee)')}`, next: T('Pay {amount}', { amount: '₹408.89' }) },
+  's3-confirming': { label: T('Paid'), amount: '₹408.89', note: T('{amount} comes off your final payment', { amount: '₹399' }), next: null },
+  paid: { label: T('Paid'), amount: '₹408.89', note: T('{amount} comes off your final payment', { amount: '₹399' }), next: null },
 };
 const STOPS = Object.keys(EXPECT);
+// The page's own lines the stops read, in the language walked.
+const SAID = {
+  lang: LANG,
+  startsAt: T('Starts at'),
+  finance: T('Finance options available at the time of purchase.'),
+  paySub: T('₹399 today plus the platform fee, charged by GridX Energy. The rest only when your order is ready for shipment.'),
+};
 
 // ---------------------------------------------------------------- the measure
 /**
@@ -111,7 +125,7 @@ const STOPS = Object.keys(EXPECT);
  * keysAt: the top of an on-screen keyboard, when one is being stood in for. text: the text
  * size in percent.
  */
-function measure(stop, keysAt, text) {
+function measure(stop, keysAt, text, expected) {
   const E = 0.5;
   const problems = [];
   const $ = (sel) => document.querySelector(sel);
@@ -218,7 +232,7 @@ function measure(stop, keysAt, text) {
   if (stop === 's1-top') {
     const pod = $('#step-pod');
     if (pod.querySelector('.pg2-step__title, .pg2-step__sub')) problems.push('step 1 still has a heading');
-    if (/Power, reimagined/.test(document.body.textContent)) problems.push('"Power, reimagined." is still on the page');
+    if (expected.lang === 'en' && /Power, reimagined/.test(document.body.textContent)) problems.push('"Power, reimagined." is still on the page');
     const card = rect(pod.querySelector('.opt--locked'));
     if (card.top < panel.top - E) problems.push('the PowerPod card starts under the panel\'s header');
     if (card.top > panel.bottom) problems.push('the PowerPod card is not in view');
@@ -228,9 +242,9 @@ function measure(stop, keysAt, text) {
     const list = $('#pg2-review');
     const last = list.lastElementChild;
     const want = stop === 's1-pod' ? '₹29,999' : '₹69,999';
-    if (!last || last.textContent !== `Starts at${want}`) problems.push(`the review ends "${last && last.textContent}", not Starts at ${want}`);
+    if (!last || last.textContent !== `${expected.startsAt}${want}`) problems.push(`the review ends "${last && last.textContent}", not ${expected.startsAt} ${want}`);
     const fin = list.nextElementSibling;
-    if (!fin || fin.id !== 'pg2-finance' || fin.textContent !== 'Finance options available at the time of purchase.') {
+    if (!fin || fin.id !== 'pg2-finance' || fin.textContent.replace(/\s+/g, ' ').trim() !== expected.finance) {
       problems.push('the finance note is not right under the review');
     } else {
       const r = rect(fin);
@@ -241,7 +255,7 @@ function measure(stop, keysAt, text) {
   }
   if (stop === 's3') {
     const sub = $('#pg2-pay-sub').textContent;
-    if (sub !== '₹399 today plus the platform fee, charged by GridX Energy. The rest only when your order is ready for shipment.') {
+    if (sub.replace(/\s+/g, ' ').trim() !== expected.paySub) {
       problems.push(`the payment page's line says "${sub}"`);
     }
   }
@@ -316,7 +330,7 @@ async function open(run) {
     // Large text in the browser's settings: the root size, which every rem follows.
     if (text !== 100) document.addEventListener('DOMContentLoaded', () => { document.documentElement.style.fontSize = `${text}%`; });
   }, run.text);
-  await page.goto(`${SITE}/powerpod-gen2.html?check&launch=60`, { waitUntil: 'load' });
+  await page.goto(`${SITE}${PAGE_PATH}?check&launch=60`, { waitUntil: 'load' });
   return { page, errors };
 }
 
@@ -326,7 +340,7 @@ async function walk(run) {
   const seen = {};
   const at = async (stop, keysAt = 0, settle = 900) => {
     await sleep(run.motion === 'reduce' ? Math.min(settle, 450) : settle);
-    const got = await page.evaluate(measure, stop, keysAt, run.text);
+    const got = await page.evaluate(measure, stop, keysAt, run.text, SAID);
     const file = `${name}--${stop}.jpg`;
     await page.screenshot({ path: path.join(OUT, file), type: 'jpeg', quality: 88 });
     const want = EXPECT[stop];

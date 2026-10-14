@@ -2,6 +2,9 @@
 <html lang="en" class="skip-intro">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>GridX Support | PowerPod Battery Help and FAQs</title>
   <meta name="description" content="Help with your GridX PowerPod portable battery: charging, warranty and safety answers, plus phone, WhatsApp and the GridXenergy office in New Delhi.">
@@ -28,6 +31,7 @@
   <link rel="stylesheet" href="assets/faq.css">
   <link rel="stylesheet" href="assets/manuals.css">
   <link rel="stylesheet" href="assets/footer.css">
+  <link rel="stylesheet" href="assets/lang.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
@@ -44,7 +48,7 @@
        there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
        The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
   <script>
-  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  if (!window.gridLeaving && !(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -108,6 +112,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <!-- .store is the inner page container: it already pads for the fixed topbar and for the
@@ -230,7 +238,7 @@
 
             <div class="contact__block">
               <h3 class="contact__label">Mailing address</h3>
-              <address class="contact__text">GridXenergy<br>
+              <address class="contact__text" translate="no">GridXenergy<br>
                 D66, First Floor, Pocket D<br>
                 Okhla Phase 1, New Delhi 110020<br>
                 India</address>
@@ -730,7 +738,7 @@
           <div class="credits__col credits__col--mark">
             <h3 class="credits__label">Address</h3>
             <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
-            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+            <address class="credits__address" translate="no">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
           </div>
         </div>
 
@@ -742,6 +750,8 @@
           <a href="warranty_terms.html">Warranty Terms</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
+        <!-- The site's languages, the last line of the page (tools/i18n.mjs footerLangsMarkup). -->
+        <!-- lang:footer -->
       </div>
     </div>
   </footer>
@@ -760,6 +770,8 @@
   <script src="assets/track.js"></script>
   <script src="assets/support-form.js"></script>
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <script src="assets/footer.js"></script>
   <!-- First party, cookieless analytics. What it collects, and what it never does: see the top
        of assets/analytics.js. -->

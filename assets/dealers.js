@@ -28,6 +28,9 @@
 (() => {
   'use strict';
 
+  // Every word this page writes, in the page's language (assets/i18n.js).
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   const D = window.gridDealers;
   const H = window.gridHours;
   const api = window.gridxApi;
@@ -220,7 +223,7 @@
       return {
         list: r.list,
         count: D.countText(r.list.length, { kind: 'pincode', pincode: pin, exact: r.exact, partial: r.partial }),
-        note: none ? `No dealer in ${pin} yet. These are the nearest.` : '',
+        note: none ? t('No dealer in {pincode} yet. These are the nearest.', { pincode: pin }) : '',
       };
     }
     if (kind === 'text') {
@@ -264,7 +267,7 @@
     const sig = list.map((d) => d.id).join(',');
     if (sig !== lastOrder) {
       // Read out when the results change, not when the page first shows them.
-      if (lastOrder) sayLater(list.length ? count : 'No dealers in that area yet');
+      if (lastOrder) sayLater(list.length ? count : t('No dealers in that area yet'));
       lastOrder = sig;
       if (reveal) revealResults();
       if (animate && !reduceMotion) {
@@ -357,7 +360,7 @@
       .then((doc) => {
         const fresh = D.normalize(doc);
         if (!fresh) {
-          const err = new Error('Something went wrong on our side. Please try again in a moment.');
+          const err = new Error(t('Something went wrong on our side. Please try again in a moment.'));
           err.kind = 'http';
           err.status = 200;
           throw err;
@@ -391,10 +394,10 @@
       main.classList.remove('is-error');
       return;
     }
-    errorLine.textContent = api ? api.describeError(err) : 'Could not reach GridX. Check your connection and try again.';
+    errorLine.textContent = api ? api.describeError(err) : t('Could not reach GridX. Check your connection and try again.');
     errorEl.hidden = false;
     main.classList.add('is-error');
-    sayLater('Could not load the dealers');
+    sayLater(t('Could not load the dealers'));
   }
 
   // ---------------------------------------------------------------- searching
@@ -463,13 +466,13 @@
       return;
     }
     if (!('geolocation' in navigator)) {
-      noteText = 'This browser cannot share a location. Search by city, area or pincode instead.';
+      noteText = t('This browser cannot share a location. Search by city, area or pincode instead.');
       apply();
       return;
     }
     nearBtn.classList.add('is-busy');
     nearBtn.setAttribute('aria-busy', 'true');
-    noteText = 'Finding where you are…';
+    noteText = t('Finding where you are…');
     apply();
     navigator.geolocation.getCurrentPosition((pos) => {
       nearBtn.classList.remove('is-busy');
@@ -481,15 +484,15 @@
       clearBtn.hidden = true;
       if (view.city) setCity('', { write: true });
       nearBtn.setAttribute('aria-pressed', 'true');
-      noteText = 'Nearest to you first. Your location stays on this device.';
+      noteText = t('Nearest to you first. Your location stays on this device.');
       apply({ animate: true, reveal: true });
       track('dealer_search', { kind: 'near_me' });
     }, (err) => {
       nearBtn.classList.remove('is-busy');
       nearBtn.removeAttribute('aria-busy');
       noteText = err && err.code === 1
-        ? 'Location is off for this site. Search by city, area or pincode instead.'
-        : 'Could not find where you are just now. Search by city, area or pincode instead.';
+        ? t('Location is off for this site. Search by city, area or pincode instead.')
+        : t('Could not find where you are just now. Search by city, area or pincode instead.');
       apply();
     }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 });
   });
@@ -528,10 +531,11 @@
 
   async function share(d, link) {
     if (!d) return;
-    const url = new URL(`dealers.html#d-${d.slug}`, ROOT).href;
+    // This page's own address, so a link shared from /hi/dealers.html opens in Hindi.
+    const url = new URL(`${location.pathname.replace(/[^/]*$/, '')}dealers.html#d-${d.slug}`, location.origin).href;
     if (navigator.share) {
       try {
-        await navigator.share({ title: `${d.name}, GridX dealer`, text: `${d.name}, ${[d.area, d.city].filter(Boolean).join(', ')}`, url });
+        await navigator.share({ title: t('{name}, GridX dealer', { name: d.name }), text: `${d.name}, ${[d.area, d.city].filter(Boolean).join(', ')}`, url });
       } catch (_) { /* dismissed */ }
       return;
     }
@@ -551,11 +555,11 @@
     }
     const label = link.querySelector('span');
     if (copied && label) {
-      label.textContent = 'Copied';
-      sayLater('Link copied');
-      setTimeout(() => { label.textContent = 'Share'; }, 1800);
+      label.textContent = t('Copied');
+      sayLater(t('Link copied'));
+      setTimeout(() => { label.textContent = t('dealer::Share'); }, 1800);
     } else {
-      noteText = `The link to ${d.name}: ${url}`;
+      noteText = t('The link to {name}: {url}', { name: d.name, url });
       apply();
     }
   }
@@ -594,7 +598,7 @@
   if (embedded) adopt(embedded);
   else {
     listEl.innerHTML = '';
-    sayLater('Loading dealers');
+    sayLater(t('Loading dealers'));
   }
   everyMinute();
   // The first row's rise has played (by 1.4s); a card moved by the finder later must not

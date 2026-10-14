@@ -28,6 +28,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { scriptWords } from './i18n.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.resolve(HERE, '..');
@@ -48,16 +49,26 @@ const hash = (buf) => crypto.createHash('sha256').update(buf).digest('hex').slic
 const plain = (v) => (v === null || v === undefined ? v : JSON.parse(JSON.stringify(v)));
 
 // ---------------------------------------------------------------- the shared scripts
-let shared = null;
-/** assets/hours.js and assets/dealers-core.js, run in one vm context as a page runs them. */
-export function loadShared() {
-  if (shared) return shared;
+const shared = new Map();
+/**
+ * assets/hours.js and assets/dealers-core.js, run in one vm context as a page runs them, in
+ * one language: assets/i18n.js first, with that language's words, the way a translated page
+ * has them before its first script (tools/i18n.mjs). One context per language.
+ */
+export function loadShared(lang = 'en') {
+  if (shared.has(lang)) return shared.get(lang);
   const context = vm.createContext({});
+  vm.runInContext(fs.readFileSync(path.join(SRC, 'assets/i18n.js'), 'utf8'), context, { filename: 'assets/i18n.js' });
+  if (lang !== 'en') {
+    context.gridLang.use(lang);
+    context.gridLang.add(JSON.parse(JSON.stringify(scriptWords(lang))));
+  }
   for (const rel of ['assets/hours.js', 'assets/dealers-core.js']) {
     vm.runInContext(fs.readFileSync(path.join(SRC, rel), 'utf8'), context, { filename: rel });
   }
-  shared = { gridHours: context.gridHours, gridDealers: context.gridDealers };
-  return shared;
+  const entry = { gridHours: context.gridHours, gridDealers: context.gridDealers };
+  shared.set(lang, entry);
+  return entry;
 }
 
 /** GET dealers, checked against the contract and cleaned. null when the document is unusable. */
@@ -65,9 +76,9 @@ export function normalizeDealers(doc, { warn = defaultWarn } = {}) {
   return plain(loadShared().gridDealers.normalize(doc, { warn }));
 }
 
-/** One card, exactly as assets/dealers.js would write it. */
+/** One card, exactly as assets/dealers.js would write it (opts.lang: the page's language). */
 export function renderDealerCard(dealer, opts = {}) {
-  return loadShared().gridDealers.renderCard(dealer, opts);
+  return loadShared(opts.lang || 'en').gridDealers.renderCard(dealer, opts);
 }
 
 // ---------------------------------------------------------------- photos
@@ -258,9 +269,9 @@ export function dealersJsonLd(data, { origin = SITE_ORIGIN } = {}) {
   };
 }
 
-/** The pieces of dealers.html that come from the data, by marker. */
-export function dealersSections(data, { now = null, base = '' } = {}) {
-  const { gridDealers } = loadShared();
+/** The pieces of dealers.html that come from the data, by marker, in the page's language. */
+export function dealersSections(data, { now = null, base = '', lang = 'en' } = {}) {
+  const { gridDealers } = loadShared(lang);
   return {
     'dealers:count': gridDealers.countText(data.dealers.length, { cities: data.cities.length }),
     'dealers:cities': gridDealers.renderCities(data.cities, ''),
@@ -278,10 +289,10 @@ export function dealersSections(data, { now = null, base = '' } = {}) {
  * read as a replacement pattern.
  */
 export function dealersTransform(data, { file = 'dealers.html', warn = defaultWarn } = {}) {
-  return (name, html) => {
-    if (name !== file || !data) return html;
+  return (name, html, { page = name, lang = 'en' } = {}) => {
+    if (page !== file || !data) return html;
     let out = html;
-    for (const [marker, content] of Object.entries(dealersSections(data))) {
+    for (const [marker, content] of Object.entries(dealersSections(data, { lang }))) {
       const comment = `<!-- ${marker} -->`;
       const at = out.indexOf(comment);
       if (at < 0) {

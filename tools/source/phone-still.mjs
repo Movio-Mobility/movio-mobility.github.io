@@ -3,7 +3,10 @@
  * The film's phone as a still (the finale, "Made in India. Every inch of it."), rendered from
  * the page's own CSS phone so the still and the live phone can never disagree.
  *
- *   node tools/source/phone-still.mjs      writes tools/check/out/phone-home.png
+ *   node tools/source/phone-still.mjs            writes tools/check/out/phone-home.png
+ *   node tools/source/phone-still.mjs --lang hi  writes tools/check/out/phone-home-hi.png, the
+ *                                                phone as the Hindi pages show it (the app's own
+ *                                                Hindi; tools/i18n.mjs, data-i18n="app")
  *
  * The page is settled on the first app beat, the app's own small animations are stopped, and the
  * phone is laid out at its real size in points (471 x 987, --k 1), without the soft shadow the
@@ -22,7 +25,10 @@ const REPO = path.resolve(HERE, '../..');
 const require = createRequire(path.join(REPO, 'package.json'));
 const puppeteer = require('puppeteer-core');
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const OUT = path.join(REPO, 'tools/check/out/phone-home.png');
+const langAt = process.argv.indexOf('--lang');
+const LANG = langAt > 0 ? process.argv[langAt + 1] : '';
+if (LANG && !/^(hi)$/.test(LANG)) throw new Error(`--lang ${LANG}: only Hindi has the app in its language`);
+const OUT = path.join(REPO, `tools/check/out/phone-home${LANG ? `-${LANG}` : ''}.png`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const server = await serve({ root: REPO, port: 8147, quiet: true });
@@ -30,11 +36,12 @@ const chrome = await puppeteer.launch({ executablePath: CHROME, headless: true, 
 try {
   const page = await chrome.newPage();
   await page.setViewport({ width: 1600, height: 1300, deviceScaleFactor: 2 });
-  await page.goto('http://localhost:8147/index.html?check', { waitUntil: 'load' });
+  await page.goto(`http://localhost:8147/${LANG ? `${LANG}/` : ''}index.html?check`, { waitUntil: 'load' });
   await sleep(1500);
   await page.evaluate(() => {
     const vh = document.getElementById('bg').clientHeight || innerHeight;
-    window.scrollTo({ top: 8.45 * vh, behavior: 'instant' });
+    // The first app beat, held (index.html CAPTIONS[5]: in 9.70 to 10.00, out from 10.50).
+    window.scrollTo({ top: 10.25 * vh, behavior: 'instant' });
   });
   // The film settles, the app makes its entrance and its first readings arrive.
   await sleep(4000);

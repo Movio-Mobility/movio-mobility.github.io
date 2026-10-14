@@ -2,6 +2,9 @@
 <html lang="en" class="skip-intro">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>PowerPod Gen2 Portable Battery | GridX</title>
   <meta name="description" content="Pre-book the GridX PowerPod Gen2 portable battery for ₹399, fully refundable, on its own or with a Komaki X1 or X3 electric two wheeler.">
@@ -19,6 +22,7 @@
        the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/powerpod-gen2.css">
+  <link rel="stylesheet" href="assets/lang.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used.
        pg2-shell says JavaScript is on, so the panel becomes a staged flow.
@@ -42,7 +46,7 @@
        there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
        The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
   <script>
-  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  if (!window.gridLeaving && !(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -106,6 +110,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <main class="pg2">
@@ -497,6 +505,8 @@
   <script src="assets/launch.js"></script>
   <script src="assets/powerpod-gen2.js"></script>
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <script src="assets/analytics.js" defer></script>
 </body>
 </html>

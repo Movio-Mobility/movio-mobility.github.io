@@ -47,11 +47,12 @@ import * as esbuild from 'esbuild';
 import { normalizeDealers, downloadDealerPhotos, dealersTransform, siteRootOf } from './dealers.mjs';
 import { seoTransform, lastmodOf } from './seo.mjs';
 import { prepareCareers, writeCareers } from './careers.mjs';
+import { localise, isTranslated, LANGS, PSEUDO, scriptDictionary, catalogueFiles, PAGES_IN_EVERY_LANGUAGE, fillPicker } from './i18n.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.resolve(HERE, '..');
 
-const INLINE = new Set(['assets/perf.js', 'assets/pod-assets.js']);
+const INLINE = new Set(['assets/i18n.js', 'assets/perf.js', 'assets/pod-assets.js']);
 const ALREADY_MINIFIED = new Set(['assets/three.min.js']);
 const EXCLUDE = [
   /(^|\/)\.DS_Store$/,
@@ -102,7 +103,16 @@ const PAGE_LINK = /(\s(?:href|action|formaction)\s*=\s*)(["'])([A-Za-z0-9_-]+\.h
 const SITE_FILE = /(^|[\s"',])(dealers\/photos\/[A-Za-z0-9_-]+\.webp)(?=[?"'\s,])/g;
 
 const missing = new Set();
+// Files the build writes under assets/ itself rather than copies (each language's words for
+// the scripts, assets/i18n/<lang>.js), versioned like the rest.
+const GENERATED = new Set();
+function generateAsset(rel, code) {
+  const out = Buffer.from(esbuild.transformSync(code, { loader: 'js', minify: true, legalComments: 'none', charset: 'utf8', sourcefile: rel }).code);
+  done.set(rel, { out, hash: hash(out) });
+  GENERATED.add(rel);
+}
 function versioned(rel) {
+  if (GENERATED.has(rel)) return `${rel}?v=${done.get(rel).hash}`;
   if (!exists(rel) || excluded(rel)) {
     missing.add(rel);
     return rel;
@@ -169,17 +179,20 @@ const DATA_SCRIPT = /\btype\s*=\s*["']?application\/(?:ld\+)?json["']?/i;
 /*
  * Source transforms: changes to a page's source made before anything else touches it, so a
  * marker written as an HTML comment (<!-- careers:data -->) can be filled in before the
- * comments are stripped. Each is (name, html) => html, run in the order registered; name is
- * the page's path within the site ('careers.html', 'jobs/<slug>/index.html').
+ * comments are stripped. Each is (name, html, { page, lang }) => html, run in the order
+ * registered; name is the page's path within the site ('careers.html', 'jobs/<slug>/index.html',
+ * 'hi/dealers.html'), page the source it was made from ('dealers.html') and lang its language
+ * ('en' for every page at the root).
  */
 const SOURCE_TRANSFORMS = [];
 export function registerSourceTransform(fn) {
   SOURCE_TRANSFORMS.push(fn);
 }
-export function transformSource(name, html) {
+export function transformSource(name, html, ctx = {}) {
+  const context = { page: ctx.page || name, lang: ctx.lang || 'en' };
   let out = html;
   for (const fn of SOURCE_TRANSFORMS) {
-    const next = fn(name, out);
+    const next = fn(name, out, context);
     if (typeof next === 'string') out = next;
   }
   return out;
@@ -253,14 +266,26 @@ function secureHead(html) {
  * @param {string} name     the page's path within the site ('store.html', 'jobs/x/index.html');
  *                          read from the sources when no html is given
  * @param {string} buildId
- * @param {{ html?: string, prefix?: string }} [opts]
+ * @param {{ html?: string, prefix?: string, page?: string, lang?: string, warn?: Function }} [opts]
  *   html    the source, for a page generated rather than read from disk
  *   prefix  what climbs from the page back to the site root, put in front of every local
  *           asset reference and every link to a root page: '' for a root page, '../../' for
- *           jobs/<slug>/index.html, '/' for 404.html (served at any depth)
+ *           jobs/<slug>/index.html, '/' for 404.html (served at any depth), '../' for a page
+ *           in a language folder (hi/store.html)
+ *   page    the source page, when name is a translated copy of it ('store.html')
+ *   lang    the language to build it in (tools/i18n.mjs). A translated page's links to the
+ *           other translated pages stay in its folder; its links to pages kept in English
+ *           climb back to the root through the prefix.
  */
-export async function buildPage(name, buildId, { html, prefix = '' } = {}) {
-  const source = transformSource(name, html === undefined ? fs.readFileSync(path.join(SRC, name), 'utf8') : html);
+export async function buildPage(name, buildId, { html, prefix = '', page = name, lang = 'en', warn: report = warn } = {}) {
+  let raw = html === undefined ? fs.readFileSync(path.join(SRC, page), 'utf8') : html;
+  if (lang !== 'en') raw = localise(page, lang, raw, { warn: report }).html;
+  const source = transformSource(name, raw, { page, lang });
+  // Where a link to a root page goes from here.
+  const linkTo = (target) => {
+    if (lang !== 'en' && isTranslated(target)) return prefix === '/' ? `/${lang}/` : '';
+    return prefix;
+  };
   const parts = [];
   let last = 0;
   for (const m of source.matchAll(BLOCK)) {
@@ -271,7 +296,7 @@ export async function buildPage(name, buildId, { html, prefix = '' } = {}) {
   parts.push({ text: source.slice(last) });
 
   // Inline styles and scripts were written as if the page sat at the root.
-  const asRoot = prefix ? 'index.html' : name;
+  const asRoot = prefix ? 'index.html' : page;
 
   const out = [];
   for (const p of parts) {
@@ -280,7 +305,7 @@ export async function buildPage(name, buildId, { html, prefix = '' } = {}) {
       let t = p.text.replace(/<!--(?!\[if)[\s\S]*?-->/g, '');
       t = t.replace(HTML_PATH, (m, pre, rel) => `${pre}${prefix}${versioned(rel)}`);
       if (prefix) {
-        t = t.replace(PAGE_LINK, (m, attr, q, page) => (ROOT_LINKS.has(page) ? `${attr}${q}${prefix}${page}` : m));
+        t = t.replace(PAGE_LINK, (m, attr, q, target) => (ROOT_LINKS.has(target) ? `${attr}${q}${linkTo(target)}${target}` : m));
         t = t.replace(SITE_FILE, (m, pre, rel) => `${pre}${prefix}${rel}`);
       }
       out.push(t);
@@ -300,7 +325,9 @@ export async function buildPage(name, buildId, { html, prefix = '' } = {}) {
       const rel = src[1].split('?')[0];
       if (INLINE.has(rel)) {
         let code = fs.readFileSync(path.join(SRC, rel), 'utf8');
-        if (rel === 'assets/perf.js') code = `window.GRID_BUILD=${JSON.stringify(buildId)};\n${code}`;
+        // GRID_ROOT: what climbs from this page to the site root, for the few scripts that
+        // name an asset at run time ((window.GRID_ROOT || '') + 'assets/hours.js').
+        if (rel === 'assets/perf.js') code = `window.GRID_BUILD=${JSON.stringify(buildId)};window.GRID_ROOT=${JSON.stringify(prefix)};\n${code}`;
         out.push(`<script>${await minifyJs(rewriteJs(code, prefix), rel)}</script>`);
       } else if (rel.startsWith('assets/')) {
         out.push(`<script${p.attrs.replace(src[0], `src="${prefix}${versioned(rel)}"`)}></script>`);
@@ -523,19 +550,35 @@ export function dataOk(loaded) {
 }
 
 // ---------------------------------------------------------------- generated files
-function sitemap(pages, extra = []) {
+function sitemap(pages, extra = [], langs = LANGS) {
   // Home first, then the rest in name order. Each page carries the date it last changed, from
   // git (tools/seo.mjs lastmodOf); when git cannot say, under a shallow clone, the date is
   // left out rather than stamping the scheduled build's own date on everything.
-  const urls = pages
-    .filter((f) => !NOT_IN_SITEMAP.has(f))
-    .sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b)))
-    .map((f) => ({ loc: f === 'index.html' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}/${f}`, lastmod: lastmodOf(f) }))
-    .concat(extra.map((loc) => ({ loc })));
+  // A translated page is listed once per language, each copy naming all of them (hreflang
+  // alternates), and dated by the later of its English source and that language's catalogue.
+  const at = (f, lang) => (lang === 'en' ? '' : `${lang}/`) + (f === 'index.html' ? '' : f);
+  const latest = (...dates) => dates.filter(Boolean).sort().pop() || '';
+  const urls = [];
+  for (const f of pages.filter((p) => !NOT_IN_SITEMAP.has(p)).sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b)))) {
+    if (!isTranslated(f)) {
+      urls.push({ loc: `${SITE_ORIGIN}/${at(f, 'en')}`, lastmod: lastmodOf(f) });
+      continue;
+    }
+    const all = ['en', ...langs];
+    const alt = all.map((l) => ({ hreflang: l === 'en' ? 'en-IN' : `${l}-IN`, href: `${SITE_ORIGIN}/${at(f, l)}` }))
+      .concat([{ hreflang: 'x-default', href: `${SITE_ORIGIN}/${at(f, 'en')}` }]);
+    for (const l of all) {
+      const lastmod = l === 'en' ? lastmodOf(f)
+        : latest(lastmodOf(f), lastmodOf(`i18n/${l}/pages/${f.replace(/\.html$/, '.json')}`), lastmodOf(`i18n/${l}/common.json`));
+      urls.push({ loc: `${SITE_ORIGIN}/${at(f, l)}`, lastmod, alt });
+    }
+  }
+  for (const loc of extra) urls.push({ loc });
   const x = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const links = (alt) => (alt || []).map((a) => `\n    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${x(a.href)}"/>`).join('');
   return '<?xml version="1.0" encoding="UTF-8"?>\n'
-    + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    + urls.map(({ loc, lastmod }) => `  <url><loc>${x(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>\n`).join('')
+    + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+    + urls.map(({ loc, lastmod, alt }) => `  <url><loc>${x(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}${links(alt)}${alt ? '\n  ' : ''}</url>\n`).join('')
     + '</urlset>\n';
 }
 
@@ -706,16 +749,25 @@ async function main() {
   // and the job pages, which that transform serves, are already spoken for.
   registerSourceTransform(seoTransform({ siteOrigin: SITE_ORIGIN }));
 
+  // The language picker in every top bar, its links written for the page and its language.
+  registerSourceTransform((name, html, { page, lang }) => fillPicker(html, page, lang));
+
   // The build id: the hash of every source file that ships, and of the data it was built
   // from, so it changes exactly when the site does.
   const pages = ROOT_PAGES;
   const assets = walk('assets').filter((rel) => !excluded(rel)).sort();
   const idHash = crypto.createHash('sha256');
-  for (const rel of [...pages, ...assets]) idHash.update(rel).update(fs.readFileSync(path.join(SRC, rel)));
+  for (const rel of [...pages, ...assets, ...catalogueFiles()]) idHash.update(rel).update(fs.readFileSync(path.join(SRC, rel)));
   for (const [kind, { data }] of Object.entries(loaded)) {
     if (data) idHash.update(`data:${kind}:${data.version}`);
   }
   const buildId = idHash.digest('hex').slice(0, 12);
+
+  // The languages (tools/i18n.mjs): the five, and the pseudo-locale when asked for (--pseudo,
+  // for layout checks; never deployed). Each one's words for the scripts are written first,
+  // so the pages can version them.
+  const langs = process.argv.includes('--pseudo') || process.env.I18N_PSEUDO ? [...LANGS, PSEUDO] : LANGS;
+  for (const lang of langs) generateAsset(`assets/i18n/${lang}.js`, scriptDictionary(lang, { warn }));
 
   // Assets: every file under assets/ that ships, processed (minified where it applies).
   for (const rel of assets) processAsset(rel);
@@ -733,6 +785,25 @@ async function main() {
     const after = Buffer.from(await buildPage(file, buildId, { prefix: file === '404.html' ? '/' : '' }));
     fs.writeFileSync(path.join(OUT, file), after);
     report.push([file, before.length, gz(before), after.length, gz(after)]);
+  }
+  // Every translated page, once per language, in the language's folder (hi/store.html). The
+  // 404 page is root-absolute here too: GitHub Pages serves only the root one, which sends a
+  // reader who was in a language folder to that language's copy.
+  const english = { missing: 0 };
+  for (const lang of langs) {
+    fs.mkdirSync(path.join(OUT, lang), { recursive: true });
+    let stillEnglish = 0;
+    for (const page of PAGES_IN_EVERY_LANGUAGE) {
+      const name = `${lang}/${page}`;
+      const src = fs.readFileSync(path.join(SRC, page), 'utf8');
+      stillEnglish += localise(page, lang, src).missing.length;
+      const after = Buffer.from(await buildPage(name, buildId, { page, lang, prefix: page === '404.html' ? '/' : '../' }));
+      fs.writeFileSync(path.join(OUT, name), after);
+    }
+    if (stillEnglish && lang !== PSEUDO) {
+      english.missing += stillEnglish;
+      warn(`${lang}: ${stillEnglish} lines of the pages are still in English (npm run check:i18n names them)`);
+    }
   }
   const roles = await writeCareers(careers, { out: OUT, buildId, buildPage });
 

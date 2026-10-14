@@ -37,6 +37,10 @@
 (() => {
   'use strict';
 
+  // Every word this page writes, in the page's language (assets/i18n.js).
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+  const tags = (text, pairs) => String(text).replace(/<(\/?)(\d+)>/g, (m, close, k) => (pairs[k] ? pairs[k][close ? 1 : 0] : ''));
+
   const root = document.documentElement;
   const stageEl = document.getElementById('pg2-stage');
   const panel = document.getElementById('pg2-panel');
@@ -120,7 +124,7 @@
   // Komaki, and before any answer it is the PowerPod on its own.
   const startsAt = () => (withVehicle() ? PRICES[state.model || 'x1'] : PRICES.pod);
   const vehicleName = () => (withVehicle() && state.model ? MODELS[state.model] : '');
-  const towards = () => (vehicleName() ? `PowerPod Gen2 with ${vehicleName()}` : 'PowerPod Gen2');
+  const towards = () => (vehicleName() ? t('PowerPod Gen2 with {model}', { model: vehicleName() }) : 'PowerPod Gen2');
 
   // What today's payment comes to. Paddock's own figures once createOrder() has answered,
   // and until then the same arithmetic it uses: the fee grossed up, not marked up.
@@ -191,13 +195,13 @@
   const OPTIONAL = ['gstin'];
   const ALL_FIELDS = FIELDS.concat(OPTIONAL);
   const CHECK = {
-    name: (v) => (v.trim().length >= 2 ? '' : 'Please enter your name.'),
+    name: (v) => (v.trim().length >= 2 ? '' : t('Please enter your name.')),
     phone: (v) => (/^(\+?91)?[6-9]\d{9}$/.test(v.replace(/[\s-]/g, ''))
-      ? '' : 'Enter a 10 digit Indian mobile number.'),
+      ? '' : t('Enter a 10 digit Indian mobile number.')),
     email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())
-      ? '' : 'Enter a valid email address.'),
-    city: (v) => (v.trim().length >= 2 ? '' : 'Please enter your city.'),
-    pincode: (v) => (/^\d{6}$/.test(v.trim()) ? '' : 'Enter a 6 digit pincode.'),
+      ? '' : t('Enter a valid email address.')),
+    city: (v) => (v.trim().length >= 2 ? '' : t('Please enter your city.')),
+    pincode: (v) => (/^\d{6}$/.test(v.trim()) ? '' : t('Enter a 6 digit pincode.')),
     // Blank is fine. Wrong is not, because it would be printed on a tax invoice the buyer
     // files a return against, so it runs the same check digit the server does.
     gstin: (v) => (window.gridGstin ? window.gridGstin.error(v) : ''),
@@ -269,7 +273,7 @@
   // only show the wrong thing, never take a payment. Without launch.js nothing waits.
   const launch = window.gridLaunch;
   const launchOpen = () => !launch || launch.isOpen();
-  const NOT_OPEN = `Pre-booking opens ${launch ? launch.when : '12 October, 12 PM'} IST. Shipping across India.`;
+  const NOT_OPEN = t('Pre-booking opens {when} IST. Shipping across India.', { when: launch ? launch.when : t('12 October, 12 PM') });
 
   // ---------------------------------------------------------------- completeness
   // Payment has nothing left to choose, so it can always move on, to Razorpay. Once
@@ -281,8 +285,8 @@
   }
 
   const HINTS = {
-    1: 'Choose an option in every step to continue.',
-    2: 'Please complete the fields above.',
+    1: t('Choose an option in every step to continue.'),
+    2: t('Please complete the fields above.'),
     3: NOT_OPEN,
   };
 
@@ -349,17 +353,17 @@
     const r = reservation();
     const settled = paid || confirming;
     const fee = !settled && stage === LAST_STAGE && r.feeInr > 0;
-    swapText(totalLabel, settled ? 'Paid' : 'Pre-book at');
+    swapText(totalLabel, settled ? t('Paid') : t('Pre-book at'));
     swapText(totalAmount, money(settled ? r.chargedInr : r.itemsInr));
     footNote.classList.toggle('pg2-foot__note--fee', fee);
-    if (settled) swapText(footNote, `${money(r.itemsInr)} comes off your final payment`);
-    else if (!fee) swapText(footNote, '(Fully refundable)');
+    if (settled) swapText(footNote, t('{amount} comes off your final payment', { amount: money(r.itemsInr) }));
+    else if (!fee) swapText(footNote, t('(Fully refundable)'));
     else {
       swap(footNote, `fee ${r.feeInr}`, (el) => {
         const figure = document.createElement('span');
         figure.className = 'pg2-foot__fee';
         figure.textContent = `+ ${money(r.feeInr)}`;
-        el.replaceChildren(figure, ' (Platform fee)');
+        el.replaceChildren(figure, ` ${t('(Platform fee)')}`);
       });
     }
 
@@ -386,16 +390,16 @@
     });
 
     // Back: out to the store from the first stage, one stage back from the others.
-    backBtn.setAttribute('aria-label', stage === 1 ? 'Back to the store' : 'Back to the previous stage');
+    backBtn.setAttribute('aria-label', stage === 1 ? t('Back to the store') : t('Back to the previous stage'));
 
     // Primary action. Continue walks on to the details and then to the payment page, where
     // it names the exact figure Razorpay will ask for, the hold and the fee together.
     nextBtn.setAttribute('aria-disabled', String(!canAdvance(stage)));
-    swapText(nextLabel, confirming ? 'Confirming' : (stage === LAST_STAGE ? `Pay ${money(r.chargedInr)}` : 'Continue'));
+    swapText(nextLabel, confirming ? t('Confirming') : (stage === LAST_STAGE ? t('Pay {amount}', { amount: money(r.chargedInr) }) : t('Continue')));
 
     // Before the launch the payment page says when, in place of its usual line.
     if (paySub) paySub.textContent = launchOpen() ? PAY_LINE : NOT_OPEN;
-    if (payTitle) payTitle.textContent = `Pre-book your ${towards()}.`;
+    if (payTitle) payTitle.textContent = t('Pre-book your {what}.', { what: towards() });
 
     if (dealerNote) dealerNote.hidden = !vehicleName();
     syncRide();
@@ -404,13 +408,13 @@
   function renderReview() {
     if (!reviewList) return;
     const rows = [
-      ['PowerPod Gen2', 'Included', true],
-      ['GridX-Pro Pack', 'Free for the first year', true],
+      ['PowerPod Gen2', t('Included'), true],
+      ['GridX-Pro Pack', t('Free for the first year'), true],
     ];
-    if (state.vehicle === null) rows.push(['Vehicle', 'Not chosen', true]);
-    else if (!withVehicle()) rows.push(['Vehicle', 'Your own ride', true]);
-    else rows.push(['Vehicle', state.model ? MODELS[state.model] : 'Komaki, model not chosen', !state.model]);
-    rows.push(['Starts at', money(startsAt()), false]);
+    if (state.vehicle === null) rows.push([t('Vehicle'), t('Not chosen'), true]);
+    else if (!withVehicle()) rows.push([t('Vehicle'), t('Your own ride'), true]);
+    else rows.push([t('Vehicle'), state.model ? MODELS[state.model] : t('Komaki, model not chosen'), !state.model]);
+    rows.push([t('Starts at'), money(startsAt()), false]);
 
     reviewList.innerHTML = rows.map(([label, value, soft]) =>
       `<li><span class="review__label">${label}</span>`
@@ -436,34 +440,33 @@
     const group = (title, rows, after = '') => `<section class="bill__group">`
       + `<h3 class="bill__title">${title}</h3><ul class="bill__rows">${rows.join('')}</ul>${after}</section>`;
 
-    const what = [row('PowerPod Gen2', 'Included', 'soft')];
+    const what = [row('PowerPod Gen2', t('Included'), 'soft')];
     if (vehicleName()) {
-      what.push(row(vehicleName(), 'With your dealership', 'soft',
-        'The model and its specifics can be changed before the final order is placed'));
+      what.push(row(vehicleName(), t('With your dealership'), 'soft',
+        t('The model and its specifics can be changed before the final order is placed')));
     }
-    what.push(row('GridX-Pro Pack', 'Free for the first year', 'soft'));
+    what.push(row('GridX-Pro Pack', t('Free for the first year'), 'soft'));
 
-    const now = [row('Pre-booking amount', money(r.itemsInr), '', 'Fully refundable')];
-    if (r.feeInr > 0) now.push(row('Platform fee', money(r.feeInr), '', 'Payment processing, not refunded'));
-    now.push(row('GST', money(0), '', 'None on an advance for goods'));
-    now.push(row('Total payable now', money(r.chargedInr), 'total'));
+    const now = [row(t('Pre-booking amount'), money(r.itemsInr), '', t('Fully refundable'))];
+    if (r.feeInr > 0) now.push(row(t('Platform fee'), money(r.feeInr), '', t('Payment processing, not refunded')));
+    now.push(row(t('GST'), money(0), '', t('None on an advance for goods')));
+    now.push(row(t('Total payable now'), money(r.chargedInr), 'total'));
 
     const later = [
-      row('Starts at', money(starts), '',
-        vehicleName() ? 'The final price depends on the variant you confirm at the dealership' : ''),
-      row('Less your pre-booking', `−${money(r.itemsInr)}`),
-      row('Balance', `from ${money(balance)}`, 'total', 'Taken only when your order is ready for shipment'),
+      row(t('Starts at'), money(starts), '',
+        vehicleName() ? t('The final price depends on the variant you confirm at the dealership') : ''),
+      row(t('Less your pre-booking'), `−${money(r.itemsInr)}`),
+      row(t('Balance'), t('from {amount}', { amount: money(balance) }), 'total', t('Taken only when your order is ready for shipment')),
     ];
 
-    bill.innerHTML = group('You are pre-booking', what)
-      + group('Pay now to GridX Energy', now)
-      + group('At your final payment', later)
-      + `<p class="bill__note bill__note--end">Your ${money(r.itemsInr)} is fully refundable, whenever you ask: `
-      + 'message us on <a href="https://wa.me/919220199098" target="_blank" rel="noopener noreferrer">WhatsApp</a>, '
-      + '<a href="tel:+919220199098">call us</a>, or email '
-      + '<a href="mailto:info@gridxenergy.in">info@gridxenergy.in</a> and it comes straight back. '
-      + 'The platform fee is the payment gateway\'s charge and is not refunded. '
-      + 'Your receipt voucher will be sent by email and on WhatsApp.</p>';
+    bill.innerHTML = group(t('You are pre-booking'), what)
+      + group(t('Pay now to GridX Energy'), now)
+      + group(t('At your final payment'), later)
+      + `<p class="bill__note bill__note--end">${tags(t('Your {amount} is fully refundable, whenever you ask: message us on <0>WhatsApp</0>, <1>call us</1>, or email <2>info@gridxenergy.in</2> and it comes straight back. The platform fee is the payment gateway\'s charge and is not refunded. Your receipt voucher will be sent by email and on WhatsApp.', { amount: money(r.itemsInr) }), [
+        ['<a href="https://wa.me/919220199098" target="_blank" rel="noopener noreferrer">', '</a>'],
+        ['<a href="tel:+919220199098">', '</a>'],
+        ['<a href="mailto:info@gridxenergy.in">', '</a>'],
+      ])}</p>`;
   }
 
   // ---------------------------------------------------------------- navigation
@@ -525,7 +528,7 @@
     // Payment already under way, or done: a press has nothing to add and nothing to explain.
     if (stage === LAST_STAGE && (busy || paid)) return;
     if (!canAdvance(stage)) {
-      if (hint) hint.textContent = HINTS[stage] || 'Please complete this step.';
+      if (hint) hint.textContent = HINTS[stage] || t('Please complete this step.');
       if (stage === 2) {
         // Mark every outstanding field at once, then take them to the first one.
         for (const key of ALL_FIELDS) showFieldError(key, true);
@@ -1110,8 +1113,9 @@
   // file is fetched then, not with the page, and the image is removed again on the X. The
   // page's own canvases sleep while it is up.
   const VIEWER_SRC = {
-    x1: 'assets/productImages/store/komaki-x1-large.webp',
-    x3: 'assets/productImages/store/komaki-x3-large.webp',
+    // From the site's root, so a page in a language folder (hi/powerpod-gen2.html) finds them.
+    x1: (window.GRID_ROOT || '') + 'assets/productImages/store/komaki-x1-large.webp',
+    x3: (window.GRID_ROOT || '') + 'assets/productImages/store/komaki-x3-large.webp',
   };
   const viewer = document.getElementById('pg2-viewer');
   const viewerPic = document.getElementById('pg2-viewer-pic');
@@ -1212,7 +1216,7 @@
     // three.js, the model and the scene module download side by side (assets/pod-assets.js);
     // they used to come one after another, three round trips back to back.
     if (!window.GridPodAssets) return;
-    Promise.all([window.GridPodAssets.load(), loadScript('assets/powerpod-3d.js')])
+    Promise.all([window.GridPodAssets.load(), loadScript((window.GRID_ROOT || '') + 'assets/powerpod-3d.js')])
       .then(async ([assets]) => {
         if (!window.gridPod) return;
         // The download can run whenever, but building the pod compiles every material on the
@@ -1280,7 +1284,7 @@
    */
   async function createOrder() {
     if (!window.gridxApi) {
-      throw new Error('Could not reach GridX. Please check your connection and try again.');
+      throw new Error(t('Could not reach GridX. Please check your connection and try again.'));
     }
     // A fresh token per attempt: they are single use and expire in minutes.
     const token = window.gridxApi.recaptchaToken
@@ -1310,7 +1314,7 @@
   function openCheckout(created) {
     return window.gridxApi.loadRazorpay().then(() => new Promise((resolve, reject) => {
       if (!window.Razorpay) {
-        reject(new Error('The payment window could not load. Please refresh and try again.'));
+        reject(new Error(t('The payment window could not load. Please refresh and try again.')));
         return;
       }
       let settled = false;
@@ -1320,7 +1324,7 @@
         amount: created.amountPaise,
         currency: 'INR',
         name: 'GridX Energy',
-        description: `${towards()} pre-booking, ${created.orderNumber}`,
+        description: t('{what} pre-booking, {order}', { what: towards(), order: created.orderNumber }),
         // Filed under this customer in Razorpay, which also emails them its receipt.
         customer_id: created.customerId || undefined,
         prefill: {
@@ -1344,14 +1348,16 @@
           ondismiss() {
             if (settled) return;
             track('payment_dismissed');
-            reject(new Error('Payment was cancelled. Your order is saved, you can try again.'));
+            reject(new Error(t('Payment was cancelled. Your order is saved, you can try again.')));
           },
         },
       });
       rzp.on('payment.failed', (response) => {
         settled = true;
         track('payment_failed');
-        reject(new Error(response?.error?.description || 'That payment did not go through. Please try again.'));
+        // Razorpay's own words are English; a translated page says it in its own.
+        const said = window.gridLang && window.gridLang.code !== 'en' ? '' : response?.error?.description;
+        reject(new Error(said || t('That payment did not go through. Please try again.')));
       });
       rzp.open();
       track('payment_open');
@@ -1379,7 +1385,7 @@
       model: withVehicle() ? state.model : 'none',
     });
     busy = true;
-    if (status) status.textContent = 'Setting up your payment.';
+    if (status) status.textContent = t('Setting up your payment.');
     render();
 
     createOrder()
@@ -1435,7 +1441,7 @@
     const done = document.getElementById('pg2-done');
     if (done) {
       window.gridPayConfirm.showPending(done, {
-        pending: 'Payment received. We are confirming your pre-booking.',
+        pending: t('Payment received. We are confirming your pre-booking.'),
       });
     }
     render();
@@ -1469,7 +1475,7 @@
           reference: created.orderNumber,
           email: details.email,
           phone: details.phone,
-          nouns: { thing: 'pre-booking', doc: 'receipt voucher' },
+          kind: 'prebook',
         };
         if (result.paid) window.gridPayConfirm.showPaid(done, opts);
         else window.gridPayConfirm.showTimeout(done, opts);
@@ -1479,10 +1485,10 @@
         if (ref) ref.textContent = created.orderNumber;
         const where = document.getElementById('pg2-done-where');
         if (where) {
-          where.textContent = 'Your pre-booking is confirmed. We have sent your receipt voucher to ';
+          where.textContent = t('Your pre-booking is confirmed. We have sent your receipt voucher to {email} and on WhatsApp to {phone}.', { email: details.email, phone: details.phone });
         }
         const to = document.getElementById('pg2-done-to');
-        if (to) to.textContent = `${details.email} and on WhatsApp to ${details.phone}.`;
+        if (to) to.textContent = '';
         const heading = done.querySelector('h3');
         if (heading) heading.focus?.();
       }

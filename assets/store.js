@@ -61,11 +61,22 @@
   if (askEl && askButton) {
     const ask = window.gridSheet.create(askEl);
     const WHATSAPP = 'https://wa.me/919220199098?text=';
-    const opening = 'Hey, I was checking out the GridX store and have a few doubts';
+    // In the reader's own words: the message is theirs, in the page's language. data-topic
+    // stays an English key (analytics counts it), and says itself through "topic::".
+    const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+    const TOPICS = {
+      fitment: t('topic::fitment'),
+      'PowerPod specifications': t('topic::PowerPod specifications'),
+      accessories: t('topic::accessories'),
+      range: t('topic::range'),
+    };
     for (const topic of askEl.querySelectorAll('[data-topic]')) {
       const about = topic.dataset.topic;
-      topic.href = WHATSAPP + encodeURIComponent(about ? `${opening} regarding ${about}.` : `${opening}.`);
-      topic.setAttribute('aria-label', `${topic.textContent.trim()}, opens WhatsApp`);
+      const message = about
+        ? t('Hey, I was checking out the GridX store and have a few doubts regarding {topic}.', { topic: TOPICS[about] || about })
+        : t('Hey, I was checking out the GridX store and have a few doubts.');
+      topic.href = WHATSAPP + encodeURIComponent(message);
+      topic.setAttribute('aria-label', t('{label}, opens WhatsApp', { label: topic.textContent.trim() }));
       // WhatsApp opens in its own tab or app; tidy the sheet away behind it.
       topic.addEventListener('click', () => window.setTimeout(ask.close, 200));
     }

@@ -11,6 +11,13 @@
  * It listens on every interface, so a phone on the same Wi-Fi can open the site by the
  * Mac's LAN address.
  *
+ * Serving the working copy, it also serves the languages the way the build writes them:
+ * /hi/store.html (and /mr/, /bn/, /kn/, /te/, and /qps/, the pseudo-locale) is store.html put
+ * into that language from i18n/ as it stands on disk (tools/i18n.mjs), with its assets one
+ * folder up, and /assets/i18n/<lang>.js is that language's words for the scripts. Edit a
+ * catalogue and reload. /hi/assets/ is never answered, so a page that names an asset relative
+ * to itself fails here exactly as it would live.
+ *
  *   node tools/serve.mjs                    working copy on :8002
  *   node tools/serve.mjs --root dist        the built site
  *   node tools/serve.mjs --root <dir> --port 8001
@@ -23,6 +30,7 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { localise, relink, scriptDictionary, isTranslated, forgetCatalogues, fillPicker, LANGS, PSEUDO } from './i18n.mjs';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -50,8 +58,13 @@ const TYPES = {
 // What GitHub Pages (Fastly) gzips. Everything else is served as stored.
 const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.webmanifest', '.svg', '.txt', '.xml']);
 
+const LANG_PATH = new RegExp(`^/(${[...LANGS, PSEUDO].join('|')})(?:/(.*))?$`);
+const DICT_PATH = new RegExp(`^/assets/i18n/(${[...LANGS, PSEUDO].join('|')})\\.js$`);
+
 export function serve({ root, port = 8002, quiet = false } = {}) {
   const base = path.resolve(root || process.cwd());
+  // The working copy, not a build: the languages are made on the fly.
+  const sources = fs.existsSync(path.join(base, 'i18n', 'languages.mjs'));
   const inside = (file) => file === base || file.startsWith(base + path.sep);
   const isFile = (file) => {
     try { return fs.statSync(file).isFile(); } catch { return false; }
@@ -84,6 +97,19 @@ export function serve({ root, port = 8002, quiet = false } = {}) {
     });
   }
 
+  function sendText(req, res, text, ext, status = 200) {
+    let body = Buffer.from(text);
+    const headers = { 'Content-Type': TYPES[ext], 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' };
+    if (/\bgzip\b/.test(req.headers['accept-encoding'] || '')) {
+      body = zlib.gzipSync(body, { level: 6 });
+      headers['Content-Encoding'] = 'gzip';
+      headers.Vary = 'Accept-Encoding';
+    }
+    headers['Content-Length'] = body.length;
+    res.writeHead(status, headers);
+    res.end(req.method === 'HEAD' ? undefined : body);
+  }
+
   const server = http.createServer((req, res) => {
     let url;
     let pathname;
@@ -98,6 +124,40 @@ export function serve({ root, port = 8002, quiet = false } = {}) {
     if (!inside(file)) {
       res.writeHead(403).end();
       return;
+    }
+
+    if (sources) {
+      const dict = DICT_PATH.exec(pathname);
+      if (dict && !isFile(file)) {
+        forgetCatalogues();
+        sendText(req, res, scriptDictionary(dict[1], { warn: quiet ? () => {} : (m) => console.warn(m) }), '.js');
+        return;
+      }
+      const lang = LANG_PATH.exec(pathname);
+      if (lang) {
+        const rest = (lang[2] || '').replace(/\/+$/, '');
+        const page = !rest ? 'index.html' : /\.html$/.test(rest) ? rest : `${rest}.html`;
+        if (!rest.includes('/') && isTranslated(page) && isFile(path.join(base, page))) {
+          if (!pathname.endsWith('/') && !rest) {
+            res.writeHead(301, { Location: `${url.pathname}/${url.search}` }).end();
+            return;
+          }
+          forgetCatalogues();
+          const { html } = localise(page, lang[1], fs.readFileSync(path.join(base, page), 'utf8'), { warn: quiet ? () => {} : (m) => console.warn(m) });
+          sendText(req, res, relink(fillPicker(html, page, lang[1])), '.html', page === '404.html' ? 404 : 200);
+          return;
+        }
+      }
+      // An English page of the working copy, with its picker written in (the build does it too).
+      const htmlFile = isFile(file) && file.endsWith('.html') ? file
+        : !pathname.endsWith('/') && isFile(`${file}.html`) ? `${file}.html`
+          : isDir(file) && pathname.endsWith('/') && isFile(path.join(file, 'index.html')) ? path.join(file, 'index.html') : null;
+      if (htmlFile) {
+        forgetCatalogues();
+        const rel = path.relative(base, htmlFile).split(path.sep).join('/');
+        sendText(req, res, fillPicker(fs.readFileSync(htmlFile, 'utf8'), rel, 'en'), '.html');
+        return;
+      }
     }
 
     if (isDir(file)) {
@@ -121,7 +181,8 @@ export function serve({ root, port = 8002, quiet = false } = {}) {
 
     if (!quiet) console.log(`404 ${pathname}`);
     const notFound = path.join(base, '404.html');
-    if (isFile(notFound)) send(req, res, notFound, 404);
+    if (isFile(notFound) && sources) sendText(req, res, fillPicker(fs.readFileSync(notFound, 'utf8'), '404.html', 'en'), '.html', 404);
+    else if (isFile(notFound)) send(req, res, notFound, 404);
     else res.writeHead(404, { 'Content-Type': 'text/plain' }).end('Not found');
   });
   return new Promise((resolve) => {

@@ -36,6 +36,10 @@
 (() => {
   'use strict';
 
+  // Every word this form writes, in the page's language (assets/i18n.js).
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+  const english = !window.gridLang || window.gridLang.code === 'en';
+
   const sheetEl = document.getElementById('support-sheet');
   if (!sheetEl || !window.gridSheet || typeof window.gridSheet.create !== 'function') return;
   const form = sheetEl.querySelector('#support-form');
@@ -47,14 +51,14 @@
   const TOPICS = ['order', 'product', 'dealer', 'charging', 'other'];
   // Paddock's PREFERRED_TIMES, worded as it words them in the WhatsApp confirmation.
   const TIMES = {
-    morning: 'in the morning',
-    afternoon: 'in the afternoon',
-    evening: 'in the evening',
-    any: 'at a convenient time',
+    morning: t('in the morning'),
+    afternoon: t('in the afternoon'),
+    evening: t('in the evening'),
+    any: t('at a convenient time'),
   };
   // The hours published beside the phone number (assets/contact.js), and the hours Paddock's
   // support clock counts in. Change all three together.
-  const HOURS = 'Monday to Friday, 11 AM to 6 PM';
+  const HOURS = t('Monday to Friday, 11 AM to 6 PM');
   const MESSAGE_MIN = 10;
   const MESSAGE_MAX = 2000;
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -132,26 +136,26 @@
   // ---------------------------------------------------------------- the checks
   // Paddock's validateSupportInput, message for message.
   const CHECK = {
-    kind: () => (KINDS.includes(picked('kind')) ? '' : 'Choose a callback or a message.'),
-    topic: () => (TOPICS.includes(picked('topic')) ? '' : 'Choose what this is about.'),
+    kind: () => (KINDS.includes(picked('kind')) ? '' : t('Choose a callback or a message.')),
+    topic: () => (TOPICS.includes(picked('topic')) ? '' : t('Choose what this is about.')),
     orderRef: () => {
       if (picked('topic') !== 'order') return '';
       const ref = cleanRef(text('orderRef'));
-      return !ref || /^[A-Za-z0-9-]{4,40}$/.test(ref) ? '' : 'That does not look like an order reference.';
+      return !ref || /^[A-Za-z0-9-]{4,40}$/.test(ref) ? '' : t('That does not look like an order reference.');
     },
-    name: () => (cleanName(text('name')).length >= 2 ? '' : 'Enter your name.'),
-    phone: () => (mobile(text('phone')) ? '' : 'Enter a 10 digit Indian mobile number.'),
+    name: () => (cleanName(text('name')).length >= 2 ? '' : t('Enter your name.')),
+    phone: () => (mobile(text('phone')) ? '' : t('Enter a 10 digit Indian mobile number.')),
     email: () => {
       const v = text('email').trim();
-      return !v || (v.length <= 160 && EMAIL.test(v)) ? '' : 'Enter a valid email address, or leave it empty.';
+      return !v || (v.length <= 160 && EMAIL.test(v)) ? '' : t('Enter a valid email address, or leave it empty.');
     },
     message: () => {
       const n = messageLength();
-      if (n < MESSAGE_MIN) return 'Tell us a little more (at least 10 characters).';
-      if (n > MESSAGE_MAX) return 'Please keep it to 2,000 characters.';
+      if (n < MESSAGE_MIN) return t('Tell us a little more (at least 10 characters).');
+      if (n > MESSAGE_MAX) return t('Please keep it to 2,000 characters.');
       return '';
     },
-    consent: () => (consent && consent.checked ? '' : 'Please agree so we can contact you about this.'),
+    consent: () => (consent && consent.checked ? '' : t('Please agree so we can contact you about this.')),
   };
   const ORDER = ['kind', 'topic', 'orderRef', 'name', 'phone', 'email', 'message', 'consent'];
 
@@ -198,24 +202,24 @@
 
     if (lede) {
       lede.textContent = callback
-        ? 'Leave your number and someone at GridX will call you back.'
-        : 'Tell us what you need and someone at GridX will write back to you.';
+        ? t('Leave your number and someone at GridX will call you back.')
+        : t('Tell us what you need and someone at GridX will write back to you.');
     }
     if (refField) refField.hidden = picked('topic') !== 'order';
     if (timeField) timeField.hidden = !callback;
     if (phoneHint) {
       phoneHint.textContent = callback
-        ? 'We will call you on this number, and send your confirmation here on WhatsApp.'
-        : 'We will send your confirmation here on WhatsApp.';
+        ? t('We will call you on this number, and send your confirmation here on WhatsApp.')
+        : t('We will send your confirmation here on WhatsApp.');
     }
-    if (messageLabel) messageLabel.textContent = callback ? 'What would you like to talk about?' : 'Your message';
-    if (promiseLabel) promiseLabel.textContent = callback ? 'Monday to Friday' : 'We reply';
-    if (promiseValue) promiseValue.textContent = callback ? '11 AM to 6 PM' : 'Within a working day';
-    if (sendLabel && !busy) sendLabel.textContent = callback ? 'Request callback' : 'Send message';
+    if (messageLabel) messageLabel.textContent = callback ? t('What would you like to talk about?') : t('Your message');
+    if (promiseLabel) promiseLabel.textContent = callback ? t('Monday to Friday') : t('We reply');
+    if (promiseValue) promiseValue.textContent = callback ? t('11 AM to 6 PM') : t('Within a working day');
+    if (sendLabel && !busy) sendLabel.textContent = callback ? t('Request callback') : t('Send message');
 
     if (counter) {
       const n = messageLength();
-      counter.textContent = `${n.toLocaleString('en-IN')} / 2,000`;
+      counter.textContent = t('{n} / 2,000', { n: n.toLocaleString('en-IN') });
       counter.classList.toggle('is-near', n > MESSAGE_MAX * 0.9 && n <= MESSAGE_MAX);
       counter.classList.toggle('is-over', n > MESSAGE_MAX);
     }
@@ -395,11 +399,13 @@
     for (const [field, message] of pairs) {
       if (typeof field !== 'string' || typeof message !== 'string') continue;
       const f = fields[field];
+      // Paddock's words are English: a translated page says the field's own line instead.
+      const said = english ? message : (CHECK[field] && CHECK[field]()) || t('Please check this field.');
       if (!f || !f.wrap || f.wrap.hidden || (f.wrap.closest && f.wrap.closest('[hidden]'))) {
-        unplaced = unplaced || message;
+        unplaced = unplaced || said;
         continue;
       }
-      serverSaid[field] = message;
+      serverSaid[field] = said;
       showError(field, true);
       marked.push(field);
     }
@@ -411,7 +417,7 @@
   async function send() {
     busy = true;
     sendBtn.setAttribute('aria-busy', 'true');
-    if (sendLabel) sendLabel.textContent = 'Sending';
+    if (sendLabel) sendLabel.textContent = t('Sending');
     say('');
     render();
     track('support_form_submit');
@@ -445,8 +451,8 @@
       const res = await api.postJSON('/api/public/website/support', body);
       done(res && typeof res.reference === 'string' ? res.reference : '');
     } catch (err) {
-      let message = api ? api.describeError(err, 'We could not send that just now. Please try again, or call us.')
-        : 'Could not reach GridX. Check your connection and try again.';
+      let message = api ? api.describeError(err, t('We could not send that just now. Please try again, or call us.'))
+        : t('Could not reach GridX. Check your connection and try again.');
       if (err && err.status === 400 && err.fields) {
         const unplaced = markServerFields(err.fields);
         if (unplaced) message = unplaced;
@@ -484,12 +490,12 @@
     const callback = picked('kind') === 'callback';
     const time = TIMES[picked('preferredTime')] || TIMES.any;
 
-    $('#support-done-title').textContent = callback ? 'We have your request.' : 'We have your message.';
-    $('#support-done-ref').textContent = reference || 'On its way to you on WhatsApp';
+    $('#support-done-title').textContent = callback ? t('We have your request.') : t('We have your message.');
+    $('#support-done-ref').textContent = reference || t('On its way to you on WhatsApp');
     const when = $('#support-done-when');
     when.textContent = callback
-      ? `We will call you ${time}, ${HOURS}.`
-      : 'Our team will reply within one working day.';
+      ? t('We will call you {time}, {hours}.', { time, hours: HOURS })
+      : t('Our team will reply within one working day.');
 
     askEl.hidden = true;
     doneEl.hidden = false;

@@ -2,6 +2,9 @@
 <html lang="en" class="skip-intro">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <!-- This page is opened from a private link (interview.html?t=<token>), so nothing it loads
        or links to is told where it came from, and the token leaves the address before anything
        else happens: kept in this tab's sessionStorage, and replaced out of the URL, the history
@@ -36,6 +39,7 @@
   <link rel="stylesheet" href="assets/fields.css">
   <link rel="stylesheet" href="assets/interview.css">
   <link rel="stylesheet" href="assets/footer.css">
+  <link rel="stylesheet" href="assets/lang.css">
 
   <!-- island-click-only and is-compact, as on the product pages: the nav waits as a circle in
        the corner, out of the way of the Confirm button beside it, until it is tapped. -->
@@ -94,6 +98,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <!-- assets/interview.js draws everything inside the panel: the times to choose from, the
@@ -176,7 +184,7 @@
           <div class="credits__col credits__col--mark">
             <h3 class="credits__label">Address</h3>
             <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
-            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+            <address class="credits__address" translate="no">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
           </div>
         </div>
 
@@ -186,6 +194,8 @@
           <a href="warranty_terms.html">Warranty Terms</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
+        <!-- The site's languages, the last line of the page (tools/i18n.mjs footerLangsMarkup). -->
+        <!-- lang:footer -->
       </div>
     </div>
   </footer>
@@ -195,6 +205,8 @@
   <script src="assets/keyboard.js"></script>
   <script src="assets/interview.js"></script>
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <script src="assets/footer.js"></script>
   <!-- The pageview carries the path alone (/interview.html): the token is long gone by now. -->
   <script src="assets/analytics.js" defer></script>

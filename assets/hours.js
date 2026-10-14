@@ -25,9 +25,19 @@
  *   gridHours.summary(hours)     "Mon to Sat, 10 AM to 7 PM. Closed Sun." (Paddock's wording,
  *                                so its editor preview and the site agree)
  *   gridHours.specs(hours)       schema.org OpeningHoursSpecification groups, for the build
+ *
+ * IN OTHER LANGUAGES (assets/i18n.js, loaded first here and in the build's vm): every line is a
+ * whole template, so a language can put the day and the time where it says them, and the time
+ * is said the way people say it there: the part of the day and the hour ("शाम 7 बजे"), not
+ * AM and PM. English is word for word what it always was, and specs() stays in English for
+ * schema.org.
  */
 (function (root) {
   'use strict';
+
+  const lang = root.gridLang || null;
+  const t = lang ? lang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+  const english = () => !lang || lang.code === 'en';
 
   const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   const SHORT = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
@@ -104,12 +114,30 @@
     return { open: false, opensAt: null };
   }
 
-  /** "10:00" → "10 AM", "13:30" → "1:30 PM", "24:00" → "12 AM". Minutes are accepted too. */
-  function clock(t) {
-    const m = typeof t === 'number' ? t : toMin(t);
+  /** A day as the page's language writes it: "Mon" (or "Monday" with long). */
+  function dayName(d, long) {
+    if (english()) return long ? LONG[d] : SHORT[d];
+    const said = long
+      ? { mon: t('day::Monday'), tue: t('day::Tuesday'), wed: t('day::Wednesday'), thu: t('day::Thursday'), fri: t('day::Friday'), sat: t('day::Saturday'), sun: t('day::Sunday') }
+      : { mon: t('day::Mon'), tue: t('day::Tue'), wed: t('day::Wed'), thu: t('day::Thu'), fri: t('day::Fri'), sat: t('day::Sat'), sun: t('day::Sun') };
+    return said[d];
+  }
+
+  /**
+   * "10:00" → "10 AM", "13:30" → "1:30 PM", "24:00" → "12 AM". Minutes are accepted too.
+   * In another language, the part of the day and the hour on a 12 hour clock: "सुबह 10 बजे".
+   */
+  function clock(time) {
+    const m = typeof time === 'number' ? time : toMin(time);
     const h = Math.floor(m / 60) % 24;
     const mm = m % 60;
-    return `${((h + 11) % 12) + 1}${mm ? `:${String(mm).padStart(2, '0')}` : ''} ${h < 12 ? 'AM' : 'PM'}`;
+    const hour = `${((h + 11) % 12) + 1}${mm ? `:${String(mm).padStart(2, '0')}` : ''}`;
+    if (english()) return `${hour} ${h < 12 ? 'AM' : 'PM'}`;
+    const part = h >= 4 && h < 12 ? t('clock::morning {time}', { time: hour })
+      : h >= 12 && h < 16 ? t('clock::afternoon {time}', { time: hour })
+        : h >= 16 && h < 20 ? t('clock::evening {time}', { time: hour })
+          : t('clock::night {time}', { time: hour });
+    return part;
   }
 
   /** The live line on a dealer card. null when the hours are not known. */
@@ -117,12 +145,15 @@
     const s = state(hours, now);
     if (!s) return null;
     if (s.open) {
-      return { open: true, text: s.closesAt === null ? 'Open 24 hours' : `Open now · closes ${clock(s.closesAt)}` };
+      return { open: true, text: s.closesAt === null ? t('Open 24 hours') : t('Open now · closes {time}', { time: clock(s.closesAt) }) };
     }
-    if (!s.opensAt) return { open: false, text: 'Closed' };
+    if (!s.opensAt) return { open: false, text: t('Closed') };
     const { ahead, day, time } = s.opensAt;
-    const when = ahead === 0 ? '' : ahead === 1 ? ' tomorrow' : ` ${SHORT[day]}`;
-    return { open: false, text: `Closed · opens ${clock(time)}${when}` };
+    const at = clock(time);
+    const text = ahead === 0 ? t('Closed · opens {time}', { time: at })
+      : ahead === 1 ? t('Closed · opens {time} tomorrow', { time: at })
+        : t('Closed · opens {time} {day}', { time: at, day: dayName(day) });
+    return { open: false, text };
   }
 
   /** Paddock's summarizeHours, word for word: "Mon to Sat, 10 AM to 7 PM. Closed Sun." */
@@ -136,11 +167,13 @@
       if (last && last.k === k) last.days.push(d);
       else groups.push({ k, days: [d] });
     }
-    const span = (days) => (days.length === 1 ? SHORT[days[0]] : `${SHORT[days[0]]} to ${SHORT[days[days.length - 1]]}`);
+    const span = (days) => (days.length === 1 ? dayName(days[0]) : t('{from} to {to}', { from: dayName(days[0]), to: dayName(days[days.length - 1]) }));
+    const spells = (d) => (hours[d] || []).map(([a, b]) => t('{from} to {to}', { from: clock(a), to: clock(b) }));
+    const both = (list) => list.reduce((a, b) => t('{first} and {second}', { first: a, second: b }));
     const open = groups.filter((g) => g.k);
     const closed = groups.filter((g) => !g.k);
-    let out = open.map((g) => `${span(g.days)}, ${(hours[g.days[0]] || []).map(([a, b]) => `${clock(a)} to ${clock(b)}`).join(' and ')}`).join('. ');
-    if (closed.length) out += `${out ? '. ' : ''}Closed ${closed.map((g) => span(g.days)).join(', ')}`;
+    let out = open.map((g) => t('{days}, {hours}', { days: span(g.days), hours: both(spells(g.days[0])) })).join('. ');
+    if (closed.length) out += `${out ? '. ' : ''}${t('Closed {days}', { days: closed.map((g) => span(g.days)).join(', ') })}`;
     return out ? `${out}.` : null;
   }
 
@@ -163,5 +196,5 @@
     }));
   }
 
-  root.gridHours = { DAYS, SHORT, LONG, normalize, ist, state, clock, status, summary, specs, toMin };
+  root.gridHours = { DAYS, SHORT, LONG, dayName, normalize, ist, state, clock, status, summary, specs, toMin };
 })(typeof window !== 'undefined' ? window : globalThis);

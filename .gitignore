@@ -13,3 +13,9 @@ tools/perf/reel/
 
 # Crops from tools/check/hand.mjs (regenerate with npm run check:hand)
 tools/check/out/
+
+# The font sources tools/source/fonts.py downloads (the woff2 it writes are committed)
+tools/source/.fonts-cache/
+
+# The list of lines to translate, made fresh by node tools/i18n.mjs extract
+i18n/source.json

@@ -30,6 +30,9 @@
 (() => {
   'use strict';
 
+  // Every word this sheet writes, in the page's language (assets/i18n.js).
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   const root = document.documentElement;
   const stageEl = document.getElementById('pg2-stage');
   const panel = document.getElementById('pg2-panel');
@@ -104,14 +107,14 @@
   const OPTIONAL = ['gstin'];
   const ALL_FIELDS = FIELDS.concat(OPTIONAL);
   const CHECK = {
-    name: (v) => (v.trim().length >= 2 ? '' : 'Please enter your name.'),
+    name: (v) => (v.trim().length >= 2 ? '' : t('Please enter your name.')),
     phone: (v) => (/^(\+?91)?[6-9]\d{9}$/.test(v.replace(/[\s-]/g, ''))
-      ? '' : 'Enter a 10 digit Indian mobile number.'),
+      ? '' : t('Enter a 10 digit Indian mobile number.')),
     email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())
-      ? '' : 'Enter a valid email address.'),
-    address: (v) => (v.trim().length >= 6 ? '' : 'Please enter the address to deliver to.'),
-    city: (v) => (v.trim().length >= 2 ? '' : 'Please enter your city.'),
-    pincode: (v) => (/^\d{6}$/.test(v.trim()) ? '' : 'Enter a 6 digit pincode.'),
+      ? '' : t('Enter a valid email address.')),
+    address: (v) => (v.trim().length >= 6 ? '' : t('Please enter the address to deliver to.')),
+    city: (v) => (v.trim().length >= 2 ? '' : t('Please enter your city.')),
+    pincode: (v) => (/^\d{6}$/.test(v.trim()) ? '' : t('Enter a 6 digit pincode.')),
     // Blank is fine. Wrong is not, because it would be printed on a tax invoice the buyer
     // files a return against, so it runs the same check digit the server does.
     gstin: (v) => (window.gridGstin ? window.gridGstin.error(v) : ''),
@@ -210,11 +213,11 @@
     }
 
     const unit = priceOf(sku);
-    if (unitLine) unitLine.textContent = `${money(unit)} each`;
+    if (unitLine) unitLine.textContent = t('{amount} each', { amount: money(unit) });
 
-    const t = totals();
-    if (totalLabel) totalLabel.textContent = state.paid ? 'Paid' : 'Total';
-    if (totalAmount) totalAmount.textContent = money(t.chargedInr);
+    const sum = totals();
+    if (totalLabel) totalLabel.textContent = state.paid ? t('Paid') : t('Total');
+    if (totalAmount) totalAmount.textContent = money(sum.chargedInr);
 
     // Progress. The product is always a complete answer (something is always selected and
     // a quantity always set), so its segment reads full from the start; details fill as
@@ -233,13 +236,13 @@
 
     if (backEl) {
       backEl.setAttribute('aria-label',
-        state.stage === 1 ? 'Back to the store' : 'Back to the previous stage');
+        state.stage === 1 ? t('Back to the store') : t('Back to the previous stage'));
     }
 
     // The one action. On the bill it names the exact amount Razorpay is about to ask for.
     if (nextLabel) {
-      nextLabel.textContent = state.confirming ? 'Confirming'
-        : (state.stage === 3 ? `Pay ${money(t.chargedInr)}` : 'Continue');
+      nextLabel.textContent = state.confirming ? t('Confirming')
+        : (state.stage === 3 ? t('Pay {amount}', { amount: money(sum.chargedInr) }) : t('Continue'));
     }
     cta.setAttribute('aria-disabled', String(state.busy || state.paid || state.confirming));
   }
@@ -248,7 +251,7 @@
    * so a quantity or a label can never be read as markup. */
   function renderBill() {
     if (!billEl) return;
-    const t = totals();
+    const sum = totals();
     const item = ITEMS.find((it) => it.sku === skuNow());
     const name = item ? (item.short || item.label) : skuNow();
 
@@ -278,11 +281,11 @@
     };
 
     billEl.replaceChildren(
-      group('Your order', [row(`${name} x ${state.qty}`, money(t.itemsInr))]),
-      group('Pay now', [
-        row('Items incl. GST', money(t.itemsInr)),
-        row('Processing fee', money(t.feeInr)),
-        row('Total payable', money(t.chargedInr), true),
+      group(t('Your order'), [row(t('{item} x {qty}', { item: name, qty: state.qty }), money(sum.itemsInr))]),
+      group(t('Pay now'), [
+        row(t('Items incl. GST'), money(sum.itemsInr)),
+        row(t('Processing fee'), money(sum.feeInr)),
+        row(t('Total payable'), money(sum.chargedInr), true),
       ]),
     );
   }
@@ -408,7 +411,7 @@
 
   function createOrder() {
     if (!window.gridxApi) {
-      return Promise.reject(new Error('Could not reach GridX. Please check your connection and try again.'));
+      return Promise.reject(new Error(t('Could not reach GridX. Please check your connection and try again.')));
     }
     // A retry after a cancelled or failed payment reuses the order already on the server.
     // A Razorpay order stays open until it is paid, and minting a fresh one per attempt
@@ -444,7 +447,7 @@
   function openCheckout(order) {
     return window.gridxApi.loadRazorpay().then(() => new Promise((resolve, reject) => {
       if (!window.Razorpay) {
-        reject(new Error('The payment window could not load. Please refresh and try again.'));
+        reject(new Error(t('The payment window could not load. Please refresh and try again.')));
         return;
       }
       let settled = false;
@@ -454,7 +457,7 @@
         amount: order.amountPaise,
         currency: 'INR',
         name: 'GridX Energy',
-        description: `GridX accessories, ${order.orderNumber}`,
+        description: t('GridX accessories, {order}', { order: order.orderNumber }),
         // Filed under this customer in Razorpay, which also emails them its receipt.
         customer_id: order.customerId || undefined,
         prefill: {
@@ -480,14 +483,16 @@
           ondismiss() {
             if (settled) return;
             track('payment_dismissed');
-            reject(new Error('Payment was cancelled. Your order is saved, you can try again.'));
+            reject(new Error(t('Payment was cancelled. Your order is saved, you can try again.')));
           },
         },
       });
       rzp.on('payment.failed', (response) => {
         settled = true;
         track('payment_failed');
-        reject(new Error(response?.error?.description || 'That payment did not go through. Please try again.'));
+        // Razorpay's own words are English; a translated page says it in its own.
+        const said = window.gridLang && window.gridLang.code !== 'en' ? '' : response?.error?.description;
+        reject(new Error(said || t('That payment did not go through. Please try again.')));
       });
       rzp.open();
       track('payment_open');
@@ -506,7 +511,7 @@
     track('order_submit', { sku: skuNow(), intent: 'full', delivery: 'ship' });
 
     state.busy = true;
-    say('Setting up your payment.');
+    say(t('Setting up your payment.'));
     render();
 
     createOrder()
@@ -571,9 +576,9 @@
     if (!doneEl) return;
     doneEl.hidden = false;
     const where = document.getElementById('af-done-where');
-    if (where) where.textContent = 'Your order is confirmed. Your tax invoice is on its way to ';
+    if (where) where.textContent = t('Your order is confirmed. Your tax invoice is on its way to {email} and on WhatsApp to {phone}.', { email: details.email, phone: details.phone });
     const to = document.getElementById('af-done-to');
-    if (to) to.textContent = `${details.email} and on WhatsApp to ${details.phone}.`;
+    if (to) to.textContent = '';
     const ref = document.getElementById('af-done-ref');
     if (ref) ref.textContent = order.orderNumber;
     try {

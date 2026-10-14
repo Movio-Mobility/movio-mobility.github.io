@@ -16,12 +16,19 @@
  * offer claims is printed on the page, the FAQ data says exactly what the page says, the
  * sitemap lists every page once with the home page first and every address serving, and
  * robots.txt ships byte for byte.
+ *
+ * The languages (tools/i18n.mjs): every translated page's copy in each language says its lang,
+ * names itself as canonical (gridxenergy.in/hi/store.html), carries og:locale and the same
+ * seven alternates as every other copy (en-IN, the five, x-default), each of which ships; its
+ * title and description are counted in graphemes, as a reader sees them; its prices and FAQ
+ * hold as the English's do; and the sitemap lists every copy with its alternates.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { serve } from '../serve.mjs';
 import { GEN2, PHONE, SOCIAL, faqJsonLd } from '../seo.mjs';
+import { LANGS, LANGUAGES, isTranslated } from '../i18n.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -184,6 +191,58 @@ if (!fs.existsSync(path.join(OUT, 'index.html'))) {
 
   report('robots.txt ships byte for byte', built('robots.txt') === src('robots.txt'));
 
+  // The languages.
+  const graphemes = (s) => [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(s)].length;
+  const urlOf = (page, lang) => `${ORIGIN}/${lang === 'en' ? '' : `${lang}/`}${page === 'index.html' ? '' : page}`;
+  const fileOf = (url) => {
+    const rel = url.slice(ORIGIN.length + 1);
+    return path.join(OUT, rel === '' || rel.endsWith('/') ? `${rel}index.html` : rel);
+  };
+  const alternatesOf = (html) => [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g)].map((m) => `${m[1]} ${m[2]}`);
+  for (const page of INDEXABLE.filter(isTranslated)) {
+    const english = alternatesOf(built(page));
+    const want = [`en-IN ${urlOf(page, 'en')}`, ...LANGS.map((l) => `${LANGUAGES[l].hreflang} ${urlOf(page, l)}`), `x-default ${urlOf(page, 'en')}`];
+    report(`built ${page}: names its copy in every language`, JSON.stringify(english) === JSON.stringify(want), english.length ? '' : 'no alternates');
+    for (const lang of LANGS) {
+      const rel = `${lang}/${page}`;
+      if (!fs.existsSync(path.join(OUT, rel))) { report(`built ${rel}`, false, 'missing'); continue; }
+      const html = built(rel);
+      const problems = [];
+      const htmlLang = (html.match(/<html[^>]*\slang="([^"]+)"/) || [])[1];
+      if (htmlLang !== lang) problems.push(`lang ${htmlLang}`);
+      const canonical = canonicalOf(html);
+      if (canonical !== urlOf(page, lang)) problems.push(`canonical ${canonical}`);
+      if (meta(html, 'og:url') !== canonical) problems.push('og:url is not the canonical');
+      if (meta(html, 'og:locale') !== LANGUAGES[lang].ogLocale) problems.push(`og:locale ${meta(html, 'og:locale')}`);
+      if (JSON.stringify(alternatesOf(html)) !== JSON.stringify(want)) problems.push('its alternates differ from the English page\'s');
+      for (const alt of want) if (!fs.existsSync(fileOf(alt.split(' ')[1]))) problems.push(`alternate ${alt} does not ship`);
+      const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || '';
+      const description = meta(html, 'description') || '';
+      if (!title || graphemes(title) > 60) problems.push(`title ${graphemes(title)} graphemes`);
+      if (graphemes(description) < 30 || graphemes(description) > 160) problems.push(`description ${graphemes(description)} graphemes`);
+      if ([...html.matchAll(/<h1[\s>]/g)].length !== 1) problems.push('not one h1');
+      const text = visible(html);
+      for (const [, block] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+        let graph;
+        try { graph = JSON.parse(block); } catch (e) { problems.push(`JSON-LD: ${e.message}`); continue; }
+        for (const node of graph['@graph'] || [graph]) {
+          for (const offer of [node.offers].flat().filter(Boolean)) {
+            const printed = `₹${new Intl.NumberFormat('en-IN').format(+offer.price)}`;
+            if (!text.includes(printed)) problems.push(`${printed} not on the page`);
+            if (offer.url !== canonical) problems.push(`offer url ${offer.url}`);
+          }
+        }
+      }
+      if (page === 'support.html') {
+        const graph = JSON.parse((html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/) || [])[1] || '{}');
+        const data = (graph['@graph'] || [graph]).find((n) => n['@type'] === 'FAQPage');
+        const onPage = faqJsonLd(html).mainEntity.map((q) => q.name);
+        if (!data || JSON.stringify(data.mainEntity.map((q) => q.name)) !== JSON.stringify(onPage)) problems.push('FAQ data differs from the page');
+      }
+      report(`built ${rel}: its language, its own address, every alternate, its title and data`, !problems.length, problems.join('; '));
+    }
+  }
+
   // The sitemap: every page once, the home page first, every address serving.
   const locs = [...built('sitemap.xml').matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
   const lastmods = [...built('sitemap.xml').matchAll(/<lastmod>([^<]*)<\/lastmod>/g)].map((m) => m[1]);
@@ -194,7 +253,16 @@ if (!fs.existsSync(path.join(OUT, 'index.html'))) {
   for (const page of INDEXABLE) {
     const want = page === 'index.html' ? `${ORIGIN}/` : `${ORIGIN}/${page}`;
     if (!locs.includes(want)) problems.push(`${page} missing`);
+    if (isTranslated(page)) {
+      for (const lang of LANGS) {
+        const copy = `${ORIGIN}/${lang}/${page === 'index.html' ? '' : page}`;
+        if (!locs.includes(copy)) problems.push(`${lang}/${page} missing`);
+      }
+    }
   }
+  const xhtml = (built('sitemap.xml').match(/<xhtml:link /g) || []).length;
+  const translatedIndexable = INDEXABLE.filter(isTranslated).length;
+  if (xhtml !== translatedIndexable * (LANGS.length + 1) * (LANGS.length + 2)) problems.push(`${xhtml} alternates, not ${translatedIndexable * (LANGS.length + 1) * (LANGS.length + 2)}`);
   if (!lastmods.every((d) => /^\d{4}-\d{2}-\d{2}/.test(d) && !Number.isNaN(Date.parse(d)))) problems.push('a lastmod does not parse');
   report('sitemap.xml: home first, every page once, dates that parse', !problems.length, problems.join('; '));
 

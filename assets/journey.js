@@ -18,6 +18,9 @@
 (() => {
   'use strict';
 
+  // Every word this page writes, in the page's language (assets/i18n.js).
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   const root = document.documentElement;
   const journey = document.querySelector('.journey');
   if (!journey || !window.GridTape) return;
@@ -102,9 +105,9 @@
   }
   panelsEl.append(always);
   const alwaysParts = [...always.children];
-  current.dataset.theme = 'Today';
+  current.dataset.theme = t('journey::Today');
   const currentTheme = current.querySelector('.tl-panel__theme');
-  if (currentTheme) currentTheme.textContent = 'Today';
+  if (currentTheme) currentTheme.textContent = t('journey::Today');
   // The year's line under the tape names its own chapters only: who we are, the founders and
   // our backers are on the page below it whether the year is open or not.
   current.dataset.peek = ownTitles.join(' · ');
@@ -120,7 +123,7 @@
     if (!link) {
       link = document.createElement('a');
       link.className = 'tl-next';
-      link.innerHTML = '<span class="tl-next__kicker">Continue to</span> <span class="tl-next__year"></span> <span class="tl-next__title"></span>';
+      link.innerHTML = `<span class="tl-next__kicker">${t('Continue to')}</span> <span class="tl-next__year"></span> <span class="tl-next__title"></span>`;
       panel.append(link);
     }
     const year = next.dataset.year;
@@ -129,7 +132,7 @@
     link.dataset.year = year;
     link.querySelector('.tl-next__year').textContent = year;
     link.querySelector('.tl-next__title').textContent = next === current && reviewPhotos.length
-      ? 'This year in review'
+      ? t('This year in review')
       : (first ? first.textContent.trim() : '');
   });
 
@@ -212,15 +215,15 @@
     const title = document.createElement('div');
     title.className = 'review__title';
     title.innerHTML = `<p class="review__kicker">${year}</p>`
-      + '<h3 class="review__heading"><span>This year</span> <span>in review</span></h3>'
-      + '<p class="review__cta"><span class="review__cta-text">See it unfold</span>'
+      + `<h3 class="review__heading">${t('This year | in review').split(/\s*\|\s*/).map((part) => `<span>${part}</span>`).join(' ')}</h3>`
+      + `<p class="review__cta"><span class="review__cta-text">${t('See it unfold')}</span>`
       + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></p>';
     // The whole rectangle is the button: it opens the year's stories beneath it.
     const toggle = document.createElement('button');
     toggle.className = 'review__toggle';
     toggle.type = 'button';
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', `Show ${year}'s stories`);
+    toggle.setAttribute('aria-label', t("Show {year}'s stories", { year }));
     review.append(win, title, toggle);
     review.photos = imgs.map((img) => ({
       src: img.getAttribute('src'),
@@ -246,8 +249,8 @@
       fold.classList.toggle('is-open', open);
       fold.classList.remove('is-settled');
       toggle.setAttribute('aria-expanded', String(open));
-      toggle.setAttribute('aria-label', `${open ? 'Hide' : 'Show'} ${year}'s stories`);
-      text.textContent = open ? 'Fold it away' : 'See it unfold';
+      toggle.setAttribute('aria-label', open ? t("Hide {year}'s stories", { year }) : t("Show {year}'s stories", { year }));
+      text.textContent = open ? t('Fold it away') : t('See it unfold');
       if (open) {
         settle = window.setTimeout(() => {
           fold.classList.add('is-settled');

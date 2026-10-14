@@ -1,0 +1,443 @@
+/*
+ * The site's languages, in every page (tools/i18n.mjs builds the copies; assets/i18n.js and
+ * assets/lang.js run them).
+ *
+ * 1. TYPE. Noto Sans draws Hindi, Marathi, Bengali, Kannada and Telugu (tools/source/fonts.py),
+ *    each face given only its own script's letters, so DM Sans goes on drawing every Latin
+ *    letter, brand name and digit in the middle of them, and an English page never downloads
+ *    an Indian font at all. Every font stack on the site starts with var(--indic), which is
+ *    DM Sans until a page's language names its script below. The joiners (ZWNJ, ZWJ) are in
+ *    each Indian face's range, so they shape with it rather than with DM Sans (which claims
+ *    U+2000 to 206F). Not preloaded, like DM Sans (index.html's head says why): until it
+ *    arrives the phone's own font for the script stands in, and the swap barely moves.
+ *
+ * 2. SETTING. The English is tracked tight and leaded close (headlines at 1.02). Indian scripts
+ *    are taller, with marks above and below the line, and Devanagari and Bengali join their
+ *    letters with a headline bar that tracking breaks: so on a translated page nothing is
+ *    tracked, and every tight line gets room for its marks.
+ *
+ * 3. THE PICKER. A round glass button in the top bar with the first letter of the page's
+ *    alphabet, opening the six languages (a popover on a desk, a sheet from the bottom on a
+ *    phone), and the one-time card offering a reader their state's language. Glass as the
+ *    logo's pill is glass (site.css .brand): a blur taken past the edge and clipped.
+ */
+
+/* ---------------------------------------------------------------- 1. type */
+@font-face {
+  font-family: "Noto Sans Devanagari";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-devanagari.woff2") format("woff2");
+  unicode-range: U+0900-097F, U+200C-200D, U+25CC, U+A8E0-A8FF;
+}
+@font-face {
+  font-family: "Noto Sans Bengali";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-bengali.woff2") format("woff2");
+  unicode-range: U+0980-09FF, U+0964-0965, U+200C-200D, U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Kannada";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-kannada.woff2") format("woff2");
+  unicode-range: U+0C80-0CFF, U+0964-0965, U+200C-200D, U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Telugu";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-telugu.woff2") format("woff2");
+  unicode-range: U+0C00-0C7F, U+0964-0965, U+200C-200D, U+25CC;
+}
+/* The picker's names and letters, a few KB each (only their own glyphs), under a family of
+   their own so they never stand in for the full faces. */
+@font-face {
+  font-family: "GridX Lang Names";
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-names-devanagari.woff2") format("woff2");
+  unicode-range: U+0900-097F;
+}
+@font-face {
+  font-family: "GridX Lang Names";
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-names-bengali.woff2") format("woff2");
+  unicode-range: U+0980-09FF;
+}
+@font-face {
+  font-family: "GridX Lang Names";
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-names-kannada.woff2") format("woff2");
+  unicode-range: U+0C80-0CFF;
+}
+@font-face {
+  font-family: "GridX Lang Names";
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("fonts/noto-names-telugu.woff2") format("woff2");
+  unicode-range: U+0C00-0C7F;
+}
+
+:root { --indic: "DM Sans"; }
+:root:lang(hi),
+:root:lang(mr) { --indic: "Noto Sans Devanagari"; }
+:root:lang(bn) { --indic: "Noto Sans Bengali"; }
+:root:lang(kn) { --indic: "Noto Sans Kannada"; }
+:root:lang(te) { --indic: "Noto Sans Telugu"; }
+
+/* ---------------------------------------------------------------- 2. setting */
+/* Nothing tracked: a letter-spacing pulls a conjunct apart and breaks the headline bar. */
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) body *,
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) body *::before,
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) body *::after {
+  letter-spacing: 0 !important;
+}
+/* Room for the marks above and below the line, where English sets its lines close. Devanagari
+   and Bengali hang from their bar; Kannada and Telugu stack taller still. */
+:root:is(:lang(hi), :lang(mr), :lang(bn)) { --leading-tight: 1.24; --leading-body: 1.6; }
+:root:is(:lang(kn), :lang(te)) { --leading-tight: 1.32; --leading-body: 1.66; }
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) :is(
+  .headline, .film__title, .credits__line, .story__headline, .store-kicker,
+  .pg2-step__title, .pg2-title, .product__title, .lost__title, .faq__title, .tl-panel__year,
+  .chapter__title, .review__heading, .support__title, .dealers__title, .better__line
+) {
+  line-height: var(--leading-tight) !important;
+}
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) :is(
+  .film__line, .launch__note, .launch__ship, .film__prebook-note, .film__prebook-ship,
+  .story p, .ask-card__line, .faq__a, .chapter p, .legal p, .dealer__hours, .dealer__address
+) {
+  line-height: var(--leading-body) !important;
+}
+/* Muted text, large. A translucent colour paints each letter on its own, and Indian scripts
+   join their letters (the Devanagari and Bangla bar most of all), so every join is painted twice
+   and shows as a darker tick. Where the text is big enough to see it, the same tone is a solid
+   colour faded as a whole instead: the footer's credit, the journey's year in review, the Gen1
+   story's second line. */
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) .credits__seg:not(.credits__seg--name) {
+  color: var(--credit-bright, #fff);
+  opacity: 0.62;
+}
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)):not(.js) .credits__seg:not(.credits__seg--name) { color: var(--ink, #141414); }
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) .review__heading span + span {
+  color: #fff;
+  opacity: 0.78;
+}
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) .story__line + .story__line {
+  color: var(--ink, #141414);
+  opacity: 0.45;
+}
+
+/* Capitals are a Latin idea: an eyebrow that was spaced capitals is a quiet, heavier line. */
+:root:is(:lang(hi), :lang(mr), :lang(bn), :lang(kn), :lang(te)) :is(.credits__label, .bill__title, .opt__pill, .opt__zoom, .pg2-done__reflabel) {
+  text-transform: none;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- 3. the picker */
+/* The bar's third part. Its first sits left and the rest gather on the right, so on a desk the
+   island keeps its place with the button beside it; on a phone, where the island is pinned to
+   the bottom, the button has the top right corner to itself. */
+.topbar > :first-child { margin-right: auto; }
+.lang {
+  --night: inherit;
+  position: relative;
+  flex: none;
+  opacity: calc(1 - var(--night, 0));
+  pointer-events: auto;
+}
+/* Arriving with the rest of the chrome on the home page; there from the first paint elsewhere. */
+html:not(.skip-intro) .lang {
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 2.4s var(--ease-gentle, ease) 0.2s, filter 2.4s var(--ease-gentle, ease) 0.2s;
+}
+html:not(.skip-intro) .chrome-in .lang,
+html.chrome-in:not(.skip-intro) .lang {
+  opacity: calc(1 - var(--night, 0));
+  filter: none;
+}
+.lang__pick { position: relative; }
+.lang__btn {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  overflow: hidden;
+  list-style: none;
+  cursor: pointer;
+  color: rgb(255 255 255 / 0.9);
+  box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.lang__btn::-webkit-details-marker { display: none; }
+.lang__btn::marker { content: ""; }
+.lang__btn::before {
+  content: "";
+  position: absolute;
+  inset: -32px;
+  z-index: -1;
+  background: rgb(12 12 12 / 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+.lang__btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  pointer-events: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lang__btn::before { background: rgb(18 18 18 / 0.86); }
+}
+.lang__btn:focus-visible { outline: 2px solid var(--ink, #141414); outline-offset: 4px; }
+.lang__face {
+  font-family: "GridX Lang Names", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 560;
+  line-height: 1;
+  transition: opacity 0.6s ease, filter 0.6s ease;
+}
+.lang__face.is-swapping { opacity: 0; filter: blur(3px); }
+.lang__pick[open] .lang__btn { color: #fff; }
+
+/* On the journey and careers, an open year or team puts the tape's close button at the top
+   bar's right end on a phone (tape.css .tl-close): the button steps aside for it, on the same
+   spring, and back when it goes. */
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .lang { transition: transform 0.6s var(--spring, cubic-bezier(0.32, 0.72, 0, 1)); }
+  body:has(.tape.is-open) .lang { transform: translate3d(-52px, 0, 0); }
+}
+
+/* The six. A card under the button on a desk; on a phone a sheet from the bottom edge, in
+   thumb reach, over a scrim. */
+.lang__menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 30;
+  width: max-content;
+  min-width: 15rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.5rem;
+  border-radius: 22px;
+  background: rgb(18 18 18 / 0.86);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+  color: #fff;
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  transform-origin: top right;
+  animation: lang-in 0.32s var(--spring, cubic-bezier(0.32, 0.72, 0, 1)) both;
+}
+@keyframes lang-in {
+  from { opacity: 0; transform: translate3d(0, -6px, 0) scale(0.97); }
+}
+.lang__title {
+  margin: 0.35rem 0.75rem 0.4rem;
+  color: rgb(255 255 255 / 0.5);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.lang__list { margin: 0; padding: 0; list-style: none; }
+.lang__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 44px;
+  padding: 0.7rem 0.75rem;
+  border-radius: 14px;
+  color: rgb(255 255 255 / 0.86);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang__row:hover, .lang__row:focus-visible { background: rgb(255 255 255 / 0.08); color: #fff; outline: none; }
+.lang__row[aria-current="true"] { color: #fff; }
+.lang__row[aria-current="true"] .lang__name::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+.lang__name {
+  font-family: "GridX Lang Names", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 560;
+  line-height: 1.25;
+}
+.lang__gloss {
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  color: rgb(255 255 255 / 0.45);
+  font-size: 0.8125rem;
+}
+.lang__note {
+  margin: 0.4rem 0.75rem 0.35rem;
+  max-width: 17rem;
+  color: rgb(255 255 255 / 0.62);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .lang__pick[open]::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    background: rgb(0 0 0 / 0.32);
+    animation: lang-fade 0.28s ease both;
+  }
+  .lang__menu {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-width: none;
+    padding: 0.75rem max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    border-radius: 26px 26px 0 0;
+    transform-origin: bottom center;
+    animation-name: lang-up;
+  }
+  .lang__menu::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 5px;
+    margin: 0 auto 0.6rem;
+    border-radius: 3px;
+    background: rgb(255 255 255 / 0.22);
+  }
+  .lang__row { min-height: 52px; font-size: 1.0625rem; }
+  .lang__note { max-width: none; }
+}
+@keyframes lang-up { from { transform: translate3d(0, 100%, 0); } }
+@keyframes lang-fade { from { opacity: 0; } }
+
+/* The offer: once, hanging from the button, in the language of the reader's state. */
+.lang__offers { position: absolute; top: calc(100% + 10px); right: 0; z-index: 25; }
+.lang__offer {
+  width: min(19rem, calc(100vw - 2rem));
+  padding: 0.95rem 1rem 0.85rem;
+  border-radius: 20px;
+  background: rgb(18 18 18 / 0.86);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+  color: #fff;
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  transform-origin: top right;
+  animation: lang-in 0.5s var(--spring, cubic-bezier(0.32, 0.72, 0, 1)) both;
+}
+.lang__offer.is-leaving { animation: lang-out 0.3s ease both; }
+@keyframes lang-out { to { opacity: 0; transform: translate3d(0, -4px, 0) scale(0.98); } }
+.lang__offer-line {
+  margin: 0 0 0.75rem;
+  font-family: var(--offer-face, "DM Sans"), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.lang__offer:lang(hi), .lang__offer:lang(mr) { --offer-face: "Noto Sans Devanagari"; }
+.lang__offer:lang(bn) { --offer-face: "Noto Sans Bengali"; }
+.lang__offer:lang(kn) { --offer-face: "Noto Sans Kannada"; }
+.lang__offer:lang(te) { --offer-face: "Noto Sans Telugu"; }
+.lang__offer-actions { display: flex; gap: 0.5rem; }
+.lang__offer-yes, .lang__offer-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-family: var(--offer-face, "DM Sans"), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 560;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang__offer-yes { flex: 1; background: #fff; color: #111; }
+.lang__offer-no { background: rgb(255 255 255 / 0.1); color: rgb(255 255 255 / 0.86); font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; }
+.lang__offer-yes:focus-visible, .lang__offer-no:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lang__menu, .lang__offer, .lang__pick[open]::before { animation: none; }
+  .lang__face { transition: none; }
+}
+
+/* ---------------------------------------------------------------- 4. the footer's languages */
+/* The last line of every page with a footer, under the legal line: the six, each in its own
+   script, the page's own lit. Set like the legal line (footer.css), a step quieter. */
+.credits__langs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.1rem;
+  margin-top: 1.1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--credit-faint);
+}
+.credits__langs-label { flex: none; }
+.credits__langs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.credits__lang {
+  border-radius: 4px;
+  color: var(--credit-faint);
+  font-family: "GridX Lang Names", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.credits__lang:hover { color: var(--credit-link); }
+.credits__lang[aria-current="true"] { color: var(--credit-link); }
+.credits__lang[aria-current="true"]::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+.credits__lang:focus-visible { outline: 2px solid rgb(255 255 255 / 0.75); outline-offset: 3px; }
+.credits__langs-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--credit-faint);
+}
+html:not(.js) .credits__lang { color: rgb(20 20 20 / 0.42); }
+html:not(.js) .credits__lang[aria-current="true"] { color: var(--ink, #141414); }
+@media (max-width: 759px) {
+  .credits__langs { margin-top: 1rem; }
+  .credits__langs-label { flex-basis: 100%; }
+}

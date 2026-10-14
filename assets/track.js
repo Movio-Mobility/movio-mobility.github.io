@@ -32,6 +32,52 @@
 (() => {
   'use strict';
 
+  // Every word this card writes, in the page's language (assets/i18n.js). On an English page
+  // Paddock's own lines stand as sent (it owns that wording); a translated page writes them
+  // from the keys that come with them (headlineKey, each step's key, build and items).
+  const lang = window.gridLang || null;
+  const t = lang ? lang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+  const english = !lang || lang.code === 'en';
+  const HEADLINES = {
+    cancelled: t('track::Cancelled'),
+    cancelled_refunded: t('Cancelled and refunded'),
+    cancelled_refunding: t('Cancelled, refund on its way'),
+    unpaid: t('Payment not completed'),
+    refunded: t('Refunded'),
+    delivered: t('track::Delivered'),
+    collected: t('track::Collected'),
+    shipped: t('On its way'),
+    ready: t('track::Ready for collection'),
+    packed: t('Packed and ready to go'),
+    confirmed: t('Confirmed, and being prepared'),
+  };
+  const STEPS = {
+    placed: t('Order placed'),
+    paid: t('Payment received'),
+    cancelled: t('step::Cancelled'),
+    packed: t('Packed'),
+    shipped: t('Shipped'),
+    delivered: t('step::Delivered'),
+    ready: t('step::Ready for collection'),
+    collected: t('step::Collected'),
+    refund_initiated: t('Refund initiated'),
+    refund_processed: t('Refund processed'),
+  };
+  const VEHICLES = { x1: 'Komaki X1', x3: 'Komaki X3' };
+  /** What was ordered, in the page's language: Paddock's summary, from its parts. */
+  function summaryOf(order) {
+    if (english || (!order.build && !order.items)) return order.summary;
+    if (order.kind === 'powerpod' && order.build) {
+      if (order.build.vehicle !== 'yes') return t('PowerPod Gen2 · Your own ride');
+      return t('PowerPod Gen2 · {vehicle}', { vehicle: VEHICLES[order.build.model] || t('With a two wheeler') });
+    }
+    const items = (window.gridCatalogue && window.gridCatalogue.ITEMS) || [];
+    return (order.items || []).map((it) => {
+      const item = items.find((x) => x.sku === it.sku);
+      return `${it.qty} × ${item ? item.short || item.label : it.sku}`;
+    }).join(' · ') || order.summary;
+  }
+
   const form = document.getElementById('track-form');
   if (!form) return;
 
@@ -54,9 +100,9 @@
   // one is real, and a client-side guess at the format would reject valid references the
   // day the format changes. This only catches an empty field.
   const CHECK = {
-    reference: (v) => (v.trim().length >= 6 ? '' : 'Enter the reference from your invoice or WhatsApp.'),
+    reference: (v) => (v.trim().length >= 6 ? '' : t('Enter the reference from your invoice or WhatsApp.')),
     phone: (v) => (/^(\+?91)?[6-9]\d{9}$/.test(v.replace(/[\s-]/g, ''))
-      ? '' : 'Enter the 10 digit mobile number the order was placed with.'),
+      ? '' : t('Enter the 10 digit mobile number the order was placed with.')),
   };
 
   const fields = {};
@@ -111,7 +157,7 @@
     if (!iso) return '';
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';
-    return new Intl.DateTimeFormat('en-IN', {
+    return new Intl.DateTimeFormat(english ? 'en-IN' : `${lang.code}-IN-u-nu-latn`, {
       day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true,
     }).format(d);
   }
@@ -146,10 +192,10 @@
     if (done('cancelled')) return '';
     if (done('delivered') || done('collected') || done('shipped') || done('ready')) return '';
     if (order.delivery === 'dealership') {
-      return 'You will collect this from your dealership. We will tell you when it is ready.';
+      return t('You will collect this from your dealership. We will tell you when it is ready.');
     }
     if (order.delivery === 'ship') {
-      return 'This will be shipped to the address on your order.';
+      return t('This will be shipped to the address on your order.');
     }
     return '';
   }
@@ -160,17 +206,17 @@
   function copyButton(value) {
     const b = el('button', 'track__copy');
     b.type = 'button';
-    b.setAttribute('aria-label', 'Copy the consignment number');
+    b.setAttribute('aria-label', t('Copy the consignment number'));
     // A constant, not anything from the response.
     b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COPY_ICON}"/></svg>`;
     b.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(value);
         b.dataset.copied = 'true';
-        b.setAttribute('aria-label', 'Copied');
+        b.setAttribute('aria-label', t('Copied'));
         window.setTimeout(() => {
           b.dataset.copied = 'false';
-          b.setAttribute('aria-label', 'Copy the consignment number');
+          b.setAttribute('aria-label', t('Copy the consignment number'));
         }, 1600);
       } catch {
         // No clipboard permission, or an insecure context. The number is on screen and
@@ -206,8 +252,8 @@
   function collectBlock(from) {
     if (!from || typeof from !== 'object' || !from.name) return null;
     const box = el('section', 'track__collect');
-    box.setAttribute('aria-label', 'Collect from');
-    box.append(el('h4', 'track__collect-label', 'Collect from'));
+    box.setAttribute('aria-label', t('Collect from'));
+    box.append(el('h4', 'track__collect-label', t('Collect from')));
     box.append(el('p', 'track__collect-name', from.name));
     if (from.address) box.append(el('p', 'track__collect-text', from.address));
     if (from.hoursNote) box.append(el('p', 'track__collect-note', from.hoursNote));
@@ -221,7 +267,7 @@
       const call = el('a', 'track__action');
       call.href = `tel:${e164}`;
       call.dataset.topic = 'dealer';
-      call.setAttribute('aria-label', `Call ${from.name}, ${phone.display || e164}`);
+      call.setAttribute('aria-label', t('Call {name}, {phone}', { name: from.name, phone: phone.display || e164 }));
       call.innerHTML = CALL_ICON;
       call.append(el('span', null, phone.display || e164));
       actions.append(call);
@@ -232,9 +278,9 @@
       go.href = map;
       go.target = '_blank';
       go.rel = 'noopener noreferrer';
-      go.setAttribute('aria-label', `Directions to ${from.name}, opens Google Maps`);
+      go.setAttribute('aria-label', t('Directions to {name}, opens Google Maps', { name: from.name }));
       go.innerHTML = DIRECTIONS_ICON;
-      go.append(el('span', null, 'Directions'));
+      go.append(el('span', null, t('Directions')));
       actions.append(go);
     }
     if (actions.childElementCount) box.append(actions);
@@ -243,8 +289,8 @@
 
   /** "Something not right?", opening the contact form on this order (support-form.js). */
   function helpLine(reference) {
-    const line = el('p', 'track__help', 'Something not right? ');
-    const ask = el('button', 'track__help-link', 'Tell us about it');
+    const line = el('p', 'track__help', `${t('Something not right?')} `);
+    const ask = el('button', 'track__help-link', t('Tell us about it'));
     ask.type = 'button';
     ask.dataset.supportOpen = 'message';
     ask.dataset.topic = 'order';
@@ -268,11 +314,9 @@
     if (!amount) return '';
     const done = (key) => (order.steps || []).some((s) => s.key === key && s.done);
     if (done('refund_processed')) {
-      return `A refund of ${amount} has been processed to your original payment method. `
-        + 'It usually shows in your bank account within 5 to 7 working days.';
+      return t('A refund of {amount} has been processed to your original payment method. It usually shows in your bank account within 5 to 7 working days.', { amount });
     }
-    return `A refund of ${amount} is on its way to your original payment method. `
-      + 'It usually reaches your bank account within 5 to 7 working days.';
+    return t('A refund of {amount} is on its way to your original payment method. It usually reaches your bank account within 5 to 7 working days.', { amount });
   }
 
   function paint(order) {
@@ -280,20 +324,21 @@
 
     const cancelled = (order.steps || []).some((s) => s.key === 'cancelled' && s.done);
 
-    const head = el('h3', 'track__headline', order.headline);
+    const head = el('h3', 'track__headline', english ? order.headline : HEADLINES[order.headlineKey] || order.headline);
     head.tabIndex = -1;
     result.append(head);
 
-    if (order.summary) result.append(el('p', 'track__summary', order.summary));
+    const summary = summaryOf(order);
+    if (summary) result.append(el('p', 'track__summary', summary));
 
     // Reference and amount on one line: the two things someone cross-checks. On a cancelled
     // order the figure that matters is the refund, which gets its own sentence; "paid" next
     // to "Cancelled" would read as a contradiction.
-    const ref = el('p', 'track__ref', `Order reference ${order.reference}`);
+    const ref = el('p', 'track__ref', t('Order reference {reference}', { reference: order.reference }));
     const paid = rupees(order.chargedInr);
     if (paid && !cancelled) {
       ref.append(document.createTextNode(' \u00b7 '));
-      ref.append(el('span', 'track__paid', `${paid} paid`));
+      ref.append(el('span', 'track__paid', t('{amount} paid', { amount: paid })));
     }
     result.append(ref);
 
@@ -311,7 +356,7 @@
     for (const step of order.steps || []) {
       const mods = `${step.done ? ' track__step--done' : ''}${step.key === 'cancelled' ? ' track__step--cancelled' : ''}`;
       const li = el('li', `track__step${mods}`);
-      li.append(el('span', 'track__step-label', step.label));
+      li.append(el('span', 'track__step-label', english ? step.label : STEPS[step.key] || step.label));
       const at = when(step.at);
       if (at) li.append(el('span', 'track__step-at', at));
 
@@ -354,13 +399,13 @@
     }
 
     if (!window.gridxApi) {
-      say('Could not reach GridX. Please check your connection and try again.', true);
+      say(t('Could not reach GridX. Please check your connection and try again.'), true);
       return;
     }
 
     busy = true;
     result.hidden = true;
-    say('Checking.');
+    say(t('Checking.'));
     button.setAttribute('aria-busy', 'true');
 
     window.gridxApi.postJSON('/api/public/website/orders/track', {
@@ -382,18 +427,20 @@
         // someone waiting on an order. A response always carries err.status, so its absence
         // is what tells these apart from anything the server said.
         if (err.name === 'AbortError') {
-          say('That took too long to come back. Please try again in a moment.', true);
+          say(t('That took too long to come back. Please try again in a moment.'), true);
           return;
         }
         if (err.status === undefined) {
-          say('Could not reach GridX. Please check your connection and try again.', true);
+          say(t('Could not reach GridX. Please check your connection and try again.'), true);
           return;
         }
 
         // The server sends one message for every kind of failure, on purpose: it must not
         // say whether it was the reference or the phone that was wrong. Show what it said.
         const tooMany = err.status === 429;
-        say(err.message || 'We could not find an order with those details.', !tooMany);
+        // In another language, Paddock's sentence in that language (gridx-api.js knows them).
+        const words = english || !window.gridxApi.describeError ? err.message : window.gridxApi.describeError(err, t('We could not find an order with those details.'));
+        say(words || t('We could not find an order with those details.'), !tooMany);
       })
       .finally(() => {
         busy = false;
@@ -413,7 +460,7 @@
     if (last && refInput && !refInput.value) {
       refInput.value = last;
       prefilled = true;
-      say('Filled in the reference from the order you just placed.');
+      say(t('Filled in the reference from the order you just placed.'));
     }
   } catch {
     // Private mode, or storage blocked. Nothing here is load bearing.

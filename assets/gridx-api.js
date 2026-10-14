@@ -58,16 +58,36 @@
     ? 'http://localhost:3000'
     : 'https://paddockgridx.app';
 
+  // The page's language (assets/i18n.js): its words, and its code, sent with every order and
+  // request as siteLang so Paddock can show staff which language to answer in.
+  const lang = window.gridLang || null;
+  const t = lang ? lang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+  const siteLang = lang ? lang.code : 'en';
+
   // ---------------------------------------------------------------- errors
   // The words for failures that never got an answer from the server. Shared with
   // describeError() below, and also used as the thrown error's own message, so a caller that
   // just prints err.message (the order sheet, the configurator) shows a sentence rather than
   // the browser's "Failed to fetch" or "signal is aborted without reason".
   const SAY = {
-    timeout: 'That took too long to come back. Please try again in a moment.',
-    offline: 'Could not reach GridX. Check your connection and try again.',
-    aborted: 'Cancelled. You can try again whenever you are ready.',
-    server: 'Something went wrong on our side. Please try again in a moment.',
+    timeout: t('That took too long to come back. Please try again in a moment.'),
+    offline: t('Could not reach GridX. Check your connection and try again.'),
+    aborted: t('Cancelled. You can try again whenever you are ready.'),
+    server: t('Something went wrong on our side. Please try again in a moment.'),
+  };
+  // Paddock's own sentences for a failure, so a page in another language can say them in
+  // its own. One not here is shown as sent on an English page; on a translated page the
+  // caller's own line (or SAY.server) stands in, rather than English in the middle of it.
+  const SERVER = {
+    'We could not find an order with those details.': t('We could not find an order with those details.'),
+    'Too many attempts. Please try again in a few minutes.': t('Too many attempts. Please try again in a few minutes.'),
+    'Could not look that up just now.': t('Could not look that up just now.'),
+    'Please check the highlighted fields.': t('Please check the highlighted fields.'),
+    'We could not send that just now. Please try again, or call us.': t('We could not send that just now. Please try again, or call us.'),
+    'We could not verify this request. Please refresh the page and try again.': t('We could not verify this request. Please refresh the page and try again.'),
+    'Payments are unavailable': t('Payments are unavailable'),
+    'Could not start payment': t('Could not start payment'),
+    'Could not create order': t('Could not create order'),
   };
 
   function failure(kind, extra = {}) {
@@ -136,7 +156,7 @@
     const res = await send(`${BASE}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body && typeof body === 'object' && !Array.isArray(body) && !('siteLang' in body) ? { ...body, siteLang } : body),
     }, timeoutMs, signal);
     // 204 is a valid answer from the beacon and has no body to parse.
     const data = res.status === 204 ? {} : await res.json().catch(() => ({}));
@@ -269,12 +289,13 @@
     if (err.status === undefined) return SAY.offline;
     if (err.status === 429) {
       const sec = Number(err.retryAfterSec);
-      if (!Number.isFinite(sec) || sec <= 0) return 'Too many tries for now. Please wait a little and try again.';
+      if (!Number.isFinite(sec) || sec <= 0) return t('Too many tries for now. Please wait a little and try again.');
       const minutes = Math.max(1, Math.ceil(sec / 60));
-      return `Too many tries for now. Please wait ${minutes === 1 ? 'a minute' : `${minutes} minutes`} and try again.`;
+      return t('Too many tries for now. Please wait a minute and try again.|Too many tries for now. Please wait {n} minutes and try again.', { n: minutes });
     }
     const own = err.message && !/^Request failed \(\d+\)$/.test(err.message) ? err.message : '';
-    if (own) return own;
+    if (own && Object.prototype.hasOwnProperty.call(SERVER, own)) return SERVER[own];
+    if (own && siteLang === 'en') return own;
     if (fallback) return fallback;
     return SAY.server;
   }

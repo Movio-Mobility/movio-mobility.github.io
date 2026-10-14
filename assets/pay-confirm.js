@@ -26,8 +26,9 @@
  *   showTimeout(el, opts)   the webhook outran 60s: a calm "we are checking", never a
  *                           failure, because a slow webhook is almost always a paid order
  *
- * opts carries reference, email, phone, and the page's nouns ({ thing, doc }), so Gen2
- * says pre-booking and receipt voucher where an accessory says order and tax invoice. On
+ * opts carries reference, email, phone, and the page's kind ('prebook' or 'order'), so Gen2
+ * says pre-booking and receipt voucher where an accessory says order and tax invoice: whole
+ * sentences for each, so every language can put the words in its own order (assets/i18n.js). On
  * paid and on timeout the reference is written to sessionStorage['gridx.lastOrder'] for
  * the tracking form, same-tab only, exactly as the order flows always have.
  *
@@ -51,6 +52,26 @@
   }
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
+  /**
+   * A sentence with its <0>...</0> parts in bold, as nodes: the values in them (an email,
+   * a phone number) are text, never markup.
+   */
+  function sentence(text, values) {
+    const out = [];
+    for (const part of String(text).split(/(<\d+>[\s\S]*?<\/\d+>)/)) {
+      const m = /^<(\d+)>([\s\S]*?)<\/\1>$/.exec(part);
+      if (!m) {
+        if (part) out.push(part);
+        continue;
+      }
+      const strong = document.createElement('strong');
+      strong.textContent = m[2].replace(/\{(\w+)\}/g, (x, k) => String(values[k] ?? ''));
+      out.push(strong);
+    }
+    return out;
+  }
 
   // ---------------------------------------------------------------- the poll
   // One active poller: starting a new confirmation stands the previous one down, so a
@@ -147,7 +168,8 @@
     };
   }
 
-  const NOUNS = { thing: 'order', doc: 'tax invoice' };
+  // Gen2 is pre-booked and gets a receipt voucher; an accessory is ordered and gets a tax invoice.
+  const isPrebook = (opts) => opts.kind === 'prebook' || (opts.nouns && opts.nouns.thing === 'pre-booking');
 
   function remember(reference) {
     /*
@@ -166,9 +188,9 @@
     const p = parts(el);
     el.hidden = false;
     p.mark.replaceChildren(tick('pending'));
-    if (p.title) p.title.textContent = 'Confirming your payment.';
+    if (p.title) p.title.textContent = t('Confirming your payment.');
     p.status.textContent = opts.pending
-      || 'This usually takes a few seconds. Please keep this page open.';
+      || t('This usually takes a few seconds. Please keep this page open.');
     if (p.body) p.body.hidden = true;
     if (p.ref) p.ref.hidden = true;
     for (const note of p.notes) note.hidden = true;
@@ -178,23 +200,18 @@
 
   /** The confirmed order: what the webhook has now made true, said plainly. */
   function showPaid(el, opts = {}) {
-    const nouns = { ...NOUNS, ...(opts.nouns || {}) };
     const p = parts(el);
     el.hidden = false;
     p.mark.replaceChildren(tick(''));
-    if (p.title) p.title.textContent = 'You are all set.';
+    if (p.title) p.title.textContent = t('You are all set.');
     p.status.textContent = '';
     p.status.hidden = true;
     if (p.body) {
       p.body.hidden = false;
-      const email = document.createElement('strong');
-      email.textContent = String(opts.email || '');
-      const phone = document.createElement('strong');
-      phone.textContent = String(opts.phone || '');
-      p.body.replaceChildren(
-        `Your ${nouns.thing} is confirmed. Your ${nouns.doc} is on its way to `,
-        email, ' and on WhatsApp to ', phone, '.',
-      );
+      const said = isPrebook(opts)
+        ? t('Your pre-booking is confirmed. Your receipt voucher is on its way to <0>{email}</0> and on WhatsApp to <1>{phone}</1>.')
+        : t('Your order is confirmed. Your tax invoice is on its way to <0>{email}</0> and on WhatsApp to <1>{phone}</1>.');
+      p.body.replaceChildren(...sentence(said, { email: opts.email || '', phone: opts.phone || '' }));
     }
     if (p.ref) p.ref.hidden = false;
     if (p.refValue) p.refValue.textContent = String(opts.reference || '');
@@ -210,20 +227,17 @@
    * tracking page, and keeps the reference handy.
    */
   function showTimeout(el, opts = {}) {
-    const nouns = { ...NOUNS, ...(opts.nouns || {}) };
     const p = parts(el);
     el.hidden = false;
     p.mark.replaceChildren(tick('wait'));
-    if (p.title) p.title.textContent = 'Payment received? We are checking.';
+    if (p.title) p.title.textContent = t('Payment received? We are checking.');
     p.status.textContent = '';
     p.status.hidden = true;
     if (p.body) {
       p.body.hidden = false;
-      p.body.replaceChildren(
-        `If your payment went through, your ${nouns.thing} is confirmed and your `
-        + `${nouns.doc} will arrive by email and on WhatsApp shortly. You can check its `
-        + 'status any time on the support page.',
-      );
+      p.body.replaceChildren(isPrebook(opts)
+        ? t('If your payment went through, your pre-booking is confirmed and your receipt voucher will arrive by email and on WhatsApp shortly. You can check its status any time on the support page.')
+        : t('If your payment went through, your order is confirmed and your tax invoice will arrive by email and on WhatsApp shortly. You can check its status any time on the support page.'));
     }
     if (p.ref) p.ref.hidden = false;
     if (p.refValue) p.refValue.textContent = String(opts.reference || '');

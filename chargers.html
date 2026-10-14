@@ -2,6 +2,9 @@
 <html lang="en" class="skip-intro">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>PowerPod Wall Chargers, 6A and 10A | GridX</title>
   <meta name="description" content="Wall chargers for the GridX PowerPod portable battery: 6A at ₹2,199 or 10A at ₹2,699, from any ordinary home socket.">
@@ -20,6 +23,7 @@
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/powerpod-gen2.css">
   <link rel="stylesheet" href="assets/product.css">
+  <link rel="stylesheet" href="assets/lang.css">
 
   <!-- The same three opt-ins powerpod-gen2.html sets. pg2-shell says JavaScript is on, so
        the panel becomes a fixed sheet; island-click-only keeps the nav pill shut, because
@@ -42,7 +46,7 @@
        there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
        The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
   <script>
-  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  if (!window.gridLeaving && !(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -106,6 +110,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <main class="pg2">
@@ -395,6 +403,8 @@
   <script src="assets/accessory-flow.js"></script>
   <script src="assets/product.js"></script>
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
   <script src="assets/analytics.js" defer></script>
 </body>

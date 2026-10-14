@@ -37,6 +37,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { esc, scriptJson } from './careers.mjs';
+import { LANGS, LANGUAGES, isTranslated, translateLine } from './i18n.mjs';
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -132,12 +133,18 @@ function organization(origin) {
   };
 }
 
-function breadcrumbs(origin, pageUrl, title) {
+/** A page's address in a language: the English at the root, the others in their folder. */
+export function pageUrl(origin, page, lang = 'en') {
+  const tail = page === 'index.html' ? '' : page;
+  return lang === 'en' ? `${origin}/${tail}` : `${origin}/${lang}/${tail}`;
+}
+
+function breadcrumbs(origin, pageUrlHere, title, lang = 'en') {
   return {
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Store', item: `${origin}/store.html` },
-      { '@type': 'ListItem', position: 2, name: title, item: pageUrl },
+      { '@type': 'ListItem', position: 1, name: translateLine(lang, 'Store'), item: pageUrl(origin, 'store.html', lang) },
+      { '@type': 'ListItem', position: 2, name: title, item: pageUrlHere },
     ],
   };
 }
@@ -147,11 +154,11 @@ function breadcrumbs(origin, pageUrl, title) {
  * the pages write it (₹ and en-IN digit groups): a price that exists here but not in front of
  * the visitor is a drift, and it fails the build rather than shipping.
  */
-function product(origin, page, { name, price, image, description, availability = 'InStock', availabilityStarts }, html) {
+function product(origin, page, { name, price, image, description, availability = 'InStock', availabilityStarts }, html, lang = 'en') {
   if (!visible(html).includes(rupees(price))) {
-    throw new Error(`${page}: the page does not show ${rupees(price)}, which the ${name} offer claims`);
+    throw new Error(`${lang === 'en' ? '' : `${lang}/`}${page}: the page does not show ${rupees(price)}, which the ${name} offer claims`);
   }
-  const url = `${origin}/${page}`;
+  const url = pageUrl(origin, page, lang);
   return {
     '@type': 'Product',
     name,
@@ -203,77 +210,80 @@ const PAGES = {
       name: 'GridXenergy',
       alternateName: 'GridX',
       url: `${origin}/`,
+      // The site itself is read in all six (tools/i18n.mjs).
+      inLanguage: ['en-IN', ...LANGS.map((l) => LANGUAGES[l].hreflang)],
       publisher: { '@id': `${origin}/#org` },
     }],
   },
   'store.html': {
     image: 'store.jpg',
     alt: 'The GridX lineup: PowerPod batteries, the charging adapter and the vehicle dock',
-    data: (origin) => [{
+    data: (origin, html, head, lang) => [{
       '@type': 'ItemList',
       name: 'GridX products',
       itemListElement: ['powerpod-gen2.html', 'chargers.html', 'adapter.html', 'vehicle-dock.html']
-        .map((page, i) => ({ '@type': 'ListItem', position: i + 1, url: `${origin}/${page}` })),
+        .map((page, i) => ({ '@type': 'ListItem', position: i + 1, url: pageUrl(origin, page, lang) })),
     }],
   },
   'powerpod-gen2.html': {
     image: 'powerpod-gen2.jpg',
     alt: 'The GridX PowerPod Gen2 portable battery',
-    data: (origin, html, head) => [
-      breadcrumbs(origin, head.canonical, 'PowerPod Gen2'),
+    data: (origin, html, head, lang) => [
+      breadcrumbs(origin, head.canonical, 'PowerPod Gen2', lang),
       product(origin, 'powerpod-gen2.html', {
         ...GEN2,
         image: [ogImageFor('powerpod-gen2.jpg', origin), `${origin}/assets/productImages/store/gen2.webp`],
         description: head.description,
-      }, html),
+      }, html, lang),
     ],
   },
   'chargers.html': {
     image: 'brand.jpg',
     alt: 'The GridX mark',
-    data: (origin, html, head) => [
-      breadcrumbs(origin, head.canonical, 'Chargers'),
+    data: (origin, html, head, lang) => [
+      breadcrumbs(origin, head.canonical, translateLine(lang, 'Chargers'), lang),
       ...['chg6a', 'chg10a'].map((id) => product(origin, 'chargers.html', {
         name: sku(id).label,
         price: sku(id).price,
         image: ogImageFor('brand.jpg', origin),
         description: head.description,
-      }, html)),
+      }, html, lang)),
     ],
   },
   'adapter.html': {
     image: 'adapter.jpg',
     alt: 'The GridX portable charging adapter',
-    data: (origin, html, head) => [
-      breadcrumbs(origin, head.canonical, 'Portable Charging Adapter'),
+    data: (origin, html, head, lang) => [
+      breadcrumbs(origin, head.canonical, translateLine(lang, 'Portable Charging Adapter'), lang),
       product(origin, 'adapter.html', {
         name: sku('adapter').label,
         price: sku('adapter').price,
         image: ogImageFor('adapter.jpg', origin),
         description: head.description,
-      }, html),
+      }, html, lang),
     ],
   },
   'vehicle-dock.html': {
     image: 'vehicle-dock.jpg',
     alt: 'A GridX PowerPod seated in the vehicle dock',
-    data: (origin, html, head) => [
-      breadcrumbs(origin, head.canonical, 'Vehicle Dock'),
+    data: (origin, html, head, lang) => [
+      breadcrumbs(origin, head.canonical, translateLine(lang, 'Vehicle Dock'), lang),
       product(origin, 'vehicle-dock.html', {
         name: sku('dock').label,
         price: sku('dock').price,
         image: ogImageFor('vehicle-dock.jpg', origin),
         description: head.description,
-      }, html),
+      }, html, lang),
     ],
   },
   'journey.html': {
     image: 'brand.jpg',
     alt: 'The GridX mark',
-    data: (origin, html, head) => [{
+    data: (origin, html, head, lang) => [{
       '@type': 'AboutPage',
       name: head.title,
       url: head.canonical,
+      ...(lang === 'en' ? {} : { inLanguage: LANGUAGES[lang]?.hreflang }),
       about: orgRef(origin),
     }],
   },
@@ -288,16 +298,34 @@ const PAGES = {
   'warranty_terms.html': { image: 'brand.jpg', alt: 'The GridX mark' },
 };
 
+const ogLocale = (lang) => (lang === 'en' ? 'en_IN' : LANGUAGES[lang]?.ogLocale || 'en_IN');
+
+/**
+ * The page in every language it is read in, for search engines: one alternate per language
+ * and x-default, the English. Every copy carries the same set, its own address among them.
+ */
+export function alternates(name, origin) {
+  if (!isTranslated(name)) return [];
+  return [
+    `<link rel="alternate" hreflang="en-IN" href="${esc(pageUrl(origin, name, 'en'))}">`,
+    ...LANGS.map((l) => `<link rel="alternate" hreflang="${LANGUAGES[l].hreflang}" href="${esc(pageUrl(origin, name, l))}">`),
+    `<link rel="alternate" hreflang="x-default" href="${esc(pageUrl(origin, name, 'en'))}">`,
+  ];
+}
+
 /** The share card tags, in the shape tools/careers.mjs shareTags writes them. */
-export function ogTags(name, origin, html) {
+export function ogTags(name, origin, html, lang = 'en') {
   const head = headOf(name, html);
   const page = PAGES[name];
   const image = ogImageFor(page.image, origin);
   const short = name === 'index.html' ? head.title : head.title.replace(/\s*\|.*$/, '');
+  const alt = translateLine(lang, page.alt);
+  const others = isTranslated(name) ? ['en', ...LANGS].filter((l) => l !== lang).map((l) => `<meta property="og:locale:alternate" content="${ogLocale(l)}">`) : [];
   return [
     '<meta property="og:type" content="website">',
     '<meta property="og:site_name" content="GridX">',
-    '<meta property="og:locale" content="en_IN">',
+    `<meta property="og:locale" content="${ogLocale(lang)}">`,
+    ...others,
     `<meta property="og:title" content="${esc(short)}">`,
     `<meta property="og:description" content="${esc(head.description)}">`,
     `<meta property="og:url" content="${esc(head.canonical)}">`,
@@ -305,22 +333,23 @@ export function ogTags(name, origin, html) {
     '<meta property="og:image:type" content="image/jpeg">',
     '<meta property="og:image:width" content="1200">',
     '<meta property="og:image:height" content="630">',
-    `<meta property="og:image:alt" content="${esc(page.alt)}">`,
+    `<meta property="og:image:alt" content="${esc(alt)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     `<meta name="twitter:title" content="${esc(short)}">`,
     `<meta name="twitter:description" content="${esc(head.description)}">`,
     `<meta name="twitter:image" content="${esc(image)}">`,
-    `<meta name="twitter:image:alt" content="${esc(page.alt)}">`,
+    `<meta name="twitter:image:alt" content="${esc(alt)}">`,
+    ...alternates(name, origin),
   ].join('\n  ');
 }
 
 /** Everything this module adds to one page, or '' for a page it leaves alone. */
-export function headFor(name, origin, html) {
+export function headFor(name, origin, html, lang = 'en') {
   const page = PAGES[name];
   if (!page) return '';
-  let block = `<!-- The share card and the structured data (tools/seo.mjs). -->\n  ${ogTags(name, origin, html)}`;
+  let block = `<!-- The share card and the structured data (tools/seo.mjs). -->\n  ${ogTags(name, origin, html, lang)}`;
   if (page.data) {
-    const graph = { '@context': 'https://schema.org', '@graph': page.data(origin, html, headOf(name, html)) };
+    const graph = { '@context': 'https://schema.org', '@graph': page.data(origin, html, headOf(name, html), lang) };
     block += `\n  <script type="application/ld+json">${scriptJson(graph)}</script>`;
   }
   return block;
@@ -328,8 +357,8 @@ export function headFor(name, origin, html) {
 
 /** The source transform build.mjs registers: the block goes in just before </head>. */
 export function seoTransform({ siteOrigin }) {
-  return (name, html) => {
-    const block = headFor(name, siteOrigin, html);
+  return (name, html, { page = name, lang = 'en' } = {}) => {
+    const block = headFor(page, siteOrigin, html, lang);
     if (!block) return html;
     return html.replace(/\n?( *)<\/head>/i, (m) => `\n  ${block}${m}`);
   };

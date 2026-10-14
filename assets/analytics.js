@@ -22,7 +22,14 @@
  * one person's page twice, in a short-lived cache (Redis) that forgets it after 30 minutes; it
  * is never written to Paddock's database (Firestore) or its logs.
  *
- * WHAT IS NEVER COLLECTED: no cookies, no localStorage, no fingerprinting (nothing is read to
+ * LANGUAGES. A page read in Hindi is /hi/support.html, and Paddock counts it as Support, read in
+ * Hindi (its pathKey folds the folder away). A reader sent from the English page to their own
+ * language (assets/i18n.js) is counted once, on the page they land on, with the site they came
+ * from: the English page sends nothing (window.gridLeaving), and hands its referrer over in
+ * sessionStorage (gx-ref), read once here.
+ *
+ * WHAT IS NEVER COLLECTED: no cookies, no localStorage for this (the only thing the site keeps
+ * there is the language a reader chose, assets/i18n.js, which is never sent), no fingerprinting (nothing is read to
  * tell one browser from another; the device bucket is the same for every phone of a size),
  * no location from the browser (Paddock counts the city its load balancer reports for a
  * request, from the request's own headers), and nothing anyone types: no names, phone
@@ -55,6 +62,8 @@
 
   const api = window.gridxApi;
   if (!api || typeof api.beacon !== 'function') return;
+  // On its way to the same page in the reader's language, which counts the visit (assets/i18n.js).
+  if (window.gridLeaving) return;
 
   const ROUTE = '/api/public/website/';
   const params = new URLSearchParams(window.location.search);
@@ -161,7 +170,15 @@
   // ---------------------------------------------------------------- the pageview
   /** The referring site as an origin only: never its path or query, which can say too much. */
   function referrer() {
-    const raw = document.referrer;
+    let raw = document.referrer;
+    // Sent here from the English page by assets/i18n.js: that page's own referrer is the one.
+    try {
+      const handed = window.sessionStorage.getItem('gx-ref');
+      if (handed !== null) {
+        window.sessionStorage.removeItem('gx-ref');
+        if (!raw || new URL(raw).origin === window.location.origin) raw = handed;
+      }
+    } catch (_) { /* storage blocked: the English page is the referrer, and counts as internal */ }
     if (!raw) return '';
     try {
       const u = new URL(raw);

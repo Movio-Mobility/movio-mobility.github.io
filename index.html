@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>GridXenergy | GridX PowerPod Portable Battery</title>
   <meta name="description" content="GridX builds the PowerPod, a portable battery for electric two-wheelers. Made in India, charges from any socket, 5-year warranty. Pre-book the PowerPod Gen2.">
@@ -83,7 +86,7 @@
       margin: 0;
       min-height: 100vh;
       min-height: 100svh;
-      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--indic, "DM Sans"), "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: var(--ink);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -494,7 +497,7 @@
       --status: #ffb74d;                                   /* In-Use */
       position: absolute;
       inset: 0;
-      font-family: 'DM Sans', system-ui, sans-serif;
+      font-family: var(--indic, 'DM Sans'), 'DM Sans', system-ui, sans-serif;
       font-variation-settings: 'opsz' 14;
       line-height: 1.302;
       color: #fff;
@@ -1587,7 +1590,7 @@
       inset: 0;
       z-index: 1;
       visibility: hidden;
-      font-family: 'DM Sans', system-ui, sans-serif;
+      font-family: var(--indic, 'DM Sans'), 'DM Sans', system-ui, sans-serif;
       font-variation-settings: 'opsz' 14;
       line-height: 1.302;
       color: #fff;
@@ -2092,7 +2095,7 @@
        material looks over a dimmed app, without the blur, which over a dim screen is the same
        to the eye. */
     .ios-share {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'DM Sans', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', var(--indic, 'DM Sans'), 'DM Sans', sans-serif;
       font-variation-settings: normal;
       line-height: 1.25;
     }
@@ -2226,7 +2229,7 @@
     /* WhatsApp's send card, which picking a WhatsApp contact in the share sheet opens: kept
        plain, the contact, the app's message and Send. */
     .wa-send {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'DM Sans', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', var(--indic, 'DM Sans'), 'DM Sans', sans-serif;
       font-variation-settings: normal;
       line-height: 1.3;
     }
@@ -3404,6 +3407,7 @@
 
   <!-- After the inline studio styles, so the footer's night rules have the last word. -->
   <link rel="stylesheet" href="assets/footer.css">
+  <link rel="stylesheet" href="assets/lang.css">
   <!-- Reaching for DevTools gets a joke instead of the site (assets/guard.js). Ahead of the
        page scripts, so it is in place before any of them runs. -->
   <script src="assets/guard.js"></script>
@@ -3416,7 +3420,7 @@
        there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
        The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
   <script>
-  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  if (!window.gridLeaving && !(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -3478,6 +3482,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <main class="hero">
@@ -3493,12 +3501,12 @@
     <!-- When PowerPod Gen2's pre-booking opens, under the headline, and from that moment the
          button to pre-book one. assets/launch.js keeps the time and swaps the two. -->
     <!-- Until pre-booking opens, how long is left, to the minute (assets/launch.js keeps the
-         clock and writes the count into [data-launch-count], and "in" into [data-launch-lead]);
-         from that instant the button, in the same slot, with the shipping line under both. The
+         clock and writes the whole line, count and all, into [data-launch-note], in the page's
+         language); from that instant the button, in the same slot, with the shipping line under both. The
          line as written here is what a reader gets with JavaScript off. -->
     <div class="launch" data-launch>
       <div class="launch__slot">
-        <p class="launch__note" data-launch-note><span class="ph" data-launch-lead>Pre-booking opens</span> <span class="ph"><strong data-launch-count>12 October, 12 PM.</strong></span></p>
+        <p class="launch__note" data-launch-note><span class="ph">Pre-booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span></p>
         <a class="launch__cta" href="powerpod-gen2.html">Pre-book now at ₹399</a>
       </div>
       <p class="launch__ship" data-launch-ship>Shipping across India, starting 6<sup>th</sup> November</p>
@@ -3635,7 +3643,7 @@
     </div>
     <div class="film__prebook" data-beat="8">
       <div class="film__prebook-slot">
-        <p class="film__prebook-note" data-prebook-note><span class="ph" data-launch-lead>Pre-booking opens</span> <span class="ph"><strong data-launch-count>12 October, 12 PM.</strong></span></p>
+        <p class="film__prebook-note" data-prebook-note><span class="ph">Pre-booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span></p>
         <a class="film__prebook-cta" href="powerpod-gen2.html" tabindex="-1">Pre-book now at ₹399</a>
       </div>
       <p class="film__prebook-ship">Shipping across India, starting 6<sup>th</sup> November</p>
@@ -3646,7 +3654,7 @@
     <div class="film__solo" aria-hidden="true">
       <img data-srcset="assets/productImages/Gen2/web/perspective-front-293.webp 293w, assets/productImages/Gen2/web/perspective-front-586.webp 586w" width="586" height="1220" alt="" decoding="async">
     </div>
-    <div class="film__still" aria-hidden="true">
+    <div class="film__still" aria-hidden="true" data-i18n="app">
       <img data-srcset="assets/app/phone-home-344.webp 344w, assets/app/phone-home-689.webp 689w" width="689" height="935" alt="" decoding="async">
     </div>
     <!-- How far the nav island and the screen's own inset keep text from the bottom, for the
@@ -3658,7 +3666,7 @@
          pod in use, powering a scooter. On the first app beat its live location starts sharing,
          on the second a reading arrives every 3 seconds; the film script plays both, and the
          numbers written here are where they start. -->
-    <div class="film__device" aria-hidden="true">
+    <div class="film__device" aria-hidden="true" data-i18n="app">
       <div class="film__scene">
       <div class="phone">
         <span class="phone__key phone__key--action"></span>
@@ -3830,7 +3838,7 @@
                     <p class="own__eyebrow">TODAY</p>
                     <p class="own__big"><span data-own="today">2.6</span> kWh</p>
                     <p class="own__body">Since midnight</p>
-                    <div class="own__week" data-own="week"><span><i style="--h: 0.857"></i><b>S</b></span><span><i style="--h: 0.679"></i><b>S</b></span><span><i style="--h: 0.964"></i><b>M</b></span><span><i style="--h: 0.893"></i><b>T</b></span><span><i style="--h: 1"></i><b>W</b></span><span><i style="--h: 0.929"></i><b>T</b></span></div>
+                    <div class="own__week" data-own="week"><span><i style="--h: 0.857"></i><b data-i18n-key="weekday Saturday">S</b></span><span><i style="--h: 0.679"></i><b data-i18n-key="weekday Sunday">S</b></span><span><i style="--h: 0.964"></i><b data-i18n-key="weekday Monday">M</b></span><span><i style="--h: 0.893"></i><b data-i18n-key="weekday Tuesday">T</b></span><span><i style="--h: 1"></i><b data-i18n-key="weekday Wednesday">W</b></span><span><i style="--h: 0.929"></i><b data-i18n-key="weekday Thursday">T</b></span></div>
                     <hr class="own__rule">
                     <p class="own__row" style="margin-top: 6px" data-own="toggle">Last 30 days<b data-own="month">74.6 kWh</b><svg><use href="#app-i-chevron-down"/></svg></p>
                     <!-- Opened (owner_energy_card.dart _MonthDetail): one bar a day, 16/12 to 14/01,
@@ -4188,7 +4196,7 @@
           <div class="credits__col credits__col--mark">
             <h3 class="credits__label">Address</h3>
             <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
-            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+            <address class="credits__address" translate="no">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
           </div>
         </div>
 
@@ -4200,6 +4208,8 @@
           <a href="warranty_terms.html">Warranty Terms</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
+        <!-- The site's languages, the last line of the page (tools/i18n.mjs footerLangsMarkup). -->
+        <!-- lang:footer -->
       </div>
     </div>
   </footer>
@@ -6184,6 +6194,11 @@
    */
   (() => {
     'use strict';
+
+    // The words the film writes, in the page's language (assets/i18n.js). T, because t is time
+    // everywhere in here. "app::" lines are the GridX app's own, on its phone: translated only
+    // where the app is (Hindi), English everywhere else, as the app really is.
+    const T = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const headline = document.querySelector('.headline');
@@ -9371,8 +9386,8 @@
       function resetScreens() {
         for (const l of layers) l.classList.remove('is-open');
         sheet.dataset.busy = 'false';
-        sheetField('value').textContent = '30 minutes';
-        sheetField('until').textContent = '(until 10:11 AM)';
+        sheetField('value').textContent = T('app::30 minutes');
+        sheetField('until').textContent = T('app::(until 10:11 AM)');
         sheetField('less').setAttribute('aria-disabled', 'true');
         sos.dataset.phase = 'idle';
         q('[data-crash="count"]', crash).textContent = '4:00:00';
@@ -9438,20 +9453,20 @@
           open(tl, row.down + 30, sheet);
           tl.key(scrim, row.down + 30, { opacity: 0 }).key(scrim, row.down + 280, { opacity: 1 }, E.sheet);
           sheetIn(tl, row.down + 30, card, 'translateY(110%)', 250, E.sheet);
-          tl.cue(row.down + 30, () => say('Share Live Location is open.'));
+          tl.cue(row.down + 30, () => say(T('Share Live Location is open.')));
           f.moveTo(row.up + 160, target(sheetField('more')));
           const more = f.tap(row.up + 160 + 460 + 140);
           tl.cue(more.down, () => {
-            sheetField('value').textContent = '1 hour';
-            sheetField('until').textContent = '(until 10:41 AM)';
+            sheetField('value').textContent = T('app::1 hour');
+            sheetField('until').textContent = T('app::(until 10:41 AM)');
             sheetField('less').removeAttribute('aria-disabled');
-            say('Sharing for 1 hour.');
+            say(T('Sharing for 1 hour.'));
           });
           f.moveTo(more.up + 180, target(sheetField('cta')));
           const go = f.tap(more.up + 180 + 460 + 160);
           tl.cue(go.down, () => {
             sheet.dataset.busy = 'true';
-            say('Getting your link ready.');
+            say(T('Getting your link ready.'));
           });
           f.leave(go.up + 240);
           const done = go.down + 1800;
@@ -9459,7 +9474,7 @@
           tl.key(scrim, done, { opacity: 1 }).key(scrim, done + 200, { opacity: 0 });
           tl.cue(done, () => {
             setShare('live');
-            say('Live location is sharing.');
+            say(T('Live location is sharing.'));
           });
           close(tl, done + 220, sheet);
           return tl;
@@ -9479,19 +9494,19 @@
           open(tl, btn.down + 30, share);
           tl.key(dim, btn.down + 30, { opacity: 0 }).key(dim, btn.down + 330, { opacity: 1 }, E.out);
           sheetIn(tl, btn.down + 30, sh, 'translateY(105%)', 520, E.ios);
-          tl.cue(btn.down + 30, () => say('The share sheet is open.'));
+          tl.cue(btn.down + 30, () => say(T('The share sheet is open.')));
           f.moveTo(btn.up + 380, target(q('[data-share="contact"] .ios-share__person', share)));
           const contact = f.tap(btn.up + 380 + 460 + 200);
           open(tl, contact.down + 30, wa);
           sheetIn(tl, contact.down + 30, card, 'translateY(105%)', 480, E.ios);
-          tl.cue(contact.down + 30, () => say('WhatsApp, sending the link to Meera.'));
+          tl.cue(contact.down + 30, () => say(T('WhatsApp, sending the link to Meera.')));
           const send = target(q('[data-share="send"]', wa));
           f.moveTo(contact.up + 700, send, 520);
           const sent = f.tap(contact.up + 700 + 520 + 700);
           sheetOut(tl, sent.down + 40, card, 'translateY(105%)', 340, E.sheetOut);
           sheetOut(tl, sent.down + 300, sh, 'translateY(105%)', 380, E.sheetOut);
           tl.key(dim, sent.down + 300, { opacity: 1 }).key(dim, sent.down + 680, { opacity: 0 });
-          tl.cue(sent.down + 40, () => say('Sent.'));
+          tl.cue(sent.down + 40, () => say(T('Sent.')));
           close(tl, sent.down + 400, wa);
           close(tl, sent.down + 700, share);
           f.leave(sent.up + 160);
@@ -9519,7 +9534,7 @@
           tl.key(col, shown, { opacity: 0, transform: 'scale(0.85)' })
             .key(col, shown + 280, { opacity: 1 }, E.out)
             .key(col, shown + 520, { transform: 'none' }, E.back);
-          tl.cue(shown, () => say('SOS and Restart are open.'));
+          tl.cue(shown, () => say(T('SOS and Restart are open.')));
           const discAt = target(disc);
           f.moveTo(hold.up + 200, discAt, 520);
           const tap = f.tap(hold.up + 200 + 520 + 220);
@@ -9528,7 +9543,7 @@
           const c0 = tap.down;
           tl.cue(c0, () => {
             sos.dataset.phase = 'counting';
-            say('SOS in five seconds. Tap again to cancel.');
+            say(T('SOS in five seconds. Tap again to cancel.'));
           });
           // The ring drains over five seconds, its head carried back round to twelve o'clock,
           // and each second's number punches in.
@@ -9548,11 +9563,11 @@
           f.moveTo(tap.up + 120, aside, 700);
           tl.cue(c0 + 5000, () => {
             sos.dataset.phase = 'sending';
-            say('Sending SOS to your emergency contacts.');
+            say(T('Sending SOS to your emergency contacts.'));
           });
           tl.cue(c0 + 6400, () => {
             sos.dataset.phase = 'sent';
-            say('Emergency contacts alerted with your live location.');
+            say(T('Emergency contacts alerted with your live location.'));
           });
           // Above the disc, on the barrier: a tap there closes the screen, as in the app.
           f.moveTo(c0 + 6400 + 1500, [235, 150], 620);
@@ -9583,7 +9598,7 @@
           const count = q('[data-crash="count"]', crash);
           const t0 = 300;
           open(tl, t0, crash);
-          tl.cue(t0, () => say('Crash detected. Your emergency contacts have been sent your live location for the next 4 hours.'));
+          tl.cue(t0, () => say(T('Crash detected. Your emergency contacts have been sent your live location for the next 4 hours.')));
           tl.key(scrim, t0, { opacity: 0 }).key(scrim, t0 + 200, { opacity: 1 }, E.out);
           tl.key(panel, t0, { opacity: 0 }).key(panel, t0 + 200, { opacity: 1 }, E.out);
           tl.key(icon, t0, { transform: 'scale(0.85)' }).key(icon, t0 + 600, { transform: 'none' }, E.back);
@@ -9609,7 +9624,7 @@
           f.arrive(3700, target(ok, 0.5, 0.5));
           const tap = f.tap(3700 + 720 + 380);
           tl.key(crash, tap.down, { opacity: 1 }).key(crash, tap.down + 220, { opacity: 0 }, E.out);
-          tl.cue(tap.down, () => say('Marked as okay.'));
+          tl.cue(tap.down, () => say(T('Marked as okay.')));
           close(tl, tap.down + 240, crash);
           f.leave(tap.up + 120);
           return tl;
@@ -9626,22 +9641,22 @@
           const tip = q('[data-own="tip"]');
           f.arrive(100, PILL);
           const g = flick(tl, f, 940, 0, 1);
-          tl.cue(g.there, () => say('PowerPod.'));
+          tl.cue(g.there, () => say(T('PowerPod.')));
           f.moveTo(g.up + 260, onOwn(q('[data-own="toggle"]'), 0.5, 0.5), 520);
           const open30 = f.tap(g.up + 260 + 520 + 160);
           const h = inner.offsetHeight || 220;
           tl.key(detail, open30.down, { height: '0px' }).key(detail, open30.down + 220, { height: `${h}px` }, E.sheet);
           tl.key(chevron, open30.down, { transform: 'rotate(0deg)' }).key(chevron, open30.down + 220, { transform: 'rotate(180deg)' });
           tl.cue(open30.down + 230, () => detail.classList.add('is-open'));
-          tl.cue(open30.down, () => say('Last 30 days, opened: 74.6 kWh, 2.5 kWh a day on average.'));
+          tl.cue(open30.down, () => say(T('Last 30 days, opened: 74.6 kWh, 2.5 kWh a day on average.')));
           f.moveTo(open30.up + 420, onOwn(q('[data-own="peak"]'), 0.5, 0.3), 560);
           const day = f.tap(open30.up + 420 + 560 + 200, 200);
           tl.key(tip, day.down, { opacity: 0 }).key(tip, day.down + 120, { opacity: 1 }, E.out)
             .key(tip, day.down + 1900, { opacity: 1 }).key(tip, day.down + 2100, { opacity: 0 }, E.out);
-          tl.cue(day.down, () => say('6 January 2027: 3.1 kWh, the most in a day.'));
+          tl.cue(day.down, () => say(T('6 January 2027: 3.1 kWh, the most in a day.')));
           f.moveTo(day.up + 1700, PILL, 640);
           const back = flick(tl, f, day.up + 1700 + 640 + 160, 1, 0);
-          tl.cue(back.there, () => say('Home.'));
+          tl.cue(back.there, () => say(T('Home.')));
           f.leave(back.up + 160);
           return tl;
         },
@@ -9659,7 +9674,7 @@
           const energyStat = q('[data-ins="energy"]', ins);
           f.arrive(100, PILL);
           const g = flick(tl, f, 940, 0, 1);
-          tl.cue(g.there, () => say('PowerPod.'));
+          tl.cue(g.there, () => say(T('PowerPod.')));
           // Down the page until the way into Riding Insights is clear of the pill.
           const navBottom = target(nav, 0.5, 1)[1];
           const by = Math.max(0, Math.round(navBottom - 800));
@@ -9672,7 +9687,7 @@
           const go = f.tap(sw.up + 260 + 520 + 160);
           open(tl, go.down + 30, ins);
           tl.key(ins, go.down + 30, { transform: 'translateX(100%)' }).key(ins, go.down + 430, { transform: 'none' }, E.ios);
-          tl.cue(go.down + 30, () => say('Riding Insights.'));
+          tl.cue(go.down + 30, () => say(T('Riding Insights.')));
           // Down to the last ride.
           const reach = Math.max(0, Math.min(last.offsetTop - 12, scroll.offsetHeight - view.offsetHeight));
           const from2 = [300, 760];
@@ -9682,7 +9697,7 @@
           // The finger comes to rest by the ride's energy.
           const statAt = [target(energyStat, 0.5, 0.5)[0], target(energyStat, 0.5, 0.5)[1] - target(scroll, 0, 0)[1] + target(view, 0, 0)[1] - reach];
           f.moveTo(sw2.up + 1100, statAt, 620);
-          tl.cue(sw2.up + 1100, () => say('Your last ride: 21.6 km on 574 Wh, 27 Wh/km.'));
+          tl.cue(sw2.up + 1100, () => say(T('Your last ride: 21.6 km on 574 Wh, 27 Wh/km.')));
           // Back, and home.
           const backAt = target(q('[data-ins="back"]', ins));
           f.moveTo(sw2.up + 1100 + 620 + 1700, backAt, 600);
@@ -9691,7 +9706,7 @@
           close(tl, bk.down + 400, ins);
           f.moveTo(bk.up + 260, PILL, 620);
           const home = flick(tl, f, bk.up + 260 + 620 + 140, 1, 0);
-          tl.cue(home.there, () => say('Home.'));
+          tl.cue(home.there, () => say(T('Home.')));
           f.leave(home.up + 160);
           return tl;
         },
@@ -11682,6 +11697,8 @@
   </script>
 
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <script src="assets/footer.js"></script>
   <!-- First party, cookieless pageview beacon. See assets/analytics.js. -->
   <script src="assets/gridx-api.js"></script>

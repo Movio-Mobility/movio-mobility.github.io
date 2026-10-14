@@ -53,7 +53,7 @@
       margin: 0;
       padding: 0 max(1.5rem, env(safe-area-inset-right)) 0 max(1.5rem, env(safe-area-inset-left));
       overflow: hidden;
-      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--indic, "DM Sans"), "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: var(--ink);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -257,6 +257,7 @@
       .dust { animation: none; }
     }
   </style>
+  <link rel="stylesheet" href="assets/lang.css">
 </head>
 <body>
   <a class="brand" href="index.html" aria-label="GridX home"><img src="assets/gridX_logo.png" alt=""></a>

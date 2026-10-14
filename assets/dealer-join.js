@@ -26,6 +26,9 @@
 (() => {
   'use strict';
 
+  // Every word this page writes, in the page's language (assets/i18n.js).
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   const sheetEl = document.getElementById('join-sheet');
   const opener = document.getElementById('join-open');
   const D = window.gridDealers;
@@ -33,7 +36,7 @@
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const WHATSAPP = 'https://wa.me/919220199098?text=';
-  const TOWNS_URL = 'assets/data/india-towns.json';
+  const TOWNS_URL = (window.GRID_ROOT || '') + 'assets/data/india-towns.json';
 
   const form = document.getElementById('join-form');
   const scroller = sheetEl.querySelector('.join__scroll');
@@ -72,7 +75,7 @@
   const SEGMENT = { location: 0, name: 1, dealership: 2, shop: 2, send: 3 };
 
   const place = () => here || (region ? { town: null, state: region } : null);
-  const placeText = (p) => (p.town ? (p.town === p.state ? p.town : `${p.town}, ${p.state}`) : p.state);
+  const placeText = (p) => (p.town ? (p.town === p.state ? p.town : `${p.town}, ${D.stateName ? D.stateName(p.state) : p.state}`) : (D.stateName ? D.stateName(p.state) : p.state));
 
   function message() {
     return D.joinMessage({
@@ -98,10 +101,10 @@
     skip.hidden = !(step === 'location' && (located === 'ask' || located === 'finding'));
 
     if (step === 'location') {
-      primary.textContent = located === 'ask' ? 'Share my location' : (located === 'finding' ? 'Finding you…' : 'Continue');
+      primary.textContent = located === 'ask' ? t('Share my location') : (located === 'finding' ? t('Finding you…') : t('Continue'));
       primary.setAttribute('aria-busy', String(located === 'finding'));
     } else {
-      primary.textContent = 'Continue';
+      primary.textContent = t('Continue');
       primary.removeAttribute('aria-busy');
     }
 
@@ -109,7 +112,7 @@
       const text = message();
       messageEl.textContent = text;
       whatsapp.href = WHATSAPP + encodeURIComponent(text);
-      whatsapp.setAttribute('aria-label', 'Open WhatsApp with this message');
+      whatsapp.setAttribute('aria-label', t('Open WhatsApp with this message'));
     }
   }
 
@@ -168,7 +171,7 @@
 
   function locate() {
     if (!('geolocation' in navigator)) {
-      settle('off', 'This browser cannot share a location. That is fine, you can carry on.');
+      settle('off', t('This browser cannot share a location. That is fine, you can carry on.'));
       return;
     }
     located = 'finding';
@@ -181,11 +184,11 @@
         if (located !== 'finding') return;
         const p = data ? D.placeNear(data, at) : null;
         if (!p) {
-          settle('off', 'We could not place you just now. That is fine, you can carry on.');
+          settle('off', t('We could not place you just now. That is fine, you can carry on.'));
           return;
         }
         here = p;
-        foundText.textContent = p.town ? `Near ${placeText(p)}` : `In ${p.state}`;
+        foundText.textContent = p.town ? t('Near {place}', { place: placeText(p) }) : t('In {state}', { state: placeText(p) });
         found.hidden = false;
         settle('found', '');
         // On a short screen the place could land below the fold: bring it into view.
@@ -198,8 +201,8 @@
     }, (err) => {
       if (located !== 'finding') return;
       settle('off', err && err.code === 1
-        ? 'Location is off for this site. That is fine, you can carry on.'
-        : 'We could not find you just now. That is fine, you can carry on.');
+        ? t('Location is off for this site. That is fine, you can carry on.')
+        : t('We could not find you just now. That is fine, you can carry on.'));
     }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 });
   }
 
@@ -218,8 +221,8 @@
 
   // ---------------------------------------------------------------- the answers, checked
   const CHECK = {
-    name: () => (nameInput.value.trim().length >= 2 ? '' : 'Please enter your name.'),
-    shop: () => (shopInput.value.trim().length >= 2 ? '' : 'Please enter your shop\'s name.'),
+    name: () => (nameInput.value.trim().length >= 2 ? '' : t('Please enter your name.')),
+    shop: () => (shopInput.value.trim().length >= 2 ? '' : t('Please enter your shop\'s name.')),
   };
 
   function showError(input, msg) {
@@ -258,7 +261,7 @@
     }
     if (step === 'dealership') {
       if (answers.planning === null) {
-        choiceErr.textContent = 'Choose one to carry on.';
+        choiceErr.textContent = t('Choose one to carry on.');
         if (radios[0]) radios[0].focus();
         return;
       }

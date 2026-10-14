@@ -1,7 +1,10 @@
 <!doctype html>
-<html lang="en" class="skip-intro">
+<html lang="en" data-lang-stay class="skip-intro">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Page not found | GridXenergy</title>
   <meta name="description" content="This page has moved on. Find GridX's store, support and careers from here.">
@@ -24,10 +27,17 @@
          the old site's pages    their nearest page here (aboutus.html is the journey, ...)
        The query (a campaign's utm_ tags) and the hash come along. Anything else stays here and
        is told, kindly, where to go. Built with root-absolute references (tools/build.mjs gives
-       this page the prefix '/'), because it can be served at any depth. -->
+       this page the prefix '/'), because it can be served at any depth. A path in a language
+       folder (/hi/...) keeps its language: the old pages' redirects land in it, and anything
+       else goes to that language's own copy of this page (/hi/404.html). -->
   <script>
     (function () {
-      var path = location.pathname.replace(/\/{2,}/g, '/');
+      var full = location.pathname.replace(/\/{2,}/g, '/');
+      // A reader in a language folder (/hi/...) stays in it: an old link goes to that
+      // language's page, and anything else to that language's copy of this page.
+      var inLang = /^\/(hi|mr|bn|kn|te)(\/.*)?$/.exec(full);
+      var lang = inLang ? inLang[1] : '';
+      var path = inLang ? (inLang[2] || '/') : full;
       var to = '';
       var role = '';
       var jobs = /^\/jobs\/([^/]+)\/?$/i.exec(path);
@@ -55,6 +65,10 @@
         var name = path.replace(/^\/+|\/+$/g, '').replace(/\.html$/i, '').toLowerCase();
         if (Object.prototype.hasOwnProperty.call(old, name)) to = old[name];
       }
+      // The pages every language has (assets/i18n.js TRANSLATED); careers and the policies are English.
+      var translated = /^\/(|store\.html|dealers\.html|support\.html|journey\.html)$/.test(to);
+      if (lang && to && translated) to = '/' + lang + to;
+      if (lang && !to && !/^\/404(\.html)?$/i.test(path)) to = '/' + lang + '/404.html';
       if (!to) return;
       var query = location.search.replace(/^\?/, '');
       if (role) query = 'role=' + encodeURIComponent(role) + (query ? '&' + query : '');
@@ -127,6 +141,7 @@
        the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/footer.css">
+  <link rel="stylesheet" href="assets/lang.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
@@ -143,7 +158,7 @@
        there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
        The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
   <script>
-  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  if (!window.gridLeaving && !(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -208,6 +223,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <main class="hero lost">
@@ -292,7 +311,7 @@
           <div class="credits__col credits__col--mark">
             <h3 class="credits__label">Address</h3>
             <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
-            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+            <address class="credits__address" translate="no">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
           </div>
         </div>
 
@@ -304,12 +323,16 @@
           <a href="warranty_terms.html">Warranty Terms</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
+        <!-- The site's languages, the last line of the page (tools/i18n.mjs footerLangsMarkup). -->
+        <!-- lang:footer -->
       </div>
     </div>
   </footer>
 
   <script src="assets/grid-bg.js"></script>
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <script src="assets/footer.js"></script>
   <!-- No pageview beacon here: a miss is not a visit to count, and most of the hits on this
        page are on their way somewhere else. -->

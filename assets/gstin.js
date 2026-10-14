@@ -15,6 +15,9 @@
 (function () {
   'use strict';
 
+  // Every word this script writes, in the page's language (assets/i18n.js).
+  const t = typeof window !== 'undefined' && window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   const CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
   const SHAPE_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/;
@@ -51,12 +54,12 @@
   function error(value) {
     const g = normalize(value);
     if (!g) return '';
-    if (g.length !== 15) return 'A GSTIN is 15 characters.';
-    if (!SHAPE_RE.test(g)) return 'That does not look like a GSTIN.';
-    if (!PAN_RE.test(g.slice(2, 12))) return 'The PAN inside that GSTIN is not valid.';
-    if (STATE_CODES.indexOf(g.slice(0, 2)) < 0) return 'That state code is not a GST state.';
+    if (g.length !== 15) return t('A GSTIN is 15 characters.');
+    if (!SHAPE_RE.test(g)) return t('That does not look like a GSTIN.');
+    if (!PAN_RE.test(g.slice(2, 12))) return t('The PAN inside that GSTIN is not valid.');
+    if (STATE_CODES.indexOf(g.slice(0, 2)) < 0) return t('That state code is not a GST state.');
     // Almost always a transposition or a misread character rather than a fake number.
-    if (checkDigit(g.slice(0, 14)) !== g[14]) return 'That GSTIN fails its check digit. Please re-check it.';
+    if (checkDigit(g.slice(0, 14)) !== g[14]) return t('That GSTIN fails its check digit. Please re-check it.');
     return '';
   }
 

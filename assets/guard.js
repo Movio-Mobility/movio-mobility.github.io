@@ -24,8 +24,10 @@
 
   const local = location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
   if (local && !new URLSearchParams(location.search).has('guard')) return;
+  if (window.gridLeaving) return; // on its way to the reader's language (assets/i18n.js)
 
-  const NOPE = '/better.html'; // from the root, so the 404 page, served at any depth, finds it too
+  // From the root, so the 404 page, served at any depth, finds it too; in the page's own language.
+  const NOPE = window.gridLang && window.gridLang.code !== 'en' ? `/${window.gridLang.code}/better.html` : '/better.html';
   const FADE_MS = 450;
   const PAUSE_MS = 100;        // far beyond a no-op's microseconds, far below any human resume
   const CHECK_MS = 2000;

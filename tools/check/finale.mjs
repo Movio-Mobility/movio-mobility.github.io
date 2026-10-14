@@ -21,6 +21,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { serve } from '../serve.mjs';
+import { translator } from '../i18n.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -29,6 +30,14 @@ const puppeteer = require('puppeteer-core');
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const ONLY = (process.argv.find((a) => a.startsWith('--only=')) || '').slice(7).split(',').filter(Boolean);
 const rootArg = process.argv.find((a) => a.startsWith('--root='));
+// --lang=hi walks the Hindi copy (tools/i18n.mjs), expecting its lines as its catalogue says them.
+const PORT = Number(process.env.CHECK_PORT || 8145);
+const LANG = ((process.argv.find((a) => a.startsWith('--lang=')) || '').slice(7)) || 'en';
+const FILM = LANG === 'en' ? 'index.html' : `${LANG}/index.html`;
+const T = translator(LANG, 'index.html');
+const textOf = (html) => html.replace(/<\/?\d+>/g, '').replace(/\s*\|\s*/g, ' ').replace(/\s+/g, ' ').trim();
+const CTA = T('Pre-book now at ₹399');
+const SHIP = textOf(T('Shipping across India, starting 6<0>th</0> November'));
 
 const VIEWPORTS = {
   small: { width: 320, height: 640, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
@@ -122,7 +131,7 @@ const STATE = () => {
 
 const overlap = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
 
-const server = await serve({ root: rootArg ? path.resolve(rootArg.slice(7)) : REPO, port: 8145, quiet: true });
+const server = await serve({ root: rootArg ? path.resolve(rootArg.slice(7)) : REPO, port: PORT, quiet: true });
 const chrome = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--hide-scrollbars'] });
 try {
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
@@ -139,7 +148,7 @@ try {
     tab.on('request', (r) => { if (FILES.test(r.url())) fetched.push(r.url().split('/').pop().split('?')[0]); });
 
     // Before pre-booking opens.
-    await tab.goto('http://localhost:8145/index.html?check&launch=-3600', { waitUntil: 'load' });
+    await tab.goto(`http://localhost:${PORT}/${FILM}?check&launch=-3600`, { waitUntil: 'load' });
     await sleep(1500);
     report(`${name}: nothing of the finale fetched with the page`, !fetched.length, fetched.join(', '));
     for (const t of [4.0, 10.25, 14.3]) await scrollTo(tab, t, 1200);
@@ -178,7 +187,7 @@ try {
       }
       if (st.overflowX) wrong.push('the page scrolls sideways');
       report(`${name}: the final frame, before pre-booking opens`, !wrong.length, wrong.join('; '));
-      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && /^Pre-booking opens in \d+ hours?, \d+ minutes?$/.test(st.note) && st.ship === 'Shipping across India, starting 6th November', `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
+      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && (LANG !== 'en' || /^Pre-booking opens in \d+ hours?, \d+ minutes?$/.test(st.note)) && /\d/.test(st.note) && st.ship === SHIP, `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
     }
     const counts = {};
     for (const f of fetched) {
@@ -193,7 +202,7 @@ try {
     report(`${name}: back to the warranty shot`, st.pairShown && st.hidden.every(Boolean), JSON.stringify({ pair: st.pairShown, hidden: st.hidden }));
 
     // Once pre-booking is open.
-    await tab.goto('http://localhost:8145/index.html?check&launch=60', { waitUntil: 'load' });
+    await tab.goto(`http://localhost:${PORT}/${FILM}?check&launch=60`, { waitUntil: 'load' });
     await sleep(1500);
     // Away from the finale its button is in the page but must take no tap: it would sit over
     // whatever is under it, the hero's own button included.
@@ -205,7 +214,7 @@ try {
       const wrong = [];
       if (!st.cta) wrong.push('no button');
       else {
-        if (st.ctaText !== 'Pre-book now at ₹399') wrong.push(`button "${st.ctaText}"`);
+        if (st.ctaText !== CTA) wrong.push(`button "${st.ctaText}"`);
         if (st.ctaHref !== 'powerpod-gen2.html') wrong.push(`goes to ${st.ctaHref}`);
         if (!st.ctaHit) wrong.push('does not take a tap');
         for (const [n, r] of [['pod', st.pod], ['phone', st.phone], ['island', st.island], ...st.words.map((w, i) => [`words ${i}`, w])]) {
@@ -215,7 +224,7 @@ try {
         if (st.cta.b > st.vh || st.cta.r > st.vw || st.cta.l < 0) wrong.push('button off screen');
       }
       if (st.noteShown) wrong.push('the count is still there');
-      if (st.ship !== 'Shipping across India, starting 6th November') wrong.push(`"${st.ship}"`);
+      if (st.ship !== SHIP) wrong.push(`"${st.ship}"`);
       if (Math.abs(st.row.t - before.t) > 1 || Math.abs((st.row.l + st.row.r) / 2 - (before.l + before.r) / 2) > 1) wrong.push('the row moved when pre-booking opened');
       if (st.overflowX) wrong.push('the page scrolls sideways');
       report(`${name}: once open, the button in the count's place, the shipping line under it`, !wrong.length, wrong.join('; '));

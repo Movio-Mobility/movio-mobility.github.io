@@ -13,6 +13,9 @@
 (() => {
   'use strict';
 
+  // Every word this script writes, in the page's language (assets/i18n.js).
+  const t = typeof window !== 'undefined' && window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const smooth = reduceMotion ? 'auto' : 'smooth';
 
@@ -45,7 +48,7 @@
       b.className = 'gallery__thumb';
       b.type = 'button';
       b.setAttribute('aria-current', i === 0 ? 'true' : 'false');
-      b.setAttribute('aria-label', `Image ${i + 1} of ${images.length}`);
+      b.setAttribute('aria-label', t('Image {n} of {count}', { n: i + 1, count: images.length }));
       b.addEventListener('click', () => show(i));
       nav.appendChild(b);
     });
@@ -63,7 +66,7 @@
       prev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>',
       next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>',
     };
-    arrows = [['prev', 'Previous image', -1], ['next', 'Next image', 1]].map(([dir, label, step]) => {
+    arrows = [['prev', t('Previous image'), -1], ['next', t('Next image'), 1]].map(([dir, label, step]) => {
       const b = document.createElement('button');
       b.className = `gallery__arrow gallery__arrow--${dir}`;
       b.type = 'button';
@@ -130,7 +133,7 @@
     if (!frame || images.length < 2) return;
     frame.tabIndex = 0;
     frame.setAttribute('role', 'group');
-    frame.setAttribute('aria-label', 'Product images');
+    frame.setAttribute('aria-label', t('Product images'));
     frame.addEventListener('keydown', (event) => {
       const jump = { ArrowLeft: -1, ArrowRight: 1 };
       if (event.key in jump) {

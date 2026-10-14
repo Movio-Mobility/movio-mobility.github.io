@@ -34,8 +34,26 @@
   'use strict';
 
   const H = root.gridHours;
+  // Every word a card or a message says, in the page's language (assets/i18n.js), here and in
+  // the build's vm alike, so the prerendered cards are the cards the page writes.
+  const t = root.gridLang ? root.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
 
-  const SERVICES = { sales: 'Sales', installation: 'Fitting', service: 'Service', swap: 'Battery swap', test_ride: 'Test ride' };
+  const SERVICES = { sales: t('Sales'), installation: t('Fitting'), service: t('Service'), swap: t('Battery swap'), test_ride: t('Test ride') };
+  // The states as a message names them (place.state is always the English, canonical name).
+  const STATES = {
+    'Andaman and Nicobar Islands': t('state::Andaman and Nicobar Islands'), 'Andhra Pradesh': t('state::Andhra Pradesh'),
+    'Arunachal Pradesh': t('state::Arunachal Pradesh'), Assam: t('state::Assam'), Bihar: t('state::Bihar'),
+    Chandigarh: t('state::Chandigarh'), Chhattisgarh: t('state::Chhattisgarh'),
+    'Dadra and Nagar Haveli and Daman and Diu': t('state::Dadra and Nagar Haveli and Daman and Diu'), Delhi: t('state::Delhi'),
+    Goa: t('state::Goa'), Gujarat: t('state::Gujarat'), Haryana: t('state::Haryana'), 'Himachal Pradesh': t('state::Himachal Pradesh'),
+    'Jammu and Kashmir': t('state::Jammu and Kashmir'), Jharkhand: t('state::Jharkhand'), Karnataka: t('state::Karnataka'),
+    Kerala: t('state::Kerala'), Ladakh: t('state::Ladakh'), Lakshadweep: t('state::Lakshadweep'), 'Madhya Pradesh': t('state::Madhya Pradesh'),
+    Maharashtra: t('state::Maharashtra'), Manipur: t('state::Manipur'), Meghalaya: t('state::Meghalaya'), Mizoram: t('state::Mizoram'),
+    Nagaland: t('state::Nagaland'), Odisha: t('state::Odisha'), Puducherry: t('state::Puducherry'), Punjab: t('state::Punjab'),
+    Rajasthan: t('state::Rajasthan'), Sikkim: t('state::Sikkim'), 'Tamil Nadu': t('state::Tamil Nadu'), Telangana: t('state::Telangana'),
+    Tripura: t('state::Tripura'), 'Uttar Pradesh': t('state::Uttar Pradesh'), Uttarakhand: t('state::Uttarakhand'), 'West Bengal': t('state::West Bengal'),
+  };
+  const stateName = (s) => STATES[s] || s;
   const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
   const ID = /^[A-Za-z0-9_-]{1,64}$/;
   const E164 = /^\+[1-9]\d{7,14}$/;
@@ -62,12 +80,18 @@
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ESC[c]);
 
-  /** Lower case, accents off, punctuation to spaces: "CIDCO E-Mobility" → "cidco e mobility". */
+  /**
+   * Lower case, accents off, punctuation to spaces: "CIDCO E-Mobility" → "cidco e mobility".
+   * Letters of every script are kept, so a search typed in Devanagari or Telugu is a search
+   * (it finds what it names) and never a blank that matches every dealer.
+   */
   function fold(s) {
     return String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, ' ').trim();
+      .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ').trim();
   }
-  const slugify = (s) => fold(s).replace(/ /g, '-');
+  // Slugs and keys stay a-z0-9, as the contract has them.
+  const slugify = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ').trim().replace(/ /g, '-');
 
   // ---------------------------------------------------------------- normalize
   function phonesOf(list, warn, id) {
@@ -228,7 +252,7 @@
   function whatsappUrl(d) {
     const p = whatsappPhone(d);
     if (!p) return null;
-    const message = `Hi ${d.name}, I found you on the GridX website and would like to know more about the PowerPod.`;
+    const message = t('Hi {name}, I found you on the GridX website and would like to know more about the PowerPod.', { name: d.name });
     return `https://wa.me/${p.e164.slice(1)}?text=${encodeURIComponent(message)}`;
   }
 
@@ -291,31 +315,32 @@
       out.push(s
         ? `<p class="dealer__now${s.open ? ' is-open' : ''}" data-now>${esc(s.text)}</p>`
         : '<p class="dealer__now is-pending" data-now>&nbsp;</p>');
-      out.push(`<p class="dealer__hours">${esc(H.summary(d.hours) || 'Closed every day.')}</p>`);
+      out.push(`<p class="dealer__hours">${esc(H.summary(d.hours) || t('Closed every day.'))}</p>`);
     } else {
-      out.push('<p class="dealer__hours">Call ahead for opening hours.</p>');
+      out.push(`<p class="dealer__hours">${esc(t('Call ahead for opening hours.'))}</p>`);
     }
     if (d.hoursNote) out.push(`<p class="dealer__note">${esc(d.hoursNote)}</p>`);
 
     if (d.services.length) {
-      out.push(`<ul class="dealer__services" aria-label="Services">${d.services.map((s) => `<li>${esc(SERVICES[s])}</li>`).join('')}</ul>`);
+      out.push(`<ul class="dealer__services" aria-label="${esc(t('Services'))}">${d.services.map((s) => `<li>${esc(SERVICES[s])}</li>`).join('')}</ul>`);
     }
 
     const call = primaryPhone(d);
     const wa = whatsappUrl(d);
     out.push('<div class="dealer__actions">');
-    out.push(`<a class="dealer__act dealer__act--call" href="tel:${esc(call.e164)}" data-act="call" aria-label="Call ${name}">${svg('call')}<span>Call</span></a>`);
-    if (wa) out.push(`<a class="dealer__act" href="${esc(wa)}" target="_blank" rel="noopener" data-act="whatsapp" aria-label="WhatsApp ${name}">${svg('whatsapp')}<span>WhatsApp</span></a>`);
-    out.push(`<a class="dealer__act" href="${esc(directionsUrl(d))}" target="_blank" rel="noopener" data-act="directions" aria-label="Directions to ${name}">${svg('directions')}<span>Directions</span></a>`);
-    out.push(`<a class="dealer__act dealer__act--share" href="#d-${esc(d.slug)}" data-act="share" aria-label="Share ${name}">${svg('share')}<span>Share</span></a>`);
+    const say = (src) => esc(t(src, { name: d.name }));
+    out.push(`<a class="dealer__act dealer__act--call" href="tel:${esc(call.e164)}" data-act="call" aria-label="${say('Call {name}')}">${svg('call')}<span>${say('dealer::Call')}</span></a>`);
+    if (wa) out.push(`<a class="dealer__act" href="${esc(wa)}" target="_blank" rel="noopener" data-act="whatsapp" aria-label="${say('WhatsApp {name}')}">${svg('whatsapp')}<span>WhatsApp</span></a>`);
+    out.push(`<a class="dealer__act" href="${esc(directionsUrl(d))}" target="_blank" rel="noopener" data-act="directions" aria-label="${say('Directions to {name}')}">${svg('directions')}<span>${say('Directions')}</span></a>`);
+    out.push(`<a class="dealer__act dealer__act--share" href="#d-${esc(d.slug)}" data-act="share" aria-label="${say('Share {name}')}">${svg('share')}<span>${say('dealer::Share')}</span></a>`);
     out.push('</div></div></li>');
     return out.join('');
   }
 
   /** The chips: All, then each city with its count. `selected` is a city key or ''. */
   function renderCities(cities, selected = '') {
-    const chip = (key, label, count) => `<button class="dealers-city" type="button" data-city="${esc(key)}" aria-pressed="${key === selected ? 'true' : 'false'}">${label}${count === null ? '' : ` <span class="dealers-city__n">${count}<span class="sr-only"> ${count === 1 ? 'dealer' : 'dealers'}</span></span>`}</button>`;
-    return [chip('', 'All', null)]
+    const chip = (key, label, count) => `<button class="dealers-city" type="button" data-city="${esc(key)}" aria-pressed="${key === selected ? 'true' : 'false'}">${label}${count === null ? '' : ` <span class="dealers-city__n">${count}<span class="sr-only"> ${esc(t('chip::dealer|dealers', { n: count }))}</span></span>`}</button>`;
+    return [chip('', esc(t('dealers::All')), null)]
       .concat(cities.map((c) => chip(c.key, esc(cityLabel(c, cities)), c.count)))
       .join('');
   }
@@ -326,21 +351,23 @@
     return twin ? `${c.name}, ${c.state}` : c.name;
   }
 
-  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-
   /** The line above the list, for what is being shown. */
   function countText(n, ctx = {}) {
     switch (ctx.kind) {
-      case 'city': return `${plural(n, 'dealer', 'dealers')} in ${ctx.city}`;
-      case 'text': return n ? `${plural(n, 'dealer matches', 'dealers match')} your search` : '';
+      case 'city': return t('{n} dealer in {city}|{n} dealers in {city}', { n, city: ctx.city });
+      case 'text': return n ? t('{n} dealer matches your search|{n} dealers match your search', { n }) : '';
       case 'pincode':
         if (!n) return '';
-        if (!ctx.partial && ctx.exact) return `${plural(ctx.exact, 'dealer', 'dealers')} in ${ctx.pincode}${n > ctx.exact ? `, ${n - ctx.exact} more nearby` : ''}`;
+        if (!ctx.partial && ctx.exact) {
+          return n > ctx.exact
+            ? t('{n} dealer in {pincode}, {more} more nearby|{n} dealers in {pincode}, {more} more nearby', { n: ctx.exact, pincode: ctx.pincode, more: n - ctx.exact })
+            : t('{n} dealer in {pincode}|{n} dealers in {pincode}', { n: ctx.exact, pincode: ctx.pincode });
+        }
         return ctx.partial
-          ? `${plural(n, 'dealer', 'dealers')} with pincodes starting ${ctx.pincode}`
-          : `${plural(n, 'dealer', 'dealers')} near ${ctx.pincode}`;
-      case 'near': return `${plural(n, 'dealer', 'dealers')}, nearest first`;
-      default: return n ? `${plural(n, 'dealer', 'dealers')} in ${plural(ctx.cities || 0, 'city', 'cities')}` : '';
+          ? t('{n} dealer with pincodes starting {pincode}|{n} dealers with pincodes starting {pincode}', { n, pincode: ctx.pincode })
+          : t('{n} dealer near {pincode}|{n} dealers near {pincode}', { n, pincode: ctx.pincode });
+      case 'near': return t('{n} dealer, nearest first|{n} dealers, nearest first', { n });
+      default: return n ? t('{n} dealer in {cities}|{n} dealers in {cities}', { n, cities: t('{n} city|{n} cities', { n: ctx.cities || 0 }) }) : '';
     }
   }
 
@@ -505,26 +532,27 @@
    *   would like to join the GridX Dealership Network.
    */
   function joinMessage({ name, shop, planning, place } = {}) {
+    // In the page's language: the message is the would-be dealer's own words.
     const who = clean(name, 60);
-    const join = 'I would like to join the GridX Dealership Network.';
-    if (!who) return `Hi GridX, ${join}`;
+    if (!who) return t('Hi GridX, I would like to join the GridX Dealership Network.');
     let where = '';
     if (isObj(place) && typeof place.state === 'string' && place.state) {
-      const state = clean(place.state, 60);
+      const state = stateName(clean(place.state, 60));
       const town = clean(place.town, 60);
       // "near Delhi", not "near Delhi, Delhi".
-      if (town) where = town === state ? ` near ${town}` : ` near ${town}, ${state}`;
-      else where = ` in ${state}`;
+      if (town) where = town === clean(place.state, 60) ? t('near {town}', { town }) : t('near {town}, {state}', { town, state });
+      else where = t('in {state}', { state });
     }
     const business = clean(shop, 80);
     const doing = planning || !business
-      ? `I am planning to open a dealership${where}`
-      : `I run ${business}${where}`;
-    return `Hi GridX, I am ${who}. ${doing}, and ${join}`;
+      ? (where ? t('I am planning to open a dealership {where}', { where }) : t('I am planning to open a dealership'))
+      : (where ? t('I run {business} {where}', { business, where }) : t('I run {business}', { business }));
+    return t('Hi GridX, I am {name}. {doing}, and I would like to join the GridX Dealership Network.', { name: who, doing });
   }
 
   root.gridDealers = {
     SERVICES,
+    stateName,
     NEAR_KM,
     TOWN_KM,
     LOST_KM,

@@ -11,9 +11,13 @@
  * clock more than a minute out is corrected.
  *
  *   gridLaunch.at              the instant, in epoch ms
- *   gridLaunch.when            the instant in words, "12 October, 12 PM" (IST)
+ *   gridLaunch.when            the instant in words, "12 October, 12 PM" (IST), in the page's language
  *   gridLaunch.now()           Date.now(), corrected
  *   gridLaunch.left()          how long is left, in words: "26 hours, 12 minutes"
+ *
+ * Every word goes through gridLang (assets/i18n.js), so a translated page counts in its own
+ * language: the whole line is one sentence there ("Pre-booking opens in | <0>{count}</0>", its
+ * pause and its bold count), because the count does not sit in the same place in every one.
  *   gridLaunch.isOpen()
  *   gridLaunch.subscribe(fn)   fn(open) now, then again the moment pre-booking opens, including
  *                              on a page left open across it. Returns a function that
@@ -25,8 +29,9 @@
 (function () {
   'use strict';
 
+  const t = window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
   const AT = Date.UTC(2026, 9, 12, 6, 30); // 12 October 2026, 12:00 PM IST
-  const WHEN = '12 October, 12 PM'; // the same instant in words; change the two together
+  const WHEN = t('12 October, 12 PM'); // the same instant in words; change the two together
   const MINUTE = 60000;
   const HOUR = 60 * MINUTE;
   const params = new URLSearchParams(location.search);
@@ -49,19 +54,23 @@
     const minutes = Math.max(1, Math.ceil((AT - now()) / MINUTE));
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    const unit = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-    return h ? `${unit(h, 'hour')}, ${unit(m, 'minute')}` : unit(m, 'minute');
+    const mins = t('{n} minute|{n} minutes', { n: m });
+    return h ? t('{hours}, {minutes}', { hours: t('{n} hour|{n} hours', { n: h }), minutes: mins }) : mins;
   }
 
-  // The count, written into every line on the page that carries it (the home page's hero and
-  // its finale), and the "in" that turns "Pre-booking opens" into a count.
-  const counts = [...document.querySelectorAll('[data-launch-count]')];
-  const leads = [...document.querySelectorAll('[data-launch-lead]')];
+  // The line, written into every one on the page that carries it (the home page's hero and its
+  // finale), whole: phrases split at " | ", the count in bold where <0></0> puts it.
+  const notes = [...document.querySelectorAll('[data-launch-note], [data-prebook-note]')];
+  const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function noteHtml(count) {
+    return t('Pre-booking opens in | <0>{count}</0>', { count: '\u0000' }).split(/\s*\|\s*/)
+      .map((part) => `<span class="ph">${esc(part).replace(/&lt;0>/g, '<strong>').replace(/&lt;\/0>/g, '</strong>').replace('\u0000', esc(count))}</span>`)
+      .join(' ');
+  }
   function paint() {
-    if (!counts.length || isOpen()) return;
-    const words = left();
-    for (const el of counts) if (el.textContent !== words) el.textContent = words;
-    for (const el of leads) if (el.textContent !== 'Pre-booking opens in') el.textContent = 'Pre-booking opens in';
+    if (!notes.length || isOpen()) return;
+    const html = noteHtml(left());
+    for (const el of notes) if (el.innerHTML !== html) el.innerHTML = html;
   }
 
   // Wakes at the launch, and every minute before it as the count changes, and looks again:
@@ -178,7 +187,7 @@
         box.classList.add('is-opening');
         setTimeout(() => box.classList.remove('is-opening'), 1500);
       }
-      if (!first && news) news.textContent = 'Pre-booking is open.';
+      if (!first && news) news.textContent = t('Pre-booking is open.');
     });
   }
 })();

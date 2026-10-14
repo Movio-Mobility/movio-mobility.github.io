@@ -17,16 +17,19 @@
 (() => {
   'use strict';
 
+  // Every word this script writes, in the page's language (assets/i18n.js).
+  const t = typeof window !== 'undefined' && window.gridLang ? window.gridLang.t : (src, vars) => { let out = String(src).replace(/^[a-z][\w-]*::/, ''); if (vars && typeof vars.n === 'number' && out.includes('|')) out = out.split('|')[vars.n === 1 ? 0 : 1]; return out.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
+
   /*
    * `label` is the invoice wording, kept in step with Paddock. `short` is what a card or a
    * sheet row says, which is the shorter thing people actually call it. Both are here so
    * the two never drift apart by being written out separately in four pages of markup.
    */
   const ITEMS = [
-    { sku: 'adapter', price: 499, label: 'Portable Charging Adapter', short: 'Adapter' },
-    { sku: 'dock', price: 2999, label: 'Vehicle Dock', short: 'Vehicle Dock' },
-    { sku: 'chg6a', price: 2199, label: '6A Charger', short: '6A Charger' },
-    { sku: 'chg10a', price: 2699, label: '10A Charger', short: '10A Charger' },
+    { sku: 'adapter', price: 499, label: 'Portable Charging Adapter', short: t('Adapter') },
+    { sku: 'dock', price: 2999, label: 'Vehicle Dock', short: t('Vehicle Dock') },
+    { sku: 'chg6a', price: 2199, label: '6A Charger', short: t('6A Charger') },
+    { sku: 'chg10a', price: 2699, label: '10A Charger', short: t('10A Charger') },
   ];
 
   /** MAX_QTY_PER_SKU on the server, which is the one that actually counts. */

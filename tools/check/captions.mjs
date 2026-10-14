@@ -26,6 +26,10 @@ const { PNG } = require('pngjs');
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const ONLY = (process.argv.find((a) => a.startsWith('--only=')) || '').slice(7).split(',').filter(Boolean);
 const rootArg = process.argv.find((a) => a.startsWith('--root='));
+// --lang=hi walks the Hindi copy of the film (tools/i18n.mjs): the same rules in every language.
+const PORT = Number(process.env.CHECK_PORT || 8146);
+const LANG = ((process.argv.find((a) => a.startsWith('--lang=')) || '').slice(7)) || 'en';
+const FILM = LANG === 'en' ? 'index.html' : `${LANG}/index.html`;
 
 const VIEWPORTS = {
   small: { width: 320, height: 640, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
@@ -91,7 +95,7 @@ async function darkBottom(tab) {
   return bottom / dpr;
 }
 
-const server = await serve({ root: rootArg ? path.resolve(rootArg.slice(7)) : REPO, port: 8146, quiet: true });
+const server = await serve({ root: rootArg ? path.resolve(rootArg.slice(7)) : REPO, port: PORT, quiet: true });
 const chrome = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--hide-scrollbars'] });
 try {
   for (const [name, viewport] of Object.entries(VIEWPORTS)) {
@@ -104,7 +108,7 @@ try {
     // here); the console's own line for them carries none.
     tab.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|localhost:3000|favicon|paddock/i.test(m.text())) errors.push(m.text()); });
     tab.on('requestfailed', (q) => { if (!/localhost:3000|favicon/.test(q.url()) && !/ERR_ABORTED/.test((q.failure() || {}).errorText || '')) errors.push(`${q.url()} ${(q.failure() || {}).errorText}`); });
-    await tab.goto('http://localhost:8146/index.html?check&launch=60', { waitUntil: 'load' });
+    await tab.goto(`http://localhost:${PORT}/${FILM}?check&launch=60`, { waitUntil: 'load' });
     await sleep(2000);
     const wide = viewport.width >= 860;
 

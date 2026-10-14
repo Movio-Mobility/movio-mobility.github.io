@@ -11,7 +11,8 @@
       front
   the finale's phone                        assets/app/phone-home-<w>.webp
       from tools/check/out/phone-home.png, which tools/source/phone-still.mjs renders from the
-      film's CSS phone
+      film's CSS phone; and assets/app/hi/phone-home-<w>.webp, the same phone in the app's own
+      Hindi, from tools/check/out/phone-home-hi.png (phone-still.mjs --lang hi), when it exists
 
 Each is cropped to what it shows, with room below and to the sides for a soft shadow on the
 ground it rests on, and written as WebP with its transparency kept, at full size and at half.
@@ -113,10 +114,14 @@ report('perspective-front', img.size, ink)
 
 # The finale's phone, brought down to 700 pixels of phone (it is shown at most about 230 points
 # tall, so this is sharp at 2.5x and more), with the shadow at its own scale.
-phone = Image.open(REPO / 'tools/check/out/phone-home.png').convert('RGBA')
-x0, y0, x1, y1 = phone.getchannel('A').getbbox()
-k = 700 / (y1 - y0)
-phone = phone.resize((round(phone.width * k), round(phone.height * k)), Image.LANCZOS)
-img, ink = shadowed(phone, scale=(700 / 163.4) / POD_PX_PER_MM)
-write(img, REPO / 'assets/app', 'phone-home')
-report('phone-home', img.size, ink)
+for lang in ('', 'hi'):
+    src = REPO / f'tools/check/out/phone-home{"-" + lang if lang else ""}.png'
+    if lang and not src.exists():
+        continue
+    phone = Image.open(src).convert('RGBA')
+    x0, y0, x1, y1 = phone.getchannel('A').getbbox()
+    k = 700 / (y1 - y0)
+    phone = phone.resize((round(phone.width * k), round(phone.height * k)), Image.LANCZOS)
+    img, ink = shadowed(phone, scale=(700 / 163.4) / POD_PX_PER_MM)
+    write(img, REPO / 'assets/app' / lang if lang else REPO / 'assets/app', 'phone-home')
+    report(f'phone-home{" (" + lang + ")" if lang else ""}', img.size, ink)

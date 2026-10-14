@@ -2,6 +2,9 @@
 <html lang="en" class="skip-intro">
 <head>
   <meta charset="utf-8">
+  <!-- The site's languages (assets/i18n.js, inlined by the build): first, so a reader whose
+       language this page also comes in is sent there before anything paints. -->
+  <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>The GridX Story | GridXenergy Since 2018</title>
   <meta name="description" content="The story of GridXenergy: from a college robotics club in 2018 to the PowerPod portable batteries and the energy network GridX builds today.">
@@ -21,6 +24,7 @@
   <link rel="stylesheet" href="assets/tape.css">
   <link rel="stylesheet" href="assets/journey.css">
   <link rel="stylesheet" href="assets/footer.css">
+  <link rel="stylesheet" href="assets/lang.css">
 
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio in site.css is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
@@ -37,7 +41,7 @@
        there window.fbq is not defined, so any later call is written window.fbq && fbq(...).
        The hosts it talks to are allowed by the page's policy (CSP_SOURCES, tools/build.mjs). -->
   <script>
-  if (!(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
+  if (!window.gridLeaving && !(location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname))) {
   !function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -109,6 +113,10 @@
         </div>
       </nav>
     </div>
+
+    <!-- The language picker (tools/i18n.mjs pickerMarkup, written in by the build and the dev
+         server): a button with the first letter of the page's alphabet, its six languages. -->
+    <!-- lang:picker -->
   </header>
 
   <main class="journey tape">
@@ -800,7 +808,7 @@
           <div class="credits__col credits__col--mark">
             <h3 class="credits__label">Address</h3>
             <span class="credits__mark" aria-hidden="true"><img src="assets/gridX_logo.png" alt=""></span>
-            <address class="credits__address">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
+            <address class="credits__address" translate="no">D66, Pocket-D, Phase 1, Okhla.<br>New Delhi, 110020</address>
           </div>
         </div>
 
@@ -812,12 +820,16 @@
           <a href="warranty_terms.html">Warranty Terms</a>
           <span class="credits__copy">&copy; <span data-year>2026</span> Movio Technologies Private Limited</span>
         </div>
+        <!-- The site's languages, the last line of the page (tools/i18n.mjs footerLangsMarkup). -->
+        <!-- lang:footer -->
       </div>
     </div>
   </footer>
 
   <script src="assets/grid-bg.js"></script>
   <script src="assets/topbar.js"></script>
+  <!-- The language picker and the one-time offer (assets/lang.js). -->
+  <script src="assets/lang.js" defer></script>
   <script src="assets/tape.js"></script>
   <script src="assets/journey.js"></script>
   <script src="assets/footer.js"></script>
