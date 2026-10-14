@@ -148,6 +148,35 @@ html:not(.gl) #bg { display: none; }
 }
 .topbar > * { pointer-events: auto; }
 
+/* A band of glass under the page title, on the pages whose text would otherwise run under
+   it (the header says topbar--band; topbar.js turns it on once the page's first line has
+   scrolled up to the bar, and off again at the top). The same glass as the journey tape's
+   band, under the pill and the island and over the page: the bar is a stacking context of
+   its own, so z-index -1 lands it exactly there. Its box runs 40px past the bar and the fade
+   ends 16px short of that, so the blur never samples its own bottom edge (see .brand). It
+   goes with the room when the footer takes the lights down (--night, from footer.js). */
+.topbar--band::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(100% + 0.75rem + 40px);
+  background: linear-gradient(180deg, rgb(204 204 202 / 0.7), rgb(210 210 208 / 0.46));
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.05);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 40px), transparent calc(100% - 16px));
+  mask-image: linear-gradient(180deg, #000 calc(100% - 40px), transparent calc(100% - 16px));
+  opacity: calc(var(--band, 0) * (1 - var(--night, 0)));
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+html.band-on .topbar--band { --band: 1; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .topbar--band::before { background: linear-gradient(180deg, rgb(204 204 202 / 0.94), rgb(210 210 208 / 0.8)); }
+}
+
 /* Gentle entrance, shared by the logo and the island. */
 .brand,
 .island-wrap {
@@ -166,6 +195,19 @@ html:not(.gl) #bg { display: none; }
   filter: none;
   transform: none;
 }
+/* Each part of the bar keeps a compositing layer of its own, so nothing moving under the bar
+   can have it re-promoted mid-frame (the bar itself cannot: on phones the island is fixed
+   inside it, and a promoted parent would become its containing block). */
+.brand-lockup,
+.island-wrap { will-change: transform; }
+/* The room going dark (footer.js writes --night on the bar) dims the parts, never the bar:
+   the pill's glass reads the page behind it, and a parent at an opacity changing every
+   frame is a surface rebuilt every frame. --night is registered not to inherit (footer.css),
+   so the parts take it from the bar by name. On inner pages the lockup carries the logo and
+   the page title; the island's end state carries it, after the end states below. */
+.topbar > *,
+.topbar::before { --night: inherit; }
+.brand-lockup { opacity: calc(1 - var(--night, 0)); }
 
 /* Inner pages: no black stage or chrome fade — logo, title and island are on from first paint. */
 html.skip-intro .brand,
@@ -175,6 +217,9 @@ html.skip-intro .headline .w {
   filter: none;
   transform: none;
 }
+/* The island's end state carries the night (see .brand-lockup above). */
+.chrome-in .island-wrap,
+html.skip-intro .island-wrap { opacity: calc(1 - var(--night, 0)); }
 
 /* Page title sits to the right of GRID X and rides the wordmark collapse. */
 .brand-lockup {
@@ -207,19 +252,42 @@ html.skip-intro .headline .w {
    and the X as they fold (--rubber); its padding covers the X's overshoot. */
 .brand {
   --logo-h: 22px;
+  position: relative;
+  z-index: 0; /* its glass (::before) sits under its own content and nothing else's */
   display: flex;
   align-items: center;
   height: 44px;
   padding: 0 14px;
   border-radius: 999px;
+  overflow: hidden; /* clips the oversized glass to the pill; the X's overshoot is inside the padding */
+  box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5);
+  -webkit-tap-highlight-color: transparent;
+}
+/* The glass. A backdrop blur has to guess what lies past its edges, and Chrome guesses by
+   repeating the edge pixels: a spark drifting under the pill's edge is then smeared across
+   the whole blur and the glass flashes between frosted and flat. So the blur is taken on a
+   box reaching 32px past the pill on every side (over two standard deviations of the 14px
+   blur) and clipped to the pill, which keeps every visible pixel's sample well inside it. */
+.brand::before {
+  content: "";
+  position: absolute;
+  inset: -32px;
+  z-index: -1;
   background: rgb(12 12 12 / 0.55);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   backdrop-filter: blur(14px) saturate(1.2);
-  box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06);
-  -webkit-tap-highlight-color: transparent;
+}
+/* The hairline rim, over the glass. */
+.brand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  pointer-events: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .brand { background: rgb(18 18 18 / 0.86); }
+  .brand::before { background: rgb(18 18 18 / 0.86); }
 }
 .brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
 .brand__part {
@@ -504,6 +572,7 @@ html.skip-intro .headline .w {
   .island__thumb {
     transition: opacity 0.2s ease;
   }
+  .topbar--band::before { transition: none; }
 }
 
 /* reCAPTCHA Enterprise floats a badge in the bottom corner, exactly where a phone's Pay and

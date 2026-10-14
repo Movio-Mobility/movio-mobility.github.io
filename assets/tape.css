@@ -289,15 +289,18 @@ html:not(.js) .tl-peek { display: none; }
   margin-top: calc(-1 * var(--topbar-h) + 0.5rem);
   padding-top: var(--topbar-h);
 }
+/* The band's box runs 40px below the bar and the fade ends 18px short of it: the blur then
+   samples real page under the whole visible band instead of repeating its own bottom edge
+   (see .brand::before in site.css). The fade itself is where it always was. */
 .tl-bar::before {
   content: "";
   position: absolute;
-  inset: 0 0 -22px;
+  inset: 0 0 -40px;
   background: linear-gradient(180deg, rgb(204 204 202 / 0.7), rgb(210 210 208 / 0.46));
   -webkit-backdrop-filter: blur(16px) saturate(1.05);
   backdrop-filter: blur(16px) saturate(1.05);
-  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 24px), transparent);
-  mask-image: linear-gradient(180deg, #000 calc(100% - 24px), transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 42px), transparent calc(100% - 18px));
+  mask-image: linear-gradient(180deg, #000 calc(100% - 42px), transparent calc(100% - 18px));
   opacity: 0;
   transition: opacity 0.35s ease;
   pointer-events: none;

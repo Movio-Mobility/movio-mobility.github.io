@@ -3081,12 +3081,17 @@
         transform 1.4s var(--ease-gentle);
     }
     .island-wrap { transition-delay: 0.2s; }
+    .topbar > * { --night: inherit; } /* registered not to inherit (footer.css) */
     .chrome-in .brand,
     .chrome-in .island-wrap {
-      opacity: 1;
+      opacity: calc(1 - var(--night, 0)); /* the room going dark dims the parts, never the bar */
       filter: none;
       transform: none;
     }
+    /* Each part of the bar keeps a compositing layer of its own, so nothing moving under the
+       bar can have it re-promoted mid-frame. */
+    .brand,
+    .island-wrap { will-change: transform; }
 
     /* Logo: one image cropped into the GRID wordmark and the X mark (source 2048×256, half
        scale here: the logo in its own colours, sage letters and a cream X, as made for dark
@@ -3095,19 +3100,42 @@
        and the X as they fold (--rubber); its padding covers the X's overshoot. */
     .brand {
       --logo-h: 22px;
+      position: relative;
+      z-index: 0; /* its glass (::before) sits under its own content and nothing else's */
       display: flex;
       align-items: center;
       height: 44px;
       padding: 0 14px;
       border-radius: 999px;
+      overflow: hidden; /* clips the oversized glass to the pill; the X's overshoot is inside the padding */
+      box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5);
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* The glass. A backdrop blur has to guess what lies past its edges, and Chrome guesses by
+       repeating the edge pixels: a spark drifting under the pill's edge is then smeared across
+       the whole blur and the glass flashes between frosted and flat. So the blur is taken on a
+       box reaching 32px past the pill on every side (over two standard deviations of the 14px
+       blur) and clipped to the pill, which keeps every visible pixel's sample well inside it. */
+    .brand::before {
+      content: "";
+      position: absolute;
+      inset: -32px;
+      z-index: -1;
       background: rgb(12 12 12 / 0.55);
       -webkit-backdrop-filter: blur(14px) saturate(1.2);
       backdrop-filter: blur(14px) saturate(1.2);
-      box-shadow: 0 12px 32px -14px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.06);
-      -webkit-tap-highlight-color: transparent;
+    }
+    /* The hairline rim, over the glass. */
+    .brand::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+      pointer-events: none;
     }
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-      .brand { background: rgb(18 18 18 / 0.86); }
+      .brand::before { background: rgb(18 18 18 / 0.86); }
     }
     .brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
     .brand__part {

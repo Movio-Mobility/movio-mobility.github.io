@@ -31,8 +31,10 @@
 
 /* ---------------------------------------------------------------- the page recedes
    The room goes dark, so everything lit for the room goes with it. Continuous rather than
-   a class flip, so the chrome dissolves at the same rate as the cyclorama behind it. */
-.topbar,
+   a class flip, so the chrome dissolves at the same rate as the cyclorama behind it. The top
+   bar is not in this list: footer.js still writes --night on it, and site.css fades its parts
+   (the logo lockup, the island, a band) off that, so the bar itself, which the pill's glass
+   reads the page through, is never a surface at a changing opacity. */
 .hero,
 .store,
 .film,
@@ -45,9 +47,10 @@
   opacity: calc(1 - var(--night, 0));
 }
 
-/* The store sheet gives .store and .topbar a 0.6s opacity transition so the page can recede
-   behind a dialog. --night is already eased per frame, so here that transition would only
-   add lag: drop it for the duration. At the 0.02 threshold opacity is 0.98, so nothing jumps. */
+/* The store sheet gives .store a 0.6s opacity transition so the page can recede behind a
+   dialog, and the bar's parts carry their entrance transition. --night is already eased per
+   frame, so here those transitions would only add lag: drop them for the duration. At the
+   0.02 threshold opacity is 0.98, so nothing jumps. */
 html.is-night .store,
 html.is-night .journey,
 html.is-night .careers,
@@ -55,7 +58,9 @@ html.is-night .role,
 html.is-night .interview,
 html.is-night .lost,
 html.is-night .dealers,
-html.is-night .topbar {
+html.is-night .brand,
+html.is-night .island-wrap,
+html.is-night .topbar--band::before {
   transition: none;
 }
 

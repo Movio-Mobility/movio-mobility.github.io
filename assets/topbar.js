@@ -39,6 +39,11 @@
   // there. Keyboard focus is the one exception that still opens it: without that, tabbing
   // would land inside a menu nobody can see.
   const clickOnly = root.classList.contains('island-click-only');
+  // A band of glass under the page title, for the pages whose text would otherwise run under
+  // it: the header says so with topbar--band (see site.css). It forms once the page's first
+  // line of content has scrolled up to within 8px of the bar, and goes again at the top. The
+  // journey and careers tapes carry a band of their own; the home and store pages have none.
+  const band = topbar.classList.contains('topbar--band');
 
   const SHOW_DELAY_MS = skipIntro ? 0 : (reduceMotion ? 200 : 450); // after the headline starts revealing
   const IDLE_MS = 4500;
@@ -82,6 +87,39 @@
   measure();
   void island.offsetWidth;
   island.style.transition = '';
+
+  // ---------------------------------------------------------------- the band
+  let bandAt = Infinity;
+  let bandOn = false;
+  let bandQueued = false;
+
+  // Where the page's first line sits in the document: the first in-flow child of <main> with
+  // any height, so a page that centres its content (the 404) measures that and not padding.
+  function firstLine() {
+    const main = document.querySelector('main');
+    if (!main) return null;
+    for (const el of main.children) {
+      const cs = getComputedStyle(el);
+      if (cs.position === 'absolute' || cs.position === 'fixed' || cs.display === 'none') continue;
+      const r = el.getBoundingClientRect();
+      if (r.height > 0) return r.top + window.scrollY;
+    }
+    return null;
+  }
+
+  function updateBand() {
+    const on = window.scrollY >= bandAt;
+    if (on === bandOn) return;
+    bandOn = on;
+    root.classList.toggle('band-on', on);
+  }
+
+  function measureBand() {
+    if (!band) return;
+    const top = firstLine();
+    bandAt = top === null ? Infinity : Math.max(1, top - (topbar.offsetHeight + 8));
+    updateBand();
+  }
 
   // A new width is all it takes: the island's width transition (and on phones, the centring
   // transform that rides on the same variable) carries the rest. The right edge holds, so the
@@ -243,6 +281,19 @@
   if (!clickOnly) {
     window.addEventListener('scroll', onScroll, { passive: true });
   }
+  if (band) {
+    // Read on the next frame, as the tape does, so a fling costs one toggle a frame at most.
+    window.addEventListener('scroll', () => {
+      if (bandQueued) return;
+      bandQueued = true;
+      requestAnimationFrame(() => {
+        bandQueued = false;
+        updateBand();
+      });
+    }, { passive: true });
+    window.addEventListener('load', measureBand);
+    measureBand();
+  }
 
   for (const el of [lockup, island]) {
     el.addEventListener('pointerenter', (event) => {
@@ -325,6 +376,7 @@
   const onLayout = () => {
     measure();
     syncThumb();
+    measureBand();
   };
   window.addEventListener('resize', onLayout);
   if (document.fonts) document.fonts.ready.then(onLayout);

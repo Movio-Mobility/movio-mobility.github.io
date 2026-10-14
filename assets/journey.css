@@ -421,17 +421,18 @@ html.lightbox-open .review__track { animation-play-state: paused; }
 .review-fold.is-settled .review-fold__inner { overflow: visible; }
 
 /* Who we are, the founders and our backers live in no year of their own. journey.js moves
-   them into the current year; until it does (and without it) they follow the years. */
+   them into .tl-always after the current year; until it does (and without it) they follow
+   the years. */
 .js .tl-today { display: none; }
 html:not(.js) .tl-today { margin-top: 5rem; }
 
-/* The founders, our backers and the way on (.tl-always, after the panels) never go with the
-   timeline. Collapsed, the first screen is the studio and its tape, with the founders' title
-   just showing at its foot so there is clearly more below, though never closer than 240px
-   under the horizon, which leaves the peek and the hint their room on a short screen. Open,
-   they carry on after the current year's chapters at the usual spacing. The opening film is
-   not the timeline collapsed but the tape on its way to a year: they wait until it lands,
-   or until a touch takes over and leaves the timeline collapsed. */
+/* Who we are, the founders, our backers and the way on (.tl-always, after the panels) never
+   go with the timeline. Collapsed, the first screen is the studio and its tape, with the
+   title of Who we are just showing at its foot so there is clearly more below, though never
+   closer than 240px under the horizon, which leaves the peek and the hint their room on a
+   short screen. Open, they carry on after the current year's chapters at the usual spacing.
+   The opening film is not the timeline collapsed but the tape on its way to a year: they
+   wait until it lands, or until a touch takes over and leaves the timeline collapsed. */
 .js .journey:not(.is-open):not(.is-filming) .tl-head {
   min-height: max(calc(100vh - 10rem), calc(var(--horizon-y) + 240px));
   min-height: max(calc(100svh - 10rem), calc(var(--horizon-y) + 240px));
@@ -653,8 +654,6 @@ html:not(.js) .tl-today { margin-top: 5rem; }
 }
 
 /* ---------------------------------------------------------------- wider screens */
-.review-fold + .chapter { padding-top: clamp(2.75rem, 9vw, 5.5rem); }
-
 @media (min-width: 760px) {
   .journey { --bar-h: 84px; --hairline: 60px; }
   .review__window { height: clamp(420px, 42vw, 540px); }

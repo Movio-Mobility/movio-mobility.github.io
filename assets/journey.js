@@ -34,13 +34,14 @@
 
   // ---------------------------------------------------------------- the years
   // Every year with a story is an ordinary panel. The tape runs from the first of them to the
-  // reader's current year, one stop each, and the current year always ends with who we are,
-  // the founders and our backers: the yearless .tl-today block, moved in here. If the current
-  // year already has chapters of its own, it opens with "This year in review" over its photos.
+  // reader's current year, one stop each, and who we are, the founders and our backers (the
+  // yearless .tl-today block) always follow the current year, in .tl-always after the panels,
+  // whether the timeline is open on it or collapsed. If the current year already has chapters
+  // of its own, it opens with "This year in review" over its photos.
   //
   // So it all moves on by itself. Next January the year just gone becomes an ordinary year
-  // with a "Continue to" at its end, and the new one starts as an empty panel holding the three
-  // parts, until its first chapters are written.
+  // with a "Continue to" at its end, and the new one starts as an empty panel with the three
+  // parts following it, until its first chapters are written.
   const panelsEl = journey.querySelector('.tl-panels');
   const todayBlock = journey.querySelector('.tl-today');
   const panels = [...journey.querySelectorAll('.tl-panel[data-year]')];
@@ -63,7 +64,7 @@
   }
   panels.sort((a, b) => Number(a.dataset.year) - Number(b.dataset.year));
 
-  // This year's own chapters, then the review over their photos, then the three parts.
+  // This year's own chapters, then the review over their photos.
   const ownTitles = [...current.querySelectorAll('.chapter__title')].map((t) => t.textContent.trim());
   // Its chapters' photos, and the ones kept for the review alone (inert in a template).
   const reviewPhotos = [
@@ -85,19 +86,18 @@
     review.after(fold);
     wireReview(review, fold);
   }
-  // Who we are closes the current year. The founders, our backers and the way on stay out of
-  // the panels, in .tl-always after them: on the page whenever the timeline is collapsed, and
-  // after the current year's chapters when it is open. Only an older year hides them, so it
-  // still ends on its "Continue to".
+  // Who we are, the founders, our backers and the way on stay out of the panels, in
+  // .tl-always after them: on the page whenever the timeline is collapsed, and after the
+  // current year's chapters when it is open. Only an older year hides them, so it still ends
+  // on its "Continue to".
   const always = document.createElement('div');
   always.className = 'tl-always';
   if (todayBlock) {
     const heading = todayBlock.querySelector('.tl-today__heading');
     if (heading) heading.remove();
-    for (const part of todayBlock.querySelectorAll(':scope > .chapter--team, :scope > .chapter--backers, :scope > .tl-end')) {
+    for (const part of todayBlock.querySelectorAll(':scope > .chapter--lead, :scope > .chapter--team, :scope > .chapter--backers, :scope > .tl-end')) {
       always.append(part);
     }
-    while (todayBlock.firstChild) current.append(todayBlock.firstChild);
     todayBlock.remove();
   }
   panelsEl.append(always);
@@ -105,7 +105,9 @@
   current.dataset.theme = 'Today';
   const currentTheme = current.querySelector('.tl-panel__theme');
   if (currentTheme) currentTheme.textContent = 'Today';
-  current.dataset.peek = [...ownTitles, 'Who we are', 'Founders', 'Backers'].join(' · ');
+  // The year's line under the tape names its own chapters only: who we are, the founders and
+  // our backers are on the page below it whether the year is open or not.
+  current.dataset.peek = ownTitles.join(' · ');
 
   // Every year but the current one ends with the way on to the next.
   panels.forEach((panel, i) => {
@@ -682,10 +684,11 @@
       set: (s) => setTitle(s.id),
       roll: (s, dir) => rollTitle(s.id, dir),
     },
-    peek: (s) => ({
-      text: s.id === LAST ? `Today · ${s.peek}` : s.peek,
-      label: `Open ${s.id}: ${s.peek}`,
-    }),
+    peek: (s) => {
+      // The current year is "Today"; plain "Today" until it has a chapter of its own.
+      const text = s.id === LAST ? (s.peek ? `Today · ${s.peek}` : 'Today') : s.peek;
+      return { text, label: `Open ${s.id}: ${text}` };
+    },
     // The current year's arrivals run on into .tl-always, which follows it; with no year open,
     // .tl-always is what arrives.
     arrivals: (s) => (s

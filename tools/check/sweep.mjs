@@ -98,26 +98,31 @@ for (const name of ['journey', 'index', 'careers']) {
   await sleep(600);
   await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await sleep(3000);
-  const st = await page.evaluate(() => ({
+  // The bar itself never dims (its glass reads the page through it, see site.css): its parts
+  // do, the logo (in its lockup on inner pages) and the island.
+  const partsOpacity = () => Math.max(...['.topbar > .brand-lockup', '.topbar > .brand', '.topbar > .island-wrap']
+    .map((sel) => document.querySelector(sel)).filter(Boolean).map((el) => parseFloat(getComputedStyle(el).opacity)));
+  const st = await page.evaluate((partsOpacity) => ({
     night: window.gridNight ? +window.gridNight.value.toFixed(3) : null,
     topbarNight: document.querySelector('.topbar').style.getPropertyValue('--night'),
     topbarOpacity: getComputedStyle(document.querySelector('.topbar')).opacity,
+    partsOpacity: (0, eval)(`(${partsOpacity})`)(),
     theme: document.querySelector('meta[name="theme-color"]').content,
     isNight: document.documentElement.classList.contains('is-night'),
     pod: document.getElementById('pod') ? document.getElementById('pod').style.opacity : 'n/a',
     rootNight: document.documentElement.style.getPropertyValue('--night'),
-  }));
-  const ok = st.night > 0.95 && parseFloat(st.topbarOpacity) < 0.06 && st.theme === '#0b0b0a' && st.isNight
+  }), partsOpacity.toString());
+  const ok = st.night > 0.95 && parseFloat(st.topbarOpacity) === 1 && st.partsOpacity < 0.06 && st.theme === '#0b0b0a' && st.isNight
     && st.rootNight === '' && (name !== 'index' || parseFloat(st.pod) < 0.06);
   report(`footer night ${name}`, ok, JSON.stringify(st), errors);
   // And back up: the lights come back.
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await sleep(2500);
-  const back = await page.evaluate(() => ({
+  const back = await page.evaluate((partsOpacity) => ({
     night: window.gridNight ? +window.gridNight.value.toFixed(3) : null,
-    topbarOpacity: getComputedStyle(document.querySelector('.topbar')).opacity,
-  }));
-  report(`footer lights back ${name}`, back.night < 0.05 && parseFloat(back.topbarOpacity) > 0.9, JSON.stringify(back), errors);
+    partsOpacity: (0, eval)(`(${partsOpacity})`)(),
+  }), partsOpacity.toString());
+  report(`footer lights back ${name}`, back.night < 0.05 && back.partsOpacity > 0.9, JSON.stringify(back), errors);
   await page.close();
 }
 
