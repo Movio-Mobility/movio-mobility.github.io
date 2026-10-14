@@ -37,6 +37,7 @@
     "check:captions": "node tools/check/captions.mjs",
     "stills": "node tools/source/phone-still.mjs && python3 tools/source/stills.py",
     "hands": "node tools/source/hands/render.mjs",
+    "pod-stills": "node tools/source/pod-stills.mjs",
     "perf": "node tools/perf/run.mjs",
     "reel": "node tools/perf/reel.mjs",
     "design-kit": "node tools/design-kit/kit.mjs",

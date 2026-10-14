@@ -57,6 +57,7 @@ const ALREADY_MINIFIED = new Set(['assets/three.min.js']);
 const EXCLUDE = [
   /(^|\/)\.DS_Store$/,
   /^assets\/productImages\/.*\.png$/i, // source renders and CAD exports; pages use the WebP exports
+  /^assets\/productImages\/.*\.json$/i, // what the render tools note about their images (pod.json)
 ];
 // Copied as they are. sitemap.xml is not here: it is generated (see sitemap() below).
 const ROOT_FILES = ['CNAME', 'robots.txt', 'favicon.ico', 'apple-touch-icon.png'];

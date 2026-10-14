@@ -1,15 +1,19 @@
 /*
  * PowerPod 3D: the product scene, on its own.
  *
+ * Not shipped. This is the scene the Gen2 page's two stills are rendered from
+ * (tools/source/pod-stills.mjs, npm run pod-stills): the page used to build it live, and now
+ * shows the same pixels as images sized to each screen. Kept so the stills can be rendered again
+ * whenever the model, the materials or the light change.
+ *
  * Scene construction only: studio environment, mesh, materials, decals, connector, display
  * and lights. No scroll listener, no render loop, no knowledge of the particle field. The
- * page owns the camera choreography and the rAF; this module just builds the pod and places
- * a camera on request.
+ * caller owns the camera and the drawing; this module just builds the pod and places a camera
+ * on request.
  *
  * NOTE: the home page carries its own inline copy of this scene (index.html, the gridPod
  * IIFE). The two are kept deliberately in sync by hand: a change to materials, lighting or
- * geometry here must be made there too. Home was left on its inline copy so that adding a
- * product page could not regress the film on the front door.
+ * geometry here must be made there too, and the stills rendered again.
  *
  * Takes what GridPodAssets.load() resolves to (assets/pod-assets.js) as `assets`: THREE, the
  * binary model and the logo's URL.

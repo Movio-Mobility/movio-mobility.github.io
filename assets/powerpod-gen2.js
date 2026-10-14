@@ -4,8 +4,8 @@
  * 1. The flow:        three stages, one shown at a time. Stage 1 is four steps running
  *                     vertically, all on screen at once: a step you have not reached is
  *                     lightened rather than hidden, so what is coming is always in sight.
- *                     No IntersectionObserver and no scroll mapping, so the pod moves on
- *                     intent rather than on how far down the panel someone happens to be.
+ *                     No IntersectionObserver and no scroll mapping, so the stage answers
+ *                     intent rather than how far down the panel someone happens to be.
  * 2. Configuration:   two real radio groups, nothing preselected: a vehicle or not, and
  *                     which Komaki when there is one. The Komaki step is only shown with a
  *                     vehicle. Nothing is priced per option: the footer says what the whole
@@ -18,12 +18,14 @@
  *                     instead: a profile, then a rupee. Never setPod: that path seizes
  *                     scroll control for good (grid-bg.js takeScroll). The stage is also
  *                     made inert, see swallowing below.
- * 4. The 3D pod:      1.8 MB of Three.js and mesh data, loaded on idle. The flow is fully
- *                     usable before any of it arrives, and stays usable if none does. It
- *                     only draws on the configure stage, and is not even built off it.
+ * 4. The pod:         two stills of the 3D scene (tools/source/pod-stills.mjs), standing and
+ *                     lying in the Komaki's bay, each fetched at the size the screen needs.
+ *                     The stand is plain markup (it comes into focus in CSS); the bay is
+ *                     fetched in idle time after it. The ride moves them with a transform, on
+ *                     the 3D camera's own path, and the loop sleeps whenever nothing moves.
  * 5. The Komaki, up close: each model's picture, full size over everything, on a tap and
  *                     on nothing else: the large file is fetched then, not with the page,
- *                     and the image is removed again on the X. The page's own canvases
+ *                     and the image is removed again on the X. The page's own loops
  *                     sleep meanwhile.
  * 6. Payment:         one way to pay, a ₹399 hold, on one page that says everything:
  *                     what is pre-booked, what is paid now and why, what is left and when.
@@ -46,7 +48,9 @@
   const panel = document.getElementById('pg2-panel');
   const scroller = document.getElementById('pg2-scroll');
   const form = document.getElementById('pg2-config');
-  const podCanvas = document.getElementById('pod');
+  const podEl = document.getElementById('pg2-pod');
+  const standPic = document.getElementById('pg2-pod-stand');
+  const bayPic = document.getElementById('pg2-pod-bay');
 
   // The configurator is a purchase flow, so the checkout script is fetched at the first sign of
   // use (a tap, a key, a focus in the panel) rather than with the page, and has long arrived by
@@ -496,8 +500,8 @@
       stepReached('reserve');
     }
 
-    // Stage 1 hands the camera back to whichever step is in play. The other two are not the
-    // pod's: it stops drawing and the field gathers into their drawing instead.
+    // Stage 1 goes back to whichever step is in play. The other two are not the pod's: it
+    // fades out and the field gathers into their drawing instead.
     if (stage === 1) goToStep(currentStep, false);
     setScene();
     render();
@@ -511,13 +515,10 @@
     if (title) title.focus({ preventScroll: true });
   }
 
-  // The pod moves here and only here: on a selection, or on a stage change. Never on
-  // scroll.
+  // The step in play: on a selection, or on a stage change. Never on scroll.
   function goToStep(n, scrollThere) {
     currentStep = stage === 1 ? clamp(n, 1, LAST_STEP) : currentStep;
     if (stage === 1) stepReached(STEP_SLUG[clamp(n, 1, LAST_STEP) - 1]);
-    shotTarget = n;
-    startLoop();
     if (scrollThere && stage === 1) {
       const el = stepAt(clamp(n, 1, LAST_STEP));
       if (el) scroller.scrollTo({ top: Math.max(0, el.offsetTop - 12), behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -634,42 +635,6 @@
 
   form.addEventListener('submit', (event) => event.preventDefault());
 
-  // ---------------------------------------------------------------- camera beats
-  // az and el are spherical, frame is the share of the stage height the pod fills, target
-  // is the world Y the camera looks at. The pod stands 391 tall, so its contacts are near
-  // -195 and its display near +195 (see powerpod-3d.js).
-  const BEATS = [
-    { at: 0, az: -0.86, el: 0.26, frame: P(0.52, 0.47), target: 0 },   // entry
-    { at: 1, az: -0.62, el: 0.17, frame: P(0.62, 0.58), target: 0 },   // 1 PowerPod
-    { at: 2, az: -0.50, el: -0.10, frame: P(0.50, 0.46), target: -6 }, // 2 Vehicle
-    { at: 3, az: -0.34, el: 0.04, frame: P(0.56, 0.52), target: -4 },  // 3 Komaki
-    { at: 4, az: -0.55, el: 0.19, frame: P(0.58, 0.54), target: 0 },   // 4 Review
-  ];
-  // Details and payment have no beat: the pod is not on screen for them (see scenes below).
-  const LAST_BEAT = BEATS[BEATS.length - 1].at;
-
-  function shotAt(t) {
-    let i = 0;
-    while (i < BEATS.length - 1 && t > BEATS[i + 1].at) i++;
-    const a = BEATS[i];
-    const b = BEATS[Math.min(BEATS.length - 1, i + 1)];
-    const k = b === a ? 0 : smoother(remap01(t, a.at, b.at));
-    return {
-      az: mix(a.az, b.az, k),
-      el: mix(a.el, b.el, k),
-      frame: mix(a.frame, b.frame, k),
-      target: mix(a.target, b.target, k),
-    };
-  }
-
-  // The stage is a short top band under 1025px, with the brand lockup floating over it, so
-  // the pod is dropped clear of the chrome with a lens shift rather than with padding.
-  const lens = () => ({ x: 0, y: stacked() ? -0.07 : 0 });
-
-  let shotT = 0;
-  let shotTarget = 1;
-  let lastShot = null; // what the pod was last told, for the checks
-
   // ---------------------------------------------------------------- the halo
   const haloOn = !reduceMotion && typeof window.gridBG !== 'undefined';
   const REST_WEIGHT = phone ? 0.78 : 0.62;
@@ -719,9 +684,10 @@
     };
   }
 
+  // Returns whether the ring has arrived, so the loop can sleep.
   function stepHalo(dt, now) {
     const api = window.gridBG;
-    if (!api || typeof api.setHalo !== 'function') return;
+    if (!api || typeof api.setHalo !== 'function') return true;
 
     const age = now - pulseAt;
     pulseT = age < PULSE_HOLD ? 1 : 1 - smoother(remap01(age, PULSE_HOLD, PULSE_END));
@@ -756,23 +722,25 @@
         weight: spec.weight,
       });
     }
+    const near = (a, b, eps) => Math.abs(a - b) < eps;
+    return age > PULSE_END
+      && near(spec.left, t.rect.left, 0.05) && near(spec.top, t.rect.top, 0.05)
+      && near(spec.width, t.rect.width, 0.05) && near(spec.height, t.rect.height, 0.05)
+      && near(spec.radius, t.radius, 0.05) && near(spec.depth, t.depth, 0.001)
+      && near(spec.fill, t.fill, 0.0005) && near(spec.grip, t.grip, 0.0005)
+      && near(spec.weight, t.weight, 0.001);
   }
 
   // ---------------------------------------------------------------- scenes
   // What the stage shows: the pod while the PowerPod is being configured, then a drawing the
   // particle field gathers into, a profile while details are filled in and a rupee at
-  // payment. The 3D pod is the heaviest thing on the page, so it is not drawn, and not even
-  // built, while it is not the scene. Without the WebGL field, or with reduced motion, the
-  // drawings are still SVGs on the stage instead (.pg2__glyph).
+  // payment. Off its stage the pod fades out and leaves the compositor (CSS). Without the
+  // WebGL field, or with reduced motion, the drawings are still SVGs on the stage instead
+  // (.pg2__glyph).
   const SCENES = { 1: 'pod', 2: 'profile', 3: 'rupee' };
   let scene = stageEl.dataset.scene || 'pod';
   const formOn = haloOn && root.classList.contains('gl') && typeof window.gridBG.setForm === 'function';
   stageEl.classList.toggle('is-glyph-static', !formOn);
-
-  // Mounting waits for the pod's own stage, see boot3D.
-  let podSceneWaiters = [];
-  const whenPodScene = () => (scene === 'pod' ? Promise.resolve()
-    : new Promise((resolve) => podSceneWaiters.push(resolve)));
 
   function setScene() {
     const next = SCENES[stage] || 'pod';
@@ -780,11 +748,6 @@
     scene = next;
     stageEl.dataset.scene = next;
     sendForm();
-    if (next === 'pod') {
-      const waiting = podSceneWaiters;
-      podSceneWaiters = [];
-      for (const resolve of waiting) resolve();
-    }
     startLoop();
   }
 
@@ -835,11 +798,7 @@
     ((x - (FIGURE.x0 + FIGURE.x1) / 2) * 2) / FIG_SPAN,
     ((y - (FIGURE.y0 + FIGURE.y1) / 2) * 2) / (FIGURE.y1 - FIGURE.y0),
   ];
-  // The camera while the pod is in the bay: nearly side on, so it reads as part of the
-  // machine, with the roll that lays it on the dock's slant.
-  const RIDE_AZ = -0.30;
-  const RIDE_EL = 0.06;
-  const RIDE_ROLL = (DOCK.pod.tilt * Math.PI) / 180;
+  // As long as the 3D camera's move took, on the same smootherstep.
   const RIDE_SECONDS = 0.9;
 
   // The vehicle dock, as strokes in the scooter's figure units. Built from DOCK.pod rather
@@ -875,9 +834,9 @@
   // Whether the ride is on screen: a vehicle wanted, on the configure stage, with a field
   // that can draw it. Without one the static glyph stands in (CSS, data-vehicle).
   let rideOn = false;
-  let rideT = 0;        // 0 on the pod's own beat, 1 docked in the bay
+  let rideT = 0;        // 0 standing, 1 docked in the bay
   let rideRect = null;  // the scooter's box, viewport CSS px
-  let stageRect = null; // the stage's, for the pod's lens
+  let stageRect = null; // the stage's
 
   // Where the scooter sits: most of the stage's width, and no more height than the film
   // gives it. Under 1025px the brand lockup floats over the top of the stage, so the box is
@@ -895,17 +854,14 @@
     return { left: r.left + (r.width - width) / 2, top: top + (h - height) / 2, width, height };
   }
 
-  // The pod's place in the bay, as the pod module wants it: a lens shift to the bay's point
-  // on this canvas and a frame so the pod is the dock's length. `away` is how far up its
-  // slant it still is, in figure units.
-  function bayShot(away) {
+  // The bay's point on the stage, in the stage's own pixels: where the pod's middle comes to
+  // rest, or `away` further up its slant, in figure units.
+  function bayAt(away) {
     const [ux, uy] = toUnit(DOCK.pod.x + away * Math.SQRT1_2, DOCK.pod.y + away * Math.SQRT1_2);
-    const px = rideRect.left + (ux * 0.5 + 0.5) * rideRect.width;
-    const py = rideRect.top + (0.5 - uy * 0.5) * rideRect.height;
-    const nx = ((px - stageRect.left) / Math.max(1, stageRect.width)) * 2 - 1;
-    const ny = 1 - ((py - stageRect.top) / Math.max(1, stageRect.height)) * 2;
-    const podPx = DOCK.pod.len * (rideRect.width / FIG_SPAN);
-    return { lens: { x: -nx / 2, y: ny / 2 }, frame: podPx / Math.max(1, stageRect.height) };
+    return {
+      x: rideRect.left - stageRect.left + (ux * 0.5 + 0.5) * rideRect.width,
+      y: rideRect.top - stageRect.top + (0.5 - uy * 0.5) * rideRect.height,
+    };
   }
 
   // Called from render(): the ride follows the choice, and the field is told the moment it
@@ -914,10 +870,113 @@
     const want = formOn && stage === 1 && withVehicle();
     if (want === rideOn && (!want || rideRect)) return;
     rideOn = want;
-    stageRect = stageEl.getBoundingClientRect();
-    if (rideOn) rideRect = vehicleRect();
+    measurePod();
+    // Fetched in idle time long before this, almost always; if not, now.
+    if (rideOn) loadBay();
     if (scene === 'pod') sendForm();
     startLoop();
+  }
+
+  // ---------------------------------------------------------------- the pod's two stills
+  // How many frames tall each image is: the frame is the camera's unit, the pod's height at
+  // its middle, which is what the stage's framing and the dock's length are given in.
+  // tools/source/pod-stills.mjs writes these to pod.json beside the images (the stand's is in
+  // the stylesheet as well).
+  const STAND_FRAMES = 1.11273;
+  const BAY_FRAMES = 1.05882;
+  const BAY_WIDTH = 0.41961 / BAY_FRAMES; // its width over its height
+  const standImg = standPic && standPic.querySelector('img');
+  const bayImg = bayPic && bayPic.querySelector('img');
+  // Where each sits, in the stage's pixels: the point it is centred on and the frame at its
+  // size. Read from layout on a resize and when the ride is asked for, never per frame.
+  let podAt = null;
+  let podDirty = false;
+  let bayAsked = false;
+  let bayReady = false;
+
+  // The bay is fetched behind the stand, in idle time: a few KB, long arrived by the vehicle
+  // question, and never in the way of the stand itself.
+  if (standImg) {
+    const behind = () => {
+      if (window.GridPerf && window.GridPerf.idle) window.GridPerf.idle(loadBay, 3000);
+      else window.setTimeout(loadBay, 600);
+    };
+    if (standImg.complete) behind();
+    else {
+      standImg.addEventListener('load', behind, { once: true });
+      standImg.addEventListener('error', behind, { once: true });
+    }
+  }
+
+  function measurePod() {
+    stageRect = stageEl.getBoundingClientRect();
+    rideRect = vehicleRect();
+    if (!podEl || !standPic || !bayPic) return;
+    const cs = getComputedStyle(standPic);
+    const stand = { x: parseFloat(cs.left), y: parseFloat(cs.top), F: parseFloat(cs.height) / STAND_FRAMES };
+    const bay = { ...bayAt(0), F: DOCK.pod.len * (rideRect.width / FIG_SPAN) };
+    podAt = { stand, bay };
+    podEl.style.setProperty('--bay-x', `${bay.x.toFixed(2)}px`);
+    podEl.style.setProperty('--bay-y', `${bay.y.toFixed(2)}px`);
+    podEl.style.setProperty('--bay-h', `${(bay.F * BAY_FRAMES).toFixed(2)}px`);
+    // The bay's box is only known here, so its sizes is written here: its width, with the
+    // same 15% to spare the stand's sizes has.
+    const sizes = `${Math.ceil(bay.F * BAY_FRAMES * BAY_WIDTH * 1.15)}px`;
+    for (const el of bayPic.querySelectorAll('source, img')) {
+      if (el.getAttribute('sizes') !== sizes) el.setAttribute('sizes', sizes);
+    }
+    podDirty = true;
+  }
+
+  function loadBay() {
+    if (bayAsked || !bayPic || !bayImg) return;
+    bayAsked = true;
+    measurePod();
+    bayImg.addEventListener('load', () => {
+      const done = () => {
+        bayReady = true;
+        podDirty = true;
+        startLoop();
+      };
+      if (bayImg.decode) bayImg.decode().then(done, done);
+      else done();
+    }, { once: true });
+    for (const el of bayPic.querySelectorAll('[data-srcset]')) el.srcset = el.dataset.srcset;
+  }
+
+  // The ride, as the camera made it: the pod's middle runs from its own place to the bay's,
+  // the last of the way a slide down the slant (DOCK.entry); it shrinks to the dock's length
+  // and turns onto the slant, all on one smootherstep. Both stills make the same move from
+  // where each sits, so they are always one on the other. The bay's comes up over the stand's
+  // while the pod is small and turning, which is where the camera swung round to its side,
+  // and over it rather than instead of it, so the pod is solid all the way.
+  const ease = (t) => t * t * (3 - 2 * t);
+  function applyRide(r) {
+    if (!podAt) return;
+    if (r <= 0) {
+      for (const pic of [standPic, bayPic]) {
+        pic.style.transform = '';
+        pic.style.opacity = '';
+        pic.style.willChange = '';
+      }
+      return;
+    }
+    const { stand, bay } = podAt;
+    const at = bayAt(DOCK.entry * (1 - r));
+    const x = mix(stand.x, at.x, r);
+    const y = mix(stand.y, at.y, r);
+    const F = mix(stand.F, bay.F, r);
+    const turn = DOCK.pod.tilt * r;
+    const move = (from) => `translate(-50%, -50%) translate(${(x - from.x).toFixed(2)}px, ${(y - from.y).toFixed(2)}px) `
+      + `rotate(${turn.toFixed(3)}deg) scale(${(F / from.F).toFixed(5)})`;
+    standPic.style.transform = move(stand);
+    bayPic.style.transform = move(bay);
+    // Their own layers while they move, handed back at rest so each is drawn crisp where it ends.
+    const moving = r < 1 ? 'transform, opacity' : '';
+    standPic.style.willChange = moving;
+    bayPic.style.willChange = moving;
+    bayPic.style.opacity = bayReady ? ease(remap01(r, 0.3, 0.6)).toFixed(3) : '0';
+    standPic.style.opacity = bayReady ? (1 - ease(remap01(r, 0.5, 0.72))).toFixed(3) : '1';
   }
 
   /**
@@ -1010,73 +1069,48 @@
         return;
       }
       // The scooter is wider than the glyphs and has more line to it, so it takes more of
-      // the field; still a fraction of what the pod costs to draw.
+      // the field.
       const wanted = clamp(rideRect.width * 3.5, 900, 2600);
       api.setForm({ key: 'scooter', points: shapePoints('scooter'), rect: rideRect, density: wanted / (api.capacity || 8000) });
       return;
     }
     const rect = formRect();
     // A few points per pixel of width: enough to read as a line at any size while still
-    // reading as particles, and a fraction of what the pod costs to draw.
+    // reading as particles.
     const wanted = clamp(rect.width * 5, 650, 1300);
     api.setForm({ key: scene, points: shapePoints(scene), rect, density: wanted / (api.capacity || 8000) });
   }
 
   // ---------------------------------------------------------------- one loop
-  let pod = null;
+  // Runs only while something moves: the ride, and the ring gathering or letting go. Then it
+  // sleeps until a choice, a stage, a resize or the governor wakes it.
   let rafId = 0;
   let last = 0;
 
   function frame(now) {
     rafId = requestAnimationFrame(frame);
-    // Paced with the particle field (assets/perf.js), so the two canvases draw together.
+    // Paced with the particle field (assets/perf.js), so the two move together.
     if (window.GridPerf && !window.GridPerf.frame(now)) return;
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
 
-    // Critically damped follow. Slower than the home page's 9 because the target here
-    // jumps a whole beat at a time, so arrivals should settle rather than stop dead.
-    const k = reduceMotion ? 30 : (phone ? 3.6 : 3.0);
-    shotT += (clamp(shotTarget, 0, LAST_BEAT) - shotT) * (1 - Math.exp(-dt * k));
-
     // The ride: a clock that runs to 1 while the scooter is wanted and back to 0 when it is
     // not, so the pod slides in and out of the bay the same way.
     const want = rideOn ? 1 : 0;
-    if (rideT !== want) rideT = clamp(rideT + (want ? dt : -dt) / RIDE_SECONDS, 0, 1);
-    const ride = smoother(rideT);
-
-    // Only on its own stage. Elsewhere its canvas fades out on the last frame it drew.
-    if (pod && scene === 'pod') {
-      const driftAz = reduceMotion ? 0 : Math.sin(now * 0.00017) * 0.004;
-      const driftEl = reduceMotion ? 0 : Math.cos(now * 0.00013) * 0.003;
-      let shot = shotAt(shotT);
-      let offset = lens();
-      if (ride > 0 && rideRect && stageRect) {
-        // Into the bay: the beat's framing gives way to the dock's, the pod rolls onto the
-        // slant, and the last of the way is a slide down it (DOCK.entry).
-        const bay = bayShot(DOCK.entry * (1 - ride));
-        shot = {
-          az: mix(shot.az, RIDE_AZ, ride),
-          el: mix(shot.el, RIDE_EL, ride),
-          frame: mix(shot.frame, bay.frame, ride),
-          target: mix(shot.target, 0, ride),
-          roll: RIDE_ROLL * ride,
-        };
-        offset = { x: mix(offset.x, bay.lens.x, ride), y: mix(offset.y, bay.lens.y, ride) };
-      }
-      pod.setShot(shot, driftAz, driftEl, offset);
-      lastShot = { shot, offset };
+    const riding = rideT !== want;
+    if (riding) rideT = clamp(rideT + (want ? dt : -dt) / RIDE_SECONDS, 0, 1);
+    if (riding || podDirty) {
+      podDirty = false;
+      applyRide(smoother(rideT));
     }
-    if (haloOn) stepHalo(dt, now);
-
-    // Off the pod's stage there is nothing left to do here once the ring has let go: the
-    // drawing is the particle field's own work. So the loop sleeps until the pod is back.
-    if (scene !== 'pod' && (!haloOn || spec.weight < 0.002)) stopLoop();
+    const settled = haloOn ? stepHalo(dt, now) : true;
+    if (!riding && settled) stopLoop();
   }
 
   function startLoop() {
     if (rafId || document.hidden || viewerOpen) return;
-    if (!pod && !haloOn) return;
+    // Without the field there is no ring and no ride, so nothing for a loop to do.
+    if (!haloOn) return;
     last = performance.now();
     rafId = requestAnimationFrame(frame);
   }
@@ -1085,6 +1119,9 @@
     if (rafId) cancelAnimationFrame(rafId);
     rafId = 0;
   }
+  // The ring is sized to what the governor leaves of the field (haloTarget), so a change there
+  // is something to follow.
+  if (window.GridPerf && window.GridPerf.on) window.GridPerf.on(() => startLoop());
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
@@ -1097,11 +1134,9 @@
   });
 
   const onResize = () => {
-    if (pod) pod.resize();
-    stageRect = stageEl.getBoundingClientRect();
     // The drawings are pinned to the stage, so they move with it. Same drawing, so the field
-    // just shifts to the new place rather than gathering again.
-    if (rideOn) rideRect = vehicleRect();
+    // just shifts to the new place rather than gathering again; the pod's stills follow.
+    measurePod();
     if (scene !== 'pod' || rideOn) sendForm();
     startLoop();
   };
@@ -1111,7 +1146,7 @@
   // ---------------------------------------------------------------- the Komaki, up close
   // Each model's picture, full size over everything, on a tap and on nothing else: the large
   // file is fetched then, not with the page, and the image is removed again on the X. The
-  // page's own canvases sleep while it is up.
+  // page's own loops sleep while it is up.
   const VIEWER_SRC = {
     // From the site's root, so a page in a language folder (hi/powerpod-gen2.html) finds them.
     x1: (window.GRID_ROOT || '') + 'assets/productImages/store/komaki-x1-large.webp',
@@ -1196,79 +1231,6 @@
   window.addEventListener('popstate', () => {
     if (viewerOpen) closeViewer(true);
   });
-
-  // ---------------------------------------------------------------- the 3D pod, on idle
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error(`could not load ${src}`));
-      document.head.appendChild(s);
-    });
-  }
-
-  function boot3D() {
-    if (!podCanvas || !root.classList.contains('gl')) return; // no WebGL2: the poster stays
-    const conn = navigator.connection;
-    if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
-
-    // three.js, the model and the scene module download side by side (assets/pod-assets.js);
-    // they used to come one after another, three round trips back to back.
-    if (!window.GridPodAssets) return;
-    Promise.all([window.GridPodAssets.load(), loadScript((window.GRID_ROOT || '') + 'assets/powerpod-3d.js')])
-      .then(async ([assets]) => {
-        if (!window.gridPod) return;
-        // The download can run whenever, but building the pod compiles every material on the
-        // main thread. Someone typing their details should never be competing with that, so
-        // the build waits until the pod is the scene again.
-        await whenPodScene();
-        // Built in idle slices; resolves once it can draw without stalling a frame.
-        pod = await window.gridPod.mount({
-          canvas: podCanvas,
-          assets,
-          phone,
-          onContextLost: () => {
-            pod = null;
-            stageEl.classList.remove('is-pod-live');
-          },
-        });
-        if (!pod) return;
-        pod.resize();
-        stageRect = stageEl.getBoundingClientRect();
-        pod.setShot(shotAt(reduceMotion ? shotTarget : 0), 0, 0, lens());
-        // One frame in the entry pose before the cross fade, so the pod is never revealed
-        // mid-build or in the wrong place.
-        requestAnimationFrame(() => {
-          stageEl.classList.add('is-pod-live');
-          if (reduceMotion) shotT = shotTarget;
-          startLoop();
-        });
-        watchQuality();
-      })
-      .catch((err) => console.warn('[gridPod] 3D unavailable:', err));
-  }
-
-  // Two GL contexts share this device, and one governor paces both (assets/perf.js). While the
-  // device is struggling with the pod on screen it draws the pod a little under full density,
-  // and gives that back as soon as it can. The densities are the governor's (podRatios), the
-  // same ones the home page's pod uses.
-  function watchQuality() {
-    const perf = window.GridPerf;
-    if (!perf || !pod) return;
-    const steps3d = perf.podRatios(phone);
-    perf.registerPod(steps3d.length - 1);
-    let level = -1;
-    const follow = (p) => {
-      if (!pod || p.podLevel === level) return;
-      level = p.podLevel;
-      // Through the handle, not the renderer: the module caps the ratio by buffer area on
-      // every resize, so a value written straight onto the renderer would not survive one.
-      pod.setPixelRatio(level > 0 ? steps3d[Math.min(steps3d.length - 1, level)] : 0);
-    };
-    perf.on(follow);
-    follow(perf);
-  }
 
   // ---------------------------------------------------------------- payment
   // Two steps, and the split matters. createOrder() prices and records the order on the
@@ -1511,22 +1473,17 @@
   if (new URLSearchParams(location.search).has('check')) {
     window.__pg2 = {
       get ride() {
-        const bay = rideRect && stageRect ? bayShot(0) : null;
         return {
-          rideOn, rideT, rideRect, stageRect, live: Boolean(pod),
-          bay,
-          // How far out the camera sits for the bay, against how far it can see: a pod on
-          // the far plane draws as a dot.
-          dist: pod && bay ? pod.frameDist(bay.frame) : null,
-          far: pod ? pod.camera.far : null,
-          last: lastShot,
+          rideOn, rideT, rideRect, stageRect, bayAsked, bayReady,
+          // Where each still was put, in the stage's pixels, and how many frames tall it is.
+          at: podAt, frames: { stand: STAND_FRAMES, bay: BAY_FRAMES },
         };
       },
     };
   }
   // Stage 1 already carries is-active in the markup, so there is no flash of an empty
-  // panel before this runs; the camera just needs pointing at the first step.
-  stageRect = stageEl.getBoundingClientRect();
+  // panel before this runs.
+  measurePod();
   render();
   // The page can be open across the launch: at that moment the holds lift and their sentence
   // goes, without a reload. Called at once with the current state, which render() just drew.
@@ -1563,8 +1520,4 @@
   }
   counting = true;
   startLoop();
-  window.addEventListener('load', () => {
-    if ('requestIdleCallback' in window) requestIdleCallback(boot3D, { timeout: 1200 });
-    else window.setTimeout(boot3D, 300);
-  });
 })();

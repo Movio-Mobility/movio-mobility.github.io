@@ -31,9 +31,15 @@
   --pg2-radius: 18px;
   --hair: rgb(20 20 20 / 0.12);
   --bad: #b3261e;
-  /* Matches BEATS frame 0.62 and the stacked lens shift of -0.07. */
-  --poster-h: 62%;
-  --poster-drop: 7%;
+  /* The pod's framing, the 3D camera's own: its height at its middle is --pod-frame of the
+     stage's (0.58, and 0.62 on a phone), and while the stage is a short band under the brand
+     lockup it is dropped 7% of the stage clear of it. */
+  --pod-frame: 0.58;
+  --pod-drop: 7%;
+}
+
+@media (pointer: coarse) and (max-width: 599px), (pointer: coarse) and (max-height: 599px) {
+  .pg2 { --pod-frame: 0.62; }
 }
 
 html.pg2-shell,
@@ -88,56 +94,74 @@ html.pg2-shell body {
   pointer-events: none;
 }
 
-/* Width and height 100% of an explicitly sized box, which is what lets powerpod-3d.js read
-   its size from canvas.clientWidth/clientHeight and scope itself here. */
-#pod {
+/* The pod: two stills of the 3D scene (tools/source/pod-stills.mjs), each cut centred on the
+   point the camera looked at, the pod's middle. So the image's centre goes where the camera put
+   that point, and its height is the frame times how many frames tall the image is (1.11273 for
+   the stand, pod.json beside the images). The ride moves both with a transform from
+   powerpod-gen2.js, after the centring. */
+.pg2__pod {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+  transition: opacity 0.7s var(--ease-out), visibility 0s;
+}
+
+.pg2__pod-stand,
+.pg2__pod-bay {
+  position: absolute;
+  display: block;
+  transform: translate(-50%, -50%);
+}
+
+.pg2__pod img {
   display: block;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.7s var(--ease-out), visibility 0s;
 }
 
-/* Loading state, no-WebGL state and no-JS state, all in one 12.5 KB file. Sized and
-   dropped to match the pod's own framing, so the handoff is a cross fade and not a jump. */
-.pg2__poster {
-  position: absolute;
+.pg2__pod-stand {
   left: 50%;
-  top: calc(50% + var(--poster-drop));
-  display: block;
-  width: auto;
-  height: var(--poster-h);
-  max-width: 62%;
-  object-fit: contain;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.7s var(--ease-out), visibility 0s;
+  top: calc(50% + var(--pod-drop));
+  height: calc(var(--pod-frame) * 111.273%);
+  aspect-ratio: 999 / 2440;
 }
 
-.pg2__stage.is-pod-live #pod { opacity: 1; }
-.pg2__stage.is-pod-live .pg2__poster { opacity: 0; }
+/* The entrance: the pod comes into focus, the way a lens finds it, and settles the last few
+   pixels. Never faded: it is the page's largest picture, and it is on screen, whole, from the
+   moment it arrives, which no script holds up. Arriving late, it simply arrives in focus. */
+.pg2__pod-stand img {
+  animation: pg2-pod-focus 1.1s var(--ease-out) backwards;
+}
 
-/* Details and payment are not the pod's stages (powerpod-gen2.js, scenes). It fades out on
-   the last frame it drew, then leaves the compositor altogether. */
-.pg2__stage:not([data-scene="pod"]) #pod,
-.pg2__stage:not([data-scene="pod"]) .pg2__poster {
+@keyframes pg2-pod-focus {
+  from { transform: translateY(10px); filter: blur(6px); }
+}
+
+/* The pod as it lies in the Komaki's bay, rendered upright: the ride turns it onto the bay's
+   slant, as the camera's roll did. Placed by the script, which knows where the scooter is
+   drawn (--bay-x, --bay-y, --bay-h), and only ever seen during and after the ride. */
+.pg2__pod-bay {
+  left: var(--bay-x, 50%);
+  top: var(--bay-y, 50%);
+  height: var(--bay-h, 0px);
+  aspect-ratio: 214 / 540;
+  opacity: 0;
+}
+
+/* Details and payment are not the pod's stages (powerpod-gen2.js, scenes). It fades out, then
+   leaves the compositor altogether. */
+.pg2__stage:not([data-scene="pod"]) .pg2__pod {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s var(--ease-out), visibility 0s linear 0.5s;
 }
-
-html:not(.gl) #pod { display: none; }
 
 /* The drawings as still line art, for when the particle field cannot draw them: no WebGL, or
    reduced motion. Sized and placed like the drawing the field would gather. */
 .pg2__glyph {
   position: absolute;
   left: 50%;
-  top: calc(50% + var(--poster-drop));
+  top: calc(50% + var(--pod-drop));
   width: auto;
   height: min(46%, 300px);
   aspect-ratio: 1;
@@ -1167,10 +1191,8 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
    the white strip is unbroken from the top of the window to the bottom. */
 @media (min-width: 1025px) {
   .pg2 {
-    /* Matches BEATS frame 0.58, and the lens shift goes to zero: the stage is a tall
-       column here, so the brand lockup is nowhere near the pod. */
-    --poster-h: 58%;
-    --poster-drop: 0%;
+    /* No drop: the stage is a tall column here, so the brand lockup is nowhere near the pod. */
+    --pod-drop: 0%;
   }
 
   .pg2__stage {
@@ -1222,9 +1244,11 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 
   .pg2__scroll { scroll-behavior: auto; }
 
-  #pod,
-  .pg2__poster,
+  .pg2__pod,
   .pg2__glyph { transition-duration: 0.2s; }
+
+  /* The pod is simply there: no focus pull and no rise. */
+  .pg2__pod-stand img { animation: none; }
 
   .pg2-progress__fill { transition-duration: 0.2s; }
 

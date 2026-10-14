@@ -5,7 +5,8 @@
  *
  *   reduced motion · no WebGL2 · the footer's night · accessory flow → Razorpay on demand ·
  *   the journey lightbox · rotating a phone · hiding and showing the tab · losing and
- *   restoring both WebGL contexts · opening the pages straight from disk (file://)
+ *   restoring both WebGL contexts · opening the pages straight from disk (file://) · the Gen2
+ *   pod's still, in every one of those that has it
  *
  * Each check prints PASS or FAIL with what it saw; page errors fail the check they happen in.
  */
@@ -51,6 +52,17 @@ async function canvasDrawn(page, id) {
   return shot.length > 2000;
 }
 
+// The Gen2 page's pod is a still (tools/source/pod-stills.mjs): loaded and in focus. No
+// WebGL, no reduced motion, no server: it is there all the same.
+const STAND_SHOWN = () => {
+  const img = document.querySelector('#pg2-pod-stand img');
+  if (!img) return 'n/a';
+  const cs = getComputedStyle(img);
+  const box = img.getBoundingClientRect();
+  return img.complete && img.naturalWidth > 0 && cs.opacity === '1' && cs.filter === 'none'
+    && cs.visibility === 'visible' && box.height > 100;
+};
+
 // 1. Reduced motion: the field slows and stops gathering, the film is a set of product shots.
 for (const name of ['index', 'journey', 'store', 'powerpod-gen2']) {
   const { page, errors } = await open(name, { before: (p) => p.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]) });
@@ -59,11 +71,13 @@ for (const name of ['index', 'journey', 'store', 'powerpod-gen2']) {
     await page.evaluate(() => window.scrollTo({ top: innerHeight * 2.4, behavior: 'instant' }));
     await sleep(2500);
   }
-  const st = await page.evaluate(() => ({
+  const st = await page.evaluate((shown) => ({
     gl: document.documentElement.classList.contains('gl-live'),
     pod: document.getElementById('pod') ? document.getElementById('pod').style.opacity : 'n/a',
-  }));
-  report(`reduced motion ${name}`, st.gl && (name !== 'index' || parseFloat(st.pod) > 0.5), JSON.stringify(st), errors);
+    stand: (0, eval)(`(${shown})`)(),
+  }), STAND_SHOWN.toString());
+  report(`reduced motion ${name}`, st.gl && (name !== 'index' || parseFloat(st.pod) > 0.5)
+    && (name !== 'powerpod-gen2' || st.stand === true), JSON.stringify(st), errors);
   await page.close();
 }
 
@@ -79,12 +93,14 @@ for (const name of ['index', 'journey', 'store', 'powerpod-gen2', 'support']) {
     }),
   });
   await sleep(2500);
-  const st = await page.evaluate(() => ({
+  const st = await page.evaluate((shown) => ({
     gl: document.documentElement.classList.contains('gl'),
     bg: getComputedStyle(document.getElementById('bg')).display,
     htmlBg: getComputedStyle(document.documentElement).backgroundImage.slice(0, 15),
-  }));
-  report(`no WebGL2 ${name}`, !st.gl && st.bg === 'none' && st.htmlBg.startsWith('radial'), JSON.stringify(st), errors);
+    stand: (0, eval)(`(${shown})`)(),
+  }), STAND_SHOWN.toString());
+  report(`no WebGL2 ${name}`, !st.gl && st.bg === 'none' && st.htmlBg.startsWith('radial')
+    && (name !== 'powerpod-gen2' || st.stand === true), JSON.stringify(st), errors);
   await page.close();
 }
 
@@ -300,7 +316,8 @@ for (const name of ['journey', 'store']) {
 
 // 9. Opened straight from disk (file://), as a page is when double-clicked. Browsers refuse to
 //    fetch() local files there, read local fonts, or hand local images to WebGL, so the pod
-//    and the font each have a way in that does not need any of that.
+//    and the font each have a way in that does not need any of that. (On the Gen2 page the pod
+//    is a plain image.)
 for (const name of ['index', 'powerpod-gen2']) {
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
@@ -310,12 +327,20 @@ for (const name of ['index', 'powerpod-gen2']) {
   await sleep(6000);
   if (name === 'index') await page.evaluate(() => window.scrollTo(0, innerHeight));
   await sleep(3000);
+  if (name === 'powerpod-gen2') {
+    const st = await page.evaluate((shown) => ({
+      stand: (0, eval)(`(${shown})`)(),
+      font: [...document.fonts].some((f) => f.family.includes('DM Sans') && f.status === 'loaded'),
+    }), STAND_SHOWN.toString());
+    report(`opened from disk ${name}`, st.stand === true && st.font, JSON.stringify(st), errors);
+    await page.close();
+    continue;
+  }
   const st = await page.evaluate(() => {
     const pod = document.getElementById('pod');
-    const stage = document.getElementById('pg2-stage');
     return {
       pod: pod.width > 300,
-      live: stage ? stage.classList.contains('is-pod-live') : parseFloat(pod.style.opacity) > 0.5,
+      live: parseFloat(pod.style.opacity) > 0.5,
       font: [...document.fonts].some((f) => f.family.includes('DM Sans') && f.status === 'loaded'),
     };
   });

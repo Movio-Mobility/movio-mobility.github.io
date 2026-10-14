@@ -1,0 +1,120 @@
+{
+  "stand": {
+    "frameH": 1.11273,
+    "frameW": 0.45545,
+    "shot": {
+      "az": -0.62,
+      "el": 0.17,
+      "frame": 0.58,
+      "target": 0
+    },
+    "master": {
+      "width": 2004,
+      "height": 4896,
+      "scale": 2
+    },
+    "sizes": [
+      {
+        "width": 147,
+        "height": 360,
+        "avif": 4808,
+        "webp": 7222
+      },
+      {
+        "width": 196,
+        "height": 480,
+        "avif": 5915,
+        "webp": 9476
+      },
+      {
+        "width": 262,
+        "height": 640,
+        "avif": 7519,
+        "webp": 12670
+      },
+      {
+        "width": 344,
+        "height": 840,
+        "avif": 9636,
+        "webp": 16224
+      },
+      {
+        "width": 450,
+        "height": 1100,
+        "avif": 12278,
+        "webp": 21008
+      },
+      {
+        "width": 589,
+        "height": 1440,
+        "avif": 16232,
+        "webp": 27532
+      },
+      {
+        "width": 770,
+        "height": 1880,
+        "avif": 20192,
+        "webp": 36418
+      },
+      {
+        "width": 999,
+        "height": 2440,
+        "avif": 25823,
+        "webp": 46546
+      }
+    ]
+  },
+  "bay": {
+    "frameH": 1.05882,
+    "frameW": 0.41961,
+    "shot": {
+      "az": -0.3,
+      "el": 0.06,
+      "frame": 0.13,
+      "target": 0
+    },
+    "master": {
+      "width": 428,
+      "height": 1080,
+      "scale": 2
+    },
+    "sizes": [
+      {
+        "width": 48,
+        "height": 120,
+        "avif": 1871,
+        "webp": 1920
+      },
+      {
+        "width": 63,
+        "height": 160,
+        "avif": 2332,
+        "webp": 2540
+      },
+      {
+        "width": 87,
+        "height": 220,
+        "avif": 2862,
+        "webp": 3492
+      },
+      {
+        "width": 119,
+        "height": 300,
+        "avif": 3640,
+        "webp": 4664
+      },
+      {
+        "width": 159,
+        "height": 400,
+        "avif": 4645,
+        "webp": 5800
+      },
+      {
+        "width": 214,
+        "height": 540,
+        "avif": 5407,
+        "webp": 7780
+      }
+    ]
+  }
+}

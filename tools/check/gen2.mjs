@@ -11,9 +11,15 @@
  *     the finance note right under it
  *   - no vehicle: the Komaki step is hidden, the review starts at ₹29,999 and says "Your
  *     own ride"
+ *   - the pod is its still (tools/source/pod-stills.mjs): nothing of the 3D scene is fetched
+ *     (three.js, the model, its logo), one stand image is, at no less than the screen needs
+ *     and not the largest when a smaller one covers it, and it is whole and in focus
  *   - a vehicle: the step shows, the review starts at ₹59,999 (the floor), the stage says
  *     data-vehicle="yes" and, with the field, the pod rides into the scooter (a screenshot
- *     lands in tools/check/out/); X1 and X3 move the review to ₹59,999 and ₹69,999
+ *     lands in tools/check/out/): the bay still is loaded and shown, centred on the bay's
+ *     point of the scooter within 4px, the dock's length (14.6% of the scooter's width) and
+ *     turned 45 degrees; X1 and X3 move the review to ₹59,999 and ₹69,999
+ *   - just the PowerPod again: the pod rides back out and stands where it began
  *   - the picture up close: no large picture is requested before a tap; the tap on the X1
  *     card puts exactly one picture on the page, the X1's large one, and nothing else; the X
  *     takes it out again with the radios and the review as they were; Escape and the back
@@ -69,12 +75,16 @@ async function open(viewport) {
   await page.setViewport(viewport);
   const errors = [];
   const vehicles = [];
+  const pods = [];
+  const scene3d = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|favicon/.test(m.text())) errors.push(m.text()); });
   await page.setRequestInterception(true);
   page.on('request', async (req) => {
     const url = req.url();
     if (/komaki-x[13]-large\.webp/.test(url)) vehicles.push(url);
+    if (/pod-(stand|bay)-\d+\.(avif|webp)/.test(url)) pods.push(url.split('/').pop());
+    if (/three\.min\.js|powerpod\.bin|powerpod-logo|powerpod-3d|pod-assets|powerpod-model/.test(url)) scene3d.push(url.split('/').pop());
     if (/^https:\/\/(www\.(google|gstatic)\.com\/recaptcha|checkout\.razorpay\.com)\//.test(url)) { req.abort(); return; }
     if (!url.startsWith(`${PADDOCK}/`)) { req.continue(); return; }
     const cors = { 'Access-Control-Allow-Origin': SITE, 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
@@ -91,7 +101,7 @@ async function open(viewport) {
     }
   });
   await page.goto(`${SITE}/powerpod-gen2.html?check&launch=60`, { waitUntil: 'load' });
-  return { page, errors, vehicles };
+  return { page, errors, vehicles, pods, scene3d };
 }
 
 const shoot = (page, name) => page.screenshot({ path: path.join(OUT, `${name}.png`) });
@@ -124,8 +134,30 @@ const choose = async (page, group, value) => {
 const until = (page, fn, timeout = 5000) => page.waitForFunction(fn, { timeout }).then(() => true).catch(() => false);
 
 for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
-  const { page, errors, vehicles } = await open(viewport);
+  const { page, errors, vehicles, pods, scene3d } = await open(viewport);
   await sleep(900);
+
+  // The stand: the smallest image that covers its box at this density (srcset can pick one a
+  // step under the 15% the sizes adds, never under the box itself).
+  const stand = await page.evaluate(async () => {
+    const img = document.querySelector('#pg2-pod-stand img');
+    // The entrance runs from the first paint; it ends whatever happens.
+    await Promise.race([Promise.all(img.getAnimations().map((a) => a.finished)), new Promise((r) => setTimeout(r, 2000))]);
+    const box = img.getBoundingClientRect();
+    return {
+      // The file's own width (its name says it): naturalWidth is in CSS pixels, by the density.
+      src: img.currentSrc.split('/').pop(), natural: Number((img.currentSrc.match(/-(\d+)\.\w+$/) || [])[1]),
+      need: box.width * devicePixelRatio,
+      widths: [...img.srcset.matchAll(/(\d+)w/g)].map((m) => Number(m[1])),
+      // Whole and in focus once the entrance is over: it never fades it.
+      in: getComputedStyle(img).opacity === '1' && getComputedStyle(img).filter === 'none',
+    };
+  });
+  const above = stand.widths.filter((w) => w >= stand.need);
+  report(`${label}: the pod is a still, at what this screen needs, and nothing of the 3D scene is fetched`,
+    scene3d.length === 0 && pods.filter((u) => /stand/.test(u)).length === 1 && stand.in
+    && stand.natural >= stand.need && stand.natural <= Math.max(above[1] || 0, above[0] || 0),
+    JSON.stringify({ scene3d, pods, ...stand, widths: undefined }));
 
   let s = await state(page);
   // The footer is what pre-booking costs, the review what the whole thing starts at.
@@ -159,11 +191,31 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   await shoot(page, `gen2-ride-${label}`);
   const ride = await page.evaluate(() => {
     const r = window.__pg2.ride;
-    return { on: r.rideOn, t: r.rideT, live: r.live, frame: r.bay && r.bay.frame, dist: r.dist, far: r.far, roll: r.last && r.last.shot.roll };
+    const pic = document.getElementById('pg2-pod-bay');
+    const img = pic.querySelector('img');
+    const box = img.getBoundingClientRect();
+    const stage = document.getElementById('pg2-stage').getBoundingClientRect();
+    const m = new DOMMatrixReadOnly(getComputedStyle(pic).transform);
+    // The bay's point, from the scooter's box alone: the dock's centre in the drawing's units
+    // (1.05, 0.49 of a figure running -0.2 to 1.85 by 0 to 1), as in powerpod-gen2.js DOCK.
+    const R = r.rideRect;
+    return {
+      on: r.rideOn, t: r.rideT, ready: r.bayReady, loaded: img.complete && img.naturalWidth > 0,
+      src: img.currentSrc.split('/').pop(),
+      shown: getComputedStyle(pic).opacity, stand: getComputedStyle(document.getElementById('pg2-pod-stand')).opacity,
+      off: Math.hypot(box.left + box.width / 2 - (R.left + ((1.05 + 0.2) / 2.05) * R.width),
+        box.top + box.height / 2 - (R.top + (1 - 0.49) * R.height)),
+      // The pod's height at its middle, as a share of the scooter's width: 0.3 / 2.05.
+      length: parseFloat(getComputedStyle(pic).height) / r.frames.bay / R.width,
+      turn: (Math.atan2(m.b, m.a) * 180) / Math.PI,
+      scale: Math.hypot(m.a, m.b),
+      stageTop: stage.top,
+    };
   });
-  report(`${label}: the pod is in the bay, a tenth of the stage tall, rolled, and within the camera's reach`,
-    ride.on && ride.t === 1 && ride.live && ride.frame > 0.08 && ride.frame < 0.3 && ride.dist < ride.far * 0.9
-    && Math.abs(ride.roll - Math.PI / 4) < 1e-6,
+  report(`${label}: the pod is in the bay: its still, on the dock's point, the dock's length, on the slant`,
+    ride.on && ride.t === 1 && ride.ready && ride.loaded && ride.shown === '1' && ride.stand === '0'
+    && ride.off < 4 && Math.abs(ride.length - 0.3 / 2.05) < 0.01 * (0.3 / 2.05)
+    && Math.abs(ride.turn - 45) < 0.01 && Math.abs(ride.scale - 1) < 1e-3,
     JSON.stringify(ride));
 
   report(`${label}: no large picture was fetched before a tap`, vehicles.length === 0, vehicles.join(', '));
@@ -225,6 +277,20 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   s = await state(page);
   report(`${label}: back on the configurator the choice and the ride are still there`,
     s.stage === 1 && s.vehicle === 'yes' && s.checked.includes('model=x3'), JSON.stringify({ stage: s.stage, vehicle: s.vehicle }));
+
+  // Just the PowerPod after all: the pod rides back out and stands where it began.
+  await choose(page, 'vehicle', 'no');
+  await sleep(1500);
+  const home = await page.evaluate(() => {
+    const standPic = document.getElementById('pg2-pod-stand');
+    const bayPic = document.getElementById('pg2-pod-bay');
+    return {
+      t: window.__pg2.ride.rideT, transform: standPic.style.transform, stand: getComputedStyle(standPic).opacity,
+      bay: getComputedStyle(bayPic).opacity, img: getComputedStyle(standPic.querySelector('img')).opacity,
+    };
+  });
+  report(`${label}: just the PowerPod: the pod rides back out and stands where it began`,
+    home.t === 0 && home.transform === '' && home.stand === '1' && home.bay === '0' && home.img === '1', JSON.stringify(home));
 
   report(`${label}: no page errors`, errors.length === 0, errors.join(' | '));
   await page.close();

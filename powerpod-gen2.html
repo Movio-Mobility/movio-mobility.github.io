@@ -120,16 +120,33 @@
     <!-- The stage paints no background of its own, so the particle field on #bg shows through it.
          It is also inert: powerpod-gen2.js stops wheel and touch events here from reaching the
          particle engine, so nothing on the left responds to a scroll gesture.
-         The poster is the loading state, the no-WebGL state and the no-JS state, all in 12.5 KB.
+         The pod is two stills rendered from the 3D scene (tools/source/pod-stills.mjs): standing,
+         as the page opens on it, and lying in the Komaki's bay. Each is cut centred on the pod's
+         middle, so centring it on the stage puts the pod where the camera did. The browser picks
+         the stand's size from sizes (the box the stage gives it, 15% to spare) and the screen's
+         density; the bay's is set and fetched by the script once the stand is in.
          data-scene says what the stage is showing: the pod on the configure stage, and a drawing
          the particle field gathers into on the other two, a profile while details are filled in
          and a rupee at payment. data-vehicle says a Komaki is wanted: the field gathers into the
-         home film's scooter and the pod rolls into its bay (powerpod-gen2.js, the ride). The 3D
-         pod stops drawing while it is not the scene. -->
+         home film's scooter and the pod rolls into its bay (powerpod-gen2.js, the ride). -->
     <div class="pg2__stage" id="pg2-stage" data-scene="pod" data-vehicle="no">
-      <canvas id="pod" aria-hidden="true"></canvas>
-      <img class="pg2__poster" id="pg2-poster" src="assets/productImages/store/gen2.webp"
-           alt="PowerPod Gen2" width="335" height="1000" fetchpriority="high" decoding="async">
+      <div class="pg2__pod" id="pg2-pod">
+        <picture class="pg2__pod-stand" id="pg2-pod-stand">
+          <source type="image/avif"
+                  srcset="assets/productImages/Gen2/web/pod-stand-147.avif 147w, assets/productImages/Gen2/web/pod-stand-196.avif 196w, assets/productImages/Gen2/web/pod-stand-262.avif 262w, assets/productImages/Gen2/web/pod-stand-344.avif 344w, assets/productImages/Gen2/web/pod-stand-450.avif 450w, assets/productImages/Gen2/web/pod-stand-589.avif 589w, assets/productImages/Gen2/web/pod-stand-770.avif 770w, assets/productImages/Gen2/web/pod-stand-999.avif 999w"
+                  sizes="(min-width: 1025px) 30.4vh, (max-height: 499px) 39px, (max-height: 700px) 7.8vh, (min-height: 1033px) 104px, 10.1vh">
+          <img src="assets/productImages/Gen2/web/pod-stand-344.webp"
+               srcset="assets/productImages/Gen2/web/pod-stand-147.webp 147w, assets/productImages/Gen2/web/pod-stand-196.webp 196w, assets/productImages/Gen2/web/pod-stand-262.webp 262w, assets/productImages/Gen2/web/pod-stand-344.webp 344w, assets/productImages/Gen2/web/pod-stand-450.webp 450w, assets/productImages/Gen2/web/pod-stand-589.webp 589w, assets/productImages/Gen2/web/pod-stand-770.webp 770w, assets/productImages/Gen2/web/pod-stand-999.webp 999w"
+               sizes="(min-width: 1025px) 30.4vh, (max-height: 499px) 39px, (max-height: 700px) 7.8vh, (min-height: 1033px) 104px, 10.1vh"
+               alt="PowerPod Gen2" width="999" height="2440" fetchpriority="high" decoding="async">
+        </picture>
+        <picture class="pg2__pod-bay" id="pg2-pod-bay" aria-hidden="true">
+          <source type="image/avif"
+                  data-srcset="assets/productImages/Gen2/web/pod-bay-48.avif 48w, assets/productImages/Gen2/web/pod-bay-63.avif 63w, assets/productImages/Gen2/web/pod-bay-87.avif 87w, assets/productImages/Gen2/web/pod-bay-119.avif 119w, assets/productImages/Gen2/web/pod-bay-159.avif 159w, assets/productImages/Gen2/web/pod-bay-214.avif 214w">
+          <img data-srcset="assets/productImages/Gen2/web/pod-bay-48.webp 48w, assets/productImages/Gen2/web/pod-bay-63.webp 63w, assets/productImages/Gen2/web/pod-bay-87.webp 87w, assets/productImages/Gen2/web/pod-bay-119.webp 119w, assets/productImages/Gen2/web/pod-bay-159.webp 159w, assets/productImages/Gen2/web/pod-bay-214.webp 214w"
+               alt="" width="214" height="540" decoding="async">
+        </picture>
+      </div>
       <!-- Stand-ins for the particle drawings, for a device without the WebGL field or one that
            asks for reduced motion. Still line art, faded in, nothing moving. -->
       <svg class="pg2__glyph" data-glyph="scooter" viewBox="0 0 24 24" aria-hidden="true">
@@ -489,9 +506,7 @@
     </div>
   </main>
 
-  <!-- three.js, the model and powerpod-3d.js are loaded on idle by the page script
-       (through pod-assets.js), so the configurator is usable long before the 3D arrives.
-       Razorpay's script is fetched on first use of the configurator (gridx-api.js).
+  <!-- Razorpay's script is fetched on first use of the configurator (gridx-api.js).
        catalogue.js lends the page its money arithmetic: the gateway fee and the rounding Paddock
        uses, so the bill prints what Razorpay will ask for. -->
   <script src="assets/gridx-api.js"></script>
@@ -500,7 +515,6 @@
   <script src="assets/catalogue.js"></script>
   <script src="assets/gstin.js"></script>
   <script src="assets/grid-bg.js"></script>
-  <script src="assets/pod-assets.js"></script>
   <script src="assets/keyboard.js"></script>
   <script src="assets/launch.js"></script>
   <script src="assets/powerpod-gen2.js"></script>
