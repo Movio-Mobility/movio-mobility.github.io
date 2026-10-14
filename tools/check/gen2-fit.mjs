@@ -117,6 +117,8 @@ const SAID = {
   finance: T('Finance options available at the time of purchase.'),
   paySub: T('₹399 today plus the platform fee, charged by GridX Energy. The rest only when your order is ready for shipment.'),
 };
+// The card that says the money is in and the pre-booking is being confirmed.
+const PENDING = T('Payment received. We are confirming your pre-booking.');
 
 // ---------------------------------------------------------------- the measure
 /**
@@ -410,10 +412,12 @@ async function walk(run) {
     await click('#pg2-next');
     // The pending card, measured as soon as the footer's fade has run: the mock's webhook
     // lands on the third poll, a few seconds on.
+    // In the language walked, as everywhere else in this check.
     const shown = await page.waitForFunction(
-      () => /confirming your pre-booking/.test(document.querySelector('.pg2-done__status')?.textContent || ''),
+      (words) => (document.querySelector('.pg2-done__status')?.textContent || '').includes(words),
       // On an interval: frames are throttled in a tab that is not in front.
       { timeout: 10000, polling: 50 },
+      PENDING,
     ).then(() => true).catch(() => false);
     if (shown) await at('s3-confirming', 0, 300);
     await page.waitForFunction(() => document.querySelector('.pay-tick:not(.pay-tick--pending)'), { timeout: 20000, polling: 50 }).catch(() => {});

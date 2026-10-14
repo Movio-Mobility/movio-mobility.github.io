@@ -1033,15 +1033,27 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
   font-variant-numeric: tabular-nums;
 }
 
-/* One line of words. Wide enough for "Pay ₹408.89", so the pill keeps its size from Continue
-   to Pay. */
+/* One line of words. The pill keeps its size from Continue to Pay: the words it will say on
+   the payment page lie under the ones it says now, unseen (.pg2-next__room, which the script
+   fills), so it is as wide as the wider of the two in every language and at every text size.
+   The minimum width sets the pill's size; the padding only says how close longer words may
+   come to its ends before it grows, so a language that says Pay at greater length still
+   gets the same pill. */
 .pg2__foot--gen2 .pg2-next {
-  flex-direction: row;
+  display: inline-grid;
+  place-items: center;
   gap: 0;
   min-width: 9rem;
-  padding-inline: 1.5rem;
+  padding-inline: 1rem;
   font-size: 1rem;
 }
+
+.pg2__foot--gen2 .pg2-next__label,
+.pg2__foot--gen2 .pg2-next__room {
+  grid-area: 1 / 1;
+}
+
+.pg2-next__room { visibility: hidden; }
 
 /* A word that changes (Continue to Pay, the fee arriving, Paid) settles in rather than
    snapping. The script adds .is-new only when the text really changes. */
@@ -1129,12 +1141,13 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
    144px and the gap 16px, 291px in all, so full size holds down to a 300px footer with room
    to spare. That keeps it on the desktop side panel, whose narrowest footer is 305px. Below
    that (phones of 340px and under) the first step needs 255px, and below 264px (the 280px
-   fold covers) the second step needs 232px. The minimum widths keep the pill the same size
-   from Continue to Pay at every step. */
+   fold covers) the second step needs 232px. At each step the minimum width is the pill's
+   size and the padding how near its ends longer words may come; the room under the label
+   keeps it one size from Continue to Pay. */
 @container pg2-foot (max-width: 18.75rem) {
   .pg2__foot--gen2 .pg2-next {
     min-width: 8rem;
-    padding-inline: 1rem;
+    padding-inline: 0.75rem;
     font-size: 0.95rem;
   }
 
@@ -1146,7 +1159,7 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 @container pg2-foot (max-width: 16.5rem) {
   .pg2__foot--gen2 .pg2-next {
     min-width: 7rem;
-    padding-inline: 0.85rem;
+    padding-inline: 0.6rem;
     font-size: 0.9rem;
   }
 

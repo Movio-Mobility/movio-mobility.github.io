@@ -298,6 +298,7 @@
   const backBtn = document.getElementById('pg2-back');
   const nextBtn = document.getElementById('pg2-next');
   const nextLabel = document.getElementById('pg2-next-label');
+  const nextRoom = document.getElementById('pg2-next-room');
   const totalLabel = document.getElementById('pg2-total-label');
   const totalAmount = document.getElementById('pg2-total');
   const hint = document.getElementById('pg2-hint');
@@ -399,7 +400,10 @@
     // Primary action. Continue walks on to the details and then to the payment page, where
     // it names the exact figure Razorpay will ask for, the hold and the fee together.
     nextBtn.setAttribute('aria-disabled', String(!canAdvance(stage)));
-    swapText(nextLabel, confirming ? t('Confirming') : (stage === LAST_STAGE ? t('Pay {amount}', { amount: money(r.chargedInr) }) : t('Continue')));
+    const payWords = t('Pay {amount}', { amount: money(r.chargedInr) });
+    swapText(nextLabel, confirming ? t('Confirming') : (stage === LAST_STAGE ? payWords : t('Continue')));
+    // The room the payment page's words will take, held from the start (see the stylesheet).
+    if (nextRoom && nextRoom.textContent !== payWords) nextRoom.textContent = payWords;
 
     // Before the launch the payment page says when, in place of its usual line.
     if (paySub) paySub.textContent = launchOpen() ? PAY_LINE : NOT_OPEN;
