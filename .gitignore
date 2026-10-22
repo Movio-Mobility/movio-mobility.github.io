@@ -17,5 +17,8 @@ tools/check/out/
 # The font sources tools/source/fonts.py downloads (the woff2 it writes are committed)
 tools/source/.fonts-cache/
 
+# The pristine three.js tools/source/three.mjs downloads (the patched build it writes is committed)
+tools/source/.three-cache/
+
 # The list of lines to translate, made fresh by node tools/i18n.mjs extract
 i18n/source.json

@@ -922,7 +922,7 @@
 
     gl.bindVertexArray(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    return { count, state, updateVao, drawVao, read: 0 };
+    return { count, state, shape: shapeBuffer, updateVao, drawVao, read: 0 };
   }
 
   // `wait`: check the programs before returning, as the engine always used to. A page that
@@ -942,7 +942,8 @@
     for (let i = 0; i < capacity; i++) initial[i * 12 + 3] = 1;
     const road = createPool(capacity, initial, quad, null);
 
-    // The riders are built later, and only where the opening will show them (prepareTraffic).
+    // The riders, where the opening will show them, are made with the rest at the end of this
+    // (prepareTraffic).
     const vehicles = null;
     const traffic = null;
 
@@ -978,30 +979,57 @@
       [update, particles, studio].forEach(finishProgram);
       g.ready = true;
     }
+    if (!skipIntro) prepareTraffic(g); // a page without the opening never shows them
     return g;
   }
 
   // Ready to draw once every program is compiled and checked. Never waits on the compiler.
+  // The riders' program, where there is one, is waited for with the rest, so that its first
+  // draw (warmTraffic) is made on the same dark frame as theirs.
   function gpuReady(g) {
     if (g.ready) return true;
     const programs = [g.update, g.particles, g.studio];
     if (!programs.every(programDone)) return false;
+    if (g.traffic && !programDone(g.vehicles)) return false;
     programs.forEach(finishProgram);
     g.ready = true;
     return true;
   }
 
   // The riders on the opening's road. Only the home page's opening shows them, from about
-  // eleven seconds in and only to a reader who has not scrolled yet, so they are built a few
-  // seconds ahead at an idle moment rather than with everything else at load.
+  // eleven seconds in and only to a reader who has not scrolled yet. They used to be built a
+  // few seconds ahead at an idle moment, but their program is what the driver has to compile,
+  // and on a first visit, with nothing cached, that held the GPU for tens of milliseconds
+  // whenever it was asked: a dropped frame or two in the middle of the opening. So they are
+  // made with the field's own programs at load, compiled beside them on the driver's threads,
+  // and drawn once on the dark stage (warmTraffic), where nothing the driver does can be seen.
   function prepareTraffic(g) {
     if (g.vehicles || !roster.length) return;
     g.vehicles = createProgram(VEHICLE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
     const count = roster.length * POINTS_PER_VEHICLE;
-    g.traffic = createPool(count, new Float32Array(count * 12), g.quad, buildTrafficShapes());
+    g.trafficShapes = buildTrafficShapes(); // kept until warmTraffic has used them too
+    g.traffic = createPool(count, new Float32Array(count * 12), g.quad, g.trafficShapes);
     // Without parallel compiling, checking is what waits, so do that here in idle time and not
     // on the frame the first rider appears.
     if (!parallel) trafficReady(g);
+  }
+
+  // The riders' program's first pass, with nothing on it: the driver builds what a program
+  // needs on its first draw, and only then, so it is run once on the opening's first frame, in
+  // the dark (gpuReady waits for it), and not on the frame the first rider appears. It runs
+  // over a pool made for the purpose, the size of theirs and with their shapes: over a
+  // one-particle pool the driver was found to leave part of the work, about fifty
+  // milliseconds of it on a first visit, for the riders' own first pass.
+  function warmTraffic(g) {
+    if (g.trafficWarm || !g.traffic || !trafficReady(g)) return;
+    g.trafficWarm = true;
+    const count = g.traffic.count;
+    const pool = createPool(count, new Float32Array(count * 12), g.quad, g.trafficShapes);
+    g.trafficShapes = null;
+    gl.useProgram(g.vehicles.program);
+    simulate(g, pool, count);
+    pool.state.concat(pool.shape).forEach((buffer) => gl.deleteBuffer(buffer));
+    pool.updateVao.concat(pool.drawVao).forEach((vao) => gl.deleteVertexArray(vao));
   }
 
   function trafficReady(g) {
@@ -1719,8 +1747,15 @@
   // fifteen CSS pixels, and the dither is under one level of 8-bit. At the device's full
   // density the same picture cost four times the fill on a 2x screen (nine on 3x, before the
   // cap), for pixels the compositor would have interpolated to the same values. The one thing
-  // that needs device pixels is the road's riders, whose points are a pixel wide: while they
-  // are on screen (`dense`) the canvas goes up to full density, as it always was.
+  // that needs device pixels is the road's riders, whose points are a pixel wide, so while
+  // their scene is to come or under way (`dense`) the canvas is at full density.
+  //
+  // That is from the opening's first frame, not from the first rider. Growing a canvas makes
+  // the browser allocate it afresh, and done as the first rider appeared, about eleven seconds
+  // in, that held the GPU for the best part of fifty milliseconds with the road in full view,
+  // on every visit. On the first frame it happens in the dark. Going back down is cheap, and
+  // happens as the road lets go, or as soon as the reader scrolls, which ends the scene. The
+  // most it ever costs is what the riders' scene always cost, only for longer.
   let dense = false;
 
   function applySize() {
@@ -1742,6 +1777,17 @@
     // Bokeh is soft, so the light buffer stays near CSS resolution: most of the fill cost saved.
     const lightRatio = Math.min(base, resolutionScale, Math.sqrt(MAX_PARTICLE_PIXELS / area));
     sizeLightBuffer(gpu.light, Math.max(1, Math.round(cssW * lightRatio)), Math.max(1, Math.round(cssH * lightRatio)));
+
+    // The riders' light buffer, which their scene draws at the canvas's size, made with the
+    // canvas and cleared once so that it really exists: on the opening's first frame, in the
+    // dark, for the same reason (`dense` above).
+    if (dense && (gpu.detail.width !== width || gpu.detail.height !== height)) {
+      sizeLightBuffer(gpu.detail, width, height);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, gpu.detail.fbo);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
   }
 
   let perfTime = 0, perfFrames = 0, slowWindows = 0, fastWindows = 0;
@@ -1967,7 +2013,7 @@
       gl.uniform1f(u.uMinCore, 0.85 * pixelRatio);
       gl.bindVertexArray(g.traffic.drawVao[g.traffic.read]);
       gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, g.traffic.count);
-    } else if (g.detail.width > 1) {
+    } else if (g.detail.width > 1 && !ridersAhead()) {
       sizeLightBuffer(g.detail, 1, 1); // scene over: release the memory
     }
     gl.disable(gl.BLEND);
@@ -2000,11 +2046,12 @@
   let rafId = 0;
   let lastNow = 0;
   let live = false;
-  let trafficQueued = false;
 
-  // The road scene's window, the riders' and the full-density canvas's: from just before the
-  // first one is due until the road lets go (or the reader scrolls, which ends it at once).
+  // The road scene's window, the riders': from just before the first one is due until the road
+  // lets go (or the reader scrolls, which ends it at once).
   const trafficWindow = () => roster.length > 0 && !skipIntro && clock > TRAFFIC_START && S.traffic < 1;
+  // And the scene still to come or under way: from the first frame until the road lets go.
+  const ridersAhead = () => roster.length > 0 && !skipIntro && !!(gpu && gpu.traffic) && S.traffic < 1;
 
   function frame(now) {
     rafId = requestAnimationFrame(frame);
@@ -2037,15 +2084,7 @@
     if (!perf) governor(rawDt);
     advanceTimeline();
 
-    // Build the riders a few seconds before they are due, while the opening is calm.
-    if (!trafficQueued && roster.length && !skipIntro && !scrollDrive && clock > TRAFFIC_START - 6) {
-      trafficQueued = true;
-      const idle = perf ? perf.idle : (fn) => setTimeout(fn, 0);
-      idle(() => {
-        if (gpu && !scrollDrive && S.traffic < 1) prepareTraffic(gpu);
-      }, 2000);
-    }
-    const wantDense = trafficWindow() && !!gpu.traffic;
+    const wantDense = ridersAhead();
     if (wantDense !== dense) {
       dense = wantDense;
       sizeDirty = true;
@@ -2053,6 +2092,7 @@
 
     if (sizeDirty) applySize();
     render(dt);
+    warmTraffic(gpu);
 
     if (!live) {
       // The canvas now covers the CSS studio behind it, so the root can stop painting it.
@@ -2096,7 +2136,6 @@
   canvas.addEventListener('webglcontextrestored', () => {
     try {
       gpu = createGPU(capacity, true);
-      trafficQueued = false;
       sizeDirty = true;
       if (podTargetData) uploadPodTargets(podTargetData);
       if (!document.hidden) start();

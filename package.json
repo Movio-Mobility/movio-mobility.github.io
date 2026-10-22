@@ -25,6 +25,7 @@
     "icons": "node tools/source/icons.mjs",
     "favicons": "python3 tools/source/favicons.py",
     "fonts": "python3 tools/source/fonts.py",
+    "three": "node tools/source/three.mjs",
     "og": "python3 tools/source/og.py",
     "check:seo": "node tools/check/seo.mjs",
     "check:favicons": "node tools/check/favicons.mjs",

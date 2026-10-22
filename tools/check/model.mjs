@@ -51,8 +51,8 @@ function newDecode(buffer) {
   const sandbox = { window: {}, document: {}, location: { protocol: 'https:' }, DataView, TextDecoder, Uint8Array, Uint16Array, Int8Array, Float32Array, JSON };
   vm.createContext(sandbox);
   const src = fs.readFileSync(path.join(REPO, 'assets/pod-assets.js'), 'utf8')
-    .replace("window.GridPodAssets = { load, geometry, logoUrl: LOGO_URL };",
-      'window.GridPodAssets = { load, geometry, parseModel, logoUrl: LOGO_URL };');
+    .replace("window.GridPodAssets = { load, three: loadThree, geometry, logoUrl: LOGO_URL };",
+      'window.GridPodAssets = { load, three: loadThree, geometry, parseModel, logoUrl: LOGO_URL };');
   vm.runInContext(src, sandbox);
   const api = sandbox.window.GridPodAssets;
   const attrs = {};

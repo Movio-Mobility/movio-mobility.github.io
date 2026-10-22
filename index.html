@@ -21,6 +21,11 @@
        used to stand in front of them. Not preloaded: on a slow connection a preload competes with
        the stylesheets and holds up the first paint, and the stylesheet finds it soon enough. -->
 
+  <!-- three.js, asked for as soon as the head is read rather than when the film script runs at the
+       end of the page: the pod prepares its GPU work on the opening's dark stage, before the
+       lights come up, and that can only start once three.js is in (podStage). -->
+  <link rel="preload" href="assets/three.min.js" as="script">
+
   <!-- Dark stage while the WebGL studio "switches its lights on"; without WebGL2 the CSS studio below is used. -->
   <script>document.documentElement.classList.add('js'); if ('WebGL2RenderingContext' in window) document.documentElement.classList.add('gl');</script>
   <noscript><style>.headline .w, .launch > *, .brand, .island-wrap { opacity: 1 !important; transform: none !important; filter: none !important; }</style></noscript>
@@ -5050,7 +5055,7 @@
 
       gl.bindVertexArray(null);
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
-      return { count, state, updateVao, drawVao, read: 0 };
+      return { count, state, shape: shapeBuffer, updateVao, drawVao, read: 0 };
     }
 
     // `wait`: check the programs before returning, as the engine always used to. A page that
@@ -5070,7 +5075,8 @@
       for (let i = 0; i < capacity; i++) initial[i * 12 + 3] = 1;
       const road = createPool(capacity, initial, quad, null);
 
-      // The riders are built later, and only where the opening will show them (prepareTraffic).
+      // The riders, where the opening will show them, are made with the rest at the end of this
+      // (prepareTraffic).
       const vehicles = null;
       const traffic = null;
 
@@ -5106,30 +5112,57 @@
         [update, particles, studio].forEach(finishProgram);
         g.ready = true;
       }
+      prepareTraffic(g);
       return g;
     }
 
     // Ready to draw once every program is compiled and checked. Never waits on the compiler.
+    // The riders' program, where there is one, is waited for with the rest, so that its first
+    // draw (warmTraffic) is made on the same dark frame as theirs.
     function gpuReady(g) {
       if (g.ready) return true;
       const programs = [g.update, g.particles, g.studio];
       if (!programs.every(programDone)) return false;
+      if (g.traffic && !programDone(g.vehicles)) return false;
       programs.forEach(finishProgram);
       g.ready = true;
       return true;
     }
 
     // The riders on the opening's road. Only the opening shows them, from about eleven seconds
-    // in and only to a reader who has not scrolled yet, so they are built a few seconds ahead at
-    // an idle moment rather than with everything else at load.
+    // in and only to a reader who has not scrolled yet. They used to be built a few seconds
+    // ahead at an idle moment, but their program is what the driver has to compile, and on a
+    // first visit, with nothing cached, that held the GPU for tens of milliseconds whenever it
+    // was asked: a dropped frame or two in the middle of the opening. So they are made with the
+    // field's own programs at load, compiled beside them on the driver's threads, and drawn
+    // once on the dark stage (warmTraffic), where nothing the driver does can be seen.
     function prepareTraffic(g) {
       if (g.vehicles || !roster.length) return;
       g.vehicles = createProgram(VEHICLE_VS, UPDATE_FS, ['vPosAge', 'vVelLife', 'vColor']);
       const count = roster.length * POINTS_PER_VEHICLE;
-      g.traffic = createPool(count, new Float32Array(count * 12), g.quad, buildTrafficShapes());
+      g.trafficShapes = buildTrafficShapes(); // kept until warmTraffic has used them too
+      g.traffic = createPool(count, new Float32Array(count * 12), g.quad, g.trafficShapes);
       // Without parallel compiling, checking is what waits, so do that here in idle time and not
       // on the frame the first rider appears.
       if (!parallel) trafficReady(g);
+    }
+
+    // The riders' program's first pass, with nothing on it: the driver builds what a program
+    // needs on its first draw, and only then, so it is run once on the opening's first frame, in
+    // the dark (gpuReady waits for it), and not on the frame the first rider appears. It runs
+    // over a pool made for the purpose, the size of theirs and with their shapes: over a
+    // one-particle pool the driver was found to leave part of the work, about fifty
+    // milliseconds of it on a first visit, for the riders' own first pass.
+    function warmTraffic(g) {
+      if (g.trafficWarm || !g.traffic || !trafficReady(g)) return;
+      g.trafficWarm = true;
+      const count = g.traffic.count;
+      const pool = createPool(count, new Float32Array(count * 12), g.quad, g.trafficShapes);
+      g.trafficShapes = null;
+      gl.useProgram(g.vehicles.program);
+      simulate(g, pool, count);
+      pool.state.concat(pool.shape).forEach((buffer) => gl.deleteBuffer(buffer));
+      pool.updateVao.concat(pool.drawVao).forEach((vao) => gl.deleteVertexArray(vao));
     }
 
     function trafficReady(g) {
@@ -5751,8 +5784,15 @@
     // fifteen CSS pixels, and the dither is under one level of 8-bit. At the device's full
     // density the same picture cost four times the fill on a 2x screen (nine on 3x, before the
     // cap), for pixels the compositor would have interpolated to the same values. The one thing
-    // that needs device pixels is the road's riders, whose points are a pixel wide: while they
-    // are on screen (`dense`) the canvas goes up to full density, as it always was.
+    // that needs device pixels is the road's riders, whose points are a pixel wide, so while
+    // their scene is to come or under way (`dense`) the canvas is at full density.
+    //
+    // That is from the opening's first frame, not from the first rider. Growing a canvas makes
+    // the browser allocate it afresh, and done as the first rider appeared, about eleven seconds
+    // in, that held the GPU for the best part of fifty milliseconds with the road in full view,
+    // on every visit. On the first frame it happens in the dark. Going back down is cheap, and
+    // happens as the road lets go, or as soon as the reader scrolls, which ends the scene. The
+    // most it ever costs is what the riders' scene always cost, only for longer.
     let dense = false;
 
     function applySize() {
@@ -5774,6 +5814,17 @@
       // Bokeh is soft, so the light buffer stays near CSS resolution: most of the fill cost saved.
       const lightRatio = Math.min(base, resolutionScale, Math.sqrt(MAX_PARTICLE_PIXELS / area));
       sizeLightBuffer(gpu.light, Math.max(1, Math.round(cssW * lightRatio)), Math.max(1, Math.round(cssH * lightRatio)));
+
+      // The riders' light buffer, which their scene draws at the canvas's size, made with the
+      // canvas and cleared once so that it really exists: on the opening's first frame, in the
+      // dark, for the same reason (`dense` above).
+      if (dense && (gpu.detail.width !== width || gpu.detail.height !== height)) {
+        sizeLightBuffer(gpu.detail, width, height);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, gpu.detail.fbo);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
     }
 
     let perfTime = 0, perfFrames = 0, slowWindows = 0, fastWindows = 0;
@@ -5980,7 +6031,7 @@
         gl.uniform1f(u.uMinCore, 0.85 * pixelRatio);
         gl.bindVertexArray(g.traffic.drawVao[g.traffic.read]);
         gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, g.traffic.count);
-      } else if (g.detail.width > 1) {
+      } else if (g.detail.width > 1 && !ridersAhead()) {
         sizeLightBuffer(g.detail, 1, 1); // scene over: release the memory
       }
       gl.disable(gl.BLEND);
@@ -6013,11 +6064,20 @@
     let rafId = 0;
     let lastNow = 0;
     let live = false;
-    let trafficQueued = false;
 
-    // The road scene's window, the riders' and the full-density canvas's: from just before the
-    // first one is due until the road lets go (or the reader scrolls, which ends it at once).
+    // The pod can ask the opening to wait on its dark stage (gridBG.hold) while the driver builds
+    // what the pod will draw: on a first visit, with nothing cached, that work stops the GPU for
+    // tens of milliseconds at a time, which is invisible here and a stutter in the particles
+    // anywhere later. The field draws its first frame, so its own first draws are made in the dark
+    // as well, and then waits with the timeline stopped: until the pod is done, or its budget
+    // from that frame is spent, or the reader scrolls, whichever comes first.
+    let hold = null;
+
+    // The road scene's window, the riders': from just before the first one is due until the road
+    // lets go (or the reader scrolls, which ends it at once).
     const trafficWindow = () => roster.length > 0 && clock > TRAFFIC_START && S.traffic < 1;
+    // And the scene still to come or under way: from the first frame until the road lets go.
+    const ridersAhead = () => roster.length > 0 && !!(gpu && gpu.traffic) && S.traffic < 1;
 
     // While the home page's pod loop is running, it draws this field itself, once a frame, after
     // it has worked out that frame's targets (gridBG.drive). The field's own frame would come
@@ -6051,6 +6111,14 @@
         return;
       }
       if (!due) return;
+      if (hold && live) {
+        if (!hold.since) hold.since = now;
+        if (!hold.done && now - hold.since < hold.budget) {
+          lastNow = now;
+          return;
+        }
+        hold = null;
+      }
       // Under reduced motion the field moves at a third of its speed, which thirty frames a
       // second draw exactly as well as sixty.
       if (reduceMotion && now - lastNow < 30) return;
@@ -6061,15 +6129,7 @@
       if (!perf) governor(rawDt);
       advanceTimeline();
 
-      // Build the riders a few seconds before they are due, while the opening is calm.
-      if (!trafficQueued && roster.length && !scrollDrive && clock > TRAFFIC_START - 6) {
-        trafficQueued = true;
-        const idle = perf ? perf.idle : (fn) => setTimeout(fn, 0);
-        idle(() => {
-          if (gpu && !scrollDrive && S.traffic < 1) prepareTraffic(gpu);
-        }, 2000);
-      }
-      const wantDense = trafficWindow() && !!gpu.traffic;
+      const wantDense = ridersAhead();
       if (wantDense !== dense) {
         dense = wantDense;
         sizeDirty = true;
@@ -6077,6 +6137,7 @@
 
       if (sizeDirty) applySize();
       render(dt);
+      warmTraffic(gpu);
 
       if (!live) {
         // The canvas now covers the CSS studio behind it, so the root can stop painting it.
@@ -6120,7 +6181,6 @@
     canvas.addEventListener('webglcontextrestored', () => {
       try {
         gpu = createGPU(capacity, true);
-        trafficQueued = false;
         sizeDirty = true;
         if (podTargetData) uploadPodTargets(podTargetData, podTargetVis);
         if (!document.hidden) start();
@@ -6164,6 +6224,20 @@
         step(now);
       },
       release() { drivenAt = 0; },
+      // Keeps the opening on its dark stage until `until` settles, for at most `budget` ms from the
+      // field's first frame (see `hold` above). Refused once the lights have begun to come up, under
+      // reduced motion (which opens lit), and on a page that opens scrolled.
+      hold(until, budget) {
+        if (hold || reduceMotion || S.exposure > 0 || window.scrollY > 2) return false;
+        const h = { budget, since: 0, done: false };
+        const done = () => { h.done = true; };
+        Promise.resolve(until).then(done, done);
+        window.addEventListener('scroll', done, { passive: true, once: true });
+        hold = h;
+        return true;
+      },
+      // Nothing lit yet: the opening is still on its dark stage, held or not.
+      get dark() { return S.exposure <= 0 && !reduceMotion; },
       projection,
       // The film's dock shot samples this profile into pod targets. Exported rather than
       // duplicated so the stroke table has exactly one home.
@@ -10188,17 +10262,360 @@
     // footer included, could start.
     //
     // Building it is the heaviest thing the page does after the field: a second WebGL context,
-    // the environment, and three.js compiling every material, which r128 waits on (tens of
-    // milliseconds a material on a laptop, far more on a phone). So it waits for the headline
-    // itself, never for a clock. A fixed four-second fallback used to start it anyway, and on a
-    // first visit, when the field's shaders compile with nothing cached and the opening starts
-    // late, that landed in the middle of the opening and stalled the particles before the
-    // headline appeared (tools/perf/opening.mjs --compile-ms 2500 shows it).
+    // the environment, and the driver compiling every material's shaders and then, on their
+    // first draw, building their pipeline states. That GPU work is done on the stage (podStage),
+    // in the dark where it can be; the rest waits for the headline itself, never for a clock. A
+    // fixed four-second fallback used to start it anyway, and on a first visit, when the field's
+    // shaders compile with nothing cached and the opening starts late, that landed in the middle
+    // of the opening and stalled the particles before the headline appeared
+    // (tools/perf/opening.mjs --compile-ms 2500 shows it).
     const slice = () => {
       if (!perf) return new Promise((resolve) => setTimeout(resolve, 0));
       return filmTarget > 0.02 ? perf.nextTask() : perf.nextIdle(400);
     };
+    // A slice after a moment's rest, while the page is still: for work better spread out than
+    // done at once, like the warm-up's pipeline builds. Scrolling, there is no time to rest.
+    const breathe = () => (filmTarget > 0.02 ? slice() : new Promise((resolve) => setTimeout(resolve, 220)).then(slice));
+
+    // ---------------------------------------------------------------- the stage
+    // Everything the pod is drawn with that does not need the model: the renderer, the room's
+    // light (its environment and its lamps) and every material. Built as soon as three.js is in,
+    // which on a first visit is while the opening is still on its dark stage, and then drawn
+    // once (warmStage), so that the driver's work for the pod is done there.
+    //
+    // That work is the reason. The first time a program is drawn the driver builds a pipeline
+    // for it, and with nothing cached, as on anyone's first visit, that stops the GPU for twenty
+    // to sixty milliseconds a program on a Mac, and the field with it. The pod has eight. Built
+    // after the headline, as they used to be, each one froze the particles for a few frames just
+    // as the reader arrived. On the dark stage there is nothing lit to freeze, so the field waits
+    // there for them (gridBG.hold), for no more than STAGE_BUDGET past its own first frame. On a
+    // slow connection three.js arrives too late for that: the opening starts on time, and the
+    // stage is drawn when three.js does arrive, a breath between programs.
+    const STAGE_BUDGET = 900;
+
+    // The background canvas has always capped its own buffer by area (MAX_CANVAS_PIXELS, at
+    // the top of this file); this one never did. On a large window that left the pod drawing
+    // fourteen million pixels while the field beside it held at three and a half. The cap is
+    // set high enough that every ordinary laptop size still renders at the full device pixel
+    // ratio and only a genuinely large window gives anything up.
+    const MAX_POD_PIXELS = 8.0e6;
+    // The governor's pod steps (assets/perf.js, podRatios): the first entry is the density
+    // the pod is drawn at whenever it can be, which on a screen under 1.5x is above the
+    // screen's own (drawn finer and scaled down, so its edges and highlights do not alias);
+    // the rest are a little under it, while the device struggles with the pod on screen.
+    const POD_STEPS = perf ? perf.podRatios(phone) : [Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2)];
+    const podPixelRatio = (w, h) => Math.min(
+      POD_STEPS[Math.min(POD_STEPS.length - 1, perf ? perf.podLevel : 0)],
+      Math.sqrt(MAX_POD_PIXELS / Math.max(1, w * h)),
+    );
+
+    async function podStage(THREE) {
+      const renderer = new THREE.WebGLRenderer({
+        canvas: podCanvas,
+        // On every device: a phone's GPU resolves its samples on the chip, so the pod's edges
+        // come out clean for very little, and without it every curve of the pod is stepped.
+        antialias: true,
+        alpha: true,
+        powerPreference: phone ? 'low-power' : 'high-performance',
+        premultipliedAlpha: true,
+        // As for the field's canvas: a software-only context would be a slideshow (see #bg).
+        failIfMajorPerformanceCaveat: true,
+      });
+      // The one thing three.js asks the driver about later and waits for: the anisotropy the
+      // textures may have. Asked now, while the driver has nothing else to do, so the answer is
+      // in hand when the first texture goes up rather than waited for behind a pipeline build.
+      renderer.capabilities.getMaxAnisotropy();
+      // A starting value only. The stage sets the real one once it is built (below), which is
+      // this capped by buffer area as well (see podPixelRatio), and resize() keeps it so.
+      renderer.setPixelRatio(perf ? perf.podRatios(phone)[0] : Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.02;
+
+      const scene = new THREE.Scene();
+      scene.background = null;
+      // A whisper of haze, so the pod's far side melts into the page instead of cutting out
+      // against it. Range follows the shot (see place()), and the reveal thickens it.
+      scene.fog = new THREE.Fog(0xcbcbc9, 900, 3000);
+      // Fog here dissolves the pod into whatever is behind this transparent canvas rather than
+      // painting it grey. The backdrop is a gradient, so one grey only ever matched it in
+      // places: fine for a whisper on the far side, but the reveal's haze swallows the whole
+      // pod, and a fixed colour showed it as a flat grey slab. The canvas is premultiplied, so
+      // scaling all four channels is an exact blend with the page. Decals keep their alpha and
+      // lay their colour over a surface that has already been dissolved (see asDecal()).
+      THREE.ShaderChunk.fog_fragment = `#ifdef USE_FOG
+        #ifdef FOG_EXP2
+          float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
+        #else
+          float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
+        #endif
+        #ifdef FOG_KEEPS_ALPHA
+          gl_FragColor.rgb *= 1.0 - fogFactor;
+        #else
+          gl_FragColor *= 1.0 - fogFactor;
+        #endif
+      #endif`;
+      // Over a surface written with alpha (1 - fog), a decal's colour goes on as usual but the
+      // alpha is left as the surface set it, so the two dissolve together exactly.
+      function asDecal(m) {
+        m.defines = Object.assign({}, m.defines, { FOG_KEEPS_ALPHA: '' });
+        m.blending = THREE.CustomBlending;
+        m.blendSrc = THREE.SrcAlphaFactor;
+        m.blendDst = THREE.OneMinusSrcAlphaFactor;
+        m.blendSrcAlpha = THREE.ZeroFactor;
+        m.blendDstAlpha = THREE.OneFactor;
+        return m;
+      }
+      const camera = new THREE.PerspectiveCamera(28, 1, 5, 6000);
+
+      // The page's backdrop puts its key hotspot upper-left just above the horizon, a bright
+      // band strongest on the right, and a bright floor below. The pod reads its blacks almost
+      // entirely from this environment, so it mirrors that room exactly.
+      function studio() {
+        const s = new THREE.Scene();
+        const g = new THREE.BoxGeometry(1, 1, 1);
+        const P = (w, h, d, x, y, z, c, i) => {
+          const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: c }));
+          m.scale.set(w, h, d);
+          m.position.set(x, y, z);
+          m.material.color.multiplyScalar(i);
+          s.add(m);
+        };
+        s.add(new THREE.Mesh(
+          new THREE.BoxGeometry(5000, 5000, 5000),
+          new THREE.MeshBasicMaterial({ color: 0xcdcdcb, side: THREE.BackSide }),
+        ));
+        P(940, 640, 900, -820, 430, 600, 0xffffff, 5.0);   // key hotspot, upper left front
+        P(1500, 20, 1200, 0, 780, 120, 0xffffff, 2.1);     // soft ceiling
+        P(20, 520, 1400, 980, 60, 120, 0xf7f3ec, 3.0);     // horizon band, brightest on the right
+        P(1500, 20, 1300, 0, -640, 0, 0xffffff, 2.4);      // the backdrop's bright floor
+        P(1300, 700, 20, 0, 120, -820, 0xffffff, 1.2);     // back wall
+        return s;
+      }
+      // The environment map is all that is kept: the generator's own targets and shaders, and
+      // the room it photographed, are handed back. (It no longer compiles the equirectangular
+      // shader either, which is for a different kind of source and was never used.)
+      //
+      // Its three programs (the blur the generator compiles for itself as it is made, and the
+      // room's two) are started first and waited for between pauses, never on: see linked().
+      // The room is compiled under the state the generator draws it in, tone mapping off, its
+      // output linear and a target in its encoding, because that state is part of a program's
+      // identity, and a program compiled under any other is one the generator never uses.
+      async function environment(pause) {
+        const pm = new THREE.PMREMGenerator(renderer);
+        const room = studio();
+        if (pause) {
+          const probe = new THREE.WebGLRenderTarget(4, 4, { encoding: THREE.RGBEEncoding, depthBuffer: false });
+          const toneMapping = renderer.toneMapping;
+          const outputEncoding = renderer.outputEncoding;
+          renderer.toneMapping = THREE.NoToneMapping;
+          renderer.outputEncoding = THREE.LinearEncoding;
+          renderer.setRenderTarget(probe);
+          renderer.compile(room, camera);
+          renderer.setRenderTarget(null);
+          renderer.toneMapping = toneMapping;
+          renderer.outputEncoding = outputEncoding;
+          probe.dispose();
+          await linked(pause);
+        }
+        const texture = pm.fromScene(room, 0.035).texture;
+        pm.dispose();
+        room.traverse((o) => {
+          if (o.geometry) o.geometry.dispose();
+          if (o.material) o.material.dispose();
+        });
+        return texture;
+      }
+      // Resolves once every program the renderer holds has linked, asking the driver between
+      // pauses rather than waiting on it (isReady, tools/source/three.mjs).
+      async function linked(pause) {
+        while (!renderer.info.programs.every((p) => p.isReady())) await pause();
+      }
+      await slice();
+      scene.environment = await environment(slice);
+      await slice();
+
+      function grain(size, amt) {
+        const c = document.createElement('canvas');
+        c.width = c.height = size;
+        const g = c.getContext('2d');
+        const d = g.createImageData(size, size);
+        for (let i = 0; i < size * size; i++) {
+          const v = 200 + (Math.random() - 0.5) * amt;
+          d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v;
+          d.data[i * 4 + 3] = 255;
+        }
+        g.putImageData(d, 0, 0);
+        const t = new THREE.CanvasTexture(c);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.repeat.set(26, 26);
+        return t;
+      }
+      const GRAIN = grain(256, 86);
+
+      // The caps: moulded black with a soft satin coat, not a lacquer.
+      const pc = new THREE.MeshPhysicalMaterial({
+        color: 0x060607, metalness: 0.0, roughness: 0.64, roughnessMap: GRAIN,
+        clearcoat: 0.30, clearcoatRoughness: 0.38, reflectivity: 0.26, envMapIntensity: 0.42,
+      });
+      // The grip bar is moulded into the top cap, so it gets its own textured finish by height
+      // rather than a separate mesh. The cap's rim tops out at 177.8; everything above it is the
+      // bar, which fades to a dry matte by 181 so its feet, where it sweeps down into the
+      // corners, stop catching the key hotspot as a white streak. Roughness alone only spreads
+      // that streak out, so the grip's reflections are also cut to about a third.
+      pc.onBeforeCompile = (sh) => {
+        sh.vertexShader = 'varying float vGrip;\n' + sh.vertexShader.replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvGrip = smoothstep( 177.9, 181.0, position.x );',
+        );
+        sh.fragmentShader = 'varying float vGrip;\n' + sh.fragmentShader.replace(
+          '#include <lights_physical_fragment>',
+          `#include <lights_physical_fragment>
+          material.specularRoughness = mix( material.specularRoughness, 0.84, vGrip );
+          #ifdef CLEARCOAT
+            material.clearcoat *= 1.0 - vGrip;
+          #endif`,
+        ).replace(
+          '#include <lights_fragment_end>',
+          `#include <lights_fragment_end>
+          reflectedLight.directSpecular *= 1.0 - 0.65 * vGrip;
+          reflectedLight.indirectSpecular *= 1.0 - 0.65 * vGrip;`,
+        );
+      };
+      const alu = new THREE.MeshPhysicalMaterial({
+        color: 0x0d0f11, metalness: 0.90, roughness: 0.34, envMapIntensity: 1.05,
+      });
+
+      // The decals, the display and the window for the hand on the grip are made when what they
+      // show is ready (initPod), so the stage keeps the recipe for each, and warmStage draws one
+      // of each with a blank in place of the picture.
+      const decalMaterial = (map) => asDecal(new THREE.MeshPhysicalMaterial({
+        map, transparent: true,
+        metalness: 0.0, roughness: 0.34, clearcoat: 0.9, clearcoatRoughness: 0.10,
+        envMapIntensity: 0.45, depthWrite: false,
+        polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
+      }));
+      const displayMaterial = (map) => asDecal(new THREE.MeshBasicMaterial({
+        map, transparent: true, depthWrite: false,
+        polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+      }));
+      const handMaterial = () => new THREE.ShaderMaterial({
+        uniforms: {
+          uOpacity: { value: 0 }, uInflate: { value: 0 },
+          uArm: { value: new THREE.Vector4(0, 0, 0, 1) }, uArmDir: { value: new THREE.Vector3(...gripHand.reach.ARM.dir) },
+          uArmFade: { value: gripHand.ARM_FADE },
+        },
+        vertexShader: `uniform float uInflate;
+          varying vec3 vGrip;
+          void main() {
+            vGrip = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * uInflate, 1.0);
+          }`,
+        fragmentShader: `uniform float uOpacity;
+          uniform vec4 uArm;
+          uniform vec3 uArmDir;
+          uniform float uArmFade;
+          varying vec3 vGrip;
+          void main() {
+            float up = clamp(dot(vGrip - uArm.xyz, uArmDir) / uArm.w, 0.0, 1.0);
+            gl_FragColor = vec4(0.0, 0.0, 0.0, uOpacity * (1.0 - uArmFade * up * up * (3.0 - 2.0 * up)));
+          }`,
+        transparent: true, depthWrite: false, side: THREE.DoubleSide,
+        blending: THREE.CustomBlending,
+        blendSrc: THREE.ZeroFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+        blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+        stencilWrite: true, stencilRef: 1,
+        stencilFunc: THREE.NotEqualStencilFunc, stencilZPass: THREE.ReplaceStencilOp,
+      });
+
+      // Lights aimed to agree with the backdrop: key from the upper left, the horizon band
+      // filling from the right, a cool low front fill, and a bounce off the bright floor.
+      const key = new THREE.DirectionalLight(0xffffff, 1.9);
+      key.position.set(-430, 600, 520);
+      scene.add(key);
+      const band = new THREE.DirectionalLight(0xfff2e6, 0.85);
+      band.position.set(720, 90, 160);
+      scene.add(band);
+      const fill = new THREE.DirectionalLight(0xe8f0ff, 0.5);
+      fill.position.set(-260, -60, 620);
+      scene.add(fill);
+      const bounce = new THREE.DirectionalLight(0xffffff, 0.34);
+      bounce.position.set(60, -560, 220);
+      scene.add(bounce);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.40));
+      // The reveal's one moving light: it passes down the corner of the body that faces the
+      // lens, so a single soft highlight travels the length of it and is gone. It is in the
+      // scene from the start at zero, because a light added mid-scroll recompiles every
+      // material on the frame it arrives.
+      const sweep = new THREE.PointLight(0xfff4e8, 0, 700, 2);
+      scene.add(sweep);
+
+      // The canvas at its real size, so its buffers are made here as well and not on the pod's
+      // first frame. initPod's resize() works it out the same way and finds nothing to change.
+      const w = Math.max(1, podCanvas.clientWidth);
+      const h = Math.max(1, podCanvas.clientHeight);
+      renderer.setPixelRatio(podPixelRatio(w, h));
+      renderer.setSize(w, h, false);
+
+      return { THREE, renderer, scene, camera, environment, pc, alu, decalMaterial, displayMaterial, handMaterial, sweep };
+    }
+
+    // Every kind of surface the pod is made of, drawn once: a small plane in each material,
+    // alone, into a one pixel scissor, under the lamps, fog and environment it will have, so the
+    // driver builds each pipeline here and the pod's own first frames find them made. Compiling
+    // starts for all of them at once and is only asked about between slices (compileAsync). In
+    // the dark the draws follow one another straight away; lit, they are a breath apart, as in
+    // warm(). The planes go afterwards, but the materials made only for this are kept: three.js
+    // throws a program away with its last material, and the pod's decals, display and hand
+    // window, made later from the same recipes, are meant to find these programs, and their
+    // pipelines, waiting.
+    async function warmStage(stage) {
+      const { THREE, renderer, scene, camera } = stage;
+      const blank = new THREE.Texture();
+      blank.encoding = THREE.sRGBEncoding;
+      stage.kept = [stage.decalMaterial(blank), stage.displayMaterial(blank), stage.handMaterial()];
+      const plane = new THREE.PlaneGeometry(1, 1);
+      const group = new THREE.Group();
+      for (const material of [stage.pc, stage.alu, ...stage.kept]) {
+        const mesh = new THREE.Mesh(plane, material);
+        mesh.frustumCulled = false;
+        group.add(mesh);
+      }
+      scene.add(group);
+      const dark = () => !!(window.gridBG && window.gridBG.dark);
+      const next = () => (dark() ? (perf ? perf.nextTask() : new Promise((resolve) => setTimeout(resolve, 0))) : breathe());
+      const parts = group.children.slice();
+      try {
+        await renderer.compileAsync(scene, camera, slice);
+        renderer.setScissorTest(true);
+        renderer.setScissor(0, 0, 1, 1);
+        for (const part of parts) {
+          group.children = [part];
+          renderer.render(scene, camera);
+          await next();
+        }
+        // The draws are only queued. In the dark, wait here until the driver has built the last
+        // pipeline (a question it can only answer once it has), so that the lights never come up
+        // on a GPU still busy with it.
+        if (dark()) renderer.getContext().getError();
+      } finally {
+        group.children = parts;
+        renderer.setScissorTest(false);
+        renderer.clear();        // leave the canvas as untouched as it was found
+        scene.remove(group);
+        plane.dispose();
+      }
+    }
+
     function bootPod() {
+      // The stage first, from three.js alone, and while the opening is still dark if it can be:
+      // the field waits there for it, up to STAGE_BUDGET (see podStage). A stage that cannot be
+      // built (no WebGL) is reported once, below, as the overlay being unavailable.
+      const stage = window.GridPodAssets.three().then(podStage);
+      const staged = stage.then(warmStage, () => {})
+        .catch((err) => console.warn('[gridPod] stage warm-up skipped:', err));
+      if (window.gridBG && window.gridBG.hold && !reduceMotion && filmTarget <= 0.02) window.gridBG.hold(staged, STAGE_BUDGET);
       const assets = window.GridPodAssets.load();
       const go = new Promise((resolve) => {
         if (!headline || reduceMotion || filmTarget > 0.02) {
@@ -10244,160 +10661,16 @@
         if (headline.classList.contains('is-revealed')) landed();
         else observer.observe(headline, { attributes: true, attributeFilter: ['class'] });
       });
-      Promise.all([assets, go])
-        .then(([a]) => initPod(a))
+      Promise.all([assets, stage, staged, go])
+        .then(([a, built]) => initPod(a, built))
         .catch((err) => console.warn('[gridPod] 3D overlay unavailable:', err));
     }
 
-    async function initPod({ THREE, model, logoUrl }) {
+    async function initPod({ THREE, model, logoUrl }, stage) {
       try {
-        const renderer = new THREE.WebGLRenderer({
-          canvas: podCanvas,
-          // On every device: a phone's GPU resolves its samples on the chip, so the pod's edges
-          // come out clean for very little, and without it every curve of the pod is stepped.
-          antialias: true,
-          alpha: true,
-          powerPreference: phone ? 'low-power' : 'high-performance',
-          premultipliedAlpha: true,
-          // As for the field's canvas: a software-only context would be a slideshow (see #bg).
-          failIfMajorPerformanceCaveat: true,
-        });
-        // A starting value only. resize() runs before the first frame and sets the real one,
-        // which is this capped by buffer area as well (see podPixelRatio).
-        renderer.setPixelRatio(perf ? perf.podRatios(phone)[0] : Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
-        renderer.setClearColor(0x000000, 0);
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.02;
-
-        const scene = new THREE.Scene();
-        scene.background = null;
-        // A whisper of haze, so the pod's far side melts into the page instead of cutting out
-        // against it. Range follows the shot (see place()), and the reveal thickens it.
-        scene.fog = new THREE.Fog(0xcbcbc9, 900, 3000);
-        // Fog here dissolves the pod into whatever is behind this transparent canvas rather than
-        // painting it grey. The backdrop is a gradient, so one grey only ever matched it in
-        // places: fine for a whisper on the far side, but the reveal's haze swallows the whole
-        // pod, and a fixed colour showed it as a flat grey slab. The canvas is premultiplied, so
-        // scaling all four channels is an exact blend with the page. Decals keep their alpha and
-        // lay their colour over a surface that has already been dissolved (see asDecal()).
-        THREE.ShaderChunk.fog_fragment = `#ifdef USE_FOG
-          #ifdef FOG_EXP2
-            float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
-          #else
-            float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
-          #endif
-          #ifdef FOG_KEEPS_ALPHA
-            gl_FragColor.rgb *= 1.0 - fogFactor;
-          #else
-            gl_FragColor *= 1.0 - fogFactor;
-          #endif
-        #endif`;
-        // Over a surface written with alpha (1 - fog), a decal's colour goes on as usual but the
-        // alpha is left as the surface set it, so the two dissolve together exactly.
-        function asDecal(m) {
-          m.defines = Object.assign({}, m.defines, { FOG_KEEPS_ALPHA: '' });
-          m.blending = THREE.CustomBlending;
-          m.blendSrc = THREE.SrcAlphaFactor;
-          m.blendDst = THREE.OneMinusSrcAlphaFactor;
-          m.blendSrcAlpha = THREE.ZeroFactor;
-          m.blendDstAlpha = THREE.OneFactor;
-          return m;
-        }
-        const camera = new THREE.PerspectiveCamera(28, 1, 5, 6000);
-
-        // The page's backdrop puts its key hotspot upper-left just above the horizon, a bright
-        // band strongest on the right, and a bright floor below. The pod reads its blacks almost
-        // entirely from this environment, so it mirrors that room exactly.
-        function studio() {
-          const s = new THREE.Scene();
-          const g = new THREE.BoxGeometry(1, 1, 1);
-          const P = (w, h, d, x, y, z, c, i) => {
-            const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: c }));
-            m.scale.set(w, h, d);
-            m.position.set(x, y, z);
-            m.material.color.multiplyScalar(i);
-            s.add(m);
-          };
-          s.add(new THREE.Mesh(
-            new THREE.BoxGeometry(5000, 5000, 5000),
-            new THREE.MeshBasicMaterial({ color: 0xcdcdcb, side: THREE.BackSide }),
-          ));
-          P(940, 640, 900, -820, 430, 600, 0xffffff, 5.0);   // key hotspot, upper left front
-          P(1500, 20, 1200, 0, 780, 120, 0xffffff, 2.1);     // soft ceiling
-          P(20, 520, 1400, 980, 60, 120, 0xf7f3ec, 3.0);     // horizon band, brightest on the right
-          P(1500, 20, 1300, 0, -640, 0, 0xffffff, 2.4);      // the backdrop's bright floor
-          P(1300, 700, 20, 0, 120, -820, 0xffffff, 1.2);     // back wall
-          return s;
-        }
-        // The environment map is all that is kept: the generator's own targets and shaders, and
-        // the room it photographed, are handed back. (It no longer compiles the equirectangular
-        // shader either, which is for a different kind of source and was never used.)
-        function environment() {
-          const pm = new THREE.PMREMGenerator(renderer);
-          const room = studio();
-          const texture = pm.fromScene(room, 0.035).texture;
-          pm.dispose();
-          room.traverse((o) => {
-            if (o.geometry) o.geometry.dispose();
-            if (o.material) o.material.dispose();
-          });
-          return texture;
-        }
-        await slice();
-        scene.environment = environment();
-        await slice();
-
-        function grain(size, amt) {
-          const c = document.createElement('canvas');
-          c.width = c.height = size;
-          const g = c.getContext('2d');
-          const d = g.createImageData(size, size);
-          for (let i = 0; i < size * size; i++) {
-            const v = 200 + (Math.random() - 0.5) * amt;
-            d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v;
-            d.data[i * 4 + 3] = 255;
-          }
-          g.putImageData(d, 0, 0);
-          const t = new THREE.CanvasTexture(c);
-          t.wrapS = t.wrapT = THREE.RepeatWrapping;
-          t.repeat.set(26, 26);
-          return t;
-        }
-        const GRAIN = grain(256, 86);
-
-        // The caps: moulded black with a soft satin coat, not a lacquer.
-        const pc = new THREE.MeshPhysicalMaterial({
-          color: 0x060607, metalness: 0.0, roughness: 0.64, roughnessMap: GRAIN,
-          clearcoat: 0.30, clearcoatRoughness: 0.38, reflectivity: 0.26, envMapIntensity: 0.42,
-        });
-        // The grip bar is moulded into the top cap, so it gets its own textured finish by height
-        // rather than a separate mesh. The cap's rim tops out at 177.8; everything above it is the
-        // bar, which fades to a dry matte by 181 so its feet, where it sweeps down into the
-        // corners, stop catching the key hotspot as a white streak. Roughness alone only spreads
-        // that streak out, so the grip's reflections are also cut to about a third.
-        pc.onBeforeCompile = (sh) => {
-          sh.vertexShader = 'varying float vGrip;\n' + sh.vertexShader.replace(
-            '#include <begin_vertex>',
-            '#include <begin_vertex>\nvGrip = smoothstep( 177.9, 181.0, position.x );',
-          );
-          sh.fragmentShader = 'varying float vGrip;\n' + sh.fragmentShader.replace(
-            '#include <lights_physical_fragment>',
-            `#include <lights_physical_fragment>
-            material.specularRoughness = mix( material.specularRoughness, 0.84, vGrip );
-            #ifdef CLEARCOAT
-              material.clearcoat *= 1.0 - vGrip;
-            #endif`,
-          ).replace(
-            '#include <lights_fragment_end>',
-            `#include <lights_fragment_end>
-            reflectedLight.directSpecular *= 1.0 - 0.65 * vGrip;
-            reflectedLight.indirectSpecular *= 1.0 - 0.65 * vGrip;`,
-          );
-        };
-        const alu = new THREE.MeshPhysicalMaterial({
-          color: 0x0d0f11, metalness: 0.90, roughness: 0.34, envMapIntensity: 1.05,
-        });
+        // The renderer, the room's light and the materials come from the stage (podStage), which
+        // was built from three.js alone, before this, and has already been drawn once.
+        const { renderer, scene, camera, environment, pc, alu, decalMaterial, displayMaterial, handMaterial, sweep } = stage;
 
         const pod = new THREE.Group();
         scene.add(pod);
@@ -10409,8 +10682,8 @@
         const HALF = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y, bb.max.z - bb.min.z) / 2;
         const BASE = bb.min.x;
 
-        // The decals arrive with their texture. warm() waits for them, briefly, so their program
-        // is built with the others rather than on the frame they first appear.
+        // The decals arrive with their texture. warm() waits for them, briefly, so they are drawn
+        // once with the rest of the pod rather than on the frame they first appear.
         const logoReady = new Promise((resolveLogo) => {
           new THREE.TextureLoader().load(logoUrl, (t) => {
             t.encoding = THREE.sRGBEncoding;
@@ -10422,12 +10695,7 @@
               const ey = new THREE.Vector3().crossVectors(ez, ex);
               const m = new THREE.Mesh(
                 new THREE.PlaneGeometry(LEN, WID),
-                asDecal(new THREE.MeshPhysicalMaterial({
-                  map: t, transparent: true,
-                  metalness: 0.0, roughness: 0.34, clearcoat: 0.9, clearcoatRoughness: 0.10,
-                  envMapIntensity: 0.45, depthWrite: false,
-                  polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
-                })),
+                decalMaterial(t),
               );
               m.applyMatrix4(new THREE.Matrix4().makeBasis(ex, ey, ez));
               m.position.copy(ez).multiplyScalar(FACE + LIFT)
@@ -10525,10 +10793,7 @@
           const PW = 34, PH = PW * 150 / 512;
           const m = new THREE.Mesh(
             new THREE.PlaneGeometry(PW, PH),
-            asDecal(new THREE.MeshBasicMaterial({
-              map: tex, transparent: true, depthWrite: false,
-              polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
-            })),
+            displayMaterial(tex),
           );
           const DIR = 135 * Math.PI / 180;
           const ez = new THREE.Vector3(1, 0, 0);
@@ -10565,34 +10830,7 @@
           // The arm fades along its length as its drawing does (gripHand's armFade): `uArm` is
           // the wrist and the arm's length, `uArmDir` its direction, both in the grip's frame,
           // and `uArmFade` how much of it goes.
-          const mesh = new THREE.Mesh(geo, new THREE.ShaderMaterial({
-            uniforms: {
-              uOpacity: { value: 0 }, uInflate: { value: 0 },
-              uArm: { value: new THREE.Vector4(0, 0, 0, 1) }, uArmDir: { value: new THREE.Vector3(...gripHand.reach.ARM.dir) },
-              uArmFade: { value: gripHand.ARM_FADE },
-            },
-            vertexShader: `uniform float uInflate;
-              varying vec3 vGrip;
-              void main() {
-                vGrip = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * uInflate, 1.0);
-              }`,
-            fragmentShader: `uniform float uOpacity;
-              uniform vec4 uArm;
-              uniform vec3 uArmDir;
-              uniform float uArmFade;
-              varying vec3 vGrip;
-              void main() {
-                float up = clamp(dot(vGrip - uArm.xyz, uArmDir) / uArm.w, 0.0, 1.0);
-                gl_FragColor = vec4(0.0, 0.0, 0.0, uOpacity * (1.0 - uArmFade * up * up * (3.0 - 2.0 * up)));
-              }`,
-            transparent: true, depthWrite: false, side: THREE.DoubleSide,
-            blending: THREE.CustomBlending,
-            blendSrc: THREE.ZeroFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-            blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
-            stencilWrite: true, stencilRef: 1,
-            stencilFunc: THREE.NotEqualStencilFunc, stencilZPass: THREE.ReplaceStencilOp,
-          }));
+          const mesh = new THREE.Mesh(geo, handMaterial());
           // The grip's frame (q, p, u) into the pod's: x = u, y = (q + p)/√2, z = (p - q)/√2.
           mesh.matrixAutoUpdate = false;
           mesh.matrix.set(0, 0, 1, 0, S2, S2, 0, 0, -S2, S2, 0, 0, 0, 0, 0, 1);
@@ -10797,27 +11035,6 @@
           }
         }
 
-        // Lights aimed to agree with the backdrop: key from the upper left, the horizon band
-        // filling from the right, a cool low front fill, and a bounce off the bright floor.
-        const key = new THREE.DirectionalLight(0xffffff, 1.9);
-        key.position.set(-430, 600, 520);
-        scene.add(key);
-        const band = new THREE.DirectionalLight(0xfff2e6, 0.85);
-        band.position.set(720, 90, 160);
-        scene.add(band);
-        const fill = new THREE.DirectionalLight(0xe8f0ff, 0.5);
-        fill.position.set(-260, -60, 620);
-        scene.add(fill);
-        const bounce = new THREE.DirectionalLight(0xffffff, 0.34);
-        bounce.position.set(60, -560, 220);
-        scene.add(bounce);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.40));
-        // The reveal's one moving light: it passes down the corner of the body that faces the
-        // lens, so a single soft highlight travels the length of it and is gone. It is in the
-        // scene from the start at zero, because a light added mid-scroll recompiles every
-        // material on the frame it arrives.
-        const sweep = new THREE.PointLight(0xfff4e8, 0, 700, 2);
-        scene.add(sweep);
         // The pod stands with its length on world y, 391 tall, and the reveal looks at the corner
         // at (-66, 66) from about -40 degrees. The light rides a line just off that corner,
         // turned a little toward the key, from above the top to below the base, and swells and
@@ -11067,21 +11284,6 @@
           scene.fog.far = mix(dist * 2.7, veil + dist * 0.6, veiled);
         }
 
-        // The background canvas has always capped its own buffer by area (MAX_CANVAS_PIXELS, at
-        // the top of this file); this one never did. On a large window that left the pod drawing
-        // fourteen million pixels while the field beside it held at three and a half. The cap is
-        // set high enough that every ordinary laptop size still renders at the full device pixel
-        // ratio and only a genuinely large window gives anything up.
-        const MAX_POD_PIXELS = 8.0e6;
-        // The governor's pod steps (assets/perf.js, podRatios): the first entry is the density
-        // the pod is drawn at whenever it can be, which on a screen under 1.5x is above the
-        // screen's own (drawn finer and scaled down, so its edges and highlights do not alias);
-        // the rest are a little under it, while the device struggles with the pod on screen.
-        const POD_STEPS = perf ? perf.podRatios(phone) : [Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2)];
-        const podPixelRatio = (w, h) => Math.min(
-          POD_STEPS[Math.min(POD_STEPS.length - 1, perf ? perf.podLevel : 0)],
-          Math.sqrt(MAX_POD_PIXELS / Math.max(1, w * h)),
-        );
         if (perf) {
           perf.registerPod(POD_STEPS.length - 1);
           let level = perf.podLevel;
@@ -11439,35 +11641,43 @@
         const blackedOut = () => nightNow() >= 0.995;
 
         // ---------------------------------------------------------------- the warm-up
-        // The first real render is where the driver builds a pipeline state for every material in
-        // here and where three.js pushes the mesh and its textures to the GPU. Measured at about
-        // 35ms here and far longer on a phone, and it used to land on the exact scroll frame that
-        // reveals the pod, which is the stutter. It is done before the pod is shown instead, and
-        // a part of the pod at a time (the body, the connector, each decal, the display, the
-        // window for the hand), one idle slice each, so no single pause is long enough to
-        // see. The last step draws into a one pixel scissor so none of it pays for a screenful
-        // of fill; the canvas sits at opacity 0 until podFadeAt lifts it.
+        // Two things happen the first time a material is drawn, and both used to land on the
+        // exact scroll frame that reveals the pod, which was the stutter: the driver compiles its
+        // shaders, and then builds a pipeline state for them. Both are done on the stage now
+        // (podStage, warmStage), usually before the lights come up. three.js r128 also waited on
+        // every link the moment it was made, which on a first visit held the page for twenty to a
+        // hundred milliseconds a material on a Mac and several times that on Windows; the copy the
+        // site ships (tools/source/three.mjs) only asks the driver between slices whether it has
+        // finished (compileAsync).
+        //
+        // What is left for here is what needed the model and the pictures: the pod's own buffers
+        // and textures go up on its first draw. So it is still drawn once before it is shown, a
+        // part at a time (the body, the connector, each decal, the display, the window for the
+        // hand), each alone into a one pixel scissor so none of it pays for a screenful of fill,
+        // and a breath apart. Should a program not have been made on the stage, it is compiled
+        // here the same way, and its pipeline built in its own short pause. The canvas sits at
+        // opacity 0 until podFadeAt lifts it.
         async function warm() {
           await Promise.race([logoReady, new Promise((resolve) => setTimeout(resolve, 1500))]);
           const held = filmT;
           const parts = pod.children;
           try {
-            for (const part of parts.slice()) {
-              place(shotAt(1.0), 0, 0);
-              pod.children = [part];
-              renderer.compile(scene, camera);
-              pod.children = parts;
-              await slice();
-            }
             place(shotAt(1.0), 0, 0);
+            await renderer.compileAsync(scene, camera, slice);
             renderer.setScissorTest(true);
             renderer.setScissor(0, 0, 1, 1);
-            renderer.render(scene, camera);
+            for (const part of parts.slice()) {
+              pod.children = [part];
+              renderer.render(scene, camera);
+              pod.children = parts;
+              await breathe();
+            }
             renderer.setScissorTest(false);
             renderer.clear();        // leave the canvas as untouched as it was found
           } catch (err) {
             console.warn('[gridPod] render warm-up skipped:', err);
           } finally {
+            renderer.setScissorTest(false);
             pod.children = parts;
             drawnAt = null;          // that was a one pixel stub, not a frame of the film
             place(shotAt(held), 0, 0);
@@ -11642,14 +11852,15 @@
           letFieldGo();
         });
         podCanvas.addEventListener('webglcontextrestored', () => {
-          lost = false;
-          try {
-            scene.environment = environment();
-          } catch (err) {
+          environment(slice).then((texture) => {
+            scene.environment = texture;
+          }, (err) => {
             console.warn('[gridPod] environment not rebuilt:', err);
-          }
-          drawnAt = null;
-          start();
+          }).then(() => {
+            lost = false;
+            drawnAt = null;
+            start();
+          });
         });
 
         resize();

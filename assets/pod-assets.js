@@ -7,6 +7,8 @@
  * opening plays, instead of as 1.7 MB of script the parser has to stop for.
  *
  *   GridPodAssets.load()                 → Promise<{ THREE, model, logoUrl }>
+ *   GridPodAssets.three()                → Promise<THREE>, three.js alone, for the work that does
+ *                                          not need the model (the home page's podStage)
  *   GridPodAssets.geometry(THREE, model) → the pod's BufferGeometry, exactly as decode() built
  *                                          it from the old base64 globals
  *
@@ -145,5 +147,5 @@
     return loading;
   }
 
-  window.GridPodAssets = { load, geometry, logoUrl: LOGO_URL };
+  window.GridPodAssets = { load, three: loadThree, geometry, logoUrl: LOGO_URL };
 })();
