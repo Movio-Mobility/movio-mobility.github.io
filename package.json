@@ -53,6 +53,6 @@
     "parse5": "7.3.0",
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
-    "puppeteer-core": "^24.0.0"
+    "puppeteer-core": "^25.16.0"
   }
 }
