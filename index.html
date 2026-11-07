@@ -7,7 +7,7 @@
   <script src="assets/i18n.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>GridXenergy | GridX PowerPod Portable Battery</title>
-  <meta name="description" content="GridX builds the PowerPod, a portable battery for electric two-wheelers. Made in India, charges from any socket, 5-year warranty. Pre-book the PowerPod Gen2.">
+  <meta name="description" content="GridX builds the PowerPod, a portable battery for electric two-wheelers. Made in India, charges from any socket, 5-year warranty. Book the PowerPod Gen2.">
   <meta name="theme-color" content="#c4c4c2">
   <!-- The site's icons (tools/source/favicons.py): the tab's three sizes in one file, then the
        home screen's for iOS and for Android. -->
@@ -220,8 +220,8 @@
       margin-left: 0.08em;
     }
 
-    /* The finale's way to pre-book, a row under the pod and the phone, centred on them
-       (layoutFinale places it): the hero's count until pre-booking opens, and from that instant
+    /* The finale's way to book, a row under the pod and the phone, centred on them
+       (layoutFinale places it): the hero's count until booking opens, and from that instant
        the hero's button (.launch__cta, below, dresses both) in the same slot, the shipping line
        under either, so nothing moves at the instant. It comes and goes with the finale's words. */
     .film__prebook {
@@ -2299,7 +2299,7 @@
     }
     /* The warranty beat's link to the terms, set like the points above, in its line's own colour.
        Reachable (tabbable, taking the pointer) only while its caption is in: is-reachable, from the
-       script, as the finale's pre-book button. */
+       script, as the finale's booking button. */
     .film__more {
       color: inherit;
       text-decoration: underline;
@@ -2591,8 +2591,8 @@
     }
 
     /* ---------------------------------------------------------------- launch
-       The line under the headline that says when PowerPod Gen2's pre-booking opens, and, from
-       that moment, the button to pre-book one. assets/launch.js keeps the time, swaps the line
+       The line under the headline that says when PowerPod Gen2's booking opens, and, from
+       that moment, the button to book one. assets/launch.js keeps the time, swaps the line
        and brings the button in, and sets --launch-top just under the headline. Out of the
        hero's flow, so the headline stays exactly where it was. */
     .launch {
@@ -2660,8 +2660,7 @@
     }
     .launch.is-open .launch__note { display: none; }
 
-    /* Under the slot: where it ships, and from when. The ordinal's letters sit small, at the
-       top right of the day. */
+    /* Under the slot: where it ships. */
     .launch__ship,
     .film__prebook-ship {
       margin: 1rem 0 0;
@@ -2671,13 +2670,6 @@
       letter-spacing: -0.01em;
       text-align: center;
       color: rgb(20 20 20 / 0.62);
-    }
-    .launch__ship sup,
-    .film__prebook-ship sup {
-      font-size: 0.58em;
-      line-height: 0;
-      vertical-align: 0.62em;
-      margin-right: 0.06em;
     }
 
     /* The button, from the launch on: solid, as the configurator's Continue, and only in the
@@ -3206,18 +3198,18 @@
       <span class="w" style="--i:5">Ever</span>
       <span class="w" style="--i:6">Need.</span>
     </h1>
-    <!-- When PowerPod Gen2's pre-booking opens, under the headline, and from that moment the
-         button to pre-book one. assets/launch.js keeps the time and swaps the two. -->
-    <!-- Until pre-booking opens, how long is left, to the minute (assets/launch.js keeps the
+    <!-- When PowerPod Gen2's booking opens, under the headline, and from that moment the
+         button to book one. assets/launch.js keeps the time and swaps the two. -->
+    <!-- Until booking opens, how long is left, to the minute (assets/launch.js keeps the
          clock and writes the whole line, count and all, into [data-launch-note], in the page's
          language); from that instant the button, in the same slot, with the shipping line under both. The
          line as written here is what a reader gets with JavaScript off. -->
     <div class="launch" data-launch>
       <div class="launch__slot">
-        <p class="launch__note" data-launch-note><span class="ph">Pre-booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span></p>
-        <a class="launch__cta" href="powerpod-gen2.html">Pre-book now at ₹399</a>
+        <p class="launch__note" data-launch-note><span class="ph">Booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span></p>
+        <a class="launch__cta" href="powerpod-gen2.html">Book now at ₹399</a>
       </div>
-      <p class="launch__ship" data-launch-ship>Shipping across India, starting 6<sup>th</sup> November</p>
+      <p class="launch__ship" data-launch-ship>Shipping across India</p>
       <p class="sr-only" role="status" data-launch-news></p>
     </div>
   </main>
@@ -3325,7 +3317,7 @@
       <p class="film__line">
         <span class="ln"><span class="ph">3 years of standard warranty,</span> <span class="ph">extend it by 2 more if you need.</span></span>
         <!-- The terms, on their own page. Reachable only while this caption is in (the script
-             toggles is-reachable), like the finale's pre-book button. -->
+             toggles is-reachable), like the finale's booking button. -->
         <span class="ln"><a class="film__more" href="warranty_terms.html" tabindex="-1">Read the warranty terms</a></span>
       </p>
     </div>
@@ -3338,7 +3330,7 @@
 
     <!-- The finale, and the page's last word. The camera pulls back from the two pods to one;
          the phone, the size it really is beside it, slides in from the right; then the words.
-         Under the pod and the phone, the way to pre-book: until pre-booking opens, the line
+         Under the pod and the phone, the way to book: until booking opens, the line
          under the hero headline, word for word (the script copies it from there; assets/
          launch.js keeps the time), and from that instant the button too, in the place kept
          for it from the start. -->
@@ -3351,10 +3343,10 @@
     </div>
     <div class="film__prebook" data-beat="8">
       <div class="film__prebook-slot">
-        <p class="film__prebook-note" data-prebook-note><span class="ph">Pre-booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span></p>
-        <a class="film__prebook-cta" href="powerpod-gen2.html" tabindex="-1">Pre-book now at ₹399</a>
+        <p class="film__prebook-note" data-prebook-note><span class="ph">Booking opens</span> <span class="ph"><strong>12 October, 12 PM.</strong></span></p>
+        <a class="film__prebook-cta" href="powerpod-gen2.html" tabindex="-1">Book now at ₹399</a>
       </div>
-      <p class="film__prebook-ship">Shipping across India, starting 6<sup>th</sup> November</p>
+      <p class="film__prebook-ship">Shipping across India</p>
     </div>
     <!-- Its pictures, fetched by the film script while the warranty beat is up, never with the
          page: the pod (tools/source/stills.py) and the phone, a still of the film's own CSS phone
@@ -6128,7 +6120,7 @@
       });
       el.style.setProperty('--n', String(words.length));
     });
-    // Each row under the product (the two app beats' demos, the finale's pre-book row) comes and
+    // Each row under the product (the two app beats' demos, the finale's booking row) comes and
     // goes with its beat's caption, so it is staged and faded with it, and follows its title in
     // by the same delay.
     const rowFor = (beat) => document.querySelector(`.film__tap[data-beat="${beat}"], .film__prebook[data-beat="${beat}"]`);
@@ -8656,7 +8648,7 @@
     // and never coming down onto it: the phone and its row (--floor-y), the two pods, the
     // finale, and the 3D pod and the drawings, which the pod block fits the same way. Measured
     // whenever a caption's or a row's height changes (the width rewraps them, the fonts arrive,
-    // pre-booking opens) and on resize, never per frame. Desktop's place is fixed in the CSS.
+    // booking opens) and on resize, never per frame. Desktop's place is fixed in the CSS.
     const navProbe = document.querySelector('.film__navclear');
     const tapEls = [...document.querySelectorAll('.film__tap')];
     const prebookRow = document.querySelector('.film__prebook');
@@ -8693,7 +8685,7 @@
     }
 
     // ---------------------------------------------------------------- the finale
-    // The pod and the phone beside it (FINALE), then the pre-book row under them. Each is laid
+    // The pod and the phone beside it (FINALE), then the booking row under them. Each is laid
     // out in px from the viewport, on resize only (layoutFinale); every frame after that is
     // their transforms and opacities, from t (driveFinale).
     const soloEl = document.querySelector('.film__solo');
@@ -8727,7 +8719,7 @@
     // Desktop: the pod and the phone, one group centred at 30% of the width on one ground,
     // standing in the middle of the frame, the caption in its column beside them. Phones: the
     // group centred side to side and in the room above the text line, as the other pictures
-    // are, and lifted where it would crowd the row under it. The pre-book row hangs under the
+    // are, and lifted where it would crowd the row under it. The booking row hangs under the
     // group, centred on it, on both.
     function layoutFinale() {
       if (!soloEl || !stillEl || !filmEl) return;
@@ -8830,7 +8822,7 @@
     // The finale's row opens with the hero's: assets/launch.js keeps the time, writes the count
     // into both lines, and runs after this script (deferred).
     const prebookCta = prebookRow && prebookRow.querySelector('.film__prebook-cta');
-    // The film's two links, the finale's pre-book button and the warranty beat's terms, can be
+    // The film's two links, the finale's booking button and the warranty beat's terms, can be
     // reached (tabbed to, clicked) only while their own caption is up.
     const moreLink = document.querySelector('.film__more');
     const reachables = [

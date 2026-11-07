@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * The PowerPod Gen2 launch, checked in headless Chrome: the home page's line under the headline
- * (when pre-booking opens), the button it brings in at 12 PM IST on 12 October, and the
+ * (when booking opens), the button it brings in at 12 PM IST on 12 October, and the
  * configurator holding its payment until then. assets/launch.js keeps the time for both.
  *
  *   node tools/check/launch.mjs              the working copy
@@ -45,7 +45,7 @@ const VIEWPORTS = {
   desktop: { width: 1440, height: 900, deviceScaleFactor: 2 },
   landscape: { width: 844, height: 390, deviceScaleFactor: 3, isMobile: true, hasTouch: true },
 };
-const NOT_OPEN = 'Pre-booking opens 12 October, 12 PM IST. Shipping across India.';
+const NOT_OPEN = 'Booking opens 12 October, 12 PM IST. Shipping across India.';
 const IGNORE = /favicon|status of 404|localhost:3000|ERR_CONNECTION_REFUSED|recaptcha|net::ERR_FAILED/i;
 
 let failed = 0;
@@ -94,8 +94,8 @@ async function finish(name, page, errors) {
 
 // ---------------------------------------------------------------- home page, before the launch
 // 300000 seconds before the launch is 83 hours and 20 minutes; the page is read within a minute.
-const LINE = /^Pre-booking opens in 83 hours, (19|20) minutes$/;
-const SHIP = 'Shipping across India, starting 6th November';
+const LINE = /^Booking opens in 83 hours, (19|20) minutes$/;
+const SHIP = 'Shipping across India';
 const placement = (page) => page.evaluate(() => {
   const r = (el) => el.getBoundingClientRect();
   const launch = document.querySelector('.launch');
@@ -181,7 +181,7 @@ for (const name of ['phone', 'small', 'desktop', 'landscape']) {
   });
   report(`${name}: the button is in`, cta.shown && cta.hit && cta.focused, JSON.stringify(cta));
   report(`${name}: the button is big enough`, cta.height >= (name === 'landscape' ? 40 : 52), `${cta.height}px`);
-  report(`${name}: the count has turned into the button, the shipping line under it`, cta.label === 'Pre-book now at ₹399' && cta.countGone && cta.ship === SHIP && cta.news === 'Pre-booking is open.', `${cta.label} / ${cta.ship} / ${cta.news}`);
+  report(`${name}: the count has turned into the button, the shipping line under it`, cta.label === 'Book now at ₹399' && cta.countGone && cta.ship === SHIP && cta.news === 'Booking is open.', `${cta.label} / ${cta.ship} / ${cta.news}`);
   report(`${name}: goes to the configurator`, cta.href === 'powerpod-gen2.html', cta.href);
   const p = await placement(page);
   report(`${name}: open, clear of the island`, p.bottom <= p.floor - 12 && !p.sideways, `ends ${Math.round(p.bottom)}, island at ${Math.round(p.floor)}`);
@@ -280,7 +280,7 @@ const payState = (page) => page.evaluate(() => ({
 }
 {
   // A clock that thinks it is open, against a Paddock that knows better.
-  const refusal = 'Pre-booking opens 12 October, 12 PM IST.';
+  const refusal = 'Booking opens 12 October, 12 PM IST.';
   const { page, errors } = await open('powerpod-gen2.html?check&launch=60', {
     viewport: VIEWPORTS.phone,
     ignore: /status of 409/,

@@ -34,15 +34,15 @@ Write the way a friend who works at a GridX dealership would explain it, sitting
   - **people's names**, exactly as the English writes them (Vishrut Vatsa, Shivanshu Mahim, Hriteek Agrawal…), with the language's grammar around them ("Vishrut Vatsa ने"); a transliteration can misspell a name, and a name is a fact
   - companies, schemes and institutes (SUN Mobility, NIDHI PRAYAS, IIT Roorkee, Battery 360)
 - **Western digits always** (29,999, never २९,९९९). Prices exactly as the English prints them: ₹399, ₹29,999, ₹2,199. The build checks every number.
-- **Pre-book, never reserve.** Customers pre-book.
+- **Book, never reserve.** Customers book (no longer "pre-book").
 
   | Language | Verb | Noun |
   |---|---|---|
-  | हिंदी | प्री-बुक करें | प्री-बुकिंग |
-  | मराठी | प्री-बुक करा | प्री-बुकिंग |
-  | বাংলা | প্রি-বুক করুন | প্রি-বুকিং |
-  | ಕನ್ನಡ | ಪ್ರೀ-ಬುಕ್ ಮಾಡಿ | ಪ್ರೀ-ಬುಕಿಂಗ್ |
-  | తెలుగు | ప్రీ-బుక్ చేయండి | ప్రీ-బుకింగ్ |
+  | हिंदी | बुक करें | बुकिंग |
+  | मराठी | बुक करा | बुकिंग |
+  | বাংলা | বুক করুন | বুকিং |
+  | ಕನ್ನಡ | ಬುಕ್ ಮಾಡಿ | ಬುಕಿಂಗ್ |
+  | తెలుగు | బుక్ చేయండి | బుకింగ్ |
 
   The build rejects any word for a reservation (आरक्षण, रिज़र्व, সংরক্ষণ, ಕಾಯ್ದಿರಿಸು, రిజర్వ్…).
 - **"Shipping across India"** is shipping, across India: पूरे भारत में शिपिंग, never only "across India".

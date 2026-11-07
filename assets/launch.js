@@ -1,7 +1,7 @@
 /*
- * When PowerPod Gen2 pre-booking opens, for every page that has to know: the home page counts
+ * When PowerPod Gen2 booking opens, for every page that has to know: the home page counts
  * down to it under its headline (and under the finale's pod and phone), to the minute, and from
- * that moment shows the button to pre-book one in the count's place, and the configurator holds
+ * that moment shows the button to book one in the count's place, and the configurator holds
  * its payment step until it. One instant, 12:00 PM IST on 12 October 2026, compared in epoch
  * milliseconds, so the visitor's time zone never matters, only whether their clock is right.
  *
@@ -16,10 +16,10 @@
  *   gridLaunch.left()          how long is left, in words: "26 hours, 12 minutes"
  *
  * Every word goes through gridLang (assets/i18n.js), so a translated page counts in its own
- * language: the whole line is one sentence there ("Pre-booking opens in | <0>{count}</0>", its
+ * language: the whole line is one sentence there ("Booking opens in | <0>{count}</0>", its
  * pause and its bold count), because the count does not sit in the same place in every one.
  *   gridLaunch.isOpen()
- *   gridLaunch.subscribe(fn)   fn(open) now, then again the moment pre-booking opens, including
+ *   gridLaunch.subscribe(fn)   fn(open) now, then again the moment booking opens, including
  *                              on a page left open across it. Returns a function that
  *                              unsubscribes.
  *
@@ -63,7 +63,7 @@
   const notes = [...document.querySelectorAll('[data-launch-note], [data-prebook-note]')];
   const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   function noteHtml(count) {
-    return t('Pre-booking opens in | <0>{count}</0>', { count: '\u0000' }).split(/\s*\|\s*/)
+    return t('Booking opens in | <0>{count}</0>', { count: '\u0000' }).split(/\s*\|\s*/)
       .map((part) => `<span class="ph">${esc(part).replace(/&lt;0>/g, '<strong>').replace(/&lt;\/0>/g, '</strong>').replace('\u0000', esc(count))}</span>`)
       .join(' ');
   }
@@ -138,8 +138,8 @@
   if (box) underHeadline(box);
 
   // ---------------------------------------------------------------- the home page's line
-  // Under the headline: the count until pre-booking opens, and from that moment, in its place,
-  // the button to pre-book one.
+  // Under the headline: the count until booking opens, and from that moment, in its place,
+  // the button to book one.
   function underHeadline(box) {
     const hero = box.parentElement;
     const headline = hero.querySelector('.headline');
@@ -187,7 +187,7 @@
         box.classList.add('is-opening');
         setTimeout(() => box.classList.remove('is-opening'), 1500);
       }
-      if (!first && news) news.textContent = t('Pre-booking is open.');
+      if (!first && news) news.textContent = t('Booking is open.');
     });
   }
 })();

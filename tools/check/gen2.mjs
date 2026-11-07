@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /*
- * The Gen2 pre-booking page's configurator, in headless Chrome, against the working copy
+ * The Gen2 booking page's configurator, in headless Chrome, against the working copy
  * (tools/serve.mjs) and the Paddock mock (tools/check/paddock-mock.mjs).
  *
  *   node tools/check/gen2.mjs [--root dir]
  *
- * At 390x844 and again at 1440x900 (?check&launch=60, so pre-booking is open):
- *   - the footer says Pre-book at ₹399 (Fully refundable) and Continue from the start, and
+ * At 390x844 and again at 1440x900 (?check&launch=60, so booking is open):
+ *   - the footer says Book now at ₹399 (Fully refundable) and Continue from the start, and
  *     keeps saying it whatever is chosen; the review's Starts at row carries the price, with
  *     the finance note right under it
  *   - no vehicle: the Komaki step is hidden, the review starts at ₹29,999 and says "Your
@@ -160,9 +160,9 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
     JSON.stringify({ scene3d, pods, ...stand, widths: undefined }));
 
   let s = await state(page);
-  // The footer is what pre-booking costs, the review what the whole thing starts at.
-  const footerSays = (f) => f.label === 'Pre-book at' && f.amount === '₹399' && f.note === '(Fully refundable)' && f.next === 'Continue';
-  report(`${label}: the footer says what pre-booking costs from the start, the review the price`,
+  // The footer is what booking costs, the review what the whole thing starts at.
+  const footerSays = (f) => f.label === 'Book now at' && f.amount === '₹399' && f.note === '(Fully refundable)' && f.next === 'Continue';
+  report(`${label}: the footer says what booking costs from the start, the review the price`,
     footerSays(s) && s.startsAt === '₹29,999' && s.finance === 'Finance options available at the time of purchase.',
     JSON.stringify({ label: s.label, amount: s.amount, note: s.note, next: s.next, startsAt: s.startsAt, finance: s.finance }));
   report(`${label}: the Komaki step is hidden until a vehicle is wanted`, s.modelHidden && s.vehicle === 'no');
@@ -268,7 +268,7 @@ for (const [label, viewport] of [['phone', PHONE], ['desktop', DESK]]) {
   await page.evaluate(() => document.getElementById('pg2-next').click());
   await sleep(600);
   s = await state(page);
-  report(`${label}: the details stage keeps Pre-book at ₹399 and Continue`, s.stage === 2 && footerSays(s),
+  report(`${label}: the details stage keeps Book now at ₹399 and Continue`, s.stage === 2 && footerSays(s),
     JSON.stringify({ stage: s.stage, label: s.label, amount: s.amount, note: s.note, next: s.next }));
 
   // Back to the configurator: the scooter returns with the choice.

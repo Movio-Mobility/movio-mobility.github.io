@@ -13,7 +13,7 @@
  *   s1-top        the configurator as it opens: no heading over the PowerPod card
  *   s1-pod        Just the PowerPod, at the review: Starts at ₹29,999, the finance note under it
  *   s1-x3         a Komaki X3, at the review: Starts at ₹69,999
- *   s2            the details: Pre-book at ₹399 (Fully refundable), Continue
+ *   s2            the details: Book now at ₹399 (Fully refundable), Continue
  *   s2-hint       Continue with the details blank: the footer's hint row as well
  *   s2-keys       an on-screen keyboard (touch sizes only): the panel above the keys, the
  *                 field being typed in visible; where the panel is too short for the
@@ -97,7 +97,7 @@ const nameOf = (run) => `${run.viewport.width}x${run.viewport.height}${run.text 
 const runs = RUNS.filter((run) => !only || only.has(nameOf(run)) || only.has(`${run.viewport.width}x${run.viewport.height}`));
 
 // ---------------------------------------------------------------- what each stop must say
-const BEFORE = { label: T('Pre-book at'), amount: '₹399', note: T('(Fully refundable)'), next: T('Continue') };
+const BEFORE = { label: T('Book now at'), amount: '₹399', note: T('(Fully refundable)'), next: T('Continue') };
 const EXPECT = {
   's1-top': BEFORE,
   's1-pod': BEFORE,
@@ -105,7 +105,7 @@ const EXPECT = {
   s2: BEFORE,
   's2-hint': BEFORE,
   's2-keys': BEFORE,
-  s3: { label: T('Pre-book at'), amount: '₹399', note: `+ ₹9.89 ${T('(Platform fee)')}`, next: T('Pay {amount}', { amount: '₹408.89' }) },
+  s3: { label: T('Book now at'), amount: '₹399', note: `+ ₹9.89 ${T('(Platform fee)')}`, next: T('Pay {amount}', { amount: '₹408.89' }) },
   's3-confirming': { label: T('Paid'), amount: '₹408.89', note: T('{amount} comes off your final payment', { amount: '₹399' }), next: null },
   paid: { label: T('Paid'), amount: '₹408.89', note: T('{amount} comes off your final payment', { amount: '₹399' }), next: null },
 };
@@ -117,8 +117,8 @@ const SAID = {
   finance: T('Finance options available at the time of purchase.'),
   paySub: T('₹399 today plus the platform fee, charged by GridX Energy. The rest only when your order is ready for shipment.'),
 };
-// The card that says the money is in and the pre-booking is being confirmed.
-const PENDING = T('Payment received. We are confirming your pre-booking.');
+// The card that says the money is in and the booking is being confirmed.
+const PENDING = T('Payment received. We are confirming your booking.');
 
 // ---------------------------------------------------------------- the measure
 /**

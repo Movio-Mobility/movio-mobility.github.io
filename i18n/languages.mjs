@@ -8,7 +8,7 @@
  * Hindi, from the app's own strings. Everywhere else it stays the English app.
  *
  * banned: words the house rules keep out (STYLE.md): any word for a reservation (customers
- * pre-book), and "small" for the team (it is lean).
+ * book), and "small" for the team (it is lean).
  */
 export const PAGES_IN_EVERY_LANGUAGE = [
   'index.html', 'store.html', 'powerpod-gen2.html', 'adapter.html', 'chargers.html',

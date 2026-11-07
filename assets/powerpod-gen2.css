@@ -6,7 +6,7 @@
    scrolled past. Only a fixed box with overflow clips in viewport coordinates.
 
    The panel is a three stage flow: a header carrying the back chevron and the progress
-   bar, a content region holding the current stage, and a footer carrying what pre-booking
+   bar, a content region holding the current stage, and a footer carrying what booking
    costs today and the primary action. Stage 1 is four steps running vertically, all present
    at once, with the ones you have not reached lightened rather than hidden. The content
    region is the only thing on the page that scrolls.
@@ -978,7 +978,7 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
     box-shadow 0.28s var(--ease-out);
 }
 
-/* The Gen2 footer. It says what pre-booking costs today, and has to keep one row, one height
+/* The Gen2 footer. It says what booking costs today, and has to keep one row, one height
    and one button width from the first step to Pay, at every width and text size.
 
    The button's column is sized to the button, so nothing can squeeze or clip it; the money
@@ -1284,7 +1284,7 @@ html.pg2-shell .pg2-view.is-active[data-dir="back"] {
 /* ---------------------------------------------------------------- 13. fallbacks */
 /* No JavaScript: pg2-shell is never added, so nothing is fixed, every screen is visible
    and the page is an ordinary scrolling document. The radios still work, and the footer
-   still reads true: what pre-booking costs does not depend on anything chosen. */
+   still reads true: what booking costs does not depend on anything chosen. */
 html:not(.pg2-shell) .pg2__stage {
   position: relative;
   inset: auto;
@@ -1477,11 +1477,11 @@ html:not(.pg2-shell) .pg2-next {
 }
 
 /* ---------------------------------------------------------------- 15. payment and the bill */
-/* One page: what is pre-booked, what is paid now, what is left. It slides in the way a stage
+/* One page: what is booked, what is paid now, what is left. It slides in the way a stage
    does, so the step forward reads the same as everywhere else. */
 html.pg2-shell .pg2-pay:not([hidden]) { animation: pg2-view-in 0.42s var(--ease-out) both; }
 
-/* The bill. Read top to bottom like a receipt: what is pre-booked, what is paid now and
+/* The bill. Read top to bottom like a receipt: what is booked, what is paid now and
    why, and what is left for the final payment. */
 .bill { margin-top: 0.2rem; }
 

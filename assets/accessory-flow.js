@@ -101,7 +101,7 @@
   // ---------------------------------------------------------------- validation
   // Lifted from the retired order-sheet.js, which lifted it from powerpod-gen2.js, so every
   // form on the site accepts and rejects exactly the same things. The street address is the
-  // one field only this flow asks for: an accessory ships, a pre-booking does not.
+  // one field only this flow asks for: an accessory ships, a booking does not.
   const FIELDS = ['name', 'phone', 'email', 'address', 'city', 'pincode'];
   // Validated but never demanded, so an empty one cannot hold up the Pay button.
   const OPTIONAL = ['gstin'];

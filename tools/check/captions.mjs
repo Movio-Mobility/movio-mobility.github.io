@@ -147,7 +147,7 @@ try {
       const still = await tab.evaluate(box, '.film__still', INK.phone);
       const row = await tab.evaluate(box, '.film__prebook');
       if (still.r > col - 32) wrong.push(`the finale's phone reaches ${Math.round(still.r)}`);
-      if (row.r > col - 16) wrong.push(`the pre-book row reaches ${Math.round(row.r)}`);
+      if (row.r > col - 16) wrong.push(`the booking row reaches ${Math.round(row.r)}`);
     } else {
       const line = first.y;
       for (const t of [1.45, 2.7, 3.95, 5.3]) {
@@ -163,7 +163,7 @@ try {
       if (pair.b > line - 8) wrong.push(`the two pods come down to ${Math.round(pair.b)}`);
       await scrollTo(tab, 17.75, 2200);
       const prebook = await tab.evaluate(box, '.film__prebook');
-      if (prebook.b > line - 8) wrong.push(`the pre-book row comes down to ${Math.round(prebook.b)}`);
+      if (prebook.b > line - 8) wrong.push(`the booking row comes down to ${Math.round(prebook.b)}`);
     }
     report(`${name}: nothing comes into the text`, !wrong.length, wrong.join('; '));
 

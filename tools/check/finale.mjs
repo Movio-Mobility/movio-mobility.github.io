@@ -7,12 +7,12 @@
  *
  * Its pictures (the pod and the phone) must not be fetched with the page, or before the warranty
  * beat, and each only once. On the final frame both are shown and loaded, and everything is on
- * screen with nothing overlapping anything else (the pictures, the pre-book row, the words, the
+ * screen with nothing overlapping anything else (the pictures, the booking row, the words, the
  * top bar's logo, the nav island), without the page scrolling sideways. The phone stands
  * beside the pod the size it really is, 163.4 mm to its 395, on the same ground, and the pod is
- * no bigger than its share of the frame. The pre-book row hangs under the pod and the phone,
- * centred on them. Before pre-booking opens it says exactly what the hero's line says and has
- * no button; after, the hero's open line and a "Pre-book Gen2" button that takes a tap there
+ * no bigger than its share of the frame. The booking row hangs under the pod and the phone,
+ * centred on them. Before booking opens it says exactly what the hero's line says and has
+ * no button; after, the hero's open line and a "Book now at ₹399" button that takes a tap there
  * and nowhere else on the page, in the same place, so nothing moves at the instant. Scrolling
  * back, the warranty shot returns with nothing of the finale left. Reduced motion: the same
  * final frame.
@@ -36,8 +36,8 @@ const LANG = ((process.argv.find((a) => a.startsWith('--lang=')) || '').slice(7)
 const FILM = LANG === 'en' ? 'index.html' : `${LANG}/index.html`;
 const T = translator(LANG, 'index.html');
 const textOf = (html) => html.replace(/<\/?\d+>/g, '').replace(/\s*\|\s*/g, ' ').replace(/\s+/g, ' ').trim();
-const CTA = T('Pre-book now at ₹399');
-const SHIP = textOf(T('Shipping across India, starting 6<0>th</0> November'));
+const CTA = T('Book now at ₹399');
+const SHIP = textOf(T('Shipping across India'));
 
 const VIEWPORTS = {
   small: { width: 320, height: 640, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
@@ -147,7 +147,7 @@ try {
     tab.on('requestfailed', (q) => { if (!/localhost:3000|favicon/.test(q.url()) && !/ERR_ABORTED/.test((q.failure() || {}).errorText || '')) errors.push(`${q.url()} ${(q.failure() || {}).errorText}`); });
     tab.on('request', (r) => { if (FILES.test(r.url())) fetched.push(r.url().split('/').pop().split('?')[0]); });
 
-    // Before pre-booking opens.
+    // Before booking opens.
     await tab.goto(`http://localhost:${PORT}/${FILM}?check&launch=-3600`, { waitUntil: 'load' });
     await sleep(1500);
     report(`${name}: nothing of the finale fetched with the page`, !fetched.length, fetched.join(', '));
@@ -161,7 +161,7 @@ try {
       const wrong = [];
       st.shown.forEach((s, i) => { if (!s) wrong.push(`${['pod', 'phone'][i]} not shown`); });
       st.loaded.forEach((s, i) => { if (!s) wrong.push(`${['pod', 'phone'][i]} not loaded`); });
-      if (!st.rowShown) wrong.push('the pre-book row not shown');
+      if (!st.rowShown) wrong.push('the booking row not shown');
       const podH = st.pod.b - st.pod.t;
       const ratio = (st.phone.b - st.phone.t) / podH;
       if (Math.abs(ratio / (163.4 / 395) - 1) > 0.02) wrong.push(`phone ${(ratio * 395).toFixed(1)} mm to the pod's 395`);
@@ -171,9 +171,9 @@ try {
       if (podH > most + 1) wrong.push(`pod ${podH.toFixed(0)}px tall, more than ${most.toFixed(0)}`);
       // The row under the group, centred on it.
       const mid = (st.pod.l + st.phone.r) / 2;
-      if (st.row.t < Math.max(st.pod.b, st.phone.b) - 2) wrong.push('the pre-book row is not under the pod and the phone');
-      if (Math.abs((st.row.l + st.row.r) / 2 - mid) > 3) wrong.push(`the pre-book row ${((st.row.l + st.row.r) / 2 - mid).toFixed(1)}px off their middle`);
-      const things = [['pod', st.pod], ['phone', st.phone], ['pre-book row', st.row], ...st.words.map((w, i) => [`words ${i}`, w])];
+      if (st.row.t < Math.max(st.pod.b, st.phone.b) - 2) wrong.push('the booking row is not under the pod and the phone');
+      if (Math.abs((st.row.l + st.row.r) / 2 - mid) > 3) wrong.push(`the booking row ${((st.row.l + st.row.r) / 2 - mid).toFixed(1)}px off their middle`);
+      const things = [['pod', st.pod], ['phone', st.phone], ['booking row', st.row], ...st.words.map((w, i) => [`words ${i}`, w])];
       for (let i = 0; i < things.length; i++) {
         const [n, r] = things[i];
         if (r.l < 0 || r.r > st.vw || r.t < 0 || r.b > st.vh) wrong.push(`${n} off screen`);
@@ -186,8 +186,8 @@ try {
         }
       }
       if (st.overflowX) wrong.push('the page scrolls sideways');
-      report(`${name}: the final frame, before pre-booking opens`, !wrong.length, wrong.join('; '));
-      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && (LANG !== 'en' || /^Pre-booking opens in \d+ hours?, \d+ minutes?$/.test(st.note)) && /\d/.test(st.note) && st.ship === SHIP, `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
+      report(`${name}: the final frame, before booking opens`, !wrong.length, wrong.join('; '));
+      report(`${name}: counts down as the hero does, with no button`, st.noteShown && st.note === st.heroNote && !st.cta && (LANG !== 'en' || /^Booking opens in \d+ hours?, \d+ minutes?$/.test(st.note)) && /\d/.test(st.note) && st.ship === SHIP, `"${st.note}" / "${st.heroNote}" / "${st.ship}"`);
     }
     const counts = {};
     for (const f of fetched) {
@@ -201,7 +201,7 @@ try {
     st = await tab.evaluate(STATE);
     report(`${name}: back to the warranty shot`, st.pairShown && st.hidden.every(Boolean), JSON.stringify({ pair: st.pairShown, hidden: st.hidden }));
 
-    // Once pre-booking is open.
+    // Once booking is open.
     await tab.goto(`http://localhost:${PORT}/${FILM}?check&launch=60`, { waitUntil: 'load' });
     await sleep(1500);
     // Away from the finale its button is in the page but must take no tap: it would sit over
@@ -225,7 +225,7 @@ try {
       }
       if (st.noteShown) wrong.push('the count is still there');
       if (st.ship !== SHIP) wrong.push(`"${st.ship}"`);
-      if (Math.abs(st.row.t - before.t) > 1 || Math.abs((st.row.l + st.row.r) / 2 - (before.l + before.r) / 2) > 1) wrong.push('the row moved when pre-booking opened');
+      if (Math.abs(st.row.t - before.t) > 1 || Math.abs((st.row.l + st.row.r) / 2 - (before.l + before.r) / 2) > 1) wrong.push('the row moved when booking opened');
       if (st.overflowX) wrong.push('the page scrolls sideways');
       report(`${name}: once open, the button in the count's place, the shipping line under it`, !wrong.length, wrong.join('; '));
     }

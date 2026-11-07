@@ -35,7 +35,7 @@
  *                                     ₹399 hold, with the model required with a vehicle
  *                                     and refused without one, as Paddock's validateBuild);
  *                                     answers 201 with the Razorpay order the page would
- *                                     open, and the pre-booking's starts-at and balance
+ *                                     open, and the booking's starts-at and balance
  *   POST orders/confirm               the webhook's word, polled by pay-confirm.js. By
  *                                     modes.confirm: 'ok' pays on the third poll per
  *                                     reference (counts reset by /__mock/reset), 'slow'

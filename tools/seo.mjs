@@ -16,7 +16,7 @@
  *                       the legal name, the Okhla address, the support phone, the profiles in
  *                       sameAs) and WebSite, which is what lets Google show "GridXenergy" as
  *                       the site's name and tie GridX, GridXenergy and Grid Energy together.
- *   powerpod-gen2.html  Product with its pre-booking Offer, and the breadcrumb from the store.
+ *   powerpod-gen2.html  Product with its booking Offer, and the breadcrumb from the store.
  *   chargers, adapter,  Product per SKU with its price, from assets/catalogue.js run as the
  *   vehicle-dock        pages run it, so a price can never exist twice. The transform also
  *                       refuses to build if an offer's price is not printed on the page.

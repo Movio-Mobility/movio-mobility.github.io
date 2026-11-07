@@ -27,7 +27,7 @@
  *                           failure, because a slow webhook is almost always a paid order
  *
  * opts carries reference, email, phone, and the page's kind ('prebook' or 'order'), so Gen2
- * says pre-booking and receipt voucher where an accessory says order and tax invoice: whole
+ * says booking and receipt voucher where an accessory says order and tax invoice: whole
  * sentences for each, so every language can put the words in its own order (assets/i18n.js). On
  * paid and on timeout the reference is written to sessionStorage['gridx.lastOrder'] for
  * the tracking form, same-tab only, exactly as the order flows always have.
@@ -168,7 +168,7 @@
     };
   }
 
-  // Gen2 is pre-booked and gets a receipt voucher; an accessory is ordered and gets a tax invoice.
+  // Gen2 is booked and gets a receipt voucher; an accessory is ordered and gets a tax invoice.
   const isPrebook = (opts) => opts.kind === 'prebook' || (opts.nouns && opts.nouns.thing === 'pre-booking');
 
   function remember(reference) {
@@ -209,7 +209,7 @@
     if (p.body) {
       p.body.hidden = false;
       const said = isPrebook(opts)
-        ? t('Your pre-booking is confirmed. Your receipt voucher is on its way to <0>{email}</0> and on WhatsApp to <1>{phone}</1>.')
+        ? t('Your booking is confirmed. Your receipt voucher is on its way to <0>{email}</0> and on WhatsApp to <1>{phone}</1>.')
         : t('Your order is confirmed. Your tax invoice is on its way to <0>{email}</0> and on WhatsApp to <1>{phone}</1>.');
       p.body.replaceChildren(...sentence(said, { email: opts.email || '', phone: opts.phone || '' }));
     }
@@ -236,7 +236,7 @@
     if (p.body) {
       p.body.hidden = false;
       p.body.replaceChildren(isPrebook(opts)
-        ? t('If your payment went through, your pre-booking is confirmed and your receipt voucher will arrive by email and on WhatsApp shortly. You can check its status any time on the support page.')
+        ? t('If your payment went through, your booking is confirmed and your receipt voucher will arrive by email and on WhatsApp shortly. You can check its status any time on the support page.')
         : t('If your payment went through, your order is confirmed and your tax invoice will arrive by email and on WhatsApp shortly. You can check its status any time on the support page.'));
     }
     if (p.ref) p.ref.hidden = false;

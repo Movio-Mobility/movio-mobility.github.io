@@ -1,5 +1,5 @@
 /*
- * PowerPod Gen2 pre-booking page.
+ * PowerPod Gen2 booking page.
  *
  * 1. The flow:        three stages, one shown at a time. Stage 1 is four steps running
  *                     vertically, all on screen at once: a step you have not reached is
@@ -28,7 +28,7 @@
  *                     and the image is removed again on the X. The page's own loops
  *                     sleep meanwhile.
  * 6. Payment:         one way to pay, a ₹399 hold, on one page that says everything:
- *                     what is pre-booked, what is paid now and why, what is left and when.
+ *                     what is booked, what is paid now and why, what is left and when.
  * 7. The keyboard:    while an on-screen keyboard is up the panel fits itself above it and
  *                     keeps the field being typed in on screen.
  * 8. Analytics:       each step the buyer reaches (configurator_step, a short slug, once a
@@ -270,18 +270,18 @@
   }
 
   // ---------------------------------------------------------------- the launch
-  // Pre-booking opens at one instant (assets/launch.js). Until then everything up to the
+  // Booking opens at one instant (assets/launch.js). Until then everything up to the
   // payment page works, so people can choose and fill in their details ahead of time, and
   // both ways into a payment wait: the footer button (through canAdvance) and pay() itself.
   // Paddock refuses an early order whatever this page believes, so a wrong clock here can
   // only show the wrong thing, never take a payment. Without launch.js nothing waits.
   const launch = window.gridLaunch;
   const launchOpen = () => !launch || launch.isOpen();
-  const NOT_OPEN = t('Pre-booking opens {when} IST. Shipping across India.', { when: launch ? launch.when : t('12 October, 12 PM') });
+  const NOT_OPEN = t('Booking opens {when} IST. Shipping across India.', { when: launch ? launch.when : t('12 October, 12 PM') });
 
   // ---------------------------------------------------------------- completeness
   // Payment has nothing left to choose, so it can always move on, to Razorpay. Once
-  // pre-booking is open, that is.
+  // booking is open, that is.
   function canAdvance(n) {
     if (n === 1) return configured();
     if (n === 2) return detailsValid();
@@ -358,7 +358,7 @@
     const r = reservation();
     const settled = paid || confirming;
     const fee = !settled && stage === LAST_STAGE && r.feeInr > 0;
-    swapText(totalLabel, settled ? t('Paid') : t('Pre-book at'));
+    swapText(totalLabel, settled ? t('Paid') : t('Book now at'));
     swapText(totalAmount, money(settled ? r.chargedInr : r.itemsInr));
     footNote.classList.toggle('pg2-foot__note--fee', fee);
     if (settled) swapText(footNote, t('{amount} comes off your final payment', { amount: money(r.itemsInr) }));
@@ -407,7 +407,7 @@
 
     // Before the launch the payment page says when, in place of its usual line.
     if (paySub) paySub.textContent = launchOpen() ? PAY_LINE : NOT_OPEN;
-    if (payTitle) payTitle.textContent = t('Pre-book your {what}.', { what: towards() });
+    if (payTitle) payTitle.textContent = t('Book your {what}.', { what: towards() });
 
     if (dealerNote) dealerNote.hidden = !vehicleName();
     syncRide();
@@ -432,7 +432,7 @@
 
   /**
    * The payment page: the last thing on screen before Razorpay opens, so it says everything.
-   * What is being pre-booked, what is paid today and why, and what is left and when. Every
+   * What is being booked, what is paid today and why, and what is left and when. Every
    * label is ours and every figure is a number, so it is built as markup like the review
    * list above. The links are the support page's.
    */
@@ -455,7 +455,7 @@
     }
     what.push(row('GridX-Pro Pack', t('Free for the first year'), 'soft'));
 
-    const now = [row(t('Pre-booking amount'), money(r.itemsInr), '', t('Fully refundable'))];
+    const now = [row(t('Booking amount'), money(r.itemsInr), '', t('Fully refundable'))];
     if (r.feeInr > 0) now.push(row(t('Platform fee'), money(r.feeInr), '', t('Payment processing, not refunded')));
     now.push(row(t('GST'), money(0), '', t('None on an advance for goods')));
     now.push(row(t('Total payable now'), money(r.chargedInr), 'total'));
@@ -463,11 +463,11 @@
     const later = [
       row(t('Starts at'), money(starts), '',
         vehicleName() ? t('The final price depends on the variant you confirm at the dealership') : ''),
-      row(t('Less your pre-booking'), `−${money(r.itemsInr)}`),
+      row(t('Less your booking'), `−${money(r.itemsInr)}`),
       row(t('Balance'), t('from {amount}', { amount: money(balance) }), 'total', t('Taken only when your order is ready for shipment')),
     ];
 
-    bill.innerHTML = group(t('You are pre-booking'), what)
+    bill.innerHTML = group(t('You are booking'), what)
       + group(t('Pay now to GridX Energy'), now)
       + group(t('At your final payment'), later)
       + `<p class="bill__note bill__note--end">${tags(t('Your {amount} is fully refundable, whenever you ask: message us on <0>WhatsApp</0>, <1>call us</1>, or email <2>info@gridxenergy.in</2> and it comes straight back. The platform fee is the payment gateway\'s charge and is not refunded. Your receipt voucher will be sent by email and on WhatsApp.', { amount: money(r.itemsInr) }), [
@@ -1290,7 +1290,7 @@
         amount: created.amountPaise,
         currency: 'INR',
         name: 'GridX Energy',
-        description: t('{what} pre-booking, {order}', { what: towards(), order: created.orderNumber }),
+        description: t('{what} booking, {order}', { what: towards(), order: created.orderNumber }),
         // Filed under this customer in Razorpay, which also emails them its receipt.
         customer_id: created.customerId || undefined,
         prefill: {
@@ -1382,7 +1382,7 @@
   }
 
   /**
-   * Razorpay's window closed happily. The webhook is what actually marks the pre-booking
+   * Razorpay's window closed happily. The webhook is what actually marks the booking
    * paid, so the page now waits for its word (assets/pay-confirm.js), the ring spinning in
    * the done card, and only then says so. If pay-confirm.js is somehow missing (a cached
    * page mid-deploy), this behaves exactly as it always did: the display-only confirmation,
@@ -1407,7 +1407,7 @@
     const done = document.getElementById('pg2-done');
     if (done) {
       window.gridPayConfirm.showPending(done, {
-        pending: t('Payment received. We are confirming your pre-booking.'),
+        pending: t('Payment received. We are confirming your booking.'),
       });
     }
     render();
@@ -1424,7 +1424,7 @@
 
   /**
    * The customer is done. With pay-confirm.js on the page the card's contents are its:
-   * the confirmed pre-booking once the webhook has answered, or the quiet keep-an-eye-out
+   * the confirmed booking once the webhook has answered, or the quiet keep-an-eye-out
    * version if it outran the wait. Without it, the old display-only card, word for word.
    */
   function showConfirmation(created, result) {
@@ -1451,7 +1451,7 @@
         if (ref) ref.textContent = created.orderNumber;
         const where = document.getElementById('pg2-done-where');
         if (where) {
-          where.textContent = t('Your pre-booking is confirmed. We have sent your receipt voucher to {email} and on WhatsApp to {phone}.', { email: details.email, phone: details.phone });
+          where.textContent = t('Your booking is confirmed. We have sent your receipt voucher to {email} and on WhatsApp to {phone}.', { email: details.email, phone: details.phone });
         }
         const to = document.getElementById('pg2-done-to');
         if (to) to.textContent = '';
