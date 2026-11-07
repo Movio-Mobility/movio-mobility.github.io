@@ -11,7 +11,9 @@
  * The page is settled on the first app beat, the app's own small animations are stopped, and the
  * phone is laid out at its real size in points (471 x 987, --k 1), without the soft shadow the
  * film gives it: tools/source/stills.py lays the same ground shadow under it as under the pods,
- * so the three read as one lit set. The app's evening, as everywhere in the film.
+ * so the three read as one lit set. Home, in the app's light look, riding, as everywhere in the
+ * film, with the tab bar open (left alone in the film it folds to its glyphs after four seconds;
+ * the still waits that out and opens it, so it never catches the bar halfway).
  * Rendered at 2x on a transparent background.
  */
 import fs from 'node:fs';
@@ -43,10 +45,16 @@ try {
     // The first app beat, held (index.html CAPTIONS[5]: in 9.70 to 10.00, out from 10.50).
     window.scrollTo({ top: 10.25 * vh, behavior: 'instant' });
   });
-  // The film settles, the app makes its entrance and its first readings arrive.
-  await sleep(4000);
+  // The film settles, the app makes its entrance, its first readings arrive and, left alone, its
+  // tab bar folds (four seconds after the app opens, then its springs).
+  await sleep(6500);
 
   const clip = await page.evaluate(() => {
+    // The tab bar open, at once: the still shows Home as you first see it.
+    const bar = document.querySelector('.film__device .gx-tabbar');
+    bar.style.transition = 'none';
+    bar.dataset.compact = 'false';
+    void bar.offsetWidth;
     for (const a of document.getAnimations()) a.pause();
     const device = document.querySelector('.film__device');
     const phone = device.querySelector('.phone');

@@ -357,16 +357,15 @@
   "The share sheet is open.": "ಶೇರ್ ಶೀಟ್ ತೆರೆದಿದೆ.",
   "WhatsApp, sending the link to Meera.": "WhatsApp, Meera ಅವರಿಗೆ ಲಿಂಕ್ ಕಳಿಸ್ತಿದೆ.",
   "Sent.": "ಕಳಿಸಲಾಯ್ತು.",
-  "SOS and Restart are open.": "SOS ಮತ್ತು ರೀಸ್ಟಾರ್ಟ್ ತೆರೆದಿವೆ.",
-  "SOS in five seconds. Tap again to cancel.": "ಐದು ಸೆಕೆಂಡ್‌ನಲ್ಲಿ SOS. ಕ್ಯಾನ್ಸಲ್ ಮಾಡೋಕೆ ಮತ್ತೆ ಟ್ಯಾಪ್ ಮಾಡಿ.",
   "Sending SOS to your emergency contacts.": "ನಿಮ್ಮ ತುರ್ತು ಸಂಪರ್ಕಗಳಿಗೆ SOS ಕಳಿಸ್ತಿದೆ.",
   "Emergency contacts alerted with your live location.": "ನಿಮ್ಮ ಲೈವ್ ಲೊಕೇಶನ್ ಜೊತೆ ತುರ್ತು ಸಂಪರ್ಕಗಳಿಗೆ ಅಲರ್ಟ್ ಹೋಗಿದೆ.",
   "Crash detected. Your emergency contacts have been sent your live location for the next 4 hours.": "ಅಪಘಾತ ಪತ್ತೆ ಆಗಿದೆ. ಮುಂದಿನ 4 ಗಂಟೆಗಳಿಗೆ ನಿಮ್ಮ ಲೈವ್ ಲೊಕೇಶನ್ ಅನ್ನು ನಿಮ್ಮ ತುರ್ತು ಸಂಪರ್ಕಗಳಿಗೆ ಕಳಿಸಲಾಗಿದೆ.",
   "Marked as okay.": "ನೀವು ಸರಿ ಇದ್ದೀರಿ ಅಂತ ಗುರುತಿಸಲಾಗಿದೆ.",
-  "PowerPod.": "PowerPod.",
-  "Last 30 days, opened: 74.6 kWh, 2.5 kWh a day on average.": "ಕಳೆದ 30 ದಿನಗಳು, ತೆರೆಯಲಾಗಿದೆ: 74.6 kWh, ದಿನಕ್ಕೆ ಸರಾಸರಿ 2.5 kWh.",
-  "6 January 2027: 3.1 kWh, the most in a day.": "ಜನವರಿ 6, 2027: 3.1 kWh, ಒಂದು ದಿನದಲ್ಲಿ ಅತಿ ಹೆಚ್ಚು.",
   "Home.": "ಹೋಮ್.",
   "Riding Insights.": "ರೈಡಿಂಗ್ ಇನ್‌ಸೈಟ್ಸ್.",
-  "Your last ride: 21.6 km on 574 Wh, 27 Wh/km.": "ನಿಮ್ಮ ಕೊನೆಯ ರೈಡ್: 574 Whನಲ್ಲಿ 21.6 km, 27 Wh/km."
+  "Safety is open.": "ಸುರಕ್ಷತೆ ತೆರೆದಿದೆ.",
+  "Sending SOS in five seconds.": "ಐದು ಸೆಕೆಂಡ್‌ನಲ್ಲಿ SOS ಕಳಿಸ್ತೀವಿ.",
+  "Energy.": "ಎನರ್ಜಿ.",
+  "Your last ride: 6.7 km on 170 Wh, 25 Wh/km.": "ನಿಮ್ಮ ಕೊನೆಯ ರೈಡ್: 170 Whನಲ್ಲಿ 6.7 km, 25 Wh/km.",
+  "Thursday 5 November: 19.1 km on 0.50 kWh.": "ಗುರುವಾರ, ನವೆಂಬರ್ 5: 0.50 kWhನಲ್ಲಿ 19.1 km."
 }

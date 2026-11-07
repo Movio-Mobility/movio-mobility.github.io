@@ -324,16 +324,15 @@
   "The share sheet is open.": "షేర్ షీట్ తెరుచుకుంది.",
   "WhatsApp, sending the link to Meera.": "WhatsApp, Meeraకు లింక్ పంపుతున్నాం.",
   "Sent.": "పంపేశాం.",
-  "SOS and Restart are open.": "SOS, రీస్టార్ట్ తెరుచుకున్నాయి.",
-  "SOS in five seconds. Tap again to cancel.": "ఐదు సెకన్లలో SOS. క్యాన్సిల్ చేయాలంటే మళ్లీ ట్యాప్ చేయండి.",
   "Sending SOS to your emergency contacts.": "మీ ఎమర్జెన్సీ కాంటాక్ట్‌లకు SOS పంపుతున్నాం.",
   "Emergency contacts alerted with your live location.": "మీ లైవ్ లొకేషన్‌తో ఎమర్జెన్సీ కాంటాక్ట్‌లకు అలర్ట్ పంపాం.",
   "Crash detected. Your emergency contacts have been sent your live location for the next 4 hours.": "క్రాష్ గుర్తించాం. మీ ఎమర్జెన్సీ కాంటాక్ట్‌లకు రాబోయే 4 గంటల పాటు మీ లైవ్ లొకేషన్ పంపాం.",
   "Marked as okay.": "మీరు క్షేమంగా ఉన్నారని నమోదు చేశాం.",
-  "PowerPod.": "PowerPod.",
-  "Last 30 days, opened: 74.6 kWh, 2.5 kWh a day on average.": "గత 30 రోజుల వివరాలు తెరుచుకున్నాయి: 74.6 kWh, రోజుకు సగటున 2.5 kWh.",
-  "6 January 2027: 3.1 kWh, the most in a day.": "జనవరి 6, 2027: 3.1 kWh, ఒక్క రోజులో అత్యధికం.",
   "Home.": "హోమ్.",
   "Riding Insights.": "రైడింగ్ ఇన్‌సైట్స్.",
-  "Your last ride: 21.6 km on 574 Wh, 27 Wh/km.": "మీ చివరి రైడ్: 574 Whతో 21.6 km, 27 Wh/km."
+  "Safety is open.": "భద్రత తెరుచుకుంది.",
+  "Sending SOS in five seconds.": "ఐదు సెకన్లలో SOS పంపుతాం.",
+  "Energy.": "ఎనర్జీ.",
+  "Your last ride: 6.7 km on 170 Wh, 25 Wh/km.": "మీ చివరి రైడ్: 170 Whతో 6.7 km, 25 Wh/km.",
+  "Thursday 5 November: 19.1 km on 0.50 kWh.": "గురువారం, నవంబర్ 5: 0.50 kWhతో 19.1 km."
 }

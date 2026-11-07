@@ -339,16 +339,15 @@
   "The share sheet is open.": "शेअर शीट उघडली आहे.",
   "WhatsApp, sending the link to Meera.": "WhatsApp, Meera ला लिंक पाठवत आहे.",
   "Sent.": "पाठवलं.",
-  "SOS and Restart are open.": "SOS आणि रीस्टार्ट उघडले आहेत.",
-  "SOS in five seconds. Tap again to cancel.": "पाच सेकंदांत SOS. रद्द करण्यासाठी पुन्हा टॅप करा.",
   "Sending SOS to your emergency contacts.": "तुमच्या इमर्जन्सी कॉन्टॅक्ट्सना SOS पाठवत आहोत.",
   "Emergency contacts alerted with your live location.": "तुमच्या लाइव्ह लोकेशनसह इमर्जन्सी कॉन्टॅक्ट्सना अलर्ट गेला.",
   "Crash detected. Your emergency contacts have been sent your live location for the next 4 hours.": "क्रॅश ओळखला. तुमच्या इमर्जन्सी कॉन्टॅक्ट्सना पुढच्या 4 तासांसाठी तुमचं लाइव्ह लोकेशन पाठवलं आहे.",
   "Marked as okay.": "ठीक आहे असं नोंदवलं.",
-  "PowerPod.": "PowerPod.",
-  "Last 30 days, opened: 74.6 kWh, 2.5 kWh a day on average.": "गेले 30 दिवस, उघडलं: 74.6 kWh, रोज सरासरी 2.5 kWh.",
-  "6 January 2027: 3.1 kWh, the most in a day.": "6 जानेवारी 2027: 3.1 kWh, एका दिवसातला सर्वाधिक वापर.",
   "Home.": "होम.",
   "Riding Insights.": "रायडिंग इनसाइट्स.",
-  "Your last ride: 21.6 km on 574 Wh, 27 Wh/km.": "तुमची शेवटची राइड: 574 Wh मध्ये 21.6 km, 27 Wh/km."
+  "Safety is open.": "सुरक्षा उघडली आहे.",
+  "Sending SOS in five seconds.": "पाच सेकंदांत SOS पाठवला जाईल.",
+  "Energy.": "एनर्जी.",
+  "Your last ride: 6.7 km on 170 Wh, 25 Wh/km.": "तुमची शेवटची राइड: 170 Wh मध्ये 6.7 km, 25 Wh/km.",
+  "Thursday 5 November: 19.1 km on 0.50 kWh.": "गुरुवार, 5 नोव्हेंबर: 0.50 kWh मध्ये 19.1 km."
 }

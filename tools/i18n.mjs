@@ -386,7 +386,12 @@ export function segmentsOf(html, { page = '' } = {}) {
     if (!first.sourceCodeLocation || !last.sourceCodeLocation) return;
     const { ph, enc } = encoder();
     const key = squash(nodes.map(enc).join('')).trim();
-    if (untranslatable(key.replace(PLACEHOLDER, ' '))) {
+    // data-i18n-key names a line whose English is not enough to tell it apart (the phone's
+    // week strip: S is Saturday and Sunday both), or a reading the app writes in its own
+    // words for its unit (6.7 km is 6.7 किमी in the app's Hindi), so a named line is always
+    // looked up.
+    const named = own && attr(own, 'data-i18n-key');
+    if (!named && untranslatable(key.replace(PLACEHOLDER, ' '))) {
       for (const n of nodes) if (isEl(n)) walk(n, scope, true);
       return;
     }
@@ -409,9 +414,6 @@ export function segmentsOf(html, { page = '' } = {}) {
       if (!SKIP.has(n.tagName) && attr(n, 'translate') !== 'no') (n.childNodes || []).forEach(collect);
     };
     nodes.forEach(collect);
-    // data-i18n-key names a line whose English is not enough to tell it apart (the phone's
-    // week strip: S is Saturday and Sunday both).
-    const named = own && attr(own, 'data-i18n-key');
     const said = named || key;
     out.push({ kind: 'text', key: scope ? `${scope}::${said}` : said, scope, start, end, render: renderer(ph), inner, where });
   }

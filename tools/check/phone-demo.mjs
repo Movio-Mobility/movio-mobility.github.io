@@ -49,38 +49,46 @@ const MOMENTS = {
   live: [
     ['arrive', 300, { row: 'idle', open: [] }],
     ['hover', 900, { row: 'idle', open: [] }],
-    ['sheet', 1700, { row: 'starting', open: ['app-sheet'] }],
-    ['an hour', 2700, { row: 'starting', open: ['app-sheet'], value: '1 hour' }],
-    ['busy', 4000, { row: 'starting', open: ['app-sheet'], busy: true }],
-    ['live', 5800, { row: 'live', open: [] }],
+    ['sheet', 1700, { row: 'idle', open: ['share-sheet'], value: '30 minutes' }],
+    ['an hour', 2800, { row: 'idle', open: ['share-sheet'], value: '1 hour' }],
+    ['busy', 4300, { row: 'idle', open: ['share-sheet'], busy: true }],
+    ['share sheet', 6800, { row: 'live', open: ['ios-share'] }],
+    ['live', 8100, { row: 'live', open: [] }],
   ],
   share: [
     ['arrive', 600, { row: 'live', open: [] }],
-    ['share sheet', 2000, { row: 'live', open: ['ios-share'] }],
+    ['share sheet', 1800, { row: 'live', open: ['ios-share'] }],
     ['whatsapp', 3800, { row: 'live', open: ['ios-share', 'wa-send'] }],
-    ['back', 5700, { row: 'live', open: [] }],
+    ['sent', 5540, { row: 'live', open: [] }],
   ],
   sos: [
-    ['hold', 1700, { open: [] }],
-    ['sos', 3000, { open: ['app-sos'], phase: 'idle' }],
-    ['five', 4300, { open: ['app-sos'], phase: 'counting', digit: '5' }],
-    ['three', 6300, { open: ['app-sos'], phase: 'counting', digit: '3' }],
-    ['sending', 9400, { open: ['app-sos'], phase: 'sending' }],
-    ['sent', 10800, { open: ['app-sos'], phase: 'sent' }],
+    ['arrive', 700, { open: [], tab: 'home' }],
+    ['safety', 1900, { open: ['safety'], phase: 'idle' }],
+    ['five', 3600, { open: ['safety'], phase: 'counting', digit: '5' }],
+    ['three', 5700, { open: ['safety'], phase: 'counting', digit: '3' }],
+    ['sending', 8400, { open: ['safety'], phase: 'sending' }],
+    ['sent', 10200, { open: ['safety'], phase: 'sent', read: false, banner: true }],
+    ['read', 11900, { open: ['safety'], phase: 'sent', read: true, banner: true }],
+    ['are you safe', 13700, { open: ['safety'], phase: 'sent', confirm: true }],
+    ['safe', 16000, { open: ['safety'], phase: 'idle', confirm: false, banner: false }],
   ],
   // The second app beat's row.
   crash: [
-    ['alert', 1500, { open: ['app-crash'], count: '3:59:59' }],
-    ['counting', 3500, { open: ['app-crash'], count: '3:59:57' }],
+    ['alert', 1800, { open: ['crash'], count: '3:59:59' }],
+    ['counting', 3800, { open: ['crash'], count: '3:59:57' }],
   ],
   energy: [
-    ['opened', 3200, { open: [], page: 1, month: true }],
-    ['a day', 4400, { open: [], page: 1, month: true, tip: true }],
+    ['energy', 2000, { open: [], tab: 'energy' }],
+    ['insights', 4000, { open: ['ins'], tab: 'energy' }],
+    ['last ride', 6500, { open: ['ins'], lastRide: true }],
+    ['home', 11000, { open: [], tab: 'home' }],
   ],
   insights: [
-    ['scrolled', 3600, { open: [], page: 1 }],
-    ['insights', 5200, { open: ['app-ins'] }],
-    ['last ride', 8300, { open: ['app-ins'], lastRide: true }],
+    ['insights', 3600, { open: ['ins'], tab: 'energy', day: false }],
+    ['thursday', 5600, { open: ['ins'], day: true }],
+    ['the week', 7600, { open: ['ins'], day: false }],
+    ['scrolled', 10300, { open: ['ins'], scrolled: true }],
+    ['home', 13300, { open: [], tab: 'home' }],
   ],
 };
 const SECOND_ROW = new Set(['crash', 'insights', 'energy']);
@@ -94,35 +102,47 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // What the page shows: the app's state, and whether anything reaches past the page's sides.
 const SNAPSHOT = () => {
-  const live = document.querySelector('.app__live');
-  const open = [...document.querySelectorAll('.app-layer.is-open')].map((l) => l.classList[1]);
-  const sos = document.querySelector('.app-sos');
-  const digits = [...document.querySelectorAll('.app-sos__count span')];
+  const LAYER = /^(share-sheet|ios-share|wa-send|safety|ins|crash)$/;
+  const open = [...document.querySelectorAll('.app-layer.is-open')].map((l) => [...l.classList].find((c) => LAYER.test(c)));
+  const safety = document.querySelector('.safety');
+  const digits = [...safety.querySelectorAll('.safety__face--count span')];
   const shown = digits.find((d) => parseFloat(getComputedStyle(d).opacity) > 0.5);
   const wide = document.documentElement.scrollWidth;
   const phone = document.querySelector('.phone').getBoundingClientRect();
+  const screen = document.querySelector('.phone__screen').getBoundingClientRect();
   return {
     phoneOff: phone.left < -2 || phone.right > innerWidth + 2,
-    row: live.dataset.state,
+    row: document.querySelector('.home__share').dataset.share,
     open,
-    phase: sos.dataset.phase,
+    phase: safety.dataset.phase,
+    read: safety.dataset.read === 'true',
+    confirm: safety.dataset.confirm === 'true',
     digit: shown ? shown.textContent : null,
-    busy: document.querySelector('.app-sheet').dataset.busy === 'true',
-    value: document.querySelector('[data-sheet="value"]').textContent,
+    busy: document.querySelector('.share-sheet').dataset.busy === 'true',
+    value: document.querySelector('[data-share-sheet="value"]').textContent,
+    tab: document.querySelector('.app').dataset.tab,
+    day: document.querySelector('[data-ins="week"]').dataset.day === 'true',
+    // Home's SOS banner, grown under the Safety sheet once the SOS is sent.
+    banner: document.querySelector('[data-sos="banner"]').getBoundingClientRect().height > 1,
     overflowX: wide > innerWidth + 1,
     pressed: [...document.querySelectorAll('.film__point')].filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.dataset.demo),
-    // The demos' own pieces only: the tour between the app beats has its hand and touch.
-    styled: [...document.querySelectorAll('.film__finger, .film__finger .film__hand, .film__touch:not(.film__touch--tour), .app-layer, .app__pager, .app__navhi, .app__lock, .app__nav > span, .app__slot--powerpod .tab, [data-own="detail"], [data-own="tip"]')].filter((el) => el.getAttribute('style')).length,
+    // The demos' own pieces only, everything their timelines move: the tour between the app
+    // beats has its own hand and touch.
+    styled: [...document.querySelectorAll([
+      '.film__finger', '.film__finger .film__hand', '.film__touch:not(.film__touch--tour)', '.app', '.app-layer',
+      '.share-sheet .gx-sheet', '.gx-scrim', '.ios-share__sheet', '.ios-share__dim', '.wa-send__sheet',
+      '.safety__sheet', '.safety__disc', '.safety__arc', '.safety__confirm', '.safety__confirm-scrim', '.safety__face--count span',
+      '[data-sos="banner"]', '[data-ins="scroll"]', '.ins__bar',
+      '.crash__eyebrow', '.crash__title', '.crash__hero', '.crash__words', '.crash__actions',
+    ].join(', '))].filter((el) => el.getAttribute('style')).map((el) => el.className.baseVal ?? el.className),
     demo: window.__phoneDemo.active,
     count: document.querySelector('[data-crash="count"]').textContent,
-    // Which page is under the middle of the screen: by the pager's offset.
-    page: Math.round(-new DOMMatrix(getComputedStyle(document.querySelector('.app__pager')).transform).m41 / 491.5),
-    month: document.querySelector('[data-own="detail"]').getBoundingClientRect().height > 0.9 * document.querySelector('.own__month-in').getBoundingClientRect().height,
-    tip: parseFloat(getComputedStyle(document.querySelector('[data-own="tip"]')).opacity) > 0.9,
+    // Riding insights scrolled down from its top.
+    scrolled: new DOMMatrix(getComputedStyle(document.querySelector('[data-ins="scroll"]')).transform).m42 < -100,
+    // The last ride's group whole on the screen.
     lastRide: (() => {
-      const view = document.querySelector('.ins__view').getBoundingClientRect();
       const last = document.querySelector('[data-ins="last"]').getBoundingClientRect();
-      return last.top >= view.top - 1 && last.top < view.bottom - 0.3 * view.height;
+      return last.top >= screen.top - 1 && last.bottom <= screen.bottom + 1;
     })(),
     // The finger's two poses: never both showing.
     hands: [...document.querySelectorAll('.film__finger .film__hand')].map((img) => parseFloat(getComputedStyle(img).opacity)),
@@ -236,9 +256,12 @@ try {
         if (want.busy !== undefined && got.busy !== want.busy) wrong.push(`busy ${got.busy}`);
         if (want.value && got.value !== want.value) wrong.push(`value ${got.value}`);
         if (want.count && got.count !== want.count) wrong.push(`count ${got.count}, wanted ${want.count}`);
-        if (want.page !== undefined && got.page !== want.page) wrong.push(`page ${got.page}, wanted ${want.page}`);
-        if (want.month !== undefined && got.month !== want.month) wrong.push(`month open ${got.month}`);
-        if (want.tip !== undefined && got.tip !== want.tip) wrong.push(`tooltip ${got.tip}`);
+        if (want.tab && got.tab !== want.tab) wrong.push(`tab ${got.tab}, wanted ${want.tab}`);
+        if (want.read !== undefined && got.read !== want.read) wrong.push(`read ${got.read}`);
+        if (want.confirm !== undefined && got.confirm !== want.confirm) wrong.push(`"Are you safe now?" ${got.confirm ? 'open' : 'not open'}`);
+        if (want.banner !== undefined && got.banner !== want.banner) wrong.push(`Home's SOS banner ${got.banner ? 'shown' : 'not shown'}`);
+        if (want.day !== undefined && got.day !== want.day) wrong.push(`Thursday picked ${got.day}`);
+        if (want.scrolled !== undefined && got.scrolled !== want.scrolled) wrong.push(`scrolled ${got.scrolled}`);
         if (want.lastRide !== undefined && got.lastRide !== want.lastRide) wrong.push('the last ride not in view');
         if (got.overflowX) wrong.push('the page scrolls sideways');
         if (got.phoneOff) wrong.push('the phone runs off the side of the screen');
@@ -276,7 +299,7 @@ try {
     await sleep(lengths.crash + 1200);
     {
       const r = await tab.evaluate(SNAPSHOT);
-      report(`${name}: Crash detection plays to its end and puts everything back`, !r.open.length && !r.demo && !r.pressed.length && !r.styled && r.count === '4:00:00',
+      report(`${name}: Crash detection plays to its end and puts everything back`, !r.open.length && !r.demo && !r.pressed.length && !r.styled.length && r.count === '4:00:00',
         JSON.stringify({ open: r.open, demo: r.demo, styled: r.styled, count: r.count }));
     }
 
@@ -285,7 +308,7 @@ try {
     await press(tab, '[data-demo="live"]');
     await sleep(lengths.live + 1200);
     let rest = await tab.evaluate(SNAPSHOT);
-    report(`${name}: Live location plays to its end and leaves the row live`, rest.row === 'live' && !rest.open.length && !rest.demo && !rest.pressed.length && !rest.styled,
+    report(`${name}: Live location plays to its end and leaves the row live`, rest.row === 'live' && !rest.open.length && !rest.demo && !rest.pressed.length && !rest.styled.length && rest.tab === 'home',
       JSON.stringify({ row: rest.row, open: rest.open, demo: rest.demo, pressed: rest.pressed, styled: rest.styled }));
 
     // Another point mid-demo takes the first one home and starts the second.
@@ -303,7 +326,7 @@ try {
     });
     await sleep(1500);
     rest = await tab.evaluate(SNAPSHOT);
-    report(`${name}: scrolling away ends a demo and puts everything back`, !rest.demo && !rest.open.length && !rest.pressed.length && !rest.styled, JSON.stringify({ demo: rest.demo, open: rest.open, styled: rest.styled }));
+    report(`${name}: scrolling away ends a demo and puts everything back`, !rest.demo && !rest.open.length && !rest.pressed.length && !rest.styled.length && rest.phase === 'idle' && !rest.banner, JSON.stringify({ demo: rest.demo, open: rest.open, styled: rest.styled, phase: rest.phase }));
 
     // Keyboard: Enter plays, Escape ends.
     await toBeat(tab);
@@ -327,7 +350,7 @@ try {
       const mid = await tab.evaluate(SNAPSHOT);
       await sleep(lengths.sos - 7500 + 1500);
       const end = await tab.evaluate(SNAPSHOT);
-      report(`${name}: reduced motion plays SOS through and ends at rest`, mid.open.includes('app-sos') && ['counting', 'sending', 'sent'].includes(mid.phase) && !end.demo && !end.open.length && !end.styled,
+      report(`${name}: reduced motion plays SOS through and ends at rest`, mid.open.includes('safety') && ['counting', 'sending', 'sent'].includes(mid.phase) && !end.demo && !end.open.length && !end.styled.length,
         JSON.stringify({ mid: [mid.open, mid.phase], end: [end.demo, end.open, end.styled] }));
       await tab.emulateMediaFeatures([]);
     }

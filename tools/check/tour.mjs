@@ -9,13 +9,13 @@
  *   --only=phone,desktop   --root=dist   narrow the run, or check the built site
  *
  * The film is scrolled to each point of the tour, forwards and then back, and at each it checks
- * what a visitor would see: the phone in the middle and larger, the pages either side of it,
- * which page is in the phone (by what is actually under the middle of its screen), the pill's
- * highlight and the lock, the hand on the pill while it presses, only ever one hand (its two
- * poses never showing together), and nothing pushing the page
- * sideways. Before and after the tour the phone must be exactly where it rests, with nothing of
- * the tour left on it. It also checks the 3D PowerPod has gone for good after the lift: its loop
- * asleep through the app beats, the warranty and the credits.
+ * what a visitor would see: the phone in the middle and larger, which tab's page is in the phone
+ * (by which page is actually showing, the app swapping them in place), the tab bar held open
+ * with its pill on that tab, the finger down on the tab it is pressing, only ever one hand (its
+ * two poses never showing together), and nothing pushing the page sideways. Before and after
+ * the tour the phone must be exactly where it rests, on Home, with nothing of the tour left on
+ * it. It also checks the 3D PowerPod has gone for good after the lift: its loop asleep through
+ * the app beats, the warranty and the credits.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -43,17 +43,19 @@ const VIEWPORTS = {
   desktop: { width: 1440, height: 900, deviceScaleFactor: 2 },
 };
 
-// The points, in the film's viewports, and what should be true there. `page` is the tab in the
-// phone (-1 Charging, 0 Home, 1 PowerPod); `press` that the finger is down on the pill.
+// The points, in the film's viewports, and what should be true there. `tab` is the tab open in
+// the phone; `press` the tab the finger is down on (index.html TOUR: each tap's finger is down
+// from 0.42 to 0.6 of its window, and its page swaps in as it lifts).
 const POINTS = [
-  { t: 10.25, label: 'before', touring: false },
-  { t: 11.3, label: 'grown', touring: true, page: 0 },
-  { t: 11.50, label: 'press', touring: true, page: 0, press: true },
-  { t: 11.77, label: 'powerpod', touring: true, page: 1 },
-  { t: 12.22, label: 'home', touring: true, page: 0 },
-  { t: 12.67, label: 'charging', touring: true, page: -1 },
-  { t: 13.12, label: 'home again', touring: true, page: 0 },
-  { t: 14.3, label: 'after', touring: false },
+  { t: 10.25, label: 'before', touring: false, tab: 'home' },
+  { t: 11.3, label: 'grown', touring: true, tab: 'home' },
+  { t: 11.60, label: 'pressing Energy', touring: true, tab: 'home', press: 'energy' },
+  { t: 11.85, label: 'energy', touring: true, tab: 'energy' },
+  { t: 12.16, label: 'pressing Owner', touring: true, tab: 'energy', press: 'owner' },
+  { t: 12.40, label: 'owner', touring: true, tab: 'owner' },
+  { t: 12.71, label: 'pressing Home', touring: true, tab: 'owner', press: 'home' },
+  { t: 13.0, label: 'home again', touring: true, tab: 'home' },
+  { t: 14.3, label: 'after', touring: false, tab: 'home' },
 ];
 
 let failed = 0;
@@ -80,32 +82,28 @@ const STATE = () => {
     const r = el.getBoundingClientRect();
     return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height, cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
   };
-  const screen = document.querySelector('.phone__screen');
-  const s = rect(screen);
-  // Which page is really under the middle of the phone's screen. (The film takes no pointer
-  // events, so this is by the pages' boxes, not a hit test.)
-  const pages = { charging: -1, home: 0, powerpod: 1 };
-  let page = null;
-  for (const [n, v] of Object.entries(pages)) {
-    const r = document.querySelector(`.app__slot--${n}`).getBoundingClientRect();
-    if (r.left <= s.cx && r.right >= s.cx && getComputedStyle(document.querySelector(`.app__slot--${n}`)).visibility !== 'hidden') page = v;
-  }
-  const icons = [...document.querySelectorAll('.app__nav > span')].map((i) => parseFloat(getComputedStyle(i).opacity));
-  const sides = [...document.querySelectorAll('.side__slot')].map((el) => ({ ...rect(el), vis: getComputedStyle(el).visibility }));
+  // The pages showing: the app swaps them in place, one at a time.
+  const shown = [...document.querySelectorAll('.app__page')].filter((el) => getComputedStyle(el).visibility !== 'hidden').map((el) => el.dataset.page);
+  const bar = document.querySelector('.gx-tabbar');
+  const items = Object.fromEntries([...bar.querySelectorAll('.gx-tabbar__item')].map((el) => [el.dataset.tab, rect(el)]));
+  const on = [...bar.querySelectorAll('.gx-tabbar__item.is-on')].map((el) => el.dataset.tab);
+  const pill = rect(bar.querySelector('.gx-tabbar__pill'));
+  // The tab the pill sits on, by its middle.
+  const pillOn = Object.entries(items).find(([, r]) => Math.abs(r.cx - pill.cx) < r.w / 4);
   const touch = rect(document.querySelector('.film__touch--tour'));
-  const pill = rect(document.querySelector('.app__nav'));
-  const tourStyled = [...document.querySelectorAll('.app__pager, .film__side, .app__navhi, .app__lock, .film__tourhand, .film__touch--tour, .app__nav > span')]
+  const touchOn = Object.entries(items).find(([, r]) => touch.cx > r.l && touch.cx < r.r && touch.cy > r.t && touch.cy < r.b);
+  const tourStyled = [...document.querySelectorAll('.film__tourhand, .film__tourhand .film__hand, .film__touch--tour')]
     .filter((el) => (el.style.transform || el.style.opacity || el.style.scale)).length;
   return {
     touring: device.classList.contains('is-touring'),
     device: rect(device),
-    page,
-    active: icons.indexOf(Math.max(...icons)) - 1,
-    lock: parseFloat(getComputedStyle(document.querySelector('.app__lock')).opacity),
-    sides,
+    tab: document.querySelector('.app').dataset.tab,
+    shown,
+    on,
+    pillOn: pillOn ? pillOn[0] : null,
+    compact: bar.dataset.compact === 'true',
     touchOpacity: parseFloat(getComputedStyle(document.querySelector('.film__touch--tour')).opacity),
-    touchOnPill: touch.cx > pill.l - 30 && touch.cx < pill.r + 30 && touch.cy > pill.t - 10 && touch.cy < pill.b + 10,
-    sideVisible: getComputedStyle(document.querySelector('.film__side')).visibility,
+    touchOn: touchOn ? touchOn[0] : null,
     tourStyled,
     overflowX: document.documentElement.scrollWidth > innerWidth + 1,
     // The tour hand's two poses: never both showing.
@@ -140,7 +138,6 @@ try {
     await tab.evaluateOnNewDocument(COUNT_POD);
     await tab.goto('http://localhost:8143/index.html?check', { waitUntil: 'load' });
     await sleep(1500);
-    const wide = viewport.width >= 860;
 
     let rest = null;
     const stills = [];
@@ -151,27 +148,24 @@ try {
         const wrong = [];
         if (st.touring !== pt.touring) wrong.push(`touring ${st.touring}`);
         if (st.overflowX) wrong.push('the page scrolls sideways');
+        // The open tab: its page the only one showing, the tab bar's highlight and pill on it.
+        if (st.tab !== pt.tab) wrong.push(`tab ${st.tab}, wanted ${pt.tab}`);
+        if (st.shown.join() !== pt.tab) wrong.push(`pages showing [${st.shown}]`);
+        if (st.on.join() !== pt.tab) wrong.push(`tab bar highlights [${st.on}]`);
+        if (st.pillOn !== pt.tab) wrong.push(`pill on ${st.pillOn}`);
         if (!pt.touring) {
           if (!rest) rest = st.device;
           else if (Math.abs(st.device.cx - rest.cx) > 1 || Math.abs(st.device.cy - rest.cy) > 1 || Math.abs(st.device.h - rest.h) > 1) wrong.push(`phone not back at rest (${st.device.cx.toFixed(1)},${st.device.cy.toFixed(1)} h${st.device.h.toFixed(1)} vs ${rest.cx.toFixed(1)},${rest.cy.toFixed(1)} h${rest.h.toFixed(1)})`);
-          if (st.sideVisible !== 'hidden') wrong.push('side screens visible');
           if (st.tourStyled) wrong.push(`${st.tourStyled} tour styles left on`);
+          if (st.touchOpacity > 0.01) wrong.push('the tour\'s touch left showing');
         } else {
           if (Math.abs(st.device.cx - st.vw / 2) > 2) wrong.push(`phone off centre by ${(st.device.cx - st.vw / 2).toFixed(1)}px`);
           if (rest && st.device.h <= rest.h + 1) wrong.push('phone not larger');
           if (st.device.t < 0 || st.device.b > st.vh) wrong.push('phone runs off screen');
-          if (pt.page !== undefined && st.page !== pt.page) wrong.push(`page ${st.page}, wanted ${pt.page}`);
-          if (pt.page !== undefined && st.active !== pt.page) wrong.push(`pill on ${st.active}`);
-          if (pt.page === 0 && st.lock < 0.99) wrong.push('lock hidden on Home');
-          if (pt.page !== undefined && pt.page !== 0 && st.lock > 0.01) wrong.push('lock showing off Home');
-          if (pt.press && !(st.touchOpacity > 0.3 && st.touchOnPill)) wrong.push(`finger not down on the pill (shade ${st.touchOpacity})`);
-          // The pages next to the phone: on a desktop, wholly on screen; on a phone, peeking in.
-          // (The far page, two along, is meant to be off the side.)
-          const shown = st.sides.filter((s) => s.vis !== 'hidden' && Math.abs(s.cx - st.device.cx) < 1.5 * s.w);
-          for (const s of shown) {
-            if (wide && (s.l < -1 || s.r > st.vw + 1)) wrong.push('a side screen runs off screen');
-            if (!wide && s.r < 0 && s.l > st.vw) wrong.push('a side screen out of sight');
-          }
+          // Held open while the hand is on it.
+          if (st.compact) wrong.push('the tab bar folded');
+          if (pt.press && !(st.touchOpacity > 0.3 && st.touchOn === pt.press)) wrong.push(`finger not down on ${pt.press} (on ${st.touchOn}, shade ${st.touchOpacity})`);
+          if (!pt.press && st.touchOpacity > 0.01) wrong.push('a touch showing with no finger down');
         }
         report(`${name}: ${dir} ${pt.label} (t ${pt.t})`, !wrong.length, wrong.join('; '));
         if (REEL && dir === 'forwards') stills.push({ label: pt.label, png: await tab.screenshot({ type: 'png' }) });
@@ -183,7 +177,7 @@ try {
     // One hand, never two: through each part of a press and flick on the pill.
     {
       const doubled = [];
-      for (const t of [11.42, 11.45, 11.48, 11.52, 11.56, 11.58, 11.60, 11.90, 12.00, 12.05, 12.35, 12.45, 12.80, 12.92]) {
+      for (const t of [11.50, 11.56, 11.57, 11.60, 11.64, 11.65, 11.70, 12.10, 12.12, 12.19, 12.20, 12.66, 12.67, 12.74, 12.75, 12.92]) {
         await scrollTo(tab, t);
         const st = await tab.evaluate(STATE);
         if (st.hands.filter((o) => o > 0.01).length > 1) doubled.push(t);
@@ -245,9 +239,9 @@ try {
       await tab.goto('http://localhost:8143/index.html?check', { waitUntil: 'load' });
       await sleep(1500);
       await scrollTo(tab, 10.25);
-      const text = await tab.evaluate(() => [...document.querySelectorAll('.app__slot')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()));
+      const text = await tab.evaluate(() => [...document.querySelectorAll('.app__page')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()));
       await sleep(3500);
-      const later = await tab.evaluate(() => [...document.querySelectorAll('.app__slot')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()));
+      const later = await tab.evaluate(() => [...document.querySelectorAll('.app__page')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()));
       await tab.close();
       return { text, later };
     };
